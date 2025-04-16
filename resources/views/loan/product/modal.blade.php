@@ -25,7 +25,7 @@
                         <select class="form-select form-select-sm" name="loan_type_id">
                             <option value="" disabled>-- Select --</option>
                             @foreach($loan_types as $loan_type)
-                                <option value="{{$loan_type->id}}">{{$loan_type->name}}</option>
+                                <option value="{{$loan_type->id}}" {{ !$loan_type->status ? 'disabled' : '' }}>{{$loan_type->name}}</option>
                             @endforeach
                         </select>
                     </div>
