@@ -51,6 +51,7 @@
                     <thead class = "bg-default">
                         <tr>
                             <th class = "text-center" width = "120">No.</th>
+                            <th class = "text-leftr" width = "150">Loan Type</th>
                             <th class = "text-leftr" width = "150">Loan Product</th>
                             <th>Description</th>
                             {{-- <th class = "text-center" width = "180">Amount</th> --}}
@@ -81,6 +82,7 @@
             },
             columns: [
                 { data: 'id', name: 'id' },
+                { data: 'loan_type.name', name: 'loan_type' },
                 { data: 'name', name: 'name' },
                 { data: 'description', name: 'description' },
                 { data: 'status', name: 'status', render: function(data, type, row) {

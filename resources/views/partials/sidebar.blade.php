@@ -27,7 +27,7 @@
         <svg class="fill-icon">
             <use href="../assets/svg/icon-sprite.svg#fill-project"></use>
         </svg>
-        <span>Client</span>
+        <span>Clients</span>
         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
     </a>
     <ul class="sidebar-submenu" style="display: none;">
@@ -42,10 +42,20 @@
     <svg class="fill-icon">
         <use href="../assets/svg/icon-sprite.svg#fill-user"></use>
     </svg>
-    <span>Employee</span><div class="according-menu"><i class="fa fa-angle-right"></i></div></a>
+    <span>Employees</span><div class="according-menu"><i class="fa fa-angle-right"></i></div></a>
     <ul class="sidebar-submenu" style="display: none;">
         <li><a href="/employee-list">Employee List</a></li>
         <li><a href="/employee-registration">Register</a></li>
+    </ul>
+    <span>Loans</span><div class="according-menu"><i class="fa fa-angle-right"></i></div></a>
+    <ul class="sidebar-submenu" style="display: none;">
+        <li><a href="#">View All Loans</a></li>
+        <li><a href="#">Pending Approval</a></li>
+        <li><a href="#">Awaiting Disbursement</a></li>
+        <li><a href="#">Loans Declined</a></li>
+        <li><a href="#">Loans Withdrawn</a></li>
+        <li><a href="#">Loans Closed</a></li>
+        <li><a href="#">Add Loan</a></li>
     </ul>
 </li>
 
@@ -62,10 +72,10 @@
         <li><a href="/departments">Department</a></li>
         <li><a href="/job-titles">Job Title</a></li>
         <li><a href="/insurance-fee">Insurance Fee</a></li>
-        <li><a href="/notary-fee">Notary Fee</a></li>
-        <li><a href="/loan-type">Loan Types</a></li>
-        <li><a href="/loan-product">Loan Products</a></li>
-        <li><a href="/charge">Charges</a></li>
-        <li><a href="#">Repayment Methods</a></li>
+        <li><a href="{{route('notary-fee-schedule.index')}}">Notary Fee</a></li>
+        <li><a href="{{route('loan-type.index')}}">Loan Types</a></li>
+        <li><a href="{{route('loan-product.index')}}">Loan Products</a></li>
+        {{-- <li><a href="/charge">Charges</a></li> --}}
+        {{-- <li><a href="#">Repayment Methods</a></li> --}}
     </ul>
 </li>

@@ -12,7 +12,7 @@ use App\Http\Controllers\InsuranceFeeController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\LoanProductController;
 use App\Http\Controllers\LoanTypeController;
-use App\Http\Controllers\NotaryFeeController;
+use App\Http\Controllers\NotaryFeeScheduleController;
 use App\Http\Controllers\NotificationsController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -69,13 +69,14 @@ Route::middleware('auth')->group(function(){
     Route::post('insurance-fee/submit-form', [InsuranceFeeController::class, 'submitInsFeeSched']);
 
     //-----Notary Fee Schedule
-    Route::get('notary-fee', [NotaryFeeController::class, 'index'])->name('notary.index');
-    Route::post('notary-fee/get-notary-fee-schedule', [NotaryFeeController::class, 'getNotaryFeeInfo']);
-    Route::post('notary-fee/submit-form', [NotaryFeeController::class, 'submitNotarySched']);
+    // Route::get('notary-fee', [NotaryFeeController::class, 'index'])->name('notary.index');
+    // Route::post('notary-fee/get-notary-fee-schedule', [NotaryFeeController::class, 'getNotaryFeeInfo']);
+    // Route::post('notary-fee/submit-form', [NotaryFeeController::class, 'submitNotarySched']);
 
     Route::get('/notifications', [NotificationsController::class, 'showNotifications'])->name('notifications.index');
     Route::post('/mark-notifications-read', [NotificationsController::class, 'markNotificationsAsRead'])->name('notifications.markAsRead');
 
+    Route::resource('notary-fee-schedule', NotaryFeeScheduleController::class);
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);

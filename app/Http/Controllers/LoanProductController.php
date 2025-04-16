@@ -17,7 +17,7 @@ class LoanProductController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loanProducts = LoanProduct::filter($search)->get();
+            $loanProducts = LoanProduct::with('loanType')->filter($search)->get();
             $totalRecords = $loanProducts->count();
 
             return response()->json([
@@ -113,7 +113,7 @@ class LoanProductController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Loan Type updated successfully',
+            'message' => 'Loan Product updated successfully',
         ]);
 
     }
