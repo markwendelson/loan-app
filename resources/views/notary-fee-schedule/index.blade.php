@@ -168,10 +168,10 @@
 
         $("#tblNotaryFeeSchedule").on("click", ".btnEdit", function(){
             let id = $(this).attr("data-id");
-            getLoanType(id)
+            getNotaryFeeSchedule(id)
         })
 
-        async function getLoanType(id) {
+        async function getNotaryFeeSchedule(id) {
             try {
                 let response = await fetch(`/notary-fee-schedule/${id}`, {
                     method: "GET",
@@ -182,8 +182,10 @@
                 let data = await response.json();
 
                 $("#modalNotaryFeeSchedule [name='id']").val(data.id);
-                $("#modalNotaryFeeSchedule [name='name']").val(data.name);
-                $("#modalNotaryFeeSchedule [name='description']").val(data.description);
+                $("#modalNotaryFeeSchedule [name='min_amount']").val(data.min_amount);
+                $("#modalNotaryFeeSchedule [name='max_amount']").val(data.max_amount);
+                $("#modalNotaryFeeSchedule [name='type']").val(data.type);
+                $("#modalNotaryFeeSchedule [name='fee']").val(data.fee);
                 $("#modalNotaryFeeSchedule [name='status']").val(data.status);
                 showModal('modalNotaryFeeSchedule')
 

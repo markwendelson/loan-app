@@ -11,7 +11,7 @@ class LoanType extends Model implements Auditable
     use SoftDeletes;
     use \OwenIt\Auditing\Auditable;
 
-    protected $fillable = ['name','description'];
+    protected $fillable = ['name','description','status'];
 
     public function scopeActive($query)
     {

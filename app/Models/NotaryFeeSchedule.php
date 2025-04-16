@@ -11,7 +11,7 @@ class NotaryFeeSchedule extends Model implements Auditable
     use SoftDeletes;
     use \OwenIt\Auditing\Auditable;
 
-    protected $fillable = ['min_amount','max_amount','fee','type'];
+    protected $fillable = ['min_amount','max_amount','fee','type','status'];
 
     public function scopeActive($query)
     {

@@ -16,17 +16,17 @@ class NotaryFeeScheduleController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $notaryFees = NotaryFeeSchedule::filter($search)->get();
-            $totalRecords = $notaryFees->count();
+            $notary_fee_schedules = NotaryFeeSchedule::filter($search)->get();
+            $totalRecords = $notary_fee_schedules->count();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
                 'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
                 'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
-                'data' => $notaryFees  // The paginated and formatted data
+                'data' => $notary_fee_schedules  // The paginated and formatted data
             ]);
 
-            return response()->json($notaryFees);
+            return response()->json($notary_fee_schedules);
         }
 
 
@@ -73,10 +73,10 @@ class NotaryFeeScheduleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(NotaryFeeSchedule $notaryFee)
+    public function show(NotaryFeeSchedule $notary_fee_schedule)
     {
-        if($notaryFee) {
-            return response()->json($notaryFee);
+        if($notary_fee_schedule) {
+            return response()->json($notary_fee_schedule);
         }
         return response()->json([
             'status' => 'error',
@@ -87,7 +87,7 @@ class NotaryFeeScheduleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(NotaryFeeSchedule $notaryFee)
+    public function edit(NotaryFeeSchedule $notary_fee_schedule)
     {
         //
     }
@@ -95,19 +95,22 @@ class NotaryFeeScheduleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, NotaryFeeSchedule $notaryFee)
+    public function update(Request $request, NotaryFeeSchedule $notary_fee_schedule)
     {
         $request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
+            'min_amount' => 'required',
+            'max_amount' => 'required',
+            'type' => 'required',
+            'fee' => 'required',
             'status' => 'required',
         ]);
 
-        $notaryFee->name = $request->name;
-        $notaryFee->description = $request->description;
-        $notaryFee->loan_type_id = $request->loan_type_id;
-        $notaryFee->status = $request->status;
-        $notaryFee->save();
+        $notary_fee_schedule->min_amount = $request->min_amount;
+        $notary_fee_schedule->max_amount = $request->max_amount;
+        $notary_fee_schedule->type = $request->type;
+        $notary_fee_schedule->fee = $request->fee;
+        $notary_fee_schedule->status = $request->status;
+        $notary_fee_schedule->save();
 
         return response()->json([
             'status' => 'success',
@@ -119,9 +122,9 @@ class NotaryFeeScheduleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(NotaryFeeSchedule $notaryFee)
+    public function destroy(NotaryFeeSchedule $notary_fee_schedule)
     {
-        $notaryFee->delete();
+        $notary_fee_schedule->delete();
 
         return response()->json([
             'status' => 'success',

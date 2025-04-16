@@ -196,7 +196,6 @@
             }
 
             function showModal(modalName){
-                console.log(modalName)
                 $("#"+modalName).modal("show");
             }
 
@@ -206,10 +205,8 @@
             }
 
             function clearFormInputs(modalName) {
-                $("#"+modalName+" [name='id']").val("");
-                $("#"+modalName+" [name='name']").val("");
-                $("#"+modalName+" [name='description']").val("");
-                $("#"+modalName+" [name='status']").val("");
+                document.querySelector("#"+modalName+" form").reset();
+                $("#modalLoanProduct [name='id']").val("");
             }
         </script>
     </body>
