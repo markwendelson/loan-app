@@ -37,9 +37,9 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal()"><i class = "fa fa-plus"></i> New Charge</button>
-    </div>
+        <div class="card-body">
+            <button class="btn btn-primary float-end" onclick="showModal()"><i class = "fa fa-plus"></i> New Charge</button>
+        </div>
     </div>
 
 

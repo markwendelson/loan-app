@@ -55,7 +55,7 @@
             9 => 'SPA (Special Power of Attorney)'
         ],
         'client_relation' => [
-            1 => 'Collegues',
+            1 => 'Colleagues',
             2 => 'Friend',
             3 => 'Sibling',
             4 => 'Spouse/Husband'

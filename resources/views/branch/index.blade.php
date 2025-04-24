@@ -48,50 +48,79 @@
     </div>
 @endif
 
-<h1 class="mb-4">Branches</h1>
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>Branch | Manage Branch</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"> <a href="{{url('')}}">
+                        <svg class="stroke-icon">
+                            <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
+                        </svg></a>
+                    </li>
+                    <li class="breadcrumb-item">Branch</li>
+                    <li class="breadcrumb-item active">Manage Branch</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="table-responsive">
-<button class="btn btn-success mb-3" onclick="openAddModal()">Add New Branch</button>
-    <table class="table table-striped table-hover table-bordered">
-        <thead class="custom-header">
-            <tr>
-                <th>#</th>
-                <th>Code</th>
-                <th style="width: 400px;">Branch Name</th>
-                <th style="width: 200px;">Contact Information</th>
-                <th>Address</th>
-                <th>Status</th>
-                <th style="width: 210px;">Actions</th> <!-- New column for Edit/Delete buttons -->
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($branches as $index => $branch)
-                <tr class="table-row-pointer">
-                    <td>{{ $index + 1 }}</td> <!-- Displaying row counter -->
-                    <td>{{ $branch->code }}</td>
-                    <td>{{ $branch->name }}</td>
-                    <td>{{ $branch->contact_info }}</td>
-                    <td>{{ $branch->address }}</td>
-                    <td>{{ $branch->status == 1 ? 'Active' : 'Inactive' }}</td>
-                    <td>
-                        <!-- Edit Button -->
-                         <!-- Edit Button to trigger modal -->
-                         <button class="btn btn-primary btn-sm" onclick="openEditModal({{ $branch }})">Edit</button>
+    <!-- button container -->
+    <div class="card">
+        <div class="card-body">
+        <button class="btn btn-primary float-end" onclick="openAddModal()"><i class = "fa fa-plus"></i> New Branch</button>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="custom-header">
+                    <tr>
+                        <th>#</th>
+                        <th>Code</th>
+                        <th style="width: 400px;">Branch Name</th>
+                        <th style="width: 200px;">Contact Information</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                        <th style="width: 210px;">Actions</th> <!-- New column for Edit/Delete buttons -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($branches as $index => $branch)
+                        <tr class="table-row-pointer">
+                            <td>{{ $index + 1 }}</td> <!-- Displaying row counter -->
+                            <td>{{ $branch->code }}</td>
+                            <td>{{ $branch->name }}</td>
+                            <td>{{ $branch->contact_info }}</td>
+                            <td>{{ $branch->address }}</td>
+                            <td>{{ $branch->status == 1 ? 'Active' : 'Inactive' }}</td>
+                            <td>
+                                <!-- Edit Button -->
+                                 <!-- Edit Button to trigger modal -->
+                                 <button class="btn btn-primary btn-sm" onclick="openEditModal({{ $branch }})">Edit</button>
 
 
-                        <!-- Delete Button with confirmation dialog -->
-                        <form action="{{ route('branch.destroy', $branch->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this branch?')">Delete</button>
-                        </form>
-                    </td>
+                                <!-- Delete Button with confirmation dialog -->
+                                <form action="{{ route('branch.destroy', $branch->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this branch?')">Delete</button>
+                                </form>
+                            </td>
 
-                    <input type="hidden" value="{{ $branch->id }}"> <!-- Hidden ID -->
+                            <input type="hidden" value="{{ $branch->id }}"> <!-- Hidden ID -->
 
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 

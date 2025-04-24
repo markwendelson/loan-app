@@ -87,7 +87,7 @@
                 { data: 'min_amount', name: 'min_amount' },
                 { data: 'max_amount', name: 'max_amount' },
                 { data: 'type', name: 'type' },
-                { data: 'fee', name: 'annual_fee' },
+                { data: 'fee', name: 'fee' },
                 { data: 'status', name: 'status', render: function(data, type, row) {
                     if (data == 1) {
                         return '<span class="badge badge-success">Active</span>';

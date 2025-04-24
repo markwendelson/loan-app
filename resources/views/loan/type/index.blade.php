@@ -189,23 +189,6 @@
         }
     });
 
-
-    // function showModal(){
-    //     $("#modalLoanType").modal("show");
-    // }
-
-    // function hideModal(){
-    //     clearFormInputs();
-    //     $("#modalLoanType").modal("hide");
-    // }
-
-    // function clearFormInputs() {
-    //     $("#modalLoanType [name='id']").val("");
-    //     $("#modalLoanType [name='name']").val("");
-    //     $("#modalLoanType [name='description']").val("");
-    //     $("#modalLoanType [name='status']").val("");
-    // }
-
     function deleteData(id) {
         swal({
             title: 'Are you sure?',

@@ -9,14 +9,11 @@
                 </a>
             </div>
 
-            @php
-                $notification = session('login_notification');
-            @endphp
 
-            @if(isset($notification) && $notification)
-            <div class = "alert {{$notification['type']}}">
-                <p><strong>{{$notification['title']}}</strong> {{$notification['message']}}</p>
-            </div>
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    {{ $errors->first() }}
+                </div>
             @endif
 
             <div class="login-main">
@@ -27,7 +24,7 @@
 
                     <div class="form-group">
                         <label class="col-form-label" for="email">Email Address</label>
-                        <input class="form-control" id="email" name="email" type="email" required placeholder="Test@gmail.com" value="" />
+                        <input class="form-control" id="email" name="email" type="email" required placeholder="Test@gmail.com" value="{{old('email')}}" />
                     </div>
                     <div class="form-group">
                         <label class="col-form-label" for="password">Password </label>

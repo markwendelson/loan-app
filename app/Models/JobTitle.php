@@ -47,17 +47,17 @@ class JobTitle extends Model {
             }else{
                 $query->where('title', '=', $params['title']);
             } }
-    
+
 
         //order
         if(isset($params['order']) && $params['order']){
             $query->orderBy($params['order']['field'], $params['order']['direction']);
         }
 
-        return $query; 
+        return $query;
     }
 
-    public static function getJobTitles($params = []) {
+    public static function _getJobTitles($params = []) {
         $data = [];
 
         //default fields
@@ -81,6 +81,11 @@ class JobTitle extends Model {
         //return single row
         $data = $query->first();
         return $data ? $data->toArray() : [];
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 
 }

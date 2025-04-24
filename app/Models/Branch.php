@@ -26,11 +26,11 @@ class Branch extends Model {
         if(isset($params['status']) && $params['status']){
             $query->where('status', '=', $params['status']);
         }
-        
-        return $query; 
+
+        return $query;
     }
 
-    public static function getBranch($params = []) {
+    public static function _getBranch($params = []) {
         $data = [];
 
         //default fields
@@ -56,6 +56,11 @@ class Branch extends Model {
         $data = $query->first();
         return $data ? $data->toArray() : [];
 
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 
 }

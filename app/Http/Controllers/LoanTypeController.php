@@ -25,8 +25,6 @@ class LoanTypeController extends Controller
                 'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
                 'data' => $loanTypes  // The paginated and formatted data
             ]);
-
-            return response()->json($loanTypes);
         }
 
         return view('loan.type.index');

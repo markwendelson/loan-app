@@ -28,10 +28,10 @@ class Province extends Model {
             $query->where('status', '=', $params['status']);
         }
 
-        return $query; 
+        return $query;
     }
 
-    public static function getProvinces($params = []) {
+    public static function _getProvinces($params = []) {
         $data = [];
 
         //default fields
@@ -56,6 +56,11 @@ class Province extends Model {
         //return single row
         $data = $query->first();
         return $data ? $data->toArray() : [];
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 
 }

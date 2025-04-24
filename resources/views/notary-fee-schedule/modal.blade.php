@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addModalLabel">Notar Fee Schedule Information</h5>
+                <h5 class="modal-title" id="addModalLabel">Notary Fee Schedule Information</h5>
             </div>
 
             <div class="modal-body">

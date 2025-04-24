@@ -196,16 +196,16 @@
             }
 
             function showModal(modalName){
-                $("#"+modalName).modal("show");
+                $(`#${modalName}`).modal("show");
             }
 
             function hideModal(modalName){
                 clearFormInputs(modalName);
-                $("#"+modalName).modal("hide");
+                $(`#${modalName}`).modal("hide");
             }
 
             function clearFormInputs(modalName) {
-                document.querySelector("#"+modalName+" form").reset();
+                document.querySelector(`#${modalName} form`).reset();
                 $("#modalLoanProduct [name='id']").val("");
             }
         </script>

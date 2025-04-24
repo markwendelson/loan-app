@@ -17,7 +17,7 @@ class CountryCode extends Model {
             $query->whereIn('id', $params['id']);
         }
 
-        //order 
+        //order
         if(isset($params['order']) && $params['order']){
             $query->orderBy($params['order']['field'], $params['order']['direction']);
         }
@@ -53,6 +53,11 @@ class CountryCode extends Model {
         return $data ? $data->toArray() : [];
 
 
-    } 
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
 
 }

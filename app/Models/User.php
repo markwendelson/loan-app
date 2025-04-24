@@ -24,6 +24,7 @@ class User extends Authenticatable implements Auditable
         'name',
         'email',
         'password',
+        'last_login_at'
     ];
 
     /**
@@ -48,4 +49,19 @@ class User extends Authenticatable implements Auditable
             'password' => 'hashed',
         ];
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
+    public function scopeFilter($query, $search)
+    {
+        if (!empty($search)) {
+            $query->where('id', 'LIKE', '%'.$search.'%')
+                ->orWhere('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('email', 'LIKE', '%'.$search.'%');
+        }
+    }
+    
 }

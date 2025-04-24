@@ -25,8 +25,6 @@ class NotaryFeeScheduleController extends Controller
                 'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
                 'data' => $notary_fee_schedules  // The paginated and formatted data
             ]);
-
-            return response()->json($notary_fee_schedules);
         }
 
 

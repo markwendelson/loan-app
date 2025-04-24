@@ -8,12 +8,15 @@ use App\Http\Controllers\ClientIDsController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\InsuranceFeeController;
+use App\Http\Controllers\InsuranceFeeScheduleController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LoanProductController;
 use App\Http\Controllers\LoanTypeController;
 use App\Http\Controllers\NotaryFeeScheduleController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -36,9 +39,9 @@ Route::middleware('auth')->group(function(){
 
     Route::post('cities/get-cities', [CityController::class, 'getCitiesHtmlOptions']);
 
-    Route::any('client-registration', [ClientController::class, 'index']);
-    Route::get('client-list', [ClientController::class, 'clientList']);
-    Route::any('client-edit/{id}', [ClientController::class, 'clientEdit']);
+    // Route::any('client-registration', [ClientController::class, 'index']);
+    // Route::get('client-list', [ClientController::class, 'clientList']);
+    // Route::any('client-edit/{id}', [ClientController::class, 'clientEdit']);
 
     Route::post('upload-valid-id', [ClientIDsController::class, 'uploadValidID'])->name('uploadValidID');
 
@@ -64,9 +67,9 @@ Route::middleware('auth')->group(function(){
     Route::post('job-titles/submit-form', [JobController::class, 'submitJob']);
 
     //-----Insurance Fee Schedule
-    Route::get('insurance-fee', [InsuranceFeeController::class, 'index'])->name('insurance_fee.index');
-    Route::post('insurance-fee/get-insurance-fee-schedule', [InsuranceFeeController::class, 'getInsuranceFeeInfo']);
-    Route::post('insurance-fee/submit-form', [InsuranceFeeController::class, 'submitInsFeeSched']);
+    // Route::get('insurance-fee', [InsuranceFeeController::class, 'index'])->name('insurance_fee.index');
+    // Route::post('insurance-fee/get-insurance-fee-schedule', [InsuranceFeeController::class, 'getInsuranceFeeInfo']);
+    // Route::post('insurance-fee/submit-form', [InsuranceFeeController::class, 'submitInsFeeSched']);
 
     //-----Notary Fee Schedule
     // Route::get('notary-fee', [NotaryFeeController::class, 'index'])->name('notary.index');
@@ -76,7 +79,19 @@ Route::middleware('auth')->group(function(){
     Route::get('/notifications', [NotificationsController::class, 'showNotifications'])->name('notifications.index');
     Route::post('/mark-notifications-read', [NotificationsController::class, 'markNotificationsAsRead'])->name('notifications.markAsRead');
 
+    Route::resource('user', UserController::class);
+    Route::resource('role', RoleController::class);
+    Route::resource('client', ClientController::class);
+    Route::resource('insurance-fee-schedule', InsuranceFeeScheduleController::class);
     Route::resource('notary-fee-schedule', NotaryFeeScheduleController::class);
+    Route::prefix('loan')->group(function() {
+        Route::get('pending', [LoanController::class, 'pending'])->name('loan.pending');
+        Route::get('awaiting-disbursement', [LoanController::class, 'awaitingDisbursement'])->name('loan.awaiting-disbursement');
+        Route::get('declined', [LoanController::class, 'declined'])->name('loan.declined');
+        Route::get('withdrawn', [LoanController::class, 'withdrawn'])->name('loan.withdrawn');
+        Route::get('closed', [LoanController::class, 'closed'])->name('loan.closed');
+    });
+    Route::resource('loan', LoanController::class);
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);

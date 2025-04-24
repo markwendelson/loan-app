@@ -26,8 +26,6 @@ class LoanProductController extends Controller
                 'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
                 'data' => $loanProducts  // The paginated and formatted data
             ]);
-
-            return response()->json($loanProducts);
         }
 
         $loan_types = LoanType::all();
