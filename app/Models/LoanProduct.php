@@ -18,6 +18,11 @@ class LoanProduct extends Model implements Auditable
         return $query->where('status', 1);
     }
 
+    public function scopePopular($query)
+    {
+        return $query->take(4);
+    }
+
     public function scopeFilter($query, $search)
     {
         if (!empty($search)) {

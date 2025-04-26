@@ -22,9 +22,6 @@
     </div>
 </div>
 
-<!-- comaker modal -->
-@include('client.modal.co-maker_modal')
-
 @push('js')
 <script>
     $("#modalCoMaker .btn-add-co-maker").click(function(){

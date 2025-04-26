@@ -33,7 +33,7 @@
     <!-- Container-fluid starts-->
     <div class="container-fluid">
         <div class="row size-column">
-        <div class="col-xl-8 col-md-12 box-col-12">
+        <div class="col-xl-12 col-md-12 box-col-12">
             <div class="card">
             <div class="card-header sales-chart card-no-border">
                 <h4>Revenue Growth  </h4>
@@ -88,250 +88,39 @@
             </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 box-col-none">
-            <div class="row">
-            <div class="col-md-12 col-sm-6">
-                <div class="card boost-up-card overflow-hidden">
-                <div class="p-4">
-                    <div class="boostup-name row">
-                    <h6 class="text-white f-28 f-w-700 mb-2 z-1 ">Boost up your sale</h6>
-                    <p class="text-white f-14 f-w-500 col-9 line-clamp">
-                        by upgrading your account you can increase your sale by 30% more.</p>
-                    </div>
-                    <div class="img-boostup"><img class="img-boostup-img-1" src="../assets/images/dashboard-3/boostup1.png" alt="boostup"><img class="img-boostup-img-2" src="../assets/images/dashboard-3/boostup2.png" alt="boostup"></div>
-                    <div class="btn-showcase text-start"> <a href="pricing.html">
-                        <button class="btn btn-pill btn-outline-light-2x b-r-8" type="button">Upgrade Now</button></a></div>
-                </div>
-                </div>
-            </div>
-            <div class="col-md-12 col-sm-6">
-                <div class="card">
-                <div class="card-header card-no-border total-revenue pb-0">
-                    <h4>Deliveries</h4>
-                    <div class="icon-menu-header">
-                    <svg>
-                        <use href="../assets/svg/icon-sprite.svg#more-horizontal"></use>
-                    </svg>
-                    </div>
-                </div>
-                <div class="card-body pt-0">
-                    <div class="table-responsive custom-scrollbar deliveries-percentage">
-                    <table class="percentage-data w-100">
-                        <thead>
-                        <tr>
-                            <th class="f-light f-12 f-w-500" scope="col">Particular</th>
-                            <th class="f-light f-12 f-w-500" scope="col">Percentage</th>
-                            <th class="f-light f-12 f-w-500 text-end" scope="col">Total Amount</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="f-w-400 f-10"> <a class="line-clamp" href="cart.html">On Time Delivery</a></td>
-                            <td>
-                            <div class="progress-value d-flex gap-2 align-items-center">
-                                <div class="progress">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 75%  " aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div><span>80%</span>
-                            </div>
-                            </td>
-                            <td class="f-w-500 f-10 text-end">$45,452.23</td>
-                        </tr>
-                        <tr>
-                            <td class="f-w-400 f-10"> <a class="line-clamp" href="cart.html">Delayed Delivery</a></td>
-                            <td>
-                            <div class="progress-value d-flex gap-2 align-items-center">
-                                <div class="progress">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div><span>15% </span>
-                            </div>
-                            </td>
-                            <td class="f-w-500 f-10 text-end">$15,256.23</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        <div class="col-xxl-4 col-md-6 box-col-6">
+        <div class="col-xxl-6 col-md-6 box-col-6">
             <div class="card height-equal">
             <div class="card-header card-no-border total-revenue">
-                <h4>Top Product </h4><a href="product.html">View All  </a>
+                <h4>Top Product </h4><a href="{{route('loan-product.index')}}">View All  </a>
             </div>
             <div class="card-body pt-0">
                 <div class="top-product-card">
                 <ul>
+                    @foreach ($top_products as $top_product)
                     <li class="d-flex top-product gap-2">
                     <div><img class="img-fluid product-img" src="../assets/images/dashboard-3/product/1.png" alt="product"/></div>
                     <div class="w-100 d-flex justify-content-between align-items-center">
                         <div class="product-details">
-                        <div><span class="badge rounded-pill badge-light text-dark">SKU90400</span></div><a class="f-10 f-w-500  line-clamp" href="product.html">Huawai Smart Watch</a><span class="f-10 f-w-500 txt-primary">$39.02</span>
+                        <div><span class="badge rounded-pill badge-light text-dark">{{$top_product->loanType->name}}</span></div><a class="f-10 f-w-500  line-clamp" href="{{route('loan-product.show',$top_product->id)}}">{{$top_product->name}}</a><span class="f-10 f-w-500 txt-primary"></span>
                         </div>
                         <div class="product-items">
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">QTY :</span><span class="f-10 f-w-500">12</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Revenue : </span><span class="f-10 f-w-500  ">$51</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Profit :</span><span class="f-10 f-w-500 ">$15</span></div>
+                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">QTY :</span><span class="f-10 f-w-500"></span></div>
+                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Revenue : </span><span class="f-10 f-w-500  "></span></div>
+                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Profit :</span><span class="f-10 f-w-500 "></span></div>
                         </div>
                     </div>
                     </li>
-                    <li class="d-flex top-product gap-2">
-                    <div><img class="img-fluid product-img" src="../assets/images/dashboard-3/product/2.png" alt="product"/></div>
-                    <div class="w-100 d-flex justify-content-between align-items-center">
-                        <div class="product-details">
-                        <div><span class="badge rounded-pill badge-light text-dark">SKU78589</span></div><a class="f-10 f-w-500  line-clamp" href="product.html">Noise - Wireless Headphone</a><span class="f-10 f-w-500 txt-primary">$45.26</span>
-                        </div>
-                        <div class="product-items">
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">QTY :</span><span class="f-10 f-w-500">19</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Revenue : </span><span class="f-10 f-w-500  ">$8</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Profit :</span><span class="f-10 f-w-500 "> $9</span></div>
-                        </div>
-                    </div>
-                    </li>
-                    <li class="d-flex top-product gap-2">
-                    <div><img class="img-fluid product-img" src="../assets/images/dashboard-3/product/3.png" alt="product"/></div>
-                    <div class="w-100 d-flex justify-content-between align-items-center">
-                        <div class="product-details">
-                        <div><span class="badge rounded-pill badge-light text-dark">SKU78599</span></div><a class="f-10 f-w-500  line-clamp" href="product.html">Men &amp; Women Footwear</a><span class="f-10 f-w-500 txt-primary">$45.62</span>
-                        </div>
-                        <div class="product-items">
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">QTY : </span><span class="f-10 f-w-500">9</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Revenue :</span><span class="f-10 f-w-500  "> $15</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Profit : </span><span class="f-10 f-w-500 ">$18</span></div>
-                        </div>
-                    </div>
-                    </li>
-                    <li class="d-flex top-product gap-2">
-                    <div><img class="img-fluid product-img" src="../assets/images/dashboard-3/product/4.png" alt="product"/></div>
-                    <div class="w-100 d-flex justify-content-between align-items-center">
-                        <div class="product-details">
-                        <div><span class="badge rounded-pill badge-light text-dark">SKU78596</span></div><a class="f-10 f-w-500  line-clamp" href="product.html">Anime White Half Sleev T-shirt</a><span class="f-10 f-w-500 txt-primary">$589.26</span>
-                        </div>
-                        <div class="product-items">
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">QTY :</span><span class="f-10 f-w-500">9</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Revenue : </span><span class="f-10 f-w-500  ">$7</span></div>
-                        <div class="common-space gap-1"><span class="f-10 f-w-500 f-light">Profit :</span><span class="f-10 f-w-500 ">$42</span></div>
-                        </div>
-                    </div>
-                    </li>
+                    @endforeach
                 </ul>
                 </div>
             </div>
             </div>
         </div>
-        <div class="col-xxl-3 col-sm-6 box-col-6">
-            <div class="card height-equal">
-            <div class="card-header card-no-border total-revenue">
-                <h4>New User  </h4><a href="product.html">View All</a>
-            </div>
-            <div class="card-body pt-0">
-                <div class="new-user">
-                <ul>
-                    <li>
-                    <div class="space-common d-flex user-name"><img class="img-40 rounded-circle img-fluid me-2" src="../assets/images/user/22.png" alt="user"/>
-                        <div class="common-space w-100">
-                        <div>
-                            <h6> <a class="f-w-500 f-14 " href="user-profile.html">Smith John</a></h6><span class="f-light f-w-500 f-12">India</span>
-                        </div>
-                        <div class="product-sub">
-                            <div class="dropdown">
-                            <div id="dropdownMenuButtonicon31" data-bs-toggle="dropdown" aria-expanded="false" role="menu">
-                                <svg class="invoice-icon">
-                                <use href="../assets/svg/icon-sprite.svg#more-vertical"></use>
-                                </svg>
-                            </div>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButtonicon31"><span class="dropdown-item">Last Month </span><span class="dropdown-item">Last Week</span><span class="dropdown-item">Last Day </span></div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </li>
-                    <li>
-                    <div class="space-common d-flex user-name"><img class="img-40 rounded-circle img-fluid me-2" src="../assets/images/user/28.png" alt="user"/>
-                        <div class="common-space w-100">
-                        <div>
-                            <h6> <a class="f-w-500 f-14 " href="user-profile.html">Robert Fox</a></h6><span class="f-light f-w-500 f-12">Afghanistan</span>
-                        </div>
-                        <div class="product-sub">
-                            <div class="dropdown">
-                            <div id="dropdownMenuButtonicon32" data-bs-toggle="dropdown" aria-expanded="false" role="menu">
-                                <svg class="invoice-icon">
-                                <use href="../assets/svg/icon-sprite.svg#more-vertical"></use>
-                                </svg>
-                            </div>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButtonicon32"><span class="dropdown-item">Last Month </span><span class="dropdown-item">Last Week</span><span class="dropdown-item">Last Day </span></div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </li>
-                    <li>
-                    <div class="space-common d-flex user-name"><img class="img-40 rounded-circle img-fluid me-2" src="../assets/images/user/26.png" alt="user"/>
-                        <div class="common-space w-100">
-                        <div>
-                            <h6> <a class="f-w-500 f-14 " href="user-profile.html">Darlene Robtson</a></h6><span class="f-light f-w-500 f-12">Georgia</span>
-                        </div>
-                        <div class="product-sub">
-                            <div class="dropdown">
-                            <div id="dropdownMenuButtonicon33" data-bs-toggle="dropdown" aria-expanded="false" role="menu">
-                                <svg class="invoice-icon">
-                                <use href="../assets/svg/icon-sprite.svg#more-vertical"></use>
-                                </svg>
-                            </div>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButtonicon33"><span class="dropdown-item">Last Month </span><span class="dropdown-item">Last Week</span><span class="dropdown-item">Last Day </span></div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </li>
-                    <li>
-                    <div class="space-common d-flex user-name"><img class="img-40 rounded-circle img-fluid me-2" src="../assets/images/user/24.png" alt="user"/>
-                        <div class="common-space w-100">
-                        <div>
-                            <h6> <a class="f-w-500 f-14 " href="user-profile.html">Floyd Miles</a></h6><span class="f-light f-w-500 f-12">Pakistan</span>
-                        </div>
-                        <div class="product-sub">
-                            <div class="dropdown">
-                            <div id="dropdownMenuButtonicon34" data-bs-toggle="dropdown" aria-expanded="false" role="menu">
-                                <svg class="invoice-icon">
-                                <use href="../assets/svg/icon-sprite.svg#more-vertical"></use>
-                                </svg>
-                            </div>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButtonicon34"><span class="dropdown-item">Last Month </span><span class="dropdown-item">Last Week</span><span class="dropdown-item">Last Day </span></div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </li>
-                    <li>
-                    <div class="space-common d-flex user-name"><img class="img-40 rounded-circle img-fluid me-2" src="../assets/images/user/49.png" alt="user"/>
-                        <div class="common-space w-100">
-                        <div>
-                            <h6> <a class="f-w-500 f-14 " href="user-profile.html">Jacob Jones</a></h6><span class="f-light f-w-500 f-12">Monaco</span>
-                        </div>
-                        <div class="product-sub">
-                            <div class="dropdown">
-                            <div id="dropdownMenuButtonicon35" data-bs-toggle="dropdown" aria-expanded="false" role="menu">
-                                <svg class="invoice-icon">
-                                <use href="../assets/svg/icon-sprite.svg#more-vertical"></use>
-                                </svg>
-                            </div>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButtonicon35"><span class="dropdown-item">Last Month </span><span class="dropdown-item">Last Week</span><span class="dropdown-item">Last Day </span></div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </li>
-                </ul>
-                </div>
-            </div>
-            </div>
-        </div>
-        <div class="col-xxl-5 col-sm-6 box-col-6">
+
+        <div class="col-xxl-6 col-sm-6 box-col-6">
             <div class="card height-equal">
             <div class="card-header card-no-border total-revenue pb-0">
-                <h4>Team Activity </h4><a href="product.html">View All </a>
+                <h4>Team Activity </h4><a href="#">View All </a>
             </div>
             <div class="card-body pt-0">
                 <div class="activity-table table-responsive custom-scrollbar">
@@ -465,7 +254,7 @@
         <div class="col-xxl-5 col-xl-6 box-col-6">
             <div class="card">
             <div class="card-header card-no-border total-revenue">
-                <h4>Latest Transaction</h4><a href="product.html">View All</a>
+                <h4>Latest Transaction</h4><a href="#">View All</a>
             </div>
             <div class="card-body pt-0">
                 <div class="table-order table-responsive custom-scrollbar">
@@ -481,7 +270,7 @@
                     <tbody>
                     <tr>
                         <td>
-                        <div class="product-name"><a class=" f-14 f-w-500" href="product.html">Darrell Steward</a></div>
+                        <div class="product-name"><a class=" f-14 f-w-500" href="#">Darrell Steward</a></div>
                         </td>
                         <td class="f-14 f-w-500">16 Nov, 2024</td>
                         <td class="f-14 f-w-500">$456.23</td>
@@ -491,7 +280,7 @@
                     </tr>
                     <tr>
                         <td>
-                        <div class="product-name"><a class=" f-14 f-w-500" href="product.html">Floyd Miles</a></div>
+                        <div class="product-name"><a class=" f-14 f-w-500" href="#">Floyd Miles</a></div>
                         </td>
                         <td class="f-14 f-w-500">22 Jan, 2024</td>
                         <td class="f-14 f-w-500">$550.73</td>
@@ -501,7 +290,7 @@
                     </tr>
                     <tr>
                         <td>
-                        <div class="product-name"><a class=" f-14 f-w-500" href="product.html">Ralph Edwards</a></div>
+                        <div class="product-name"><a class=" f-14 f-w-500" href="#">Ralph Edwards</a></div>
                         </td>
                         <td class="f-14 f-w-500">31 Dec, 2024</td>
                         <td class="f-14 f-w-500">$785.26</td>
@@ -511,7 +300,7 @@
                     </tr>
                     <tr>
                         <td>
-                        <div class="product-name"><a class=" f-14 f-w-500" href="product.html">Jerome Bell</a></div>
+                        <div class="product-name"><a class=" f-14 f-w-500" href="#">Jerome Bell</a></div>
                         </td>
                         <td class="f-14 f-w-500">16 Nov, 2024</td>
                         <td class="f-14 f-w-500">$458.14</td>
@@ -521,7 +310,7 @@
                     </tr>
                     <tr>
                         <td>
-                        <div class="product-name"><a class=" f-14 f-w-500" href="product.html">Theresa Webb</a></div>
+                        <div class="product-name"><a class=" f-14 f-w-500" href="#">Theresa Webb</a></div>
                         </td>
                         <td class="f-14 f-w-500">16 Feb, 2024</td>
                         <td class="f-14 f-w-500">$263.24</td>
@@ -531,7 +320,7 @@
                     </tr>
                     <tr>
                         <td>
-                        <div class="product-name"><a class=" f-14 f-w-500" href="product.html">Courtney Henry</a></div>
+                        <div class="product-name"><a class=" f-14 f-w-500" href="#">Courtney Henry</a></div>
                         </td>
                         <td class="f-14 f-w-500">01 Nov, 2024</td>
                         <td class="f-14 f-w-500">$785.14</td>

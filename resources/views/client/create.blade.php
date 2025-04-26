@@ -34,20 +34,20 @@
         </div>
     </div>
 
-    <?php $notification = session('client_notification'); ?>
+    <?php $notification=session('client_notification'); ?>
 
     @if(isset($notification) && $notification)
         <!-- notification container -->
         @include('partials.notification')
     @endif
 
-    <section class = "content">
-        <div class = "container-fluid">
-            <form method = "post" action = "{{route('client.store')}}" enctype="multipart/form-data">
+    <section class="content">
+        <div class="container-fluid">
+            <form method="post" action="{{route('client.store')}}" enctype="multipart/form-data">
                 @csrf
-                <div class = "project-list">
-                    <div class = "card">
-                        <div class = "card-body">
+                <div class="project-list">
+                    <div class="card">
+                        <div class="card-body">
                             <div class="col-md-12">
                                 <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
                                     <li class="nav-item">
@@ -109,32 +109,32 @@
                 </div>
 
                 <!-- tab content -->
-                <div class = "tab-content" id = "clientTabContent">
+                <div class="tab-content" id="clientTabContent">
                     <!-- personal information -->
                     <div class="tab-pane fade show active" id="tab-personal-information" role="tabpanel" aria-labelledby="top-personal-information">
                         @include('client.personal_information')
                     </div>
 
                     <!-- gaurantor -->
-                    <div class = "tab-pane fade show" id = "tab-comaker" role="tabpanel" aria-labelledby="top-gurantor">
+                    <div class="tab-pane fade show" id="tab-comaker" role="tabpanel" aria-labelledby="top-gurantor">
                         @include('client.co-maker')
                     </div>
 
                     <!-- payroll account -->
-                    <div class = "tab-pane fades how" id = "tab-client-references" role="tabpanel" aria-labelledby="top-payroll-account">
+                    <div class="tab-pane fades how" id="tab-client-references" role="tabpanel" aria-labelledby="top-payroll-account">
                         @include('client.references')
                     </div>
 
                     <!-- documents -->
-                    <div class = "tab-pane fades how" id = "tab-documents" role="tabpanel" aria-labelledby="top-documents">
+                    <div class="tab-pane fades how" id="tab-documents" role="tabpanel" aria-labelledby="top-documents">
                         @include('client.documents')
                     </div>
                 </div>
 
                 <!-- button container -->
-                <div class = "row">
-                    <div class = "col-12">
-                        <button type = "submit" class = "btn btn-primary float-end"><i class = "fa fa-save"></i> Register Client</button>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary float-end"><i class="fa fa-save"></i> Register Client</button>
                     </div>
                 </div>
 
@@ -143,14 +143,16 @@
     </section>
 
     <!-- account payroll modal -->
-    <div class = "personal-information-modal-container">
+    <div class="personal-information-modal-container">
         @include('client.modal.payroll_account_modal')
     </div>
 
     <!-- job information modal -->
-    <div class = "job-information-modal-container">
+    <div class="job-information-modal-container">
         @include('client.modal.job_information_modal')
     </div>
+
+    @include('client.modal.co-maker_modal')
 
 @endsection
 
@@ -162,10 +164,10 @@
 
         // image preview
         $("[name='client_details[photo]']").change(function(event) {
-            const file = event.target.files[0];
+            const file=event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+                const reader=new FileReader();
+                reader.onload=function(e) {
                     $('#client_photo_preview').attr('src', e.target.result).show();
                 };
                 reader.readAsDataURL(file);
@@ -178,33 +180,33 @@
 
         // image preview
         $("[name='comaker[photo]']").change(function(event) {
-            const file = event.target.files[0];
+            const file=event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+                const reader=new FileReader();
+                reader.onload=function(e) {
                     $('#comaker_photo_preview').attr('src', e.target.result).show();
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        var payrollCount = 1;
-        var jobInformationCount = 1;
-        var referenceCount = 1;
-        var payrollAccountStatus = {!! json_encode(config('constants.status_value')) !!};
+        var payrollCount=1;
+        var jobInformationCount=1;
+        var referenceCount=1;
+        var payrollAccountStatus={!! json_encode(config('constants.status_value')) !!};
 
         $("[name='client_details[present_province]'], [name='client_details[permanent_province]'], [name='comaker[present_province]'], [name='comaker[permanent_province]']").change(function(){
-            let params = {
+            let params={
                 province_id : $(this).val()
             };
 
-            let targetData = $(this).attr("data-target");
+            let targetData=$(this).attr("data-target");
 
             getCities(params, function(response){
                 if(typeof response !== 'undefined' && response.has_error == 0){
                     if(response.html){
                         $("#" + targetData).empty();
-                        $("#" + targetData).append("<option value = '' selected hidden disabled>-- Select --</option>")
+                        $("#" + targetData).append("<option value='' selected hidden disabled>-- Select --</option>")
                         $("#" + targetData).append(response.html);
                     }
 
@@ -238,7 +240,7 @@
 
         //job information function  --------------------------------------------------------------------------------------------------------
         $(".btnJobInformation").on("click", function(){
-            let targetField = $(this).attr("data-target");
+            let targetField=$(this).attr("data-target");
 
             $("#modalJobInformation #jobInformationTarget").val(targetField);
 
@@ -268,7 +270,7 @@
         }
 
         $("#modalJobInformation .btnAdd").on("click", function(){
-            let params = {
+            let params={
                 targetField : $("#modalJobInformation #jobInformationTarget").val(),
                 office_name : $("#modalJobInformation #office_name").val(),
                 salary : $("#modalJobInformation #salary").val(),
@@ -283,25 +285,25 @@
         })
 
         function addJobInformation(params){
-            let field = 'client_job_information'; //default value
+            let field='client_job_information'; //default value
 
             if(params.targetField == '.comaker-job-informations') {
-                field = 'comaker_job_title';
+                field='comaker_job_title';
             }
 
-            let card =  "<div class = 'col-sm-12 col-md-4 col-lg-3 client-job-information-items'> "+
-                    "<div class = 'card'>"+
-                        "<input type = 'hidden' name = '"+ field +"["+ jobInformationCount +"][job_id]' value = '"+ params.job_id +"'>" +
-                        "<input type = 'hidden' name = '"+ field +"["+ jobInformationCount +"][office_name]' value = '"+ params.office_name +"'>" +
-                        "<input type = 'hidden' name = '"+ field +"["+ jobInformationCount +"][salary]' value = '"+ params.salary +"'>" +
-                        "<input type = 'hidden' name = '"+ field +"["+ jobInformationCount +"][status]' value = '"+ params.status +"'>" +
-                        "<div class = 'card-body'>" +
-                            "<button type = 'button' class = 'btn btn-danger btn-xs float-end'><i class = 'fa fa-times'></i></button>" +
+            let card= "<div class='col-sm-12 col-md-4 col-lg-3 client-job-information-items'> "+
+                    "<div class='card'>"+
+                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][job_id]' value='"+ params.job_id +"'>" +
+                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][office_name]' value='"+ params.office_name +"'>" +
+                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][salary]' value='"+ params.salary +"'>" +
+                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][status]' value='"+ params.status +"'>" +
+                        "<div class='card-body'>" +
+                            "<button type='button' class='btn btn-danger btn-xs float-end'><i class='fa fa-times'></i></button>" +
                             "<h5>"+ params.job_title +"</h5>" +
-                            "<p class = 'mb-0'>Office: "+ params.office_name +"</p>" +
-                            "<p class = 'mb-0'>Salary: "+ params.salary +"</p>" +
+                            "<p class='mb-0'>Office: "+ params.office_name +"</p>" +
+                            "<p class='mb-0'>Salary: "+ params.salary +"</p>" +
                         "</div>" +
-                        "<div class = 'card-footer'>" +
+                        "<div class='card-footer'>" +
                             "<p>Active</p>"+
                         "</div>" +
                     "</div>" +
@@ -317,23 +319,23 @@
         // payroll account function -----------------------------------------------------------------------------------------------------------------------------
 
         function addPayrollAccount(params){
-            let field = 'client_payroll_account'; //default field
+            let field='client_payroll_account'; //default field
 
             if(params.targetField == '.comaker-payroll-accounts'){
-                field = 'comaker_payroll_account';
+                field='comaker_payroll_account';
             }
 
-            let card = "<div class = 'col-sm-12 col-md-4 col-lg-3 client-payroll-items'>" +
-                    "<div class = 'card'>" +
-                        "<div class = 'card-body'>" +
-                            "<input type = 'hidden' name = '"+ field +"["+ payrollCount +"][bank_id]' value = '"+ params.bankId +"'>" +
-                            "<input type = 'hidden' name = '"+ field +"["+ payrollCount +"][account_no]' value = '"+ params.accountNo +"'>" +
-                            "<input type = 'hidden' name = '"+ field +"["+ payrollCount +"][account_name]' value = '"+ params.accountName +"'>" +
-                            "<input type = 'hidden' name = '"+ field +"["+ payrollCount +"][is_active]' value = '"+ params.is_active +"'>" +
+            let card="<div class='col-sm-12 col-md-4 col-lg-3 client-payroll-items'>" +
+                    "<div class='card'>" +
+                        "<div class='card-body'>" +
+                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][bank_id]' value='"+ params.bankId +"'>" +
+                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][account_no]' value='"+ params.accountNo +"'>" +
+                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][account_name]' value='"+ params.accountName +"'>" +
+                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][is_active]' value='"+ params.is_active +"'>" +
 
-                            "<button type = 'button' class = 'btn btn-danger btn-xs float-end btnRemovePayrollAccount'><i class = 'fa fa-times'></i></button>" +
+                            "<button type='button' class='btn btn-danger btn-xs float-end btnRemovePayrollAccount'><i class='fa fa-times'></i></button>" +
                             "<h5><strong>"+ params.bankName +"</strong></h5>" +
-                            "<p class = 'mb-0'>Account No: " + params.accountNo + "</p>" +
+                            "<p class='mb-0'>Account No: " + params.accountNo + "</p>" +
                             "<p>Account Name: "+ params.accountName +"</p>" +
                         "</div>" +
                         "<div class= 'card-footer'>" +
@@ -350,7 +352,7 @@
         }
 
         $(".btnPayrollAccount").on("click", function(){
-            let targetField = $(this).attr("data-target");
+            let targetField=$(this).attr("data-target");
 
             $("#modalPayrollAccount #payrollModalTarget").val(targetField);
 
@@ -359,13 +361,13 @@
 
         $("#modalPayrollAccount .btnAdd").on("click", function(){
 
-            let params = {
+            let params={
                 'targetField' : $("#modalPayrollAccount #payrollModalTarget").val(),
                 'bankId' : $("#modalPayrollAccount #bank_id").val(),
                 'bankName' : $("#modalPayrollAccount #bank_id option:selected").text(),
                 'accountNo' : $("#modalPayrollAccount #account_no").val(),
                 'accountName' : $("#modalPayrollAccount #account_name").val(),
-                'is_active' : $("#modalPayrollAccount #status").val()
+                'status' : $("#modalPayrollAccount #status").val()
             };
 
             addPayrollAccount(params);

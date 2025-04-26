@@ -56,4 +56,10 @@ class Bank extends Model {
         return $data ? $data->first->toArray() : [];
     }
 
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
 }

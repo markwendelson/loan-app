@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Bank;
 use App\Models\Branch;
 use App\Models\CountryCode;
 use App\Models\JobTitle;
@@ -36,6 +37,15 @@ if(!function_exists('getNationalities')) {
     function getNationalities() {
 
         $result = CountryCode::active()->orderBy('nationality')->get();
+
+        return $result ?? [];
+    }
+}
+
+if(!function_exists('getBanks')) {
+    function getBanks() {
+
+        $result = Bank::active()->orderBy('bank_code')->get();
 
         return $result ?? [];
     }

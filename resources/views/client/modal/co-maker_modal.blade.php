@@ -372,3 +372,12 @@
         </div>
     </div>
 </div>
+
+
+@push('js')
+<script>
+    $('.btn-add-co-maker').on('click', function() {
+        console.log('test')
+    })
+</script>
+@endpush

@@ -69,8 +69,12 @@
 @endsection
 
 @push('js')
+
 <script>
     $(document).ready(function () {
+        @if (session('message'))
+            showToast.success({!! json_encode(session('message')) !!});
+        @endif
 
         const table = $('#tblClient').DataTable({
             ordering: false,

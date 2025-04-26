@@ -14,6 +14,7 @@ class ClientController extends Controller
     public $provinces;
     public $job_titles;
     public $nationalities;
+    public $banks;
 
     public function __construct()
     {
@@ -21,6 +22,7 @@ class ClientController extends Controller
         $this->provinces = getProvinces();
         $this->job_titles = getJobTitles();
         $this->nationalities = getNationalities();
+        $this->banks = getBanks();
     }
     /**
      * Display a listing of the resource.
@@ -30,7 +32,14 @@ class ClientController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $clients = Client::whereHas('coMakers')->with('details')->get();
+            // $clients = Client::whereHas('coMakers')->with('details')->get();
+            $clients = Client::with('details')->get();
+
+            // $mappedClients = $clients->map(function($client) {
+            //     $client->fullname = trim(collect([$client->firstname, $client->middlename, $client->lastname, ])->filter()->implode(' '));
+            //     $client->present_full_address = trim(collect([$client->present_address,$client->presentCity->name ?? '',$client->presentProvince->name ?? '',])->filter()->implode(' '));
+            //     return $client;
+            // });
 
             $totalRecords = $clients->count();
 
@@ -55,8 +64,9 @@ class ClientController extends Controller
         $provinces = $this->provinces;
         $job_titles = $this->job_titles;
         $nationalities = $this->nationalities;
+        $banks = $this->banks;
 
-        return view('client.create', compact('branches','provinces', 'job_titles','nationalities'));
+        return view('client.create', compact('branches','provinces', 'job_titles','nationalities','banks'));
     }
 
     /**
@@ -66,10 +76,16 @@ class ClientController extends Controller
     {
         $client = ClientRegistrationService::register($request->all());
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Client created successfully',
-        ]);
+        if($client) {
+            return redirect()->route('client.index')->with('message', 'Client created successfully');
+        } else {
+            return redirect()->route('client.index')->with('message', 'Something went wrong.');
+        }
+
+        // return response()->json([
+        //     'status' => 'success',
+        //     'message' => 'Client created successfully',
+        // ]);
 
     }
 
@@ -86,7 +102,13 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
-        return view('client.edit', compact('client'));
+        $branches = $this->branches;
+        $provinces = $this->provinces;
+        $job_titles = $this->job_titles;
+        $nationalities = $this->nationalities;
+        $banks = $this->banks;
+
+        return view('client.edit', compact('client','branches','provinces', 'job_titles','nationalities','banks'));
     }
 
     /**

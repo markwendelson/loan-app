@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Loan;
 use App\Models\LoanProduct;
 use Illuminate\Database\QueryException;
@@ -36,9 +37,10 @@ class LoanController extends Controller
      */
     public function create()
     {
+        $clients = Client::all();
         $loan_products = LoanProduct::active()->get();
 
-        return view('loan.create', compact('loan_products'));
+        return view('loan.create', compact('loan_products', 'clients'));
     }
 
     /**

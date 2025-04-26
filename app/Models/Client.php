@@ -18,6 +18,20 @@ class Client extends Model implements Auditable
         return $query->where('status', 1);
     }
 
+    public function scopeFilter($query, $search)
+    {
+        if (!empty($search)) {
+            $query->join('client_details', 'clients.id', '=', 'client_details.client_id')
+                    ->orWhere(function ($q) use ($search) {
+                        $q->where('client_code', 'LIKE', '%'.$search.'%')
+                            ->where('client_details.email', 'LIKE', '%'.$search.'%')
+                            ->orWhere('client_details.firstname', 'LIKE', '%'.$search.'%')
+                            ->orWhere('client_details.middlename', 'LIKE', '%'.$search.'%')
+                            ->orWhere('client_details.lastname', 'LIKE', '%'.$search.'%');
+                });;
+        }
+    }
+
     public function details()
     {
         return $this->hasOne(ClientDetails::class, 'client_id');

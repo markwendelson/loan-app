@@ -16,6 +16,7 @@ use App\Http\Controllers\LoanTypeController;
 use App\Http\Controllers\NotaryFeeScheduleController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SavingsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +92,7 @@ Route::middleware('auth')->group(function(){
         Route::get('withdrawn', [LoanController::class, 'withdrawn'])->name('loan.withdrawn');
         Route::get('closed', [LoanController::class, 'closed'])->name('loan.closed');
     });
+    Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);

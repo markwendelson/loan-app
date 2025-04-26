@@ -11,7 +11,6 @@ Loan Application
 1. client registration document
 3. additional loan
 
-2. bug employee identification
 
 
 

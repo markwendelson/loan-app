@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LoanProduct;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -13,6 +14,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('dashboard');
+        $top_products = LoanProduct::popular()->get();
+        return view('dashboard', compact('top_products'));
     }
 }
