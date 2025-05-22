@@ -129,4 +129,18 @@ class NotaryFeeScheduleController extends Controller
             'message' => 'Notary Fee Schedule deleted successfully',
         ]);
     }
+
+    public function getNotaryFee(Request $request)
+    {
+        $notary_fee =  NotaryFeeSchedule::where('min_amount','<=',$request->amount)
+                ->where(function($query) use($request) {
+                    $query->where('max_amount','>=',$request->amount)
+                        ->orWhereNull('max_amount');
+                })->first();
+
+        return response()->json([
+            'type' => $notary_fee->type,
+            'notary_fee' => $notary_fee->fee,
+        ]);
+    }
 }

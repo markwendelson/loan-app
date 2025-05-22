@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LoanStatus;
 use App\Models\Client;
 use App\Models\Loan;
+use App\Models\LoanCharge;
 use App\Models\LoanProduct;
+use App\Models\Savings;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
@@ -18,7 +22,7 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct')->filter($search)->get();
+            $loans = Loan::with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -48,10 +52,31 @@ class LoanController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'applied_amount' => str_replace(',', '', $request->applied_amount),
+            'principal' => str_replace(',', '', $request->applied_amount),
+            'advance_interest' => str_replace(',', '', $request->advance_interest),
+            'service_fee' => str_replace(',', '', $request->service_fee),
+            'insurance_fee' => str_replace(',', '', $request->insurance_fee),
+            'notary_fee' => str_replace(',', '', $request->notary_fee),
+            'loan_no' => Loan::generateLoanNumber()
+        ]);
+
         $data = $request->all();
 
         try {
-            Loan::create($data);
+            DB::transaction(function () use ($data) {
+                $loan = Loan::create($data);
+
+                LoanCharge::create([
+                    'loan_id' => $loan->id,
+                    'advance_interest' => $data['advance_interest'],
+                    'service_fee' => $data['service_fee'],
+                    'insurance_fee' => $data['insurance_fee'],
+                    'notary_fee' => $data['notary_fee'],
+                ]);
+
+            });
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062) {
                 return response()->json([
@@ -62,23 +87,26 @@ class LoanController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Something went wrong.'
+                'message' => 'Something went wrong.' . $e->getMessage()
             ], 500);
         }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Loan Product created successfully',
+            'message' => 'Loan created successfully',
         ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Loan $loanProduct)
+    public function show(Loan $loan)
     {
-        if($loanProduct) {
-            return response()->json($loanProduct);
+        if($loan) {
+            $clients = Client::all();
+            $loan_products = LoanProduct::active()->get();
+
+            return view('loan.show', compact('loan','clients','loan_products'));
         }
         return response()->json([
             'status' => 'error',
@@ -89,7 +117,7 @@ class LoanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Loan $loanProduct)
+    public function edit(Loan $loan)
     {
         //
     }
@@ -97,23 +125,12 @@ class LoanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Loan $loanProduct)
+    public function update(Request $request, Loan $loan)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'description' => 'required|string',
-            'status' => 'required',
-        ]);
-
-        $loanProduct->name = $request->name;
-        $loanProduct->description = $request->description;
-        $loanProduct->loan_type_id = $request->loan_type_id;
-        $loanProduct->status = $request->status;
-        $loanProduct->save();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Loan Product updated successfully',
+            'message' => 'Loan updated successfully',
         ]);
 
     }
@@ -121,13 +138,14 @@ class LoanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Loan $loanProduct)
+    public function destroy(Loan $loan)
     {
-        $loanProduct->delete();
+        DB::table('loan_charges')->where('loan_id',$loan->id)->delete();
+        $loan->delete();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Loan Product deleted successfully',
+            'message' => 'Loan deleted successfully',
         ]);
     }
 
@@ -136,7 +154,7 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct')->filter($search)->get();
+            $loans = Loan::pending()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -147,9 +165,7 @@ class LoanController extends Controller
             ]);
         }
 
-        $loan_products = LoanProduct::active()->get();
-
-        return view('loan.pending', compact('loan_products'));
+        return view('loan.pending');
     }
 
     public function awaitingDisbursement(Request $request)
@@ -157,7 +173,7 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct')->filter($search)->get();
+            $loans = Loan::approved()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -168,9 +184,7 @@ class LoanController extends Controller
             ]);
         }
 
-        $loan_products = LoanProduct::active()->get();
-
-        return view('loan.awaiting-disbursement', compact('loan_products'));
+        return view('loan.awaiting-disbursement');
     }
 
     public function declined(Request $request)
@@ -178,7 +192,7 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct')->filter($search)->get();
+            $loans = Loan::declined()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -189,9 +203,7 @@ class LoanController extends Controller
             ]);
         }
 
-        $loan_products = LoanProduct::active()->get();
-
-        return view('loan.declined', compact('loan_products'));
+        return view('loan.declined');
     }
 
     public function withdrawn(Request $request)
@@ -199,7 +211,7 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct')->filter($search)->get();
+            $loans = Loan::withdrawn()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -210,9 +222,7 @@ class LoanController extends Controller
             ]);
         }
 
-        $loan_products = LoanProduct::active()->get();
-
-        return view('loan.withdrawn', compact('loan_products'));
+        return view('loan.withdrawn');
     }
 
     public function closed(Request $request)
@@ -231,8 +241,74 @@ class LoanController extends Controller
             ]);
         }
 
-        $loan_products = LoanProduct::active()->get();
+        return view('loan.closed');
+    }
 
-        return view('loan.closed', compact('loan_products'));
+    public function withdrawnLoan(Loan $loan)
+    {
+        if($loan) {
+            $loan->status = LoanStatus::WITHDRAWN;
+            $loan->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan successfully withdrawn.'
+            ]);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Loan not found'
+        ], 404);
+    }
+
+    public function approveLoan(Loan $loan)
+    {
+        if($loan) {
+            $loan->status = LoanStatus::APPROVE;
+            $loan->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan successfully approved.'
+            ]);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Loan not found'
+        ], 404);
+    }
+
+    public function declineLoan(Loan $loan)
+    {
+        if($loan) {
+            $loan->status = LoanStatus::DECLINE;
+            $loan->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan successfully declined.'
+            ]);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Loan not found'
+        ], 404);
+    }
+
+    public function requestApproveLoan(Loan $loan)
+    {
+        if($loan) {
+            $loan->status = LoanStatus::REQUEST_APPROVE;
+            $loan->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan successfully request for approval.'
+            ]);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Loan not found'
+        ], 404);
     }
 }

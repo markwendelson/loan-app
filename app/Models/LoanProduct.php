@@ -30,6 +30,8 @@ class LoanProduct extends Model implements Auditable
                 ->orWhere('name', 'LIKE', '%'.$search.'%')
                 ->orWhere('description', 'LIKE', '%'.$search.'%');
         }
+
+        return $query;
     }
 
     public function loanType()

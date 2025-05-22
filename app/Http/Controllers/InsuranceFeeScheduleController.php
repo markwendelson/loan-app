@@ -129,4 +129,15 @@ class InsuranceFeeScheduleController extends Controller
             'message' => 'Insurance Fee Schedule deleted successfully',
         ]);
     }
+
+    public function getInsuranceFee(Request $request)
+    {
+        $insurance_fee =  InsuranceFeeSchedule::where('min_amount','<=',$request->amount)
+                ->where('max_amount','>=',$request->amount)->first();
+
+        return response()->json([
+            'monthly' => $insurance_fee->monthly_fee,
+            'annual' => $insurance_fee->annual_fee
+        ]);
+    }
 }

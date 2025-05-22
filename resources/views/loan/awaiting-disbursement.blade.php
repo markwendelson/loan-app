@@ -38,7 +38,7 @@
     <!-- button container -->
     <div class="card">
     <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalLoanProduct')"><i class = "fa fa-plus"></i> New Loan</button>
+        <a class="btn btn-primary float-end" href="{{route('loan.create')}}"><i class = "fa fa-plus"></i> New Loan</a>
     </div>
     </div>
 
@@ -50,8 +50,8 @@
                 <table class="table table-bordered table-hover" id = "tblLoan">
                     <thead class = "bg-default">
                         <tr>
-                            <th class = "text-center" width = "120">No.</th>
-                            <th class = "text-leftr" width = "150">Loan Type</th>
+                            <th class = "text-center" width = "120">Loan No.</th>
+                            <th class = "text-leftr" width = "150">Loan Product</th>
                             <th class = "text-leftr" width = "150">Borrower</th>
                             <th class = "text-center" width = "180">Status</th>
                             <th class = "text-center" width = "150"><i class = "fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
@@ -74,26 +74,21 @@
             stateSave: true,
             searching: true,
             ajax: {
-                url: "{{ route('loan.index') }}",
+                url: "{{ route('loan.awaiting-disbursement') }}",
             },
             columns: [
-                { data: 'id', name: 'id' },
-                { data: 'loan_type', name: 'loan_type' },
-                { data: 'name', name: 'name' },
+                { data: 'loan_no', name: 'loan_no' },
+                { data: 'loan_product.name', name: 'loan_product' },
+                { data: 'borrower.details.fullname', name: 'name' },
                 { data: 'status', name: 'status', render: function(data, type, row) {
-                    if (data == 1) {
-                        return '<span class="badge badge-success">Active</span>';
-                    } else {
-                        return '<span class="badge badge-danger">Inactive</span>';
-                    }
+                        return '<span class="badge badge-success">Approved</span>';
                 } },
                 {
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
                         return `
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
+                                <button class="btn btn-primary btn-xs btn-cash-out" data-id="${row.id}"><i class="fa fa-money"></i></button>
                             `;
                     }
                 }

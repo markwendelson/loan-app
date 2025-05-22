@@ -62,6 +62,8 @@ class User extends Authenticatable implements Auditable
                 ->orWhere('name', 'LIKE', '%'.$search.'%')
                 ->orWhere('email', 'LIKE', '%'.$search.'%');
         }
+
+        return $query;
     }
-    
+
 }

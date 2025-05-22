@@ -30,6 +30,8 @@ class Client extends Model implements Auditable
                             ->orWhere('client_details.lastname', 'LIKE', '%'.$search.'%');
                 });;
         }
+
+        return $query;
     }
 
     public function details()

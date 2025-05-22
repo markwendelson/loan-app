@@ -38,7 +38,7 @@
     <!-- button container -->
     <div class="card">
     <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalLoanProduct')"><i class = "fa fa-plus"></i> New Loan</button>
+        <a class="btn btn-primary float-end" href="{{route('loan.create')}}"><i class = "fa fa-plus"></i> New Loan</a>
     </div>
     </div>
 
@@ -50,8 +50,8 @@
                 <table class="table table-bordered table-hover" id = "tblLoan">
                     <thead class = "bg-default">
                         <tr>
-                            <th class = "text-center" width = "120">No.</th>
-                            <th class = "text-leftr" width = "150">Loan Type</th>
+                            <th class = "text-center" width = "120">Loan No.</th>
+                            <th class = "text-leftr" width = "150">Loan Product</th>
                             <th class = "text-leftr" width = "150">Borrower</th>
                             <th class = "text-center" width = "180">Status</th>
                             <th class = "text-center" width = "150"><i class = "fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
@@ -74,17 +74,17 @@
             stateSave: true,
             searching: true,
             ajax: {
-                url: "{{ route('loan.index') }}",
+                url: "{{ route('loan.pending') }}",
             },
             columns: [
-                { data: 'id', name: 'id' },
-                { data: 'loan_type', name: 'loan_type' },
-                { data: 'name', name: 'name' },
+                { data: 'loan_no', name: 'loan_no' },
+                { data: 'loan_product.name', name: 'loan_product' },
+                { data: 'borrower.details.fullname', name: 'name' },
                 { data: 'status', name: 'status', render: function(data, type, row) {
                     if (data == 1) {
-                        return '<span class="badge badge-success">Active</span>';
+                        return '<span class="badge badge-success">Approved</span>';
                     } else {
-                        return '<span class="badge badge-danger">Inactive</span>';
+                        return '<span class="badge badge-primary">Pending</span>';
                     }
                 } },
                 {
@@ -92,6 +92,7 @@
                     name: 'actions',
                     render: function(data, type, row) {
                         return `
+                                <button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button>
                                 <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
                                 <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
                             `;
@@ -103,87 +104,15 @@
             ]
         });
 
-        $("#modalLoanProduct .btnSubmit").click(function (e) {
-            e.preventDefault();
-
-            let form = $("#frmLoanProductModal")[0];
-
-            if (!form.checkValidity()) {
-                form.reportValidity();
-            } else {
-
-                //show loading screen
-                $(".loader-wrapper").fadeIn("slow", function () {
-                    $(this).show();
-                });
-
-                let formData = $("#frmLoanProductModal").serializeArray();
-
-                var id = $("#modalLoanProduct [name='id']").val();
-                if(id) {
-                    _method = 'PUT';
-                    _url = `{{route('loan-product.update', ':id')}}`.replace(':id',id);
-                } else {
-                    _method = 'POST';
-                    _url = `{{route('loan-product.store')}}`;
-                }
-
-
-                $.ajax({
-                    method: _method,
-                    url: _url,
-                    data: formData,
-                    dataType: "json",
-                    success: function (response) {
-                        //hide loading screen
-                        $(".loader-wrapper").fadeOut("slow", function () {
-                            $(this).hide();
-                        });
-                        if(response.status == 'success'){
-                            hideModal('modalLoanProduct');
-                            showToast.success(response.message)
-                            table.ajax.reload();
-                        }else{
-                            showToast.error(response.message)
-                        }
-                    },
-                    error: function (response) {
-                        //hide loading screen
-                        $(".loader-wrapper").fadeOut("slow", function () {
-                            $(this).hide();
-                        });
-                        showToast.error(response.responseJSON.message)
-                    }
-                });
-            }
-        });
-
         $("#tblLoan").on("click", ".btnEdit", function(){
             let id = $(this).attr("data-id");
-            getLoanType(id)
+            window.location.href = `/loan/${id}/edit`
         })
 
-        async function getLoanType(id) {
-            try {
-                let response = await fetch(`/loan-product/${id}`, {
-                    method: "GET",
-                });
-
-                if (!response.ok) throw new Error("Network response was not ok");
-
-                let data = await response.json();
-
-                $("#modalLoanProduct [name='id']").val(data.id);
-                $("#modalLoanProduct [name='name']").val(data.name);
-                $("#modalLoanProduct [name='description']").val(data.description);
-                $("#modalLoanProduct [name='loan_type_id']").val(data.loan_type_id);
-                $("#modalLoanProduct [name='status']").val(data.status);
-                showModal('modalLoanProduct')
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        }
+        $("#tblLoan").on("click", ".btnView", function(){
+            let id = $(this).attr("data-id");
+            window.location.href = `/loan/${id}`
+        })
     });
 
 

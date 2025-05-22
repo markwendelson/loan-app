@@ -208,6 +208,16 @@
                 document.querySelector(`#${modalName} form`).reset();
                 $("#modalLoanProduct [name='id']").val("");
             }
+
+            function currencyFormat(amount, showDecimals = true) {
+                return amount.toLocaleString('en-PH', {
+                    // style: 'currency',
+                    // currency: 'PHP',
+                    minimumFractionDigits: showDecimals ? 2 : 0,
+                    maximumFractionDigits: showDecimals ? 2 : 0
+                });
+            }
+
         </script>
     </body>
 </html>

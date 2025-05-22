@@ -19,6 +19,8 @@ class ClientDetails extends Model
                 ->orWhere('name', 'LIKE', '%'.$search.'%')
                 ->orWhere('address', 'LIKE', '%'.$search.'%');
         }
+
+        return $query;
     }
 
     public function getFullNameAttribute()

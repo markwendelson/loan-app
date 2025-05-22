@@ -6,7 +6,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientIDsController;
 use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\EmployeeController;
+// use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsuranceFeeScheduleController;
 use App\Http\Controllers\JobController;
@@ -47,9 +47,9 @@ Route::middleware('auth')->group(function(){
     Route::post('upload-valid-id', [ClientIDsController::class, 'uploadValidID'])->name('uploadValidID');
 
     //-----Employee
-    Route::get('employee-list', [EmployeeController::class, 'index'])->name('employee.index');
-    Route::any('employee-registration', [EmployeeController::class, 'register'])->name('employee.register');
-    Route::match(['get', 'post'],'employee-update/{id}', [EmployeeController::class, 'update'])->name('employee.update');
+    // Route::get('employee-list', [EmployeeController::class, 'index'])->name('employee.index');
+    // Route::any('employee-registration', [EmployeeController::class, 'register'])->name('employee.register');
+    // Route::match(['get', 'post'],'employee-update/{id}', [EmployeeController::class, 'update'])->name('employee.update');
 
     //-----Branches
     Route::get('branches', [BranchController::class, 'index'])->name('branch.index');
@@ -80,17 +80,26 @@ Route::middleware('auth')->group(function(){
     Route::get('/notifications', [NotificationsController::class, 'showNotifications'])->name('notifications.index');
     Route::post('/mark-notifications-read', [NotificationsController::class, 'markNotificationsAsRead'])->name('notifications.markAsRead');
 
+    Route::get('/get-insurance-fee', [InsuranceFeeScheduleController::class, 'getInsuranceFee'])->name('get_insurance_fee');
+    Route::get('/get-notary-fee', [NotaryFeeScheduleController::class, 'getNotaryFee'])->name('get_notary_fee');
+
     Route::resource('user', UserController::class);
     Route::resource('role', RoleController::class);
     Route::resource('client', ClientController::class);
     Route::resource('insurance-fee-schedule', InsuranceFeeScheduleController::class);
     Route::resource('notary-fee-schedule', NotaryFeeScheduleController::class);
-    Route::prefix('loan')->group(function() {
-        Route::get('pending', [LoanController::class, 'pending'])->name('loan.pending');
-        Route::get('awaiting-disbursement', [LoanController::class, 'awaitingDisbursement'])->name('loan.awaiting-disbursement');
-        Route::get('declined', [LoanController::class, 'declined'])->name('loan.declined');
-        Route::get('withdrawn', [LoanController::class, 'withdrawn'])->name('loan.withdrawn');
-        Route::get('closed', [LoanController::class, 'closed'])->name('loan.closed');
+    Route::controller(LoanController::class)
+        ->prefix('loan')
+        ->group(function() {
+            Route::get('pending', 'pending')->name('loan.pending');
+            Route::get('awaiting-disbursement', 'awaitingDisbursement')->name('loan.awaiting-disbursement');
+            Route::get('declined', 'declined')->name('loan.declined');
+            Route::get('withdrawn', 'withdrawn')->name('loan.withdrawn');
+            Route::get('closed', 'closed')->name('loan.closed');
+            Route::post('withdrawn/{loan}','withdrawnLoan')->name('loan.withdrawn-loan');;
+            Route::post('approve/{loan}','approveLoan')->name('loan.approve-loan');;
+            Route::post('decline/{loan}','declineLoan')->name('loan.decline-loan');;
+            Route::post('request-approve/{loan}','requestApproveLoan')->name('loan.request-approval');;
     });
     Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);
