@@ -101,6 +101,11 @@ Route::middleware('auth')->group(function(){
             Route::post('decline/{loan}','declineLoan')->name('loan.decline-loan');;
             Route::post('request-approve/{loan}','requestApproveLoan')->name('loan.request-approval');;
     });
+    Route::controller(SavingsController::class)
+        ->prefix('savings')
+        ->group(function() {
+            Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
+    });
     Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);
     Route::resource('loan-type', LoanTypeController::class);

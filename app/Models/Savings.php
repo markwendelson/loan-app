@@ -18,4 +18,9 @@ class Savings extends Model
 
         return $query;
     }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 }

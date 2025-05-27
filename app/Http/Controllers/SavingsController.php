@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Savings;
 use Illuminate\Http\Request;
 
@@ -15,14 +16,20 @@ class SavingsController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $savings = Savings::filter($search)->get();
+            $savings = Client::with('details','savings')->filter($search)->get();
             $totalRecords = $savings->count();
+
+            $data = $savings->map(function($saving) {
+                $saving['balance'] = $saving->savings->sum('amount');
+                $saving['fullname'] = $saving->details?->fullname;
+                return $saving;
+            });
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
                 'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
                 'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
-                'data' => $savings  // The paginated and formatted data
+                'data' => $data  // The paginated and formatted data
             ]);
         }
 
@@ -75,5 +82,14 @@ class SavingsController extends Controller
     public function destroy(Savings $savings)
     {
         //
+    }
+
+    public function transactions(int $client_id)
+    {
+        $client = Client::findOrFail($client_id);
+
+        $savings = Savings::where('client_id', $client->id)->get();
+
+        return $savings;
     }
 }

@@ -36,11 +36,11 @@
     </div>
 
     <!-- button container -->
-    <div class="card">
-    <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalSavings')"><i class="fa fa-plus"></i> New Savings</button>
-    </div>
-    </div>
+    {{-- <div class="card">
+        <div class="card-body">
+            <button class="btn btn-primary float-end" onclick="showModal('modalSavings')"><i class="fa fa-plus"></i> New Savings</button>
+        </div>
+    </div> --}}
 
 
     <!-- table container -->
@@ -77,8 +77,8 @@
                 url: "{{ route('savings.index') }}",
             },
             columns: [
-                { data: 'client_id', name: 'client_id' },
-                { data: 'name', name: 'name' },
+                { data: 'client_code', name: 'client_code' },
+                { data: 'fullname', name: 'fullname' },
                 { data: 'balance', name: 'balance' },
                 { data: 'status', name: 'status', render: function(data, type, row) {
                     if (data == 1) {
@@ -92,14 +92,14 @@
                     name: 'actions',
                     render: function(data, type, row) {
                         return `
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
+                                <button class="btn btn-primary btn-xs btnTransactions" data-id="${row.id}"><i class="fa fa-table"></i></button>
                             `;
                     }
                 }
             ],
             columnDefs: [
                 { className: "text-center", targets: [3,4] },
+                { className: "text-end", targets: [2] },
             ]
         });
 
@@ -158,9 +158,9 @@
             }
         });
 
-        $("#tblSavings").on("click", ".btnEdit", function(){
+        $("#tblSavings").on("click", ".btnTransactions", function(){
             let id=$(this).attr("data-id");
-            window.location.href = `/user/${id}/edit`;
+            window.location.href = `/savings/${id}/transactions`;
         })
 
 

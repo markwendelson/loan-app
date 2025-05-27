@@ -21,14 +21,13 @@ class Client extends Model implements Auditable
     public function scopeFilter($query, $search)
     {
         if (!empty($search)) {
-            $query->join('client_details', 'clients.id', '=', 'client_details.client_id')
-                    ->orWhere(function ($q) use ($search) {
-                        $q->where('client_code', 'LIKE', '%'.$search.'%')
-                            ->where('client_details.email', 'LIKE', '%'.$search.'%')
-                            ->orWhere('client_details.firstname', 'LIKE', '%'.$search.'%')
-                            ->orWhere('client_details.middlename', 'LIKE', '%'.$search.'%')
-                            ->orWhere('client_details.lastname', 'LIKE', '%'.$search.'%');
-                });;
+            $query->where('client_code', 'LIKE', '%' . $search . '%')
+                  ->orWhereHas('details', function ($q) use ($search) {
+                      $q->where('email', 'LIKE', '%' . $search . '%')
+                        ->orWhere('firstname', 'LIKE', '%' . $search . '%')
+                        ->orWhere('middlename', 'LIKE', '%' . $search . '%')
+                        ->orWhere('lastname', 'LIKE', '%' . $search . '%');
+                  });
         }
 
         return $query;
@@ -47,5 +46,10 @@ class Client extends Model implements Auditable
     public function isCoMakerFor()
     {
         return $this->belongsToMany(Client::class, 'client_co_makers', 'co_maker_id', 'client_id');
+    }
+
+    public function savings()
+    {
+        return $this->hasMany(Savings::class);
     }
 }
