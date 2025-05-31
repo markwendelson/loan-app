@@ -20,7 +20,13 @@ class SavingsController extends Controller
             $totalRecords = $savings->count();
 
             $data = $savings->map(function($saving) {
-                $saving['balance'] = $saving->savings->sum('amount');
+                $balance = $saving->savings
+                                ->where('transaction_type', 'deposit')->sum('amount')
+                                - $saving->savings
+                                ->where('transaction_type', 'withdraw')->sum('amount');
+
+                $saving['balance'] = number_format($balance,2);
+
                 $saving['fullname'] = $saving->details?->fullname;
                 return $saving;
             });
@@ -49,15 +55,35 @@ class SavingsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        // if($request->transaction_type == 'withdraw') {
+        //     $request->merge([
+        //         'amount' => $request->amount
+        //     ]);
+        // }
+
+        $data = $request->all();
+
+        Savings::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaction created successfully',
+        ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Savings $savings)
+    public function show(Savings $saving)
     {
-        //
+        if($saving) {
+            return response()->json($saving);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Transaction not found'
+        ], 404);
     }
 
     /**
@@ -71,25 +97,65 @@ class SavingsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Savings $savings)
+    public function update(Request $request, Savings $saving)
     {
-        //
+        $saving->transaction_date = $request->transaction_date;
+        $saving->transaction_type = $request->transaction_type;
+        $saving->amount = $request->amount;
+        $saving->description = $request->description;
+        $saving->notes = $request->notes;
+        $saving->classifications = $request->classifications;
+        $saving->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaction updated successfully',
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Savings $savings)
+    public function destroy(Savings $saving)
     {
-        //
+        $saving->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaction deleted successfully',
+        ]);
     }
 
-    public function transactions(int $client_id)
+    public function transactions(Request $request, int $client_id)
     {
         $client = Client::findOrFail($client_id);
+        $balance = $client->savings
+                                ->where('transaction_type', 'deposit')->sum('amount')
+                                - $client->savings
+                                ->where('transaction_type', 'withdraw')->sum('amount');
 
-        $savings = Savings::where('client_id', $client->id)->get();
+        $client['balance'] = number_format($balance,2);
 
-        return $savings;
+        if($request->ajax()) {
+            $search = $request->search['value'];
+
+            $transactions = Savings::filter($search)->where('client_id', $client->id)->get();
+
+            $data = $transactions->map(function($saving) {
+                $saving['amount'] = number_format($saving['amount'],2);
+                return $saving;
+            });
+
+            $totalRecords = $transactions->count();
+
+            return response()->json([
+                'draw' => intval($request->draw), // Keep track of the request number
+                'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
+                'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
+                'data' => $data  // The paginated and formatted data
+            ]);
+        }
+
+        return view('savings.transactions', compact('client'));
     }
 }

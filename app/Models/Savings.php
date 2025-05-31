@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Savings extends Model
 {
-    protected $fillable = ['client_id','loan_id','description','notes','amount','transaction_type','classifications'];
+    protected $fillable = ['transaction_date','client_id','loan_id','description','notes','amount','transaction_type','classifications'];
 
     public function scopeFilter($query, $search)
     {

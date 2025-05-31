@@ -22,7 +22,11 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
+            $loans = Loan::with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+                        ->orderByDesc('loan_date')
+                        ->orderByDesc('loan_no')
+                        ->get();
+
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -52,6 +56,10 @@ class LoanController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'loan_date' => 'required|date',
+        ]);
+
         $request->merge([
             'applied_amount' => str_replace(',', '', $request->applied_amount),
             'principal' => str_replace(',', '', $request->applied_amount),
@@ -59,7 +67,7 @@ class LoanController extends Controller
             'service_fee' => str_replace(',', '', $request->service_fee),
             'insurance_fee' => str_replace(',', '', $request->insurance_fee),
             'notary_fee' => str_replace(',', '', $request->notary_fee),
-            'loan_no' => Loan::generateLoanNumber()
+            'loan_no' => Loan::generateLoanNumber($request->loan_date)
         ]);
 
         $data = $request->all();
@@ -119,7 +127,13 @@ class LoanController extends Controller
      */
     public function edit(Loan $loan)
     {
-        //
+        if($loan->status == LoanStatus::APPROVE->value)
+            abort(404);
+
+        $clients = Client::all();
+        $loan_products = LoanProduct::active()->get();
+
+        return view('loan.edit', compact('loan','clients','loan_products'));
     }
 
     /**
@@ -127,6 +141,36 @@ class LoanController extends Controller
      */
     public function update(Request $request, Loan $loan)
     {
+
+        $request->validate([
+            'loan_date' => 'required|date',
+        ]);
+
+        $request->merge([
+            'applied_amount' => str_replace(',', '', $request->applied_amount),
+            'principal' => str_replace(',', '', $request->applied_amount),
+            'advance_interest' => str_replace(',', '', $request->advance_interest),
+            'service_fee' => str_replace(',', '', $request->service_fee),
+            'insurance_fee' => str_replace(',', '', $request->insurance_fee),
+            'notary_fee' => str_replace(',', '', $request->notary_fee),
+            'loan_no' => Loan::generateLoanNumber($request->loan_date)
+        ]);
+
+        $loan->loan_date = $request->loan_date;
+        $loan->borrower_id = $request->borrower_id;
+        $loan->loan_product_id = $request->loan_product_id;
+        $loan->loan_duration = $request->loan_duration;
+        $loan->interest_rate = $request->interest_rate;
+        $loan->principal = $request->applied_amount;
+        $loan->applied_amount = $request->applied_amount;
+
+        $loan->loanCharges->advance_interest = $request->advance_interest;
+        $loan->loanCharges->service_fee = $request->service_fee;
+        $loan->loanCharges->insurance_fee = $request->insurance_fee;
+        $loan->loanCharges->notary_fee = $request->notary_fee;
+
+        $loan->loanCharges->save();
+        $loan->save();
 
         return response()->json([
             'status' => 'success',
@@ -154,7 +198,10 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::pending()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
+            $loans = Loan::pending()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+                        ->orderByDesc('loan_date')
+                        ->orderByDesc('loan_no')
+                        ->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -173,7 +220,10 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::approved()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
+            $loans = Loan::approved()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+                    ->orderByDesc('loan_date')
+                        ->orderByDesc('loan_no')
+                        ->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -192,7 +242,10 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::declined()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
+            $loans = Loan::declined()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+                        ->orderByDesc('loan_date')
+                        ->orderByDesc('loan_no')
+                        ->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -211,7 +264,10 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::withdrawn()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
+            $loans = Loan::withdrawn()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+                        ->orderByDesc('loan_date')
+                        ->orderByDesc('loan_no')
+                        ->get();
             $totalRecords = $loans->count();
 
             return response()->json([

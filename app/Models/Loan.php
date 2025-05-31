@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Enums\LoanStatus;
+use DateTime;
 use Illuminate\Database\Eloquent\Model;
 
 class Loan extends Model
 {
-    protected $fillable = ['loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal'];
+    protected $fillable = ['loan_date','loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal'];
 
     public function scopePending($query)
     {
@@ -60,9 +61,12 @@ class Loan extends Model
         return $query;
     }
 
-    public static function generateLoanNumber() : string
+    public static function generateLoanNumber($loan_date) : string
     {
+        $date = new DateTime($loan_date);
+        $date_format = $date->format('Y-m');
+
         $count = str_pad(Loan::count() + 1,5,'0', STR_PAD_LEFT);
-        return 'LN-'.date('Y-m-') . $count;
+        return "LN-{$date_format}-{$count}";
     }
 }

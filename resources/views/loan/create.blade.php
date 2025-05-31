@@ -5,6 +5,10 @@
     ul > li > span {
         float: right;
     }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
 </style>
 @endpush
 
@@ -36,6 +40,10 @@
             <div class="card-header">Add Loan</div>
             <div class="card-body">
                 <div class="form-group">
+                    <label for="loan_date">Loan Date</label>
+                    <input type="date" class="form-control" name="loan_date" id="loan_date"/>
+                </div>
+                <div class="form-group">
                     <label for="borrower_id">Borrower</label>
                     <select name="borrower_id" id="borrower_id" class="form-control">
                         <option value="" disabled>-Select-</option>
@@ -53,7 +61,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group pricipal">
+                <div class="form-group">
                     <label for="principal">Principal</label>
                     <input type="number" class="form-control" name="principal" id="principal"/>
                 </div>
@@ -249,6 +257,7 @@
 
         function addLoan() {
             let params = {
+                loan_date: $('#loan_date').val(),
                 borrower_id: $('#borrower_id').val(),
                 loan_product_id: $('#loan_product_id').val(),
                 loan_duration: $('#term').val(),

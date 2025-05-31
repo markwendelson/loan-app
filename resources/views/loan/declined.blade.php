@@ -50,6 +50,7 @@
                 <table class="table table-bordered table-hover" id = "tblLoan">
                     <thead class = "bg-default">
                         <tr>
+                            <th class = "text-center" width = "120">Loan Date.</th>
                             <th class = "text-center" width = "120">Loan No.</th>
                             <th class = "text-leftr" width = "150">Loan Product</th>
                             <th class = "text-leftr" width = "150">Borrower</th>
@@ -77,6 +78,7 @@
                 url: "{{ route('loan.declined') }}",
             },
             columns: [
+                { data: 'loan_date', name: 'loan_date' },
                 { data: 'loan_no', name: 'loan_no' },
                 { data: 'loan_product.name', name: 'loan_product' },
                 { data: 'borrower.details.fullname', name: 'name' },
@@ -95,7 +97,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [3,4] },
+                { className: "text-center", targets: [4,5] },
             ]
         });
 
