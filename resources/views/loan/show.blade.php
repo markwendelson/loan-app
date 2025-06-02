@@ -36,6 +36,10 @@
             <div class="card-header">View Loan</div>
             <div class="card-body">
                 <div class="form-group">
+                    <label for="loan_date">Loan Date</label>
+                    <input type="date" class="form-control" name="loan_date" id="loan_date" value="{{$loan->loan_date}}" readonly/>
+                </div>
+                <div class="form-group">
                     <label for="borrower_id">Borrower</label>
                     <select name="borrower_id" id="borrower_id" class="form-control" disabled>
                         <option value="" disabled>-Select-</option>
