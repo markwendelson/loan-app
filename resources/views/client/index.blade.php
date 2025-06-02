@@ -72,9 +72,6 @@
 
 <script>
     $(document).ready(function () {
-        @if (session('message'))
-            showToast.success({!! json_encode(session('message')) !!});
-        @endif
 
         const table = $('#tblClient').DataTable({
             ordering: false,
@@ -102,6 +99,7 @@
                     name: 'actions',
                     render: function(data, type, row) {
                         return `
+                                <button class="btn btn-primary btn-xs btnLedger" data-id="${row.id}"><i class="fa fa-table"></i></button>
                                 <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
                                 <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
                             `;
@@ -118,6 +116,11 @@
         $("#tblClient").on("click", ".btnEdit", function(){
             let id = $(this).attr("data-id");
             window.location.href = `/client/${id}/edit`;
+        })
+
+        $("#tblClient").on("click", ".btnLedger", function(){
+            let id = $(this).attr("data-id");
+            window.location.href = `/client/${id}/ledger`;
         })
 
 

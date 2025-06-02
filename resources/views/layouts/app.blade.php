@@ -218,6 +218,10 @@
                 });
             }
 
+            @if (session('message'))
+                showToast.success({!! json_encode(session('message')) !!});
+            @endif
+
         </script>
     </body>
 </html>

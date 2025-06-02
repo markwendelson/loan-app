@@ -83,6 +83,12 @@ Route::middleware('auth')->group(function(){
     Route::get('/get-insurance-fee', [InsuranceFeeScheduleController::class, 'getInsuranceFee'])->name('get_insurance_fee');
     Route::get('/get-notary-fee', [NotaryFeeScheduleController::class, 'getNotaryFee'])->name('get_notary_fee');
 
+    Route::controller(ClientController::class)
+        ->prefix('client')
+        ->group(function() {
+            Route::get('{client}/ledger', 'ledger')->name('client.ledger');
+    });
+
     Route::resource('user', UserController::class);
     Route::resource('role', RoleController::class);
     Route::resource('client', ClientController::class);

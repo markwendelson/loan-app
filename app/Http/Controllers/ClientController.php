@@ -33,7 +33,7 @@ class ClientController extends Controller
             $search = $request->search['value'];
 
             // $clients = Client::whereHas('coMakers')->with('details')->get();
-            $clients = Client::with('details')->get();
+            $clients = Client::filter($search)->with('details')->get();
 
             // $mappedClients = $clients->map(function($client) {
             //     $client->fullname = trim(collect([$client->firstname, $client->middlename, $client->lastname, ])->filter()->implode(' '));
@@ -130,5 +130,19 @@ class ClientController extends Controller
             'status' => 'success',
             'message' => 'Client deleted successfully',
         ]);
+    }
+
+    public function ledger(Request $request, Client $client)
+    {
+        if($request->ajax()) {
+            $totalRecords = 0;
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+                'data' => []
+            ]);
+        }
+        return view('client.ledger', compact('client'));
     }
 }
