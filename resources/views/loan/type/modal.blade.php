@@ -35,7 +35,7 @@
 
             <div class="modal-footer gap-1">
                 <button type="button" class="btn btn-primary btnSubmit w-100"><i class="fa fa-save"></i> Submit</button>
-                <button type="button" class="btn btn-ligh w-100" onclick="hideModal('modalLoanType')"><i class="fa fa-close"></i> Cancel</button>
+                <button type="button" class="btn btn-light w-100" onclick="hideModal('modalLoanType')"><i class="fa fa-close"></i> Cancel</button>
             </div>
         </div>
     </div>

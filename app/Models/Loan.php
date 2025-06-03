@@ -69,4 +69,9 @@ class Loan extends Model
         $count = str_pad(Loan::count() + 1,5,'0', STR_PAD_LEFT);
         return "LN-{$date_format}-{$count}";
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Savings::class);
+    }
 }

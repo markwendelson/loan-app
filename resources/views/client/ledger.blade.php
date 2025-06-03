@@ -41,11 +41,15 @@
     </div>
 
     <!-- button container -->
-    {{-- <div class="card">
+    <div class="card">
         <div class="card-body">
-            <a href="{{route('client.create')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
+            <div>Name: <span>{{$client->details->fullname}}</span></div>
+            <div>Address: <span>{{$client->details->present_full_address}}</div>
+            <div>Remarks:</div>
+            <div>Date Loan Granted:</div>
+            {{-- <a href="{{route('client.create')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a> --}}
         </div>
-    </div> --}}
+    </div>
 
 
     <!-- table container -->

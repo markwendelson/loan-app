@@ -199,17 +199,82 @@
                 $("#modalTransaction [name='transaction_date']").val(data.transaction_date);
                 $("#modalTransaction [name='transaction_type']").val(data.transaction_type);
                 $("#modalTransaction [name='amount']").val(data.amount);
+                $("#modalTransaction [name='interest']").val(data.interest);
+                $("#modalTransaction [name='interest_month']").val(data.interest_month);
+                $("#modalTransaction [name='interest_year']").val(data.interest_year);
+                $("#modalTransaction [name='insurance']").val(data.insurance);
+                $("#modalTransaction [name='insurance_month']").val(data.insurance_month);
+                $("#modalTransaction [name='insurance_year']").val(data.insurance_year);
+                $("#modalTransaction [name='principal']").val(data.principal);
                 $("#modalTransaction [name='description']").val(data.description);
                 $("#modalTransaction [name='notes']").val(data.notes);
                 $("#modalTransaction [name='classifications']").val(data.classifications);
                 showModal('modalTransaction')
+
+                if(data.transaction_type == 'withdraw'){
+                    $('.withdraw').show();
+                    calculateChange();
+                }else{
+                    $('.withdraw').hide();
+                }
 
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         }
 
+        $('.withdraw').hide();
+        $('#transaction_type').on('change', function() {
+            let selected = $(this).val();
+            if(selected == 'withdraw'){
+                $('.withdraw').show();
+                calculateChange();
+            }else{
+                $('.withdraw').hide();
+            }
+        })
+
+
+        var transaction_type;
+        $("[name='transaction_type']").on('change', function() {
+            transaction_type = $(this).find('option:selected').val();
+
+            if(transaction_type == 'withdraw') {
+                $(".withdraw").show()
+            } else {
+                $(".withdraw").hide()
+            }
+
+            calculateChange();
+
+        })
+
+        $("[name='amount'],[name='interest'],[name='insurance'],[name='principal']").on('change', function() {
+            calculateChange();
+        })
+
     });
+
+    function calculateChange() {
+            var amount = parseFloat($("#modalTransaction [name='amount']").val())
+            var interest = parseFloat($("#modalTransaction [name='interest']").val())
+            var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
+            var principal = parseFloat($("#modalTransaction [name='principal']").val())
+
+            if (isNaN(amount)) amount = 0;
+            if (isNaN(interest)) interest = 0;
+            if (isNaN(insurance)) insurance = 0;
+            if (isNaN(principal)) principal = 0;
+
+
+            if(transaction_type === 'withdraw') {
+                return;
+            }
+
+            var change;
+            change = amount - (interest + insurance + principal);
+            $("[name='change']").val(change)
+        }
 
     function deleteData(id) {
         swal({

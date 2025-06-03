@@ -51,3 +51,11 @@ if(!function_exists('getBanks')) {
     }
 }
 
+if(!function_exists('month_names')) {
+    function month_names()
+    {
+        return collect(range(1, 12))->mapWithKeys(fn($i) =>
+            [$i => \Carbon\Carbon::create()->month($i)->translatedFormat('F')]
+        )->toArray();
+    }
+}

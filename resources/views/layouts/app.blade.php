@@ -55,6 +55,15 @@
 		{{-- <link rel = "stylesheet" type = "text/css" href = "{{ url('assets/css/common.css?v=' . uniqid()) }}"> --}}
 
         @stack('css')
+        <style>
+            .form-group {
+                margin-bottom: 10px;
+            }
+
+            .toast-index {
+                z-index: 10000;
+            }
+        </style>
     </head>
     <body>
 

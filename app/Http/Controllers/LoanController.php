@@ -11,6 +11,7 @@ use App\Models\Savings;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class LoanController extends Controller
 {
@@ -45,7 +46,7 @@ class LoanController extends Controller
      */
     public function create()
     {
-        $clients = Client::all();
+        $clients = Client::active()->get();
         $loan_products = LoanProduct::active()->get();
 
         return view('loan.create', compact('loan_products', 'clients'));
@@ -99,6 +100,7 @@ class LoanController extends Controller
             ], 500);
         }
 
+        Session::flash('Loan created successfully');
         return response()->json([
             'status' => 'success',
             'message' => 'Loan created successfully',

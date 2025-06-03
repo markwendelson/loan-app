@@ -5,10 +5,6 @@
     ul > li > span {
         float: right;
     }
-
-    .form-group {
-        margin-bottom: 10px;
-    }
 </style>
 @endpush
 
@@ -41,7 +37,7 @@
             <div class="card-body">
                 <div class="form-group">
                     <label for="loan_date">Loan Date</label>
-                    <input type="date" class="form-control" name="loan_date" id="loan_date"/>
+                    <input type="date" class="form-control" name="loan_date" id="loan_date" value="{{ date('Y-m-d') }}"/>
                 </div>
                 <div class="form-group">
                     <label for="borrower_id">Borrower</label>
@@ -281,10 +277,11 @@
                 success: function(data) {
                     console.log(data)
                     if (data.status == 'success') {
-                        alert('Loan added successfully')
+                        showToast.success(data.message)
                         window.location.href = "{{ route('loan.index') }}"
                         } else {
-                            alert('Failed to add loan')
+                        showToast.error('Failed to add loan')
+
                         }
                 },
                 error: function(xhr, status, error) {

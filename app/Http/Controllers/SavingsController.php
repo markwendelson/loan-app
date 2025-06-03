@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LoanStatus;
 use App\Models\Client;
+use App\Models\Loan;
 use App\Models\Savings;
 use Illuminate\Http\Request;
 
@@ -56,13 +58,33 @@ class SavingsController extends Controller
     public function store(Request $request)
     {
 
-        // if($request->transaction_type == 'withdraw') {
-        //     $request->merge([
-        //         'amount' => $request->amount
-        //     ]);
-        // }
+        $request->validate([
+            'amount' => 'required',
+            'interest_year' => 'required_if:interest,!=,0',
+            'insurance_year' => 'required_if:insurance,!=,0'
+        ]);
+
+        // check balance if withdraw
+        if($request->transaction_type == 'withdraw') {
+            $client = Client::findOrFail($request->client_id);
+            $balance = $this->getClientBalance($client);
+
+            if($balance<=0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Insufficient Balance',
+                ],500);
+            }
+        }
 
         $data = $request->all();
+
+        $loan = Loan::where([
+            'borrower_id' => $request->client_id,
+            'status' => LoanStatus::APPROVE
+        ])->first();
+
+        $data['loan_id'] = $loan->id;
 
         Savings::create($data);
 
@@ -129,10 +151,7 @@ class SavingsController extends Controller
     public function transactions(Request $request, int $client_id)
     {
         $client = Client::findOrFail($client_id);
-        $balance = $client->savings
-                                ->where('transaction_type', 'deposit')->sum('amount')
-                                - $client->savings
-                                ->where('transaction_type', 'withdraw')->sum('amount');
+        $balance = $this->getClientBalance($client);
 
         $client['balance'] = number_format($balance,2);
 
@@ -157,5 +176,14 @@ class SavingsController extends Controller
         }
 
         return view('savings.transactions', compact('client'));
+    }
+
+    function getClientBalance($client)
+    {
+        $balance = $client->savings
+                                ->where('transaction_type', 'deposit')->sum('amount')
+                                - $client->savings
+                                ->where('transaction_type', 'withdraw')->sum('amount');
+        return $balance;
     }
 }
