@@ -31,6 +31,10 @@
                     </div>
 
                     <div class="col-12">
+                        <label for="prerequisites">Prerequisites</label>
+                    </div>
+
+                    <div class="col-12">
                         <label class="w-100" for="status">Status</label>
                         <select class="form-select form-select-sm" name="status">
                             <option value="" disabled>-- Select --</option>

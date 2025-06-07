@@ -76,6 +76,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
         $client = ClientRegistrationService::register($request->all());
 
         if($client) {

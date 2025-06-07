@@ -249,55 +249,63 @@
             <div class="card-body">
                 <div class="row">
 
-                    <!-- present address province -->
-                    <div class="col-sm-12 col-md-5 col-lg-4">
-                        <label class="w-100">
-                            Province
-                            <select class="form-select" name="client_details[permanent_province]" data-target="client_permanent_city" required>
-                                <option value="" selected hidden disabled>-- Select --</option>
-                                    @foreach($provinces as $key  => $val)
-                                        <option value="{{$val['id']}}" {{isset($client) && $client->details->permanent_province_id == $val['id'] ? 'selected' : ''}}>{{$val['name']}}</option>
-                                    @endforeach
-                            </select>
-                        </label>
+                    <div class="form-check checkbox checkbox-primary mb-0">
+                        <input class="form-check-input" name="client_details[same_as_present_address]" id="client_details[same_as_present_address]" type="checkbox" />
+                        <label class="form-check-label" for="client_details[same_as_present_address]">Same as Present Address</label>
                     </div>
 
-                    <!-- present address city -->
-                    <div class="col-sm-12 col-md-4 col-lg-3">
-                        <label class="w-100">
-                            City
-                            <select class="form-select" id="client_permanent_city" name="client_details[permanent_city]" required>
-                                <option value="" selected hidden disabled>-- Select --</option>
-                            </select>
-                        </label>
+                    <div class="row permanent-address">
+                        <!-- present address province -->
+                        <div class="col-sm-12 col-md-5 col-lg-4">
+                            <label class="w-100">
+                                Province
+                                <select class="form-select" name="client_details[permanent_province]" data-target="client_permanent_city" required>
+                                    <option value="" selected hidden disabled>-- Select --</option>
+                                        @foreach($provinces as $key  => $val)
+                                            <option value="{{$val['id']}}" {{isset($client) && $client->details->permanent_province_id == $val['id'] ? 'selected' : ''}}>{{$val['name']}}</option>
+                                        @endforeach
+                                </select>
+                            </label>
+                        </div>
+
+                        <!-- present address city -->
+                        <div class="col-sm-12 col-md-4 col-lg-3">
+                            <label class="w-100">
+                                City
+                                <select class="form-select" id="client_permanent_city" name="client_details[permanent_city]" required>
+                                    <option value="" selected hidden disabled>-- Select --</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <!-- present address zipcode -->
+                        <div class="col-sm-12 col-md-4 col-lg-3">
+                            <label class="w-100">
+                                Zipcode
+                                <input type="number"
+                                    class="form-control"
+                                    name="client_details[permanent_zipcode]"
+                                    placeholder="Zipcode"
+                                    value="{{$client->details->permanent_zipcode ?? old('client_details[permanent_zipcode]')}}"
+                                >
+                            </label>
+                        </div>
+
+                        <!--Permanent Address -->
+                        <div class="col-12">
+                            <label class="w-100">
+                                Permanent Address
+                                <textarea class="form-control permanentAddress"
+                                    placeholder="Permanent Address"
+                                    name="client_details[permanent_address]"
+                                    rows="5"
+                                    required
+                                    value="{{$client->details->permanent_address ?? old('client_details[permanent_address]')}}"
+                                ></textarea>
+                            </label>
+                        </div>
                     </div>
 
-                    <!-- present address zipcode -->
-                    <div class="col-sm-12 col-md-4 col-lg-3">
-                        <label class="w-100">
-                            Zipcode
-                            <input type="number"
-                                class="form-control"
-                                name="client_details[permanent_zipcode]"
-                                placeholder="Zipcode"
-                                value="{{$client->details->permanent_zipcode ?? old('client_details[permanent_zipcode]')}}"
-                            >
-                        </label>
-                    </div>
-
-                    <!--Permanent Address -->
-                    <div class="col-12">
-                        <label class="w-100">
-                            Permanent Address
-                            <textarea class="form-control permanentAddress"
-                                placeholder="Permanent Address"
-                                name="client_details[permanent_address]"
-                                rows="5"
-                                required
-                                value="{{$client->details->permanent_address ?? old('client_details[permanent_address]')}}"
-                            ></textarea>
-                        </label>
-                    </div>
                 </div>
             </div>
         </div>

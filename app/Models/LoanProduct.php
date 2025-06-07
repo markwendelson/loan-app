@@ -38,4 +38,14 @@ class LoanProduct extends Model implements Auditable
     {
         return $this->belongsTo(LoanType::class, 'loan_type_id');
     }
+
+    public function prerequisite()
+    {
+        return $this->belongsToMany(
+            LoanProduct::class,
+            'loan_product_prerequisites',
+            'loan_product_id',         // Foreign key on pivot table for this model
+            'loan_product_id_required' // Foreign key on pivot table for the related model
+        );
+    }
 }

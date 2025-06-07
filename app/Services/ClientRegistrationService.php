@@ -25,7 +25,14 @@ class ClientRegistrationService
     {
         try {
             return DB::transaction(function () use ($data) {
+                if($data['same_as_present_address']) {
+                    $data['permanent_province'] = $data['present_province'];
+                    $data['permanent_city'] = $data['present_city'];
+                    $data['permanent_zipcode'] = $data['present_zipcode'];
+                    $data['permanent_address'] = $data['present_address'];
+                }
                 Log::info($data);
+
                 $this->client = $this->createClient($data['client_details']);
                 $this->createClientDetails($data['client_details']);
 

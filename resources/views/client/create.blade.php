@@ -152,8 +152,6 @@
         @include('client.modal.job_information_modal')
     </div>
 
-    @include('client.modal.co-maker_modal')
-
 @endsection
 
 @push('js')
@@ -399,6 +397,22 @@
             $("#modalPayrollAccount #account_name").val(""),
             $("#modalPayrollAccount #status").val("")
         }
+
+
+        $("[name='client_details[same_as_present_address]']").on('change', function() {
+            if ($(this).is(':checked')) {
+                $('.permanent-address').hide()
+                $('[name="client_details[permanent_province]"]').removeAttr('required');
+                $('[name="client_details[permanent_city]"]').removeAttr('required');
+                $('[name="client_details[permanent_address]"]').removeAttr('required');
+
+            } else {
+                $('.permanent-address').show()
+                $('[name="client_details[permanent_province]"]').attr('required', true);
+                $('[name="client_details[permanent_city]"]').attr('required', true);
+                $('[name="client_details[permanent_address]"]').attr('required', true);
+            }
+        })
     </script>
 @endpush
 
