@@ -1,47 +1,42 @@
 @extends('layouts.app')
+
 @push('css')
-    <style>
-        .nav-link:hover {
-            background-color: #f0f0f0;
-            color: #333;
-            transition: background-color 0.3s ease;
-        }
-    </style>
+<style>
+    .nav-link:hover {
+        background-color: #f0f0f0;
+        color: #333;
+        transition: background-color 0.3s ease;
+    }
+</style>
 @endpush
 
 @section('content')
+
+
     <div class="container-fluid">
         <div class="page-title">
             <div class="row">
                 <div class="col-6">
-                    <h4>Client Update </h4>
+                    <h4>Client Registration </h4>
                 </div>
                 <div class="col-6">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"> <a href="index.html">
+                        <li class="breadcrumb-item"> <a href="{{route('home')}}">
                             <svg class="stroke-icon">
                                 <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
                             </svg></a>
                         </li>
                         <li class="breadcrumb-item">Client</li>
-                        <li class="breadcrumb-item active">Client Update</li>
-                        {{-- <li class="breadcrumb-item active">Project List</li> --}}
+                        <li class="breadcrumb-item active">Client Register</li>
                     </ol>
                 </div>
             </div>
         </div>
     </div>
 
-    <?php $notification=session('client_notification'); ?>
-
-    @if(isset($notification) && $notification)
-        <!-- notification container -->
-        @include('partials.notification')
-    @endif
-
     <section class="content">
         <div class="container-fluid">
-            <form method="post" action="#" enctype="multipart/form-data">
+            <form method="post" action="{{route('client.update',$client->id)}}" enctype="multipart/form-data">
                 @csrf
                 <div class="project-list">
                     <div class="card">
@@ -63,28 +58,15 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link nav-link:hover "
-                                            id="top-guarantor"
+                                            id="top-comaker"
                                             data-bs-toggle="tab"
-                                            href="#tab-guarantor"
+                                            href="#tab-comaker"
                                             role="tab"
-                                            aria-controls="tab-guarantor"
+                                            aria-controls="tab-comaker"
                                             aria-selected="false"
                                         >
                                             <i data-feather="users"></i>
-                                            Co-maker
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link"
-                                            id="top-client-references"
-                                            data-bs-toggle="tab"
-                                            href="#tab-client-references"
-                                            role="tab"
-                                            aria-controls="top-client-references"
-                                            aria-selected="false"
-                                        >
-                                            <i data-feather="credit-card"></i>
-                                            Client References
+                                            Co-Maker
                                         </a>
                                     </li>
                                     <li class="nav-item">
@@ -114,14 +96,10 @@
                     </div>
 
                     <!-- gaurantor -->
-                    <div class="tab-pane fade show" id="tab-guarantor" role="tabpanel" aria-labelledby="top-gurantor">
+                    <div class="tab-pane fade show" id="tab-comaker" role="tabpanel" aria-labelledby="top-gurantor">
                         @include('client.co-maker')
                     </div>
 
-                    <!-- payroll account -->
-                    <div class="tab-pane fades how" id="tab-client-references" role="tabpanel" aria-labelledby="top-payroll-account">
-                        @include('client.references')
-                    </div>
 
                     <!-- documents -->
                     <div class="tab-pane fades how" id="tab-documents" role="tabpanel" aria-labelledby="top-documents">
@@ -132,7 +110,7 @@
                 <!-- button container -->
                 <div class="row">
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary float-end"><i class="fa fa-save"></i> Register Client</button>
+                        <button type="submit" class="btn btn-primary float-end"><i class="fa fa-save"></i> Update Client</button>
                     </div>
                 </div>
 
@@ -154,13 +132,82 @@
 
 @push('js')
     <script>
+        $('document').ready(function() {
+            var present_province =$("[name='client_details[present_province]']").val();
+            var present_city_id = {{$client->details->present_city_id}};
+            if(present_province) {
+                getCities({province_id:present_province,city_id:present_city_id}, function(response){
+                    console.log('get cities')
+                    if(typeof response !== 'undefined' && response.has_error == 0){
+                        if(response.html){
+                            $("#client_present_city").empty();
+                            $("#client_present_city").append("<option value='' selected hidden disabled>-- Select --</option>")
+                            $("#client_present_city").append(response.html);
+                        }
+    
+                    }
+                });
+            }
+            
+
+            var permanent_province =$("[name='client_details[permanent_province]']").val();
+            var permanent_city_id = {{$client->details->permanent_city_id}};
+
+            if(permanent_province) {
+                getCities({province_id:permanent_province,city_id:permanent_city_id}, function(response){
+                    if(typeof response !== 'undefined' && response.has_error == 0){
+                        if(response.html){
+                            $("#client_permanent_city").empty();
+                            $("#client_permanent_city").append("<option value='' selected hidden disabled>-- Select --</option>")
+                            $("#client_permanent_city").append(response.html);
+                        }
+    
+                    }
+                });
+            }
+            
+
+            console.log({{$client->details->present_city_id}})
+        })
+
+        $('#btn_img_upload').click(function() {
+            $("[name='client_details[photo]']").click();
+        });
+
+        // image preview
+        $("[name='client_details[photo]']").change(function(event) {
+            const file=event.target.files[0];
+            if (file) {
+                const reader=new FileReader();
+                reader.onload=function(e) {
+                    $('#client_photo_preview').attr('src', e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        $('#btn_comaker_img_upload').click(function() {
+            $("[name='comaker[photo]']").click();
+        });
+
+        // image preview
+        $("[name='comaker[photo]']").change(function(event) {
+            const file=event.target.files[0];
+            if (file) {
+                const reader=new FileReader();
+                reader.onload=function(e) {
+                    $('#comaker_photo_preview').attr('src', e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         var payrollCount=1;
         var jobInformationCount=1;
         var referenceCount=1;
         var payrollAccountStatus={!! json_encode(config('constants.status_value')) !!};
 
-        $("[name='client_details[present_province]'], [name='client_details[permanent_province]'], [name='guarantor[present_province]'], [name='guarantor[permanent_province]']").change(function(){
+        $("[name='client_details[present_province]'], [name='client_details[permanent_province]'], [name='comaker[present_province]'], [name='comaker[permanent_province]']").change(function(){
             let params={
                 province_id : $(this).val()
             };
@@ -252,16 +299,17 @@
         function addJobInformation(params){
             let field='client_job_information'; //default value
 
-            if(params.targetField == '.guarantor-job-informations') {
-                field='guarantor_job_title';
+            if(params.targetField == '.comaker-job-informations') {
+                field='comaker_job_title';
             }
+            let job_status = Number(params.status) === 1 ? 'Active' : 'Inactive'
 
             let card= "<div class='col-sm-12 col-md-4 col-lg-3 client-job-information-items'> "+
                     "<div class='card'>"+
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][job_id]' value='"+ params.job_id +"'>" +
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][office_name]' value='"+ params.office_name +"'>" +
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][salary]' value='"+ params.salary +"'>" +
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][status]' value='"+ params.status +"'>" +
+                        "<input type='hidden' name='"+ field +"[job_id][]' value='"+ params.job_id +"'>" +
+                        "<input type='hidden' name='"+ field +"[office_name][]' value='"+ params.office_name +"'>" +
+                        "<input type='hidden' name='"+ field +"[salary][]' value='"+ params.salary +"'>" +
+                        "<input type='hidden' name='"+ field +"[status][]' value='"+ params.status +"'>" +
                         "<div class='card-body'>" +
                             "<button type='button' class='btn btn-danger btn-xs float-end'><i class='fa fa-times'></i></button>" +
                             "<h5>"+ params.job_title +"</h5>" +
@@ -269,7 +317,7 @@
                             "<p class='mb-0'>Salary: "+ params.salary +"</p>" +
                         "</div>" +
                         "<div class='card-footer'>" +
-                            "<p>Active</p>"+
+                            "<p>"+job_status+"</p>"+
                         "</div>" +
                     "</div>" +
                 "</div>";
@@ -286,17 +334,13 @@
         function addPayrollAccount(params){
             let field='client_payroll_account'; //default field
 
-            if(params.targetField == '.guarantor-payroll-accounts'){
-                field='guarantor_payroll_account';
-            }
-
             let card="<div class='col-sm-12 col-md-4 col-lg-3 client-payroll-items'>" +
                     "<div class='card'>" +
                         "<div class='card-body'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][bank_id]' value='"+ params.bankId +"'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][account_no]' value='"+ params.accountNo +"'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][account_name]' value='"+ params.accountName +"'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][is_active]' value='"+ params.is_active +"'>" +
+                            "<input type='hidden' name='"+ field +"[bank_id][]' value='"+ params.bankId +"'>" +
+                            "<input type='hidden' name='"+ field +"[account_no][]' value='"+ params.accountNo +"'>" +
+                            "<input type='hidden' name='"+ field +"[account_name][]' value='"+ params.accountName +"'>" +
+                            "<input type='hidden' name='"+ field +"[is_active][]' value='"+ params.status +"'>" +
 
                             "<button type='button' class='btn btn-danger btn-xs float-end btnRemovePayrollAccount'><i class='fa fa-times'></i></button>" +
                             "<h5><strong>"+ params.bankName +"</strong></h5>" +
@@ -332,8 +376,10 @@
                 'bankName' : $("#modalPayrollAccount #bank_id option:selected").text(),
                 'accountNo' : $("#modalPayrollAccount #account_no").val(),
                 'accountName' : $("#modalPayrollAccount #account_name").val(),
-                'is_active' : $("#modalPayrollAccount #status").val()
+                'status' : $("#modalPayrollAccount #status").val()
             };
+
+
 
             addPayrollAccount(params);
         })
@@ -364,6 +410,22 @@
             $("#modalPayrollAccount #account_name").val(""),
             $("#modalPayrollAccount #status").val("")
         }
-    </script>
 
+
+        $("[name='client_details[same_as_present_address]']").on('change', function() {
+            if ($(this).is(':checked')) {
+                $('.permanent-address').hide()
+                $('[name="client_details[permanent_province]"]').removeAttr('required');
+                $('[name="client_details[permanent_city]"]').removeAttr('required');
+                $('[name="client_details[permanent_address]"]').removeAttr('required');
+
+            } else {
+                $('.permanent-address').show()
+                $('[name="client_details[permanent_province]"]').attr('required', true);
+                $('[name="client_details[permanent_city]"]').attr('required', true);
+                $('[name="client_details[permanent_address]"]').attr('required', true);
+            }
+        })
+    </script>
 @endpush
+

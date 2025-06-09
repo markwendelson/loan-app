@@ -279,10 +279,10 @@
                     if (data.status == 'success') {
                         showToast.success(data.message)
                         window.location.href = "{{ route('loan.index') }}"
-                        } else {
-                        showToast.error('Failed to add loan')
+                    } else {
+                        showToast.error(data.message)
 
-                        }
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseText);

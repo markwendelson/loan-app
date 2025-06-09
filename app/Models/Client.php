@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Storage;
+use App\Models\ClientDetails;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -12,6 +14,23 @@ class Client extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     protected $fillable = ['branch_id','client_code','status', 'created_by'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Before the model is deleted
+        static::deleting(function (Client $client) {
+            // e.g. remove related files, log something...
+            Storage::disk('public')->deleteDirectory($client->path);
+        });
+
+        // After the model is deleted
+        static::deleted(function (Client $client) {
+            // e.g. clear cache, fire custom events...
+            \Log::info("Client {$client->id} has been deleted.");
+        });
+    }
 
     public function scopeActive($query)
     {
@@ -51,5 +70,20 @@ class Client extends Model implements Auditable
     public function savings()
     {
         return $this->hasMany(Savings::class);
+    }
+
+    public function jobs()
+    {
+        return $this->hasMany(ClientJobTitle::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(ClientDocument::class);
+    }
+
+    public function bankAccount()
+    {
+        return $this->hasMany(ClientPayrollAccount::class);
     }
 }

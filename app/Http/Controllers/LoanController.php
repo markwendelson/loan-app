@@ -74,46 +74,49 @@ class LoanController extends Controller
         $data = $request->all();
 
         try {
+
+            // $alreadyHasLoan = Loan::where([
+            //                 'borrower_id' => $data['borrower_id'],
+            //                 'loan_product_id' => $data['loan_product_id']
+            //             ])
+            //             ->where('status', LoanStatus::APPROVE)
+            //             ->orWhere('status', LoanStatus::PENDING)
+            //             ->first();
+
+            // if($alreadyHasLoan) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'Client already has a pending or approved loan for this product']
+            //         , 400);
+            // }
+
+            // $loan_product = LoanProduct::with('prerequisite')->find($data['loan_product_id']);
+
+            // if ($loan_product->prerequisite->isNotEmpty()) {
+            //     $borrower_product_id = Loan::where('borrower_id', $data['borrower_id'])
+            //         ->where('status', LoanStatus::APPROVE)
+            //         ->pluck('loan_product_id')
+            //         ->toArray();
+
+            //     $missing = $loan_product->prerequisite->filter(function ($prerequisite) use ($borrower_product_id) {
+            //         return !in_array($prerequisite->id, $borrower_product_id);
+            //     });
+
+            //     if ($missing->isNotEmpty()) {
+            //         return response()->json([
+            //             'error' => 'Missing required prerequisite loans',
+            //         ], 400);
+            //     }
+            // }
+
+
+            // $principan_loans = LoanProduct::doesntHave('prerequisite')->pluck('id')->toArray();
+
+
+
+
             DB::transaction(function () use ($data) {
-
-                $alreadyHasLoan = Loan::where([
-                            'borrower_id' => $data['borrower_id'],
-                            'loan_product_id' => $data['loan_product_id']
-                        ])
-                        ->where('status', LoanStatus::APPROVE)
-                        ->orWhere('status', LoanStatus::PENDING)
-                        ->first();
-
-                if($alreadyHasLoan) {
-                    return response()->json(['error' => 'Client already has a pending or approved loan for this product'], 400);
-                }
-
-                $loan_product = LoanProduct::with('prerequisite')->find($data['loan_product_id']);
-
-                if ($loan_product->prerequisite->isNotEmpty()) {
-                    $borrower_product_id = Loan::where('borrower_id', $data['borrower_id'])
-                        ->where('status', LoanStatus::APPROVE)
-                        ->pluck('loan_product_id')
-                        ->toArray();
-
-                    $missing = $loan_product->prerequisite->filter(function ($prerequisite) use ($borrower_product_id) {
-                        return !in_array($prerequisite->id, $borrower_product_id);
-                    });
-
-                    if ($missing->isNotEmpty()) {
-                        return response()->json([
-                            'error' => 'Missing required prerequisite loans',
-                        ], 400);
-                    }
-                }
-
-
-                $principan_loans = LoanProduct::doesntHave('prerequisite')->pluck('id')->toArray();
-
-                // check loan product if has pre-requisite
-                $loan_product = LoanProduct::find($data['loan_product_id']);
-
-
+                
                 $loan = Loan::create($data);
 
                 LoanCharge::create([

@@ -36,7 +36,8 @@ class CityController extends Controller {
         $html = '';
         if(isset($citiesData) && $citiesData){
             foreach($citiesData as $key => $val){
-                $html = $html . '<option value = "'. $val['id'] .'">'. $val['name'] .'</option>';
+                $matchCity = isset($inputData['city_id']) && $inputData['city_id'] == $val['id'] ? 'selected' : '';
+                $html = $html . '<option value = "'. $val['id'] .'"'.$matchCity.'>'. $val['name'] .'</option>';
             }
         }
 

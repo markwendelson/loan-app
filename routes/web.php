@@ -86,7 +86,8 @@ Route::middleware('auth')->group(function(){
     Route::controller(ClientController::class)
         ->prefix('client')
         ->group(function() {
-            Route::get('{client}/ledger', 'ledger')->name('client.ledger');
+            Route::get('{client}/ledger', 'ledgerPrincipal')->name('client.ledger.principal');
+            Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
     });
 
     Route::resource('user', UserController::class);

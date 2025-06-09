@@ -22,6 +22,10 @@ class ClientPayrollAccount extends Model {
         'updated_at'
     ];
 
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class);
+    }
 
 
 

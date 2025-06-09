@@ -34,13 +34,6 @@
         </div>
     </div>
 
-    <?php $notification=session('client_notification'); ?>
-
-    @if(isset($notification) && $notification)
-        <!-- notification container -->
-        @include('partials.notification')
-    @endif
-
     <section class="content">
         <div class="container-fluid">
             <form method="post" action="{{route('client.store')}}" enctype="multipart/form-data">
@@ -78,19 +71,6 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link"
-                                            id="top-client-references"
-                                            data-bs-toggle="tab"
-                                            href="#tab-client-references"
-                                            role="tab"
-                                            aria-controls="top-client-references"
-                                            aria-selected="false"
-                                        >
-                                            <i data-feather="credit-card"></i>
-                                            Client References
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link"
                                             id="top-documents"
                                             data-bs-toggle="tab"
                                             href="#tab-documents"
@@ -120,10 +100,6 @@
                         @include('client.co-maker')
                     </div>
 
-                    <!-- payroll account -->
-                    <div class="tab-pane fades how" id="tab-client-references" role="tabpanel" aria-labelledby="top-payroll-account">
-                        @include('client.references')
-                    </div>
 
                     <!-- documents -->
                     <div class="tab-pane fades how" id="tab-documents" role="tabpanel" aria-labelledby="top-documents">
@@ -288,13 +264,14 @@
             if(params.targetField == '.comaker-job-informations') {
                 field='comaker_job_title';
             }
+            let job_status = Number(params.status) === 1 ? 'Active' : 'Inactive'
 
             let card= "<div class='col-sm-12 col-md-4 col-lg-3 client-job-information-items'> "+
                     "<div class='card'>"+
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][job_id]' value='"+ params.job_id +"'>" +
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][office_name]' value='"+ params.office_name +"'>" +
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][salary]' value='"+ params.salary +"'>" +
-                        "<input type='hidden' name='"+ field +"["+ jobInformationCount +"][status]' value='"+ params.status +"'>" +
+                        "<input type='hidden' name='"+ field +"[job_id][]' value='"+ params.job_id +"'>" +
+                        "<input type='hidden' name='"+ field +"[office_name][]' value='"+ params.office_name +"'>" +
+                        "<input type='hidden' name='"+ field +"[salary][]' value='"+ params.salary +"'>" +
+                        "<input type='hidden' name='"+ field +"[status][]' value='"+ params.status +"'>" +
                         "<div class='card-body'>" +
                             "<button type='button' class='btn btn-danger btn-xs float-end'><i class='fa fa-times'></i></button>" +
                             "<h5>"+ params.job_title +"</h5>" +
@@ -302,7 +279,7 @@
                             "<p class='mb-0'>Salary: "+ params.salary +"</p>" +
                         "</div>" +
                         "<div class='card-footer'>" +
-                            "<p>Active</p>"+
+                            "<p>"+job_status+"</p>"+
                         "</div>" +
                     "</div>" +
                 "</div>";
@@ -319,17 +296,13 @@
         function addPayrollAccount(params){
             let field='client_payroll_account'; //default field
 
-            if(params.targetField == '.comaker-payroll-accounts'){
-                field='comaker_payroll_account';
-            }
-
             let card="<div class='col-sm-12 col-md-4 col-lg-3 client-payroll-items'>" +
                     "<div class='card'>" +
                         "<div class='card-body'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][bank_id]' value='"+ params.bankId +"'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][account_no]' value='"+ params.accountNo +"'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][account_name]' value='"+ params.accountName +"'>" +
-                            "<input type='hidden' name='"+ field +"["+ payrollCount +"][is_active]' value='"+ params.is_active +"'>" +
+                            "<input type='hidden' name='"+ field +"[bank_id][]' value='"+ params.bankId +"'>" +
+                            "<input type='hidden' name='"+ field +"[account_no][]' value='"+ params.accountNo +"'>" +
+                            "<input type='hidden' name='"+ field +"[account_name][]' value='"+ params.accountName +"'>" +
+                            "<input type='hidden' name='"+ field +"[is_active][]' value='"+ params.status +"'>" +
 
                             "<button type='button' class='btn btn-danger btn-xs float-end btnRemovePayrollAccount'><i class='fa fa-times'></i></button>" +
                             "<h5><strong>"+ params.bankName +"</strong></h5>" +
@@ -367,6 +340,8 @@
                 'accountName' : $("#modalPayrollAccount #account_name").val(),
                 'status' : $("#modalPayrollAccount #status").val()
             };
+
+
 
             addPayrollAccount(params);
         })
