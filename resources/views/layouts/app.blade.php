@@ -147,6 +147,8 @@
         <!-- Plugins JS start-->
         <script src="{{url('assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
         <script src="{{url('assets/js/datatable/datatables/datatable.custom.js')}}"></script>
+        <script src="{{url('assets/js/datatable/datatable-extension/dataTables.buttons.min.js')}}"></script>
+        <script src="{{url('assets/js/datatable/datatable-extension/buttons.print.min.js')}}"></script>
         <script src="{{url('assets/js/sidebar-menu.js')}}"></script>
         <script src="{{url('assets/js/sidebar-pin.js')}}"></script>
         <script src="{{url('assets/js/slick/slick.min.js')}}"></script>

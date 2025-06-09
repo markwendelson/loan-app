@@ -108,7 +108,7 @@
                 </ul>
             </div>
             @if($loan->status == App\Enums\LoanStatus::PENDING->value)
-            <div class="card-footer">
+            <div class="card-footer loan-status-button">
                 <div class="col-12 float-end">
                     <a href="{{route('loan.edit',$loan->id)}}" class="btn btn-sm btn-primary mx-auto btn-edit-loan"><i class="fa fa-pencil"></i> Edit</a>
                     <button type="button" class="btn btn-sm btn-warning mx-auto" onclick="withdrawnLoan({{$loan->id}})"><i class="fa fa-undo"></i> Withdrawn</button>
@@ -267,6 +267,7 @@
                     },
                     success: function(response) {
                         showToast.success(response.message)
+                        $('.loan-status-button').remove()
                     }
                 });
 
@@ -292,6 +293,7 @@
                     },
                     success: function(response) {
                         showToast.success(response.message)
+                        $('.loan-status-button').remove()
                     }
                 });
 
@@ -317,6 +319,7 @@
                     },
                     success: function(response) {
                         showToast.success(response.message)
+                        $('.loan-status-button').remove()
                     }
                 });
 
