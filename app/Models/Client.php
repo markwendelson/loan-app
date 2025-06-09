@@ -22,7 +22,7 @@ class Client extends Model implements Auditable
         // Before the model is deleted
         static::deleting(function (Client $client) {
             // e.g. remove related files, log something...
-            Storage::disk('public')->deleteDirectory($client->path);
+            // Storage::disk('public')->deleteDirectory($client->path);
         });
 
         // After the model is deleted
