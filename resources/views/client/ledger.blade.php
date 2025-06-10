@@ -45,8 +45,6 @@
         <div class="card-body">
             <div>Name: <span>{{$client->details->fullname}}</span></div>
             <div>Address: <span>{{$client->details->present_full_address}}</div>
-            <div>Remarks:</div>
-            <div>Date Loan Granted:</div>
         </div>
     </div>
 
@@ -75,6 +73,9 @@
                   <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
                     <div class="card">
                         <div class="card-body">
+                            <div>Loan ID: {{$loan['principal_loan_no']}}</div>
+                            <div>Date Loan Granted: {{date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
+                            <div>Remarks: <p></p></div>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-hover" id="tblLedger">
                                     <thead class="bg-default">
@@ -121,6 +122,8 @@
                   <div class="tab-pane fade" id="special-loan" role="tabpanel" aria-labelledby="special-loan-tab">
                     <div class="card">
                         <div class="card-body">
+                            <div>Loan ID: {{$loan['special_loan_no']}}</div>
+                            <div>Date Loan Granted: {{date('l, F j, Y, g:i A',strtotime($loan['special_date_granted']))}}</div>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-hover" id="tblSpecialLedger">
                                     <thead class="bg-default">

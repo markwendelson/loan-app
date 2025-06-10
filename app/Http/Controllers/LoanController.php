@@ -365,6 +365,8 @@ class LoanController extends Controller
     {
         if($loan) {
             $loan->status = LoanStatus::APPROVE;
+            $loan->approved_date = date('Y-m-d H:i:s');
+            $loan->approved_by = auth()->user()->id;
             $loan->save();
 
             return response()->json([
@@ -382,6 +384,8 @@ class LoanController extends Controller
     {
         if($loan) {
             $loan->status = LoanStatus::DECLINE;
+            $loan->declined_date = date('Y-m-d H:i:s');
+            $loan->declined_by = auth()->user()->id;
             $loan->save();
 
             return response()->json([

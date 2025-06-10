@@ -248,7 +248,15 @@ class ClientController extends Controller
                 'data' => $mappedData
             ]);
         }
-        return view('client.ledger', compact('client'));
+
+        $loan = [
+            'principal_loan_no' => $loans[0]['loan_no'] ?? '',
+            'principal_date_granted' => $loans[0]['approved_date'] ?? '',
+            'special_loan_no' => $loans[1]['loan_no'] ?? '',
+            'special_date_granted' => $loans[1]['approved_date'] ?? ''
+        ];
+
+        return view('client.ledger', compact('client', 'loan'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)
