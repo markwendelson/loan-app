@@ -20,6 +20,7 @@ use App\Http\Controllers\SavingsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Permission;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -120,4 +121,15 @@ Route::middleware('auth')->group(function(){
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
 
+});
+
+Route::get('test-permission', function() {
+    $permissions = config('modules');
+
+    foreach ($permissions as $module => $data) {
+        foreach ($data['permissions'] as $permission) {
+            dd($permission);
+            Permission::firstOrCreate(['name' => $permission, 'group' => '', 'guard_name' => 'web']);
+        }
+    }
 });

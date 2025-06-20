@@ -24,25 +24,26 @@
                             Processing Branch
                             <select class="form-select" name="client_details[branch_id]">
                                 <option value="" selected hidden disabled>-- Select --</option>
-                                @if(isset($branch_data) && $branch_data)
-                                    @foreach($branch_data as $key => $val)
-                                        <option value="{{$val['id']}}">{{$val['name']}}</option>
+                                    @foreach($branches as $key => $val)
+                                        <option value="{{$val->id}}" {{$user->branch_id == $val->id ? 'selected' : ''}}>{{$val->name}}</option>
                                     @endforeach
-                                @endif
                             </select>
                         </label>
                     </div>
 
                     <div class="col-12">
                         <label class="w-100" for="name">Name</label>
-                        <input type="text" class="form-control mt-1" name="name" placeholder="First Name" />
+                        <input type="text" class="form-control mt-1" name="name" placeholder="First Name" value="{{$user->name}}"/>
                     </div>
 
                     <div class="col-12">
                         <label class="w-100" for="email">Email</label>
-                        <input type="text" class="form-control mt-1" name="email" placeholder="Email" />
+                        <input type="text" class="form-control mt-1" name="email" placeholder="Email" value="{{$user->email}}"/>
                     </div>
 
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary mt-2 w-100"><i class="fa fa-save"></i> Update User</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -57,6 +58,10 @@
             <div class ="card-body">
                 <div class="row">
 
+                </div>
+
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary mt-2 float-end"><i class="fa fa-save"></i> Update Permissions</button>
                 </div>
             </div>
         </div>

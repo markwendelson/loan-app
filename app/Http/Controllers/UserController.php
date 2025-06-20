@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -9,6 +10,13 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+
+    private $branch;
+
+    public function __construct()
+    {
+        $this->branch  = Branch::orderBy('name', 'asc')->get();
+    }
     /**
      * Display a listing of the resource.
      */
@@ -32,9 +40,11 @@ class UserController extends Controller
             ]);
         }
 
-        $roles = Role::get(['id','name']);
+        $branches = $this->branch;
 
-        return view('user.index', compact('roles'));
+        $roles = Role::where('name','<>','super_admin')->get(['id','name']);
+
+        return view('user.index', compact('roles','branches'));
     }
 
     /**
@@ -105,7 +115,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('user.edit', compact('user'));
+        $branches = $this->branch;
+        return view('user.edit', compact('user','branches'));
     }
 
     /**
@@ -129,6 +140,11 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully',
+        ]);
     }
 }

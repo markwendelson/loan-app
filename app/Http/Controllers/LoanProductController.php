@@ -49,7 +49,7 @@ class LoanProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        dd($data);
+
         try {
             $loanProduct = LoanProduct::create($data);
 

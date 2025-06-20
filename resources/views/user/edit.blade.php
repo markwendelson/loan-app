@@ -25,7 +25,6 @@
                         </li>
                         <li class="breadcrumb-item">User</li>
                         <li class="breadcrumb-item active">User Update</li>
-                        {{-- <li class="breadcrumb-item active">Project List</li> --}}
                     </ol>
                 </div>
             </div>
@@ -42,7 +41,7 @@
                 <!-- button container -->
                 <div class="row">
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary float-end"><i class="fa fa-save"></i> Update User</button>
+                        
                     </div>
                 </div>
 
