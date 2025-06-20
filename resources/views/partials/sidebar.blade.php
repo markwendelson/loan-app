@@ -59,7 +59,7 @@
             <li><a href="{{ route('loan.awaiting-disbursement') }}">Awaiting Disbursement</a></li>
             <li><a href="{{ route('loan.declined') }}">Loans Declined</a></li>
             <li><a href="{{ route('loan.withdrawn') }}">Loans Withdrawn</a></li>
-            <li><a href="{{ route('loan.closed') }}">Loans Closed</a></li>
+            <!-- <li><a href="{{ route('loan.closed') }}">Loans Closed</a></li> -->
             <li><a href="{{ route('loan.create') }}">Add Loan</a></li>
         </ul>
 </li>

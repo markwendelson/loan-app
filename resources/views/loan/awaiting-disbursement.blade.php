@@ -155,31 +155,35 @@
             }
         });
 
-        $("#tblLoan").on("click", ".btnEdit", function(){
+        $("#tblLoan").on("click", ".btn-cash-out", function(){
             let id = $(this).attr("data-id");
-            getLoanType(id)
+            cashOutLoan(id)
         })
 
-        async function getLoanType(id) {
-            try {
-                let response = await fetch(`/loan-product/${id}`, {
-                    method: "GET",
-                });
+        function cashOutLoan(id) {
+            swal({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((result) => {
+                if (result) {
 
-                if (!response.ok) throw new Error("Network response was not ok");
+                    $.ajax({
+                        url: '/loan/disburse/' + id,
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            showToast.success(response.message)
+                            table.ajax.reload()
+                        }
+                    });
 
-                let data = await response.json();
-
-                $("#modalLoanProduct [name='id']").val(data.id);
-                $("#modalLoanProduct [name='name']").val(data.name);
-                $("#modalLoanProduct [name='description']").val(data.description);
-                $("#modalLoanProduct [name='loan_type_id']").val(data.loan_type_id);
-                $("#modalLoanProduct [name='status']").val(data.status);
-                showModal('modalLoanProduct')
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
+                }
+            })
         }
     });
 

@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Loan extends Model
 {
-    protected $fillable = ['loan_date','loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal'];
+    protected $fillable = ['loan_date','loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal','repayment_order'];
+
+    protected $casts = [
+        'repayment_order' => 'array',
+    ];
 
     public function scopePending($query)
     {
@@ -33,6 +37,11 @@ class Loan extends Model
     public function scopeWithdrawn($query)
     {
         return $query->where('status', LoanStatus::WITHDRAWN);
+    }
+
+    public function scopeClosed($query)
+    {
+        return $query->where('status', LoanStatus::CLOSED);
     }
 
     public function loanProduct()

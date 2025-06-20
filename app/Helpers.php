@@ -5,6 +5,7 @@ use App\Models\Branch;
 use App\Models\CountryCode;
 use App\Models\JobTitle;
 use App\Models\Province;
+use App\Models\Client;
 
 if(!function_exists('getProvinces')) {
     function getProvinces() {
@@ -57,5 +58,18 @@ if(!function_exists('month_names')) {
         return collect(range(1, 12))->mapWithKeys(fn($i) =>
             [$i => \Carbon\Carbon::create()->month($i)->translatedFormat('F')]
         )->toArray();
+    }
+}
+
+if(!function_exists('getClientBalance')) {
+    function getClientBalance(Client $client)
+    {
+        $deposit = $client->savings
+                ->where('transaction_type', 'deposit')->sum('amount');
+        $withdraw = $client->savings
+                ->where('transaction_type', 'withdraw')->sum('amount');
+        $balance = $deposit - $withdraw;
+        
+        return number_format($balance,2);
     }
 }

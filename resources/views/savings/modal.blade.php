@@ -54,6 +54,21 @@
                         </div>
                         <div class="withdraw">
                             <div class="row mb-3">
+                                <div class="col-12 form-group">
+                                    <label for="loan_id">Select Loan</label>
+                                    <select name="loan_id" id="loan_id" class="form-control form-control-sm">
+                                        <option value="">-select-</option>
+                                        @foreach($loans as $loan)
+                                            <option value="{{$loan->id}}" 
+                                                data-loan-product-id="{{$loan->loan_product_id}}"
+                                                data-principal="{{$loan->principal}}"
+                                                data-interest-rate="{{$loan->interest_rate}}"
+                                                data-term="{{$loan->loan_duration}}"
+                                                data-loan-type="{{Str::slug($loan->loanProduct->loanType->name)}}"
+                                            >{{$loan->loan_no}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="interest">Interest</label>
                                     <input type="number" class="form-control form-control-sm" name="interest" placeholder="0" min="0"/>

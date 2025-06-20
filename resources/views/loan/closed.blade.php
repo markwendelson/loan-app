@@ -50,8 +50,9 @@
                 <table class="table table-bordered table-hover" id = "tblLoan">
                     <thead class = "bg-default">
                         <tr>
-                            <th class = "text-center" width = "120">No.</th>
-                            <th class = "text-leftr" width = "150">Loan Type</th>
+                            <th class = "text-center" width = "120">Loan Date.</th>
+                            <th class = "text-center" width = "120">Loan No.</th>
+                            <th class = "text-leftr" width = "150">Loan Product</th>
                             <th class = "text-leftr" width = "150">Borrower</th>
                             <th class = "text-center" width = "180">Status</th>
                             <th class = "text-center" width = "150"><i class = "fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
@@ -74,18 +75,15 @@
             stateSave: true,
             searching: true,
             ajax: {
-                url: "{{ route('loan.index') }}",
+            url: "{{ route('loan.closed') }}",
             },
             columns: [
-                { data: 'id', name: 'id' },
-                { data: 'loan_type', name: 'loan_type' },
-                { data: 'name', name: 'name' },
+                { data: 'loan_date', name: 'loan_date' },
+                { data: 'loan_no', name: 'loan_no' },
+                { data: 'loan_product.name', name: 'loan_product' },
+                { data: 'borrower.details.fullname', name: 'name' },
                 { data: 'status', name: 'status', render: function(data, type, row) {
-                    if (data == 1) {
-                        return '<span class="badge badge-success">Active</span>';
-                    } else {
-                        return '<span class="badge badge-danger">Inactive</span>';
-                    }
+                        return '<span class="badge badge-primary">Closed</span>';
                 } },
                 {
                     data: null,

@@ -217,7 +217,7 @@
 
             function clearFormInputs(modalName) {
                 document.querySelector(`#${modalName} form`).reset();
-                $("#modalLoanProduct [name='id']").val("");
+                $(`#${modalName} [name='id']`).val("");
             }
 
             function currencyFormat(amount, showDecimals = true) {

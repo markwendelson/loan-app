@@ -39,8 +39,8 @@
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between">
-                <h2>Balance: {{$client->balance}}</h2>
-                <button class="btn btn-primary float-end" onclick="showModal('modalTransaction')"><i class="fa fa-plus"></i> New Transaction</button>
+                <h2 id="client_balance">Balance: {{$client->balance}}</h2>
+                <button class="btn btn-primary float-end btn-new"><i class="fa fa-plus"></i> New Transaction</button>
             </div>
         </div>
     </div>
@@ -123,6 +123,11 @@
             ]
         });
 
+        $('.btn-new').on('click', function() {
+            showModal('modalTransaction')
+            $('.withdraw').hide();
+        })
+
         $("#modalTransaction .btnSubmit").click(function (e) {
             e.preventDefault();
 
@@ -165,6 +170,7 @@
                             hideModal('modalTransaction');
                             showToast.success(response.message)
                             table.ajax.reload();
+                            $("#client_balance").text('Balance: ' + response.balance)
                         }else{
                             showToast.error(response.message)
                         }
@@ -223,7 +229,7 @@
             }
         }
 
-        $('.withdraw').hide();
+        
         $('#transaction_type').on('change', function() {
             let selected = $(this).val();
             if(selected == 'withdraw'){
@@ -253,6 +259,116 @@
             calculateChange();
         })
 
+        $("#loan_id").on("change", function() {
+            calculateLoan();
+        })
+        async function calculateLoan() {
+            
+            var principal = $("#loan_id").find('option:selected').data('principal');
+            var interest_rate = $("#loan_id").find('option:selected').data('interest-rate');
+            var term = $("#loan_id").find('option:selected').data('term');
+            var loan_type = $("#loan_id").find('option:selected').data('loan-type');
+
+
+            if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
+                return;
+            }
+
+            var percentage_rate = interest_rate / 100;
+            var interest_term_value = 1 + (term * percentage_rate)
+
+            var capital_amount = 0;
+            var advance_interest = 0;
+            var monthly_amortization = 0;
+            var service_fee = 0;
+            var insurance_fee = 0;
+            var notary_fee = 0;
+
+            if(loan_type == 'loan-with-term') {
+                capital_amount = principal / interest_term_value;
+                advance_interest = principal - capital_amount;
+                monthly_amortization = principal / term;
+                service_fee = capital_amount * (5/100);
+                insurance_fee = principal * (2.5/100);
+                notary_fee = principal * (3/100);
+            } else if(loan_type == 'auto-debit') {
+                notaryFeeResponse = await getNotaryFee(principal);
+                inuranceFeeResponse = await getInsuranceFee(principal);
+
+                advance_interest = principal * (interest_rate/100);
+                monthly_amortization = advance_interest;
+                service_fee = principal * (5/100);
+                insurance_fee = inuranceFeeResponse.annual; // from insurance table
+                if(notaryFeeResponse.type == 'fixed') {
+                    notary_fee = notaryFeeResponse.notary_fee;
+                } else if(notaryFeeResponse.type == 'percentage') {
+                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                }
+
+                interest = (0.03/30) * number_of_days * principal_balance
+            } else if(loan_type == 'special-loan') {
+                notaryFeeResponse = await getNotaryFee(principal);
+
+                advance_interest = (interest_rate/100) * principal * term;
+                monthly_amortization = advance_interest;
+                service_fee = principal * (5/100);
+                insurance_fee = 0;
+                if(notaryFeeResponse.type == 'fixed') {
+                    notary_fee = notaryFeeResponse.notary_fee;
+                } else if(notaryFeeResponse.type == 'percentage') {
+                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                }
+            } else if(loan_type == 'open-term') {
+                notaryFeeResponse = await getNotaryFee(principal);
+                inuranceFeeResponse = await getInsuranceFee(principal);
+
+                advance_interest = principal * (interest_rate/100);
+                monthly_amortization = advance_interest;
+                service_fee = principal * (3/100);
+                insurance_fee = inuranceFeeResponse.annual;
+                if(notaryFeeResponse.type == 'fixed') {
+                    notary_fee = notaryFeeResponse.notary_fee;
+                } else if(notaryFeeResponse.type == 'percentage') {
+                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                }
+            }
+
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee);
+
+            var net_proceeds = principal - total_deductions;
+
+            // $("#modalTransaction [name='interest']").val(data.interest);
+            // $("#modalTransaction [name='interest_month']").val(data.interest_month);
+            // $("#modalTransaction [name='interest_year']").val(data.interest_year);
+            // $("#modalTransaction [name='insurance']").val(data.insurance);
+            // $("#modalTransaction [name='insurance_month']").val(data.insurance_month);
+            // $("#modalTransaction [name='insurance_year']").val(data.insurance_year);
+            $("#modalTransaction [name='principal']").val(monthly_amortization);
+            // $('.advance_interest').text(currencyFormat(Math.floor(advance_interest)))
+            // $('.service_fee').text(currencyFormat(Math.ceil(service_fee)))
+            // $('.insurance_fee').text(currencyFormat(Math.floor(insurance_fee)))
+            // $('.notary_fee').text(currencyFormat(Math.floor(notary_fee)))
+            // $('.monthly_amortization').text(currencyFormat(monthly_amortization))
+            // $('.net_proceeds').text(currencyFormat(Math.floor(net_proceeds)))
+            $("[name='amount'],[name='interest'],[name='insurance'],[name='principal']").trigger('change')
+
+        }
+
+        function getNotaryFee(principal) {
+            return $.ajax({
+                type: 'GET',
+                url: '{{ route('get_notary_fee') }}',
+                data: {amount:principal},
+            })
+        }
+        function getInsuranceFee(principal) {
+            return $.ajax({
+                type: 'GET',
+                url: '{{ route('get_insurance_fee') }}',
+                data: {amount:principal},
+            })
+        }
+
     });
 
     function calculateChange() {
@@ -261,18 +377,22 @@
             var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
             var principal = parseFloat($("#modalTransaction [name='principal']").val())
 
-            if (isNaN(amount)) amount = 0;
+            if (isNaN(amount)) return;
             if (isNaN(interest)) interest = 0;
             if (isNaN(insurance)) insurance = 0;
             if (isNaN(principal)) principal = 0;
 
-
-            if(transaction_type === 'withdraw') {
+            if(transaction_type === 'deposit') {
                 return;
             }
 
             var change;
             change = amount - (interest + insurance + principal);
+            if(change < 0) {
+                $('.btnSubmit').attr('disabled', true)
+            } else {
+                $('.btnSubmit').attr('disabled', false)
+            }
             $("[name='change']").val(change)
         }
 
@@ -295,6 +415,7 @@
                     success: function(response) {
                         showToast.success(response.message)
                         $('#tblSavings').DataTable().ajax.reload();
+                        $("#client_balance").text('Balance: ' + response.balance)
                     }
                 });
 

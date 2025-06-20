@@ -1,6 +1,6 @@
 
 <div class="modal fade" id="modalLoanProduct" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-sm">
+    <div class="modal-dialog modal-md   ">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addModalLabel">Loan Product Information</h5>
@@ -20,7 +20,7 @@
                         <input type="text" class="form-control form-control-sm" name="description" placeholder="Description" required />
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
                         <label class="w-100" for="loan_type">Loan Type</label>
                         <select class="form-select form-select-sm" name="loan_type_id">
                             <option value="" disabled>-- Select --</option>
@@ -30,11 +30,7 @@
                         </select>
                     </div>
 
-                    <div class="col-12">
-                        <label for="prerequisites">Prerequisites</label>
-                    </div>
-
-                    <div class="col-12">
+                    <div class="col-6">
                         <label class="w-100" for="status">Status</label>
                         <select class="form-select form-select-sm" name="status">
                             <option value="" disabled>-- Select --</option>
@@ -42,6 +38,16 @@
                                 <option value="{{$key}}">{{$val}}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="col-6">
+                        <label>Prerequisites</label>
+                        <div id="prerequisitesContainer"></div>
+                    </div>
+
+                    <div class="col-6">
+                        <label for="repayment_order">Repayment Order</label>
+                        <ul id="repaymentList"></ul>
                     </div>
 
                 </form>

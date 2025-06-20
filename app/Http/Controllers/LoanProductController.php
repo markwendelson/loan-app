@@ -29,8 +29,10 @@ class LoanProductController extends Controller
         }
 
         $loan_types = LoanType::all();
+        $loan_products = LoanProduct::active()->get();
+        $repayment_order = ['Principal', 'Interest', 'Fees', 'Penalty'];
 
-        return view('loan.product.index', compact('loan_types'));
+        return view('loan.product.index', compact('loan_types','repayment_order','loan_products'));
     }
 
     /**
@@ -47,9 +49,13 @@ class LoanProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-
+        dd($data);
         try {
-            LoanProduct::create($data);
+            $loanProduct = LoanProduct::create($data);
+
+            $prerequisiteIds = array_keys($request->input('prerequisites', []));
+            $loanProduct->prerequisite()->sync($prerequisiteIds);
+
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062) {
                 return response()->json([
@@ -76,6 +82,8 @@ class LoanProductController extends Controller
     public function show(LoanProduct $loanProduct)
     {
         if($loanProduct) {
+            $loanProduct->load(['prerequisite:id,name']); // eager load the relationship
+
             return response()->json($loanProduct);
         }
         return response()->json([
@@ -107,7 +115,11 @@ class LoanProductController extends Controller
         $loanProduct->description = $request->description;
         $loanProduct->loan_type_id = $request->loan_type_id;
         $loanProduct->status = $request->status;
+        $loanProduct->repayment_order = $request->repayment_order;
         $loanProduct->save();
+
+        $prerequisiteIds = array_keys($request->input('prerequisites', []));
+        $loanProduct->prerequisite()->sync($prerequisiteIds);
 
         return response()->json([
             'status' => 'success',
@@ -121,6 +133,8 @@ class LoanProductController extends Controller
      */
     public function destroy(LoanProduct $loanProduct)
     {
+        $loanProduct->prerequisite()->detach(); // this loan product's prerequisites
+        $loanProduct->prerequisiteOf()->detach(); // other loan products that depend on this
         $loanProduct->delete();
 
         return response()->json([

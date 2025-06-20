@@ -77,9 +77,9 @@ class LoanController extends Controller
 
             // $alreadyHasLoan = Loan::where([
             //                 'borrower_id' => $data['borrower_id'],
-            //                 'loan_product_id' => $data['loan_product_id']
             //             ])
             //             ->where('status', LoanStatus::APPROVE)
+            //             ->orWhere('status', LoanStatus::REQUEST_APPROVE)
             //             ->orWhere('status', LoanStatus::PENDING)
             //             ->first();
 
@@ -265,6 +265,7 @@ class LoanController extends Controller
             $search = $request->search['value'];
 
             $loans = Loan::approved()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+                    ->whereNull('disbursed_date')
                     ->orderByDesc('loan_date')
                         ->orderByDesc('loan_no')
                         ->get();
@@ -330,7 +331,7 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct')->filter($search)->get();
+            $loans = Loan::closed()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -408,6 +409,24 @@ class LoanController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Loan successfully request for approval.'
+            ]);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Loan not found'
+        ], 404);
+    }
+
+    public function disburse(Loan $loan)
+    {
+        if($loan) {
+            $loan->disbursed_date = date('Y-m-d H:i:s');
+            $loan->disbursed_by = auth()->user()->id;
+            $loan->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan successfully disbursed.'
             ]);
         }
         return response()->json([

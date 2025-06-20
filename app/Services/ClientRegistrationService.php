@@ -35,20 +35,11 @@ class ClientRegistrationService
                     $client_details['permanent_zipcode'] = $client_details['present_zipcode'];
                     $client_details['permanent_address'] = $client_details['present_address'];
                 }
-                Log::info($data);
 
                 $this->client = $this->createClient($client_details);
                 $this->createClientDetails($client_details);
 
-                // 2. Create co-makers and attach them
-                // $coMakerIds = collect($data['co_makers'] ?? [])
-                //     ->map(function ($coMakerData) {
-                //         $coMaker = $this->createCoMaker($coMakerData);
-                //         return $coMaker?->id;
-                //     });
-
                 $this->client->coMakers()->syncWithoutDetaching($data['client_comaker']);
-
 
                 $this->createClientReferences($data['client_references'] ?? []);
                 $this->saveJobTitle($data['client_job_information'] ?? []);
@@ -56,7 +47,10 @@ class ClientRegistrationService
                 $this->saveDocuments($data['client_documents']);
                 $this->dispatchEvent();
 
-                return $this->client;
+                return [
+                    'status' => 'success',
+                    'message' => 'Client created successfully.',
+                ];
             });
         } catch (\Throwable $th) {
             return [
@@ -87,8 +81,6 @@ class ClientRegistrationService
         if (isset($data['photo'])) {
             $path = $data['photo']->store('client_uploads', 'public');
         }
-
-        
        
         ClientDetails::create([
             'client_id' => $this->client->id,
@@ -116,6 +108,10 @@ class ClientRegistrationService
 
     protected function createClientReferences(array $data)
     {
+        if(empty($data)) {
+            return;
+        }
+
         $referenceData = [];
 
         foreach($data as $val){
@@ -133,6 +129,10 @@ class ClientRegistrationService
 
     protected function saveJobTitle(array $jobs)
     {
+        if(empty($jobs)) {
+            return;
+        }
+
         $jobData = [];
 
         foreach($jobs['job_id'] as $key => $val){
@@ -151,6 +151,10 @@ class ClientRegistrationService
 
     protected function savePayrollAccount(array $payrollAccounts)
     {
+        if(empty($payrollAccounts)) {
+            return;
+        }
+
         $payrollAccountData = [];
 
         foreach($payrollAccounts['bank_id'] as $key => $val){
@@ -169,6 +173,10 @@ class ClientRegistrationService
 
     protected function saveDocuments(array $documents)
     {
+        if(empty($documents)) {
+            return;
+        }
+
         $docData = [];
         foreach($documents['doc_type'] as $key => $val){
             

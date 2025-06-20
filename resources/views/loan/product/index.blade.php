@@ -9,7 +9,34 @@
          color: white; /* Set white text for <th> elements */
          border: 1px solid white;
      }
- </style>
+
+    ul#repaymentList {
+      list-style: none;
+      padding: 0;
+    }
+
+    #repaymentList > li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      padding: 8px;
+      border-radius: 6px;
+      font-family: sans-serif;
+    }
+
+    #repaymentList > .buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    #repaymentList > button {
+      font-size: 16px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+  </style>
 @endpush
 
 @section('content')
@@ -38,7 +65,7 @@
     <!-- button container -->
     <div class="card">
     <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalLoanProduct')"><i class = "fa fa-plus"></i> New Loan Product</button>
+        <button class="btn btn-primary float-end btn-new"><i class = "fa fa-plus"></i> New Loan Product</button>
     </div>
     </div>
 
@@ -108,6 +135,12 @@
             ]
         });
 
+        $(".btn-new").on("click", function() {
+            showModal('modalLoanProduct')
+            loadPrerequisites();
+            renderList()
+        })
+
         $("#modalLoanProduct .btnSubmit").click(function (e) {
             e.preventDefault();
 
@@ -123,6 +156,11 @@
                 });
 
                 let formData = $("#frmLoanProductModal").serializeArray();
+
+                formData.push({
+                    name: "repayment_order",
+                    value: JSON.stringify(items)
+                });
 
                 var id = $("#modalLoanProduct [name='id']").val();
                 if(id) {
@@ -165,10 +203,11 @@
 
         $("#tblLoanProduct").on("click", ".btnEdit", function(){
             let id = $(this).attr("data-id");
-            getLoanType(id)
+            getLoanProduct(id)
+            loadPrerequisites(id)
         })
 
-        async function getLoanType(id) {
+        async function getLoanProduct(id) {
             try {
                 let response = await fetch(`/loan-product/${id}`, {
                     method: "GET",
@@ -185,9 +224,65 @@
                 $("#modalLoanProduct [name='status']").val(data.status);
                 showModal('modalLoanProduct')
 
+                // Extract prerequisite IDs
+                const selectedIds = data.prerequisite.map(p => p.id);
+
+                // Uncheck all checkboxes first (optional reset)
+                document.querySelectorAll('input[name^="prerequisites["]').forEach(cb => {
+                    cb.checked = false;
+                });
+
+                // Check boxes that match the selected IDs
+                selectedIds.forEach(id => {
+                    const checkbox = document.getElementById(`prerequisites${id}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+
+                // Render repayment order
+
+                const repaymentRaw = data.repayment_order;
+
+                // Check if it's a string (e.g. "\"Principal\",\"Interest\"...")
+                const repaymentOrder = typeof repaymentRaw === 'string'
+                ? JSON.parse(repaymentRaw)
+                : repaymentRaw; // already an array if Laravel is casting it
+
+                const repaymentList = document.getElementById('repaymentList');
+                repaymentList.innerHTML = ''; // clear list
+
+                repaymentOrder.forEach((text, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        ${text}
+                        <div class="buttons">
+                            <button type="button" class="btn btn-outline-primary btn-xs" onclick="moveUp(${index})">↑</button>
+                            <button type="button" class="btn btn-outline-primary btn-xs" onclick="moveDown(${index})">↓</button>
+                        </div>
+                    `;
+                    repaymentList.appendChild(li);
+                });
+
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
+        }
+
+        function loadPrerequisites(id) {
+            const loanProducts = @json($loan_products);
+
+            const container = document.getElementById('prerequisitesContainer');
+            container.innerHTML = '';
+                        
+            loanProducts.forEach(product => {
+                if (product.id === parseInt(id)) return; // Skip if matched
+
+                const div = document.createElement('div');
+                div.innerHTML = `
+                <input type="checkbox" name="prerequisites[${product.id}]" id="prerequisites${product.id}">
+                <label for="prerequisites${product.id}">${product.name}</label>
+                `;
+                container.appendChild(div);
+            });
         }
     });
 
@@ -232,6 +327,41 @@
 
             }
         })
+    }
+
+    // Initial data array
+    let initialItems = @json($repayment_order);
+    let items = [...initialItems];
+
+    // Render function
+    function renderList() {
+        const repaymentList = document.getElementById('repaymentList');
+        repaymentList.innerHTML = ''; // Clear the list
+        items.forEach((text, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            ${text}
+            <div class="buttons">
+                <button type="button" class="btn btn-outline-primary btn-xs" onclick="moveUp(${index})">↑</button>
+                <button type="button" class="btn btn-outline-primary btn-xs" onclick="moveDown(${index})">↓</button>
+            </div>
+        `;
+        repaymentList.appendChild(li);
+        });
+    }
+
+    function moveUp(index) {
+        if (index > 0) {
+        [items[index - 1], items[index]] = [items[index], items[index - 1]];
+        renderList();
+        }
+    }
+
+    function moveDown(index) {
+        if (index < items.length - 1) {
+        [items[index + 1], items[index]] = [items[index], items[index + 1]];
+        renderList();
+        }
     }
 
 </script>

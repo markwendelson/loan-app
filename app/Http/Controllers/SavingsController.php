@@ -65,32 +65,47 @@ class SavingsController extends Controller
         ]);
 
         // check balance if withdraw
-        if($request->transaction_type == 'withdraw') {
-            $client = Client::findOrFail($request->client_id);
-            $balance = $this->getClientBalance($client);
+        $client = Client::findOrFail($request->client_id);
 
+        if($request->transaction_type == 'withdraw') {
+            $balance = getClientBalance($client);
             if($balance<=0) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Insufficient Balance',
                 ],500);
             }
+
+             if(!($request->loan_id)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Select loan',
+                ],500);
+            }
+
+            if($request->amount < $request->principal) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Insufficient amount.',
+                ],500);
+            }
         }
 
         $data = $request->all();
 
-        $loan = Loan::where([
-            'borrower_id' => $request->client_id,
-            'status' => LoanStatus::APPROVE
-        ])->first();
+        // $loan = Loan::where([
+        //     'borrower_id' => $request->client_id,
+        //     'status' => LoanStatus::APPROVE
+        // ])->first();
 
-        $data['loan_id'] = $loan->id;
+        // $data['loan_id'] = $loan->id;
 
         Savings::create($data);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Transaction created successfully',
+            'balance' => getClientBalance($client)
         ]);
     }
 
@@ -129,9 +144,12 @@ class SavingsController extends Controller
         $saving->classifications = $request->classifications;
         $saving->save();
 
+        $client = Client::findOrFail($saving->client_id);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Transaction updated successfully',
+            'balance' => getClientBalance($client)
         ]);
     }
 
@@ -141,19 +159,21 @@ class SavingsController extends Controller
     public function destroy(Savings $saving)
     {
         $saving->delete();
+        $client = Client::findOrFail($saving->client_id);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Transaction deleted successfully',
+            'balance' => getClientBalance($client)
         ]);
     }
 
     public function transactions(Request $request, int $client_id)
     {
         $client = Client::findOrFail($client_id);
-        $balance = $this->getClientBalance($client);
+        $balance = getClientBalance($client);
 
-        $client['balance'] = number_format($balance,2);
+        $client['balance'] = $balance;
 
         if($request->ajax()) {
             $search = $request->search['value'];
@@ -175,15 +195,10 @@ class SavingsController extends Controller
             ]);
         }
 
-        return view('savings.transactions', compact('client'));
+        $loans = $client->getApproveLoans();
+
+        return view('savings.transactions', compact('client','loans'));
     }
 
-    function getClientBalance($client)
-    {
-        $balance = $client->savings
-                                ->where('transaction_type', 'deposit')->sum('amount')
-                                - $client->savings
-                                ->where('transaction_type', 'withdraw')->sum('amount');
-        return $balance;
-    }
+    
 }

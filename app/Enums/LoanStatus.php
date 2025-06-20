@@ -9,4 +9,5 @@ enum LoanStatus: int
     case DECLINE = 2;
     case WITHDRAWN = 3;
     case REQUEST_APPROVE = 4;
+    case CLOSED = 5;
 }

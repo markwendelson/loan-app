@@ -7,6 +7,7 @@ use App\Models\ClientDetails;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
+use App\Enums\LoanStatus;
 
 class Client extends Model implements Auditable
 {
@@ -85,5 +86,16 @@ class Client extends Model implements Auditable
     public function bankAccount()
     {
         return $this->hasMany(ClientPayrollAccount::class);
+    }
+
+    public function getApproveLoans()
+    {
+       return Loan::with([
+            'loanProduct:id,name,repayment_order,loan_type_id',
+            'loanProduct.loanType:id,name'
+       ])
+        ->where('borrower_id', $this->id)
+        ->where('status', LoanStatus::APPROVE)
+        ->get();
     }
 }

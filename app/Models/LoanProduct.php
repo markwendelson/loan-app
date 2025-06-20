@@ -11,7 +11,11 @@ class LoanProduct extends Model implements Auditable
     use SoftDeletes;
     use \OwenIt\Auditing\Auditable;
 
-    protected $fillable = ['name','description','loan_type_id','status'];
+    protected $fillable = ['name','description','loan_type_id','status','repayment_order'];
+
+    protected $casts = [
+        'repayment_order' => 'array',
+    ];
 
     public function scopeActive($query)
     {
@@ -46,6 +50,17 @@ class LoanProduct extends Model implements Auditable
             'loan_product_prerequisites',
             'loan_product_id',         // Foreign key on pivot table for this model
             'loan_product_id_required' // Foreign key on pivot table for the related model
+        );
+    }
+
+    // Who requires this loan product
+    public function prerequisiteOf()
+    {
+        return $this->belongsToMany(
+            LoanProduct::class,
+            'loan_product_prerequisites',
+            'loan_product_id_required',
+            'loan_product_id'
         );
     }
 }

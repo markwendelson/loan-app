@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function(){
             Route::get('declined', 'declined')->name('loan.declined');
             Route::get('withdrawn', 'withdrawn')->name('loan.withdrawn');
             Route::get('closed', 'closed')->name('loan.closed');
+            Route::post('disburse/{loan}', 'disburse')->name('loan.disburse');
             Route::post('withdrawn/{loan}','withdrawnLoan')->name('loan.withdrawn-loan');;
             Route::post('approve/{loan}','approveLoan')->name('loan.approve-loan');;
             Route::post('decline/{loan}','declineLoan')->name('loan.decline-loan');;

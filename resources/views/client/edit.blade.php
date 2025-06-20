@@ -38,6 +38,7 @@
         <div class="container-fluid">
             <form method="post" action="{{route('client.update',$client->id)}}" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
                 <div class="project-list">
                     <div class="card">
                         <div class="card-body">
@@ -134,7 +135,7 @@
     <script>
         $('document').ready(function() {
             var present_province =$("[name='client_details[present_province]']").val();
-            var present_city_id = {{$client->details->present_city_id}};
+            var present_city_id = `{{$client->details->present_city_id}}`;
             if(present_province) {
                 getCities({province_id:present_province,city_id:present_city_id}, function(response){
                     console.log('get cities')
@@ -151,7 +152,7 @@
             
 
             var permanent_province =$("[name='client_details[permanent_province]']").val();
-            var permanent_city_id = {{$client->details->permanent_city_id}};
+            var permanent_city_id = `{{$client->details->permanent_city_id}}`;
 
             if(permanent_province) {
                 getCities({province_id:permanent_province,city_id:permanent_city_id}, function(response){

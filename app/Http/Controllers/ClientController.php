@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\ClientDetails;
 use App\Models\Loan;
 use App\Services\ClientRegistrationService;
+use App\Services\ClientUpdateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,16 +82,11 @@ class ClientController extends Controller
 
         $client = ClientRegistrationService::register($request->all());
 
-        if($client) {
-            return redirect()->route('client.index')->with('message', 'Client created successfully');
+        if($client['status'] == 'success') {
+            return redirect()->route('client.index')->with('message', $client['message']);
         } else {
-            return redirect()->back()->withInput()->with('message', 'Something went wrong.');
+            return redirect()->back()->withInput()->with('message', $client['message']);
         }
-
-        // return response()->json([
-        //     'status' => 'success',
-        //     'message' => 'Client created successfully',
-        // ]);
 
     }
 
@@ -99,7 +95,13 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        //
+        $branches = $this->branches;
+        $provinces = $this->provinces;
+        $job_titles = $this->job_titles;
+        $nationalities = $this->nationalities;
+        $banks = $this->banks;
+
+        return view('client.show', compact('client','branches','provinces', 'job_titles','nationalities','banks'));
     }
 
     /**
@@ -110,14 +112,7 @@ class ClientController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            // $clients = Client::whereHas('coMakers')->with('details')->get();
             $clients = Client::filter($search)->with('details')->where('id','!=',$client->id)->get();
-
-            // $mappedClients = $clients->map(function($client) {
-            //     $client->fullname = trim(collect([$client->firstname, $client->middlename, $client->lastname, ])->filter()->implode(' '));
-            //     $client->present_full_address = trim(collect([$client->present_address,$client->presentCity->name ?? '',$client->presentProvince->name ?? '',])->filter()->implode(' '));
-            //     return $client;
-            // });
 
             $totalRecords = $clients->count();
 
@@ -144,7 +139,9 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
-        //
+        $updatedClient = ClientUpdateService::update($client, $request->all());
+
+        return redirect()->route('client.show', $client->id)->with('message', 'Client updated successfully');
     }
 
     /**
