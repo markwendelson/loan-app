@@ -31,7 +31,7 @@
                     <div class="form search-form mb-0">
                     <div class="input-group"><span class="input-icon">
                         <svg>
-                            <use href="../assets/svg/icon-sprite.svg#search-header"></use>
+                            <use href="{{url('assets/svg/icon-sprite.svg#search-header')}}"></use>
                         </svg>
                         <input class="w-100" type="search" placeholder="Search"></span></div>
                     </div>
@@ -40,7 +40,7 @@
                     <div class="form search-form mb-0">
                     <div class="input-group"> <span class="input-show">
                         <svg id="searchIcon">
-                            <use href="../assets/svg/icon-sprite.svg#search-header"></use>
+                            <use href="{{url('assets/svg/icon-sprite.svg#search-header')}}"></use>
                         </svg>
                         <div id="searchInput">
                             <input type="search" placeholder="Search">
@@ -53,7 +53,7 @@
                 <li class="onhover-dropdown notification-down">
                     <div class="notification-box">
                         <svg>
-                            <use href="../assets/svg/icon-sprite.svg#notification-header"></use>
+                            <use href="{{url('assets/svg/icon-sprite.svg#notification-header')}}"></use>
                         </svg><span class="badge rounded-pill badge-secondary">4 </span>
                     </div>
                     <div class="onhover-show-div notification-dropdown">

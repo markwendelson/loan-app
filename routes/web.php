@@ -91,6 +91,8 @@ Route::middleware('auth')->group(function(){
             Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
     });
 
+    Route::post('user/{user}/permission',[UserController::class,'updatePermission'])->name('user.update-permission');
+
     Route::resource('user', UserController::class);
     Route::resource('role', RoleController::class);
     Route::resource('client', ClientController::class);
@@ -121,15 +123,4 @@ Route::middleware('auth')->group(function(){
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
 
-});
-
-Route::get('test-permission', function() {
-    $permissions = config('modules');
-
-    foreach ($permissions as $module => $data) {
-        foreach ($data['permissions'] as $permission) {
-            dd($permission);
-            Permission::firstOrCreate(['name' => $permission, 'group' => '', 'guard_name' => 'web']);
-        }
-    }
 });

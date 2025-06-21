@@ -24,7 +24,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"> <a href="{{url('')}}">
                             <svg class="stroke-icon">
-                                <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
+                                <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
                         <li class="breadcrumb-item">Role</li>
@@ -50,7 +50,6 @@
                 <table class="table table-bordered table-hover" id="tblRole">
                     <thead class="bg-default">
                         <tr>
-                            <th class="text-center" width="120">Id</th>
                             <th class="text-center" width="150">Name</th>
                             <th class="text-center" width="150"><i class="fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
                         </tr>
@@ -77,7 +76,6 @@
                 url: "{{ route('role.index') }}",
             },
             columns: [
-                { data: 'id', name: 'id' },
                 { data: 'name', name: 'name' },
                 {
                     data: null,
@@ -91,7 +89,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [2] },
+                { className: "text-center", targets: [1] },
             ]
         });
 

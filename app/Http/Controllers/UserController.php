@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -116,7 +117,9 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $branches = $this->branch;
-        return view('user.edit', compact('user','branches'));
+        $permissions = Permission::all();
+
+        return view('user.edit', compact('user','branches','permissions'));
     }
 
     /**
@@ -125,14 +128,11 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $user->name = $request->name;
+        $user->branch_id = $request->branch_id;
         $user->email = $request->email;
-        $user->status = $request->status;
         $user->save();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User updated successfully',
-        ]);
+        return redirect()->back()->with('message', 'User updated successfully');
     }
 
     /**
@@ -146,5 +146,12 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'User deleted successfully',
         ]);
+    }
+
+    public function updatePermission(User $user, Request $request)
+    {
+        $user->syncPermissions($request->permissions); 
+
+        return redirect()->back()->with('message', 'User permissions updated successfully');
     }
 }

@@ -15,11 +15,11 @@ class PermissionSeeder extends Seeder
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissions = config('modules');
+        $modules = config('modules');
 
-        foreach ($permissions as $module => $data) {
-            foreach ($data['permissions'] as $permission) {
-                Permission::firstOrCreate(['name' => $permission, 'group' => '', 'guard_name' => 'web']);
+        foreach ($modules as $moduleKey => $module) {
+            foreach ($module['permissions'] as $permission) {
+                Permission::firstOrCreate(['name' => $permission['name'], 'group' => $moduleKey, 'guard_name' => 'web']);
             }
         }
     }

@@ -7,10 +7,10 @@
     <i class="fa fa-thumb-tack"></i>
     <a class="sidebar-link sidebar-title link-nav" href="{{route('home')}}">
         <svg class="stroke-icon">
-            <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
         </svg>
         <svg class="fill-icon">
-            <use href="../assets/svg/icon-sprite.svg#fill-home"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#fill-home')}}"></use>
         </svg>
         <span>Dashboard</span>
     </a>
@@ -26,10 +26,10 @@
     <i class="fa fa-thumb-tack"></i>
     <a class="sidebar-link sidebar-title" href="#">
         <svg class="stroke-icon">
-            <use href="../assets/svg/icon-sprite.svg#stroke-project"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#stroke-project')}}"></use>
         </svg>
         <svg class="fill-icon">
-            <use href="../assets/svg/icon-sprite.svg#fill-project"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#fill-project')}}"></use>
         </svg>
         <span>Clients</span>
         <div class="according-menu"><i class="fa fa-angle-right"></i></div>
@@ -43,10 +43,10 @@
 <li class="sidebar-list"><i class="fa fa-thumb-tack"></i>
     <a class="sidebar-link sidebar-title" href="#">
         <svg class="stroke-icon">
-            <use href="../assets/svg/icon-sprite.svg#stroke-user"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#stroke-user')}}"></use>
         </svg>
         <svg class="fill-icon">
-            <use href="../assets/svg/icon-sprite.svg#fill-user"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#fill-user')}}"></use>
         </svg>
         <span>Loans</span>
         <div class="according-menu">
@@ -68,10 +68,10 @@
     <i class="fa fa-thumb-tack"></i>
     <a class="sidebar-link sidebar-title link-nav" href="{{route('savings.index')}}">
         <svg class="stroke-icon">
-            <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
         </svg>
         <svg class="fill-icon">
-            <use href="../assets/svg/icon-sprite.svg#fill-home"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#fill-home')}}"></use>
         </svg>
         <span>Savings</span>
     </a>

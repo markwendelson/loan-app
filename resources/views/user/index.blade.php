@@ -24,7 +24,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"> <a href="{{url('')}}">
                             <svg class="stroke-icon">
-                                <use href="../assets/svg/icon-sprite.svg#stroke-home"></use>
+                                <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
                         <li class="breadcrumb-item">User</li>
