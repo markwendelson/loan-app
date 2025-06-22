@@ -46,10 +46,15 @@
                                     <div class="image-container text-center mb-3">
                                         <div class="row">
                                             <div class="col-12">
-                                                <img class="img-thumbnail" src="{{url('/assets/images/user/6.jpg')}}">
+                                                @if(isset($user))
+                                                    <img id="user_photo_preview" class="img-thumbnail" src="{{ $user->photo ? asset('storage/'.$user->photo) : url('/assets/images/user/6.jpg')}}">
+                                                @else
+                                                    <img id="user_photo_preview" class="img-thumbnail" src="{{url('/assets/images/user/6.jpg')}}">
+                                                @endif
                                             </div>
                                             <div class="col-12">
-                                                <button type="button" class="btn btn-primary mt-1"><i class="fa fa-camera"></i> Upload Image</button>
+                                                <input type="file" id="user_photo" name="user_photo" accept="image/*" style="display: none;" />
+                                                <button type="button" id="btn_img_upload" class="btn btn-primary mt-1"><i class="fa fa-camera"></i> Upload Image</button>
                                             </div>
                                         </div>
                                     </div>
@@ -87,7 +92,7 @@
                             </div>
                         </div>
                     </div>
-                
+
                     <div class="col-sm-12 col-md-7 col-lg-9">
                         <div class="card">
                             <div class="card-header">
@@ -105,10 +110,10 @@
                                                     @php
                                                         $assignedPermissionNames = $user->getPermissionNames()->toArray();
                                                     @endphp
-                                                    <div class="col-3">
-                                                        <input type="checkbox" 
-                                                                name="permissions[]" 
-                                                                id="{{$permission['name']}}" 
+                                                    <div class="col-md-4 col-sm-2">
+                                                        <input type="checkbox"
+                                                                name="permissions[]"
+                                                                id="{{$permission['name']}}"
                                                                 value="{{$permission['name']}}"
                                                                 @checked(in_array($permission['name'], $assignedPermissionNames))>
                                                         <label for="{{$permission['name']}}">{{$permission['label']}}</label>
@@ -133,5 +138,21 @@
 @endsection
 
 @push('js')
+<script>
+    // image preview
+    $("[name='user_photo']").change(function(event) {
+        const file=event.target.files[0];
+        if (file) {
+            const reader=new FileReader();
+            reader.onload=function(e) {
+                $('#user_photo_preview').attr('src', e.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 
+    $('#btn_img_upload').click(function() {
+        $("[name='user_photo").click();
+    });
+</script>
 @endpush

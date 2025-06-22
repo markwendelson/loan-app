@@ -130,6 +130,12 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->branch_id = $request->branch_id;
         $user->email = $request->email;
+
+        if (isset($request->user_photo)) {
+            $path = $request->user_photo->store('client_uploads', 'public');
+            $user->photo = $path;
+        }
+
         $user->save();
 
         return redirect()->back()->with('message', 'User updated successfully');
@@ -150,7 +156,7 @@ class UserController extends Controller
 
     public function updatePermission(User $user, Request $request)
     {
-        $user->syncPermissions($request->permissions); 
+        $user->syncPermissions($request->permissions);
 
         return redirect()->back()->with('message', 'User permissions updated successfully');
     }
