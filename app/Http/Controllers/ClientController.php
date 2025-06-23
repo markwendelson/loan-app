@@ -215,7 +215,7 @@ class ClientController extends Controller
                     'payment_id' => $payment->id,
                     'transaction_date' => null,
                     'withdraw_date' => $payment->transaction_date,
-                    'salary_month' => null,
+                    'salary_month' => strtoupper(date('M y', strtotime($payment->transaction_date))),
                     'loan_principal' => null,
                     'loan_interest' => null,
                     'loan_service_fee' => null,
@@ -246,14 +246,20 @@ class ClientController extends Controller
             ]);
         }
 
+        
+        $principal_loan = $loans[0] ?? null;
+        $special_loan = $loans[1] ?? null;
+
         $loan = [
-            'principal_loan_no' => $loans[0]['loan_no'] ?? '',
-            'principal_date_granted' => $loans[0]['approved_date'] ?? '',
-            'special_loan_no' => $loans[1]['loan_no'] ?? '',
-            'special_date_granted' => $loans[1]['approved_date'] ?? ''
+            'principal_loan_no' => $principal_loan->loan_no ?? '',
+            'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
+            'principal_date_granted' => $principal_loan->approved_date ?? '',
+            'special_loan_no' => $special_loan->loan_no ?? '',
+            'special_loan_product' => $special_loan->loanProduct->name ?? '',
+            'special_date_granted' => $special_loan->approved_date ?? '',
         ];
 
-        return view('client.ledger', compact('client', 'loan'));
+        return view('client.ledger', compact('client', 'loan','principal_loan','special_loan'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)

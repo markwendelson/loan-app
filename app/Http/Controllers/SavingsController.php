@@ -6,6 +6,7 @@ use App\Enums\LoanStatus;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\Savings;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SavingsController extends Controller
@@ -198,6 +199,43 @@ class SavingsController extends Controller
         $loans = $client->getApproveLoans();
 
         return view('savings.transactions', compact('client','loans'));
+    }
+
+    public function getInterest(Request $request)
+    {
+        $loan = Loan::findOrFail($request->id);
+
+        $principal_balance = $this->getPrincipalBalance($loan);
+        $number_of_days = $this->getNumberOfDays($loan, $request->transaction_date);
+        $interest = (0.03/30) * $number_of_days * $principal_balance;
+
+        return response()->json([
+            'interest' => number_format($interest,2)
+        ]);
+        
+    }
+
+    function getPrincipalBalance(Loan $loan)
+    {
+        $total_principal_payment = Savings::where('loan_id',$loan->id)->sum('principal');
+        $principal_balance = $loan->principal - $total_principal_payment;
+        return $principal_balance;
+    }
+
+    function getNumberOfDays(Loan $loan, $transaction_date)
+    {
+        $savings = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->orderBy('transaction_date')->first();
+        $start_date = $savings->transaction_date ?? $loan->disbursed_date;
+
+        $start = Carbon::parse($start_date);
+        $current_date = Carbon::parse($transaction_date);
+        $number_of_days = (int)$start->diffInDays($current_date);
+
+        \Log::info($start);
+        \Log::info($current_date);
+        \Log::info($number_of_days);
+
+        return $number_of_days;
     }
 
     

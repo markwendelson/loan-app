@@ -116,8 +116,8 @@
                                     <input type="number" class="form-control form-control-sm" name="principal" placeholder="0" min="0"/>
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label class="form-label" for="change">Change</label>
-                                    <input type="number" class="form-control form-control-sm" name="change" placeholder="0" readonly min="0"/>
+                                    <label class="form-label" for="due_change">Change</label>
+                                    <input type="number" class="form-control form-control-sm" name="due_change" placeholder="0" readonly min="0"/>
                                 </div>
                             </div>
                         </div>

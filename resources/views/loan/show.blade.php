@@ -252,7 +252,7 @@
     function declineLoan(id) {
         swal({
             title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            text: "Do you want to decline this loan?",
             icon: 'warning',
             buttons: true,
             dangerMode: true,
@@ -278,7 +278,7 @@
     function withdrawnLoan(id) {
         swal({
             title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            text: "Do you want to withdraw this loan??",
             icon: 'warning',
             buttons: true,
             dangerMode: true,
@@ -304,7 +304,7 @@
     function approveLoan(id) {
         swal({
             title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            text: "Do you want to approve this loan?",
             icon: 'warning',
             buttons: true,
             dangerMode: true,
@@ -330,7 +330,7 @@
     function requestApproval(id) {
         swal({
             title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            text: "Do you want to request approval to this loan?.",
             icon: 'warning',
             buttons: true,
             dangerMode: true,

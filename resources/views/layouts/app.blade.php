@@ -169,7 +169,7 @@
                     const toastBody = document.getElementById('toastBody');
 
                     // Update content
-                    toastBody.textContent = message;
+                    toastBody.innerHTML  = message;
 
                     // Update toast class
                     toastEl.className = `toast align-items-center ${className} border-0`;

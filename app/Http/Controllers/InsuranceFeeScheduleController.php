@@ -136,8 +136,8 @@ class InsuranceFeeScheduleController extends Controller
                 ->where('max_amount','>=',$request->amount)->first();
 
         return response()->json([
-            'monthly' => $insurance_fee->monthly_fee,
-            'annual' => $insurance_fee->annual_fee
+            'monthly' => $insurance_fee->monthly_fee ?? 0,
+            'annual' => $insurance_fee->annual_fee ?? 0,
         ]);
     }
 }

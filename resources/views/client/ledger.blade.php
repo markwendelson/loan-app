@@ -48,132 +48,141 @@
         </div>
     </div>
 
-    <div class="container-fluid">
-        <div class="row project-cards">
-          <div class="col-md-12 project-list">
-            <div class="card">
-              <div class="row">
-                <div class="col-md-6">
-                  <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
-                    <li class="nav-item"><a class="nav-link active" id="principal-loan-tab" data-bs-toggle="tab" href="#principal-loan" role="tab" aria-controls="principal-loan" aria-selected="false"><i data-feather="info"></i>Principal Loan</a></li>
-                    <li class="nav-item"><a class="nav-link" id="special-loan-tab" data-bs-toggle="tab" href="#special-loan" role="tab" aria-controls="special-loan" aria-selected="false"><i data-feather="star"></i>Special Loan</a></li>
-                  </ul>
+    @isset($principal_loan)
+        <div class="container-fluid">
+            <div class="row project-cards">
+            <div class="col-md-12 project-list">
+                <div class="card">
+                <div class="row">
+                    <div class="col-md-6">
+                    <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
+                        <li class="nav-item"><a class="nav-link active" id="principal-loan-tab" data-bs-toggle="tab" href="#principal-loan" role="tab" aria-controls="principal-loan" aria-selected="false"><i data-feather="info"></i>Principal Loan</a></li>
+                        @isset($special_loan)
+                        <li class="nav-item"><a class="nav-link" id="special-loan-tab" data-bs-toggle="tab" href="#special-loan" role="tab" aria-controls="special-loan" aria-selected="false"><i data-feather="star"></i>Special Loan</a></li>
+                        @endisset
+                    </ul>
+                    </div>
+                    <div class="col-md-6">
+                    <div class="form-group mb-0 me-0"></div><a class="btn btn-primary" href="#"> <i data-feather="users"> </i>Co-Maker</a>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-0 me-0"></div><a class="btn btn-primary" href="#"> <i data-feather="users"> </i>Co-Maker</a>
                 </div>
-              </div>
             </div>
-          </div>
-          <div class="col-sm-12">
-            <div class="card">
-              <div class="card-body">
-                <input type="hidden" name="client_id" id="client_id" value="{{$client->id}}"/>
-                <div class="tab-content" id="top-tabContent">
-                  <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
-                    <div class="card">
-                        <div class="card-body">
-                            <div>Loan ID: {{$loan['principal_loan_no']}}</div>
-                            <div>Date Loan Granted: {{date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
-                            <div>Remarks: <p></p></div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover" id="tblLedger">
-                                    <thead class="bg-default">
-                                        <tr>
-                                            <th class="text-center" width="80" colspan="3" rowspan="2"></th>
-                                            <th class="text-leftr" width="150" colspan="6">LOAN</th>
-                                            <th class="text-center" width="80"></th>
-                                            <th class="text-leftr" width="150" colspan="5">PAYMENT</th>
-                                            <th class="text-center" width="80" colspan="2" rowspan="2"></th>
-                                        </tr>
-                                        <tr>
-                                            <th></th>
-                                            <th colspan="4">Deduction</th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                            <th colspan="4" style="border-right-width:1px;">Applied to</th>
-                                        </tr>
-                                        <tr>
-                                            <th>Transaction Date</th>
-                                            <th>Withdraw Date</th>
-                                            <th>Salary Month</th>
-                                            <th>Principal</th>
-                                            <th>Interest</th>
-                                            <th>Service Fee</th>
-                                            <th>Insurance Fee</th>
-                                            <th>Others</th>
-                                            <th>Net Proceed</th>
-                                            <th></th>
-                                            <th>WDL/DR</th>
-                                            <th>Interest</th>
-                                            <th>Insurance</th>
-                                            <th>Principal</th>
-                                            <th>Change</th>
-                                            <th>Balance</th>
-                                            <th>Remarks</th>
-                                        </tr>
-                                    </thead>
-                                </table>
+            <div class="col-sm-12">
+                <div class="card">
+                <div class="card-body">
+                    <input type="hidden" name="client_id" id="client_id" value="{{$client->id}}"/>
+                    <div class="tab-content" id="top-tabContent">
+                    <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
+                        <div class="card">
+                            <div class="card-body">
+                                <div>Loan ID: {{$loan['principal_loan_no']}}</div>
+                                <div>Loan Product: {{$loan['principal_loan_product']}}</div>
+                                <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
+                                <div>Remarks: <p></p></div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover" id="tblLedger" style="font-size: smaller;">
+                                        <thead class="bg-default">
+                                            <tr>
+                                                <th class="text-center" width="80" colspan="3" rowspan="2"></th>
+                                                <th class="text-leftr" width="150" colspan="6">LOAN</th>
+                                                <th class="text-center" width="80"></th>
+                                                <th class="text-leftr" width="150" colspan="5">PAYMENT</th>
+                                                <th class="text-center" width="80" colspan="2" rowspan="2"></th>
+                                            </tr>
+                                            <tr>
+                                                <th></th>
+                                                <th colspan="4">Deduction</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th colspan="4" style="border-right-width:1px;">Applied to</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Transaction Date</th>
+                                                <th>Withdraw Date</th>
+                                                <th>Salary Month</th>
+                                                <th>Principal</th>
+                                                <th>Interest</th>
+                                                <th>Service Fee</th>
+                                                <th>Insurance Fee</th>
+                                                <th>Others</th>
+                                                <th>Net Proceed</th>
+                                                <th></th>
+                                                <th>WDL/DR</th>
+                                                <th>Interest</th>
+                                                <th>Insurance</th>
+                                                <th>Principal</th>
+                                                <th>Change</th>
+                                                <th>Balance</th>
+                                                <th>Remarks</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                  </div>
-                  <div class="tab-pane fade" id="special-loan" role="tabpanel" aria-labelledby="special-loan-tab">
-                    <div class="card">
-                        <div class="card-body">
-                            <div>Loan ID: {{$loan['special_loan_no']}}</div>
-                            <div>Date Loan Granted: {{date('l, F j, Y, g:i A',strtotime($loan['special_date_granted']))}}</div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover" id="tblSpecialLedger">
-                                    <thead class="bg-default">
-                                        <tr>
-                                            <th class="text-center" width="80" colspan="3" rowspan="2"></th>
-                                            <th class="text-leftr" width="150" colspan="6">LOAN</th>
-                                            <th class="text-center" width="80"></th>
-                                            <th class="text-leftr" width="150" colspan="5">PAYMENT</th>
-                                            <th class="text-center" width="80" colspan="2" rowspan="2"></th>
-                                        </tr>
-                                        <tr>
-                                            <th></th>
-                                            <th colspan="4">Deduction</th>
-                                            <th></th>
-                                            <th></th>
-                                            <th></th>
-                                            <th colspan="4" style="border-right-width:1px;">Applied to</th>
-                                        </tr>
-                                        <tr>
-                                            <th>Transaction Date</th>
-                                            <th>Withdraw Date</th>
-                                            <th>Salary Month</th>
-                                            <th>Principal</th>
-                                            <th>Interest</th>
-                                            <th>Service Fee</th>
-                                            <th>Insurance Fee</th>
-                                            <th>Others</th>
-                                            <th>Net Proceed</th>
-                                            <th></th>
-                                            <th>WDL/DR</th>
-                                            <th>Interest</th>
-                                            <th>Insurance</th>
-                                            <th>Principal</th>
-                                            <th>Change</th>
-                                            <th>Balance</th>
-                                            <th>Remarks</th>
-                                        </tr>
-                                    </thead>
-                                </table>
+                    @isset($special_loan)
+                    <div class="tab-pane fade" id="special-loan" role="tabpanel" aria-labelledby="special-loan-tab">
+                        <div class="card">
+                            <div class="card-body">
+                                <div>Loan ID: {{$loan['special_loan_no']}}</div>
+                                <div>Loan Product: {{$loan['special_loan_product']}}</div>
+                                <div>Date Loan Granted: {{$loan['special_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['special_date_granted']))}}</div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover" id="tblSpecialLedger" style="font-size: smaller;">
+                                        <thead class="bg-default">
+                                            <tr>
+                                                <th class="text-center" width="80" colspan="3" rowspan="2"></th>
+                                                <th class="text-end" width="150" colspan="6">LOAN</th>
+                                                <th class="text-center" width="80"></th>
+                                                <th class="text-end" width="150" colspan="5">PAYMENT</th>
+                                                <th class="text-center" width="80" colspan="2" rowspan="2"></th>
+                                            </tr>
+                                            <tr>
+                                                <th></th>
+                                                <th colspan="4">Deduction</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th colspan="4" style="border-right-width:1px;">Applied to</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Transaction Date</th>
+                                                <th>Withdraw Date</th>
+                                                <th>Salary Month</th>
+                                                <th>Principal</th>
+                                                <th>Interest</th>
+                                                <th>Service Fee</th>
+                                                <th>Insurance Fee</th>
+                                                <th>Others</th>
+                                                <th>Net Proceed</th>
+                                                <th></th>
+                                                <th>WDL/DR</th>
+                                                <th>Interest</th>
+                                                <th>Insurance</th>
+                                                <th>Principal</th>
+                                                <th>Change</th>
+                                                <th>Balance</th>
+                                                <th>Remarks</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                  </div>
+                    @endisset
+                    </div>
                 </div>
-              </div>
+                </div>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
-
+    @else  
+        <div class="card card-body">No active loan.</div>
+    @endisset
 @endsection
 
 @push('js')

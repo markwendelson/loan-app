@@ -242,18 +242,16 @@
 
 
         var transaction_type;
-        $("[name='transaction_type']").on('change', function() {
-            transaction_type = $(this).find('option:selected').val();
+            transaction_type = $("[name='transaction_type']").find('option:selected').val();
 
             if(transaction_type == 'withdraw') {
                 $(".withdraw").show()
+                calculateChange();
             } else {
                 $(".withdraw").hide()
             }
 
-            calculateChange();
 
-        })
 
         $("[name='amount'],[name='interest'],[name='insurance'],[name='principal']").on('change', function() {
             calculateChange();
@@ -269,7 +267,10 @@
             var term = $("#loan_id").find('option:selected').data('term');
             var loan_type = $("#loan_id").find('option:selected').data('loan-type');
 
-
+            console.log('principal: ' + principal)
+            console.log('interest_rate: ' + interest_rate)
+            console.log('loan_type: ' + loan_type)
+            console.log('term: ' + term)
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
                 return;
             }
@@ -304,8 +305,6 @@
                 } else if(notaryFeeResponse.type == 'percentage') {
                     notary_fee = principal * (notaryFeeResponse.notary_fee/100);
                 }
-
-                interest = (0.03/30) * number_of_days * principal_balance
             } else if(loan_type == 'special-loan') {
                 notaryFeeResponse = await getNotaryFee(principal);
 
@@ -333,11 +332,15 @@
                 }
             }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee);
+            // var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee);
 
-            var net_proceeds = principal - total_deductions;
+            // var net_proceeds = principal - total_deductions;
 
-            // $("#modalTransaction [name='interest']").val(data.interest);
+            
+
+                
+            interestResponse = await getInterest();
+            $("#modalTransaction [name='interest']").val(parseFloat(interestResponse.interest.replace(/,/g, '')));
             // $("#modalTransaction [name='interest_month']").val(data.interest_month);
             // $("#modalTransaction [name='interest_year']").val(data.interest_year);
             // $("#modalTransaction [name='insurance']").val(data.insurance);
@@ -368,6 +371,20 @@
                 data: {amount:principal},
             })
         }
+
+        function getInterest() {
+            var id = $("#loan_id").find('option:selected').val()
+            var transaction_date = $("#modalTransaction [name='transaction_date']").val()
+            return $.ajax({
+                type: 'GET',
+                url: '{{ route('get_interest') }}',
+                data: {id:id,transaction_date:transaction_date},
+            })
+        }
+
+         $("#modalTransaction [name='transaction_date']").on('change', function() {
+            calculateLoan()
+         })
 
     });
 

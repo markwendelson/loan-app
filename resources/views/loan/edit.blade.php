@@ -35,7 +35,7 @@
 </div>
 
 <div class="row">
-    <div class="col-6">
+    <div class="col-md-6 col-sm-12">
         <div class="card">
             <div class="card-header">Edit Loan</div>
             <div class="card-body">
@@ -95,21 +95,56 @@
             </div>
         </div>
     </div>
-    <div class="col-6">
+    <div class="col-md-6 col-sm-12">
         <div class="card">
             <div class="card-header">Loan Summary</div>
             <div class="card-body">
                 <ul>
-                    <li>Principal Loan <span class="principal"></span></li>
+                    <li>
+                        <div class="d-flex justify-content-between">
+                            <label>Principal Loan</label>
+                            <input type="text" class="form-control form-control-sm w-25 text-end principal" readonly>
+                        </div>
+                    </li>
                     <li class="mt-3 mb-3">Deductions</li>
                     <ul style="margin-left: 1rem;">
-                        <li>Advance Interest <span class="advance_interest"></span></li>
-                        <li>Service Fee <span class="service_fee"></span></li>
-                        <li>Insurance Fee <span class="insurance_fee"></span></li>
-                        <li>Notary Fee <span class="notary_fee"></span></li>
+                        <li class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="advance_interest">Advance Interest</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="advance_interest" id="advance_interest">
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="service_fee">Service Fee</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="service_fee" id="service_fee">
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="insurance_fee">Insurance Fee</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="insurance_fee" id="insurance_fee">
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="notary_fee">Notary Fee</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
+                            </div>
+                        </li>
                     </ul>
-                    <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds"></span></li>
-                    <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization"></span></li>
+                    <li class="mt-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <label for="net_proceeds">Net Proceeds</label>
+                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="net_proceeds" id="net_proceeds">
+                        </div>
+                    </li>
+                    <li class="mt-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <label for="monthly_amortization">Monthly Amortization</label>
+                            <input type="text" class="form-control form-control-sm w-25 text-end" name="monthly_amortization" id="monthly_amortization">
+                        </div>
+                    </li>
                 </ul>
             </div>
             <div class="card-footer">
@@ -236,13 +271,13 @@
             var net_proceeds = principal - total_deductions;
 
 
-            $('.principal').text(currencyFormat(principal))
-            $('.advance_interest').text(currencyFormat(Math.floor(advance_interest)))
-            $('.service_fee').text(currencyFormat(Math.ceil(service_fee)))
-            $('.insurance_fee').text(currencyFormat(Math.floor(insurance_fee)))
-            $('.notary_fee').text(currencyFormat(Math.floor(notary_fee)))
-            $('.monthly_amortization').text(currencyFormat(monthly_amortization))
-            $('.net_proceeds').text(currencyFormat(Math.floor(net_proceeds)))
+            $('.principal').val(currencyFormat(principal))
+            $('#advance_interest').val(currencyFormat(Math.floor(advance_interest)))
+            $('#service_fee').val(currencyFormat(Math.ceil(service_fee)))
+            $('#insurance_fee').val(currencyFormat(Math.floor(insurance_fee)))
+            $('#notary_fee').val(currencyFormat(Math.floor(notary_fee)))
+            $('#monthly_amortization').val(currencyFormat(monthly_amortization))
+            $('#net_proceeds').val(currencyFormat(Math.floor(net_proceeds)))
 
         }
 
@@ -276,13 +311,13 @@
                 loan_product_id: $('#loan_product_id').val(),
                 loan_duration: $('#term').val(),
                 interest_rate: $('#interest_rate').val(),
-                applied_amount: $('.principal').text(),
-                advance_interest: $('.advance_interest').text(),
-                service_fee: $('.service_fee').text(),
-                insurance_fee: $('.insurance_fee').text(),
-                notary_fee: $('.notary_fee').text(),
-                monthly_amortization: $('.monthly_amortization').text(),
-                net_proceeds: $('.net_proceeds').text(),
+                applied_amount: $('#principal').val(),
+                advance_interest: $('#advance_interest').val(),
+                service_fee: $('#service_fee').val(),
+                insurance_fee: $('#insurance_fee').val(),
+                notary_fee: $('#notary_fee').val(),
+                monthly_amortization: $('#monthly_amortization').val(),
+                net_proceeds: $('#net_proceeds').val(),
             };
 
 
