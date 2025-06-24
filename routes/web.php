@@ -83,7 +83,7 @@ Route::middleware('auth')->group(function(){
 
     Route::get('/get-insurance-fee', [InsuranceFeeScheduleController::class, 'getInsuranceFee'])->name('get_insurance_fee');
     Route::get('/get-notary-fee', [NotaryFeeScheduleController::class, 'getNotaryFee'])->name('get_notary_fee');
-    Route::get('/get-interest', [SavingsController::class, 'getInterest'])->name('get_interest');
+    Route::get('/get-fees', [SavingsController::class, 'getFees'])->name('get_fees');
 
     Route::controller(ClientController::class)
         ->prefix('client')

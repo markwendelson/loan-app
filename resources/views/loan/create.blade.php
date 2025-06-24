@@ -308,7 +308,7 @@
                 service_fee: $('#service_fee').val(),
                 insurance_fee: $('#insurance_fee').val(),
                 notary_fee: $('#notary_fee').val(),
-                monthly_amortization: $('#monthly_amortization').val(),
+                monthly_amortization: $('#monthly_amortization').val().replace(/,/g, ''),
                 net_proceeds: $('#net_proceeds').val(),
             };
 

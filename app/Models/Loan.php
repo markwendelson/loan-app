@@ -59,6 +59,11 @@ class Loan extends Model
         return $this->hasOne(LoanCharge::class);
     }
 
+    public function loanFees()
+    {
+        return $this->hasOne(LoanFee::class);
+    }
+
     public function scopeFilter($query, $search)
     {
         if (!empty($search)) {

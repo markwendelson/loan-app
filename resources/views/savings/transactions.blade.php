@@ -242,14 +242,14 @@
 
 
         var transaction_type;
-            transaction_type = $("[name='transaction_type']").find('option:selected').val();
+        transaction_type = $("[name='transaction_type']").find('option:selected').val();
 
-            if(transaction_type == 'withdraw') {
-                $(".withdraw").show()
-                calculateChange();
-            } else {
-                $(".withdraw").hide()
-            }
+        if(transaction_type == 'withdraw') {
+            $(".withdraw").show()
+            calculateChange();
+        } else {
+            $(".withdraw").hide()
+        }
 
 
 
@@ -377,7 +377,7 @@
             var transaction_date = $("#modalTransaction [name='transaction_date']").val()
             return $.ajax({
                 type: 'GET',
-                url: '{{ route('get_interest') }}',
+                url: '{{ route('get_fees') }}',
                 data: {id:id,transaction_date:transaction_date},
             })
         }

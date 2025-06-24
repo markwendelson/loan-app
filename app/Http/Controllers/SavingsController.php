@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\LoanStatus;
 use App\Models\Client;
 use App\Models\Loan;
+use App\Models\LoanFee;
 use App\Models\Savings;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -201,7 +202,7 @@ class SavingsController extends Controller
         return view('savings.transactions', compact('client','loans'));
     }
 
-    public function getInterest(Request $request)
+    public function getFees(Request $request)
     {
         $loan = Loan::findOrFail($request->id);
 
@@ -209,8 +210,13 @@ class SavingsController extends Controller
         $number_of_days = $this->getNumberOfDays($loan, $request->transaction_date);
         $interest = (0.03/30) * $number_of_days * $principal_balance;
 
+        $loan_fee = LoanFee::where($loan->id)->first();
+
         return response()->json([
-            'interest' => number_format($interest,2)
+            'interest' => number_format($interest,2),
+            'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
+            'insurance_monthly_fee' => number_format($loan_fee->insurance_monthly_fee,2),
+            'insurance_annual_fee' => number_format($loan_fee->insurance_annual_fee,2)
         ]);
         
     }

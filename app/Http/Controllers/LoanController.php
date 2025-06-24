@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Enums\LoanStatus;
 use App\Http\Requests\LoanRequest;
 use App\Models\Client;
+use App\Models\InsuranceFeeSchedule;
 use App\Models\Loan;
 use App\Models\LoanCharge;
+use App\Models\LoanFee;
 use App\Models\LoanProduct;
 use App\Models\Savings;
 use Illuminate\Database\QueryException;
@@ -111,10 +113,6 @@ class LoanController extends Controller
 
             }
 
-            dd($data);
-
-            // $principan_loans = LoanProduct::doesntHave('prerequisite')->pluck('id')->toArray();
-
             DB::transaction(function () use ($data) {
                 
                 $loan = Loan::create($data);
@@ -125,6 +123,16 @@ class LoanController extends Controller
                     'service_fee' => $data['service_fee'],
                     'insurance_fee' => $data['insurance_fee'],
                     'notary_fee' => $data['notary_fee'],
+                ]);
+
+                $insurance = InsuranceFeeSchedule::where('min_amount','<=',$data['applied_amount'])
+                                ->where('max_amount','>=',$data['applied_amount'])->first();
+
+                LoanFee::create([
+                    'loan_id' => $loan->id,
+                    'insurance_monthly_fee' => $insurance->monthly_fee,
+                    'insurance_annual_fee' => $insurance->annual_fee,
+                    'monthly_amortization' => $data['monthly_amortization']
                 ]);
 
             });
@@ -417,10 +425,11 @@ class LoanController extends Controller
         ], 404);
     }
 
-    public function disburse(Loan $loan)
+    public function disburse(Loan $loan, Request $request)
     {
         if($loan) {
             $loan->disbursed_date = date('Y-m-d H:i:s');
+            $loan->disbursed_notes = $request->notes;
             $loan->disbursed_by = auth()->user()->id;
             $loan->save();
 

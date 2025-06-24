@@ -63,6 +63,8 @@
         </div>
     </div>
 
+    @include('loan.modal-disbursement')
+
 @endsection
 
 @push('js')
@@ -100,10 +102,10 @@
             ]
         });
 
-        $("#modalLoanProduct .btnSubmit").click(function (e) {
+        $("#modalDisbursement .btnSubmit").click(function (e) {
             e.preventDefault();
 
-            let form = $("#frmLoanProductModal")[0];
+            let form = $("#frmDisbursementModal")[0];
 
             if (!form.checkValidity()) {
                 form.reportValidity();
@@ -114,20 +116,13 @@
                     $(this).show();
                 });
 
-                let formData = $("#frmLoanProductModal").serializeArray();
+                let formData = $("#frmDisbursementModal").serializeArray();
 
-                var id = $("#modalLoanProduct [name='id']").val();
-                if(id) {
-                    _method = 'PUT';
-                    _url = `{{route('loan-product.update', ':id')}}`.replace(':id',id);
-                } else {
-                    _method = 'POST';
-                    _url = `{{route('loan-product.store')}}`;
-                }
-
+                var id = $("#modalDisbursement [name='id']").val();
+                var _url = `{{route('loan.disburse',':id')}}`.replace(':id',id);
 
                 $.ajax({
-                    method: _method,
+                    method: 'POST',
                     url: _url,
                     data: formData,
                     dataType: "json",
@@ -137,7 +132,7 @@
                             $(this).hide();
                         });
                         if(response.status == 'success'){
-                            hideModal('modalLoanProduct');
+                            hideModal('modalDisbursement');
                             showToast.success(response.message)
                             table.ajax.reload();
                         }else{
@@ -157,7 +152,8 @@
 
         $("#tblLoan").on("click", ".btn-cash-out", function(){
             let id = $(this).attr("data-id");
-            cashOutLoan(id)
+            $("#modalDisbursement [name='id']").val(id);
+            showModal('modalDisbursement')
         })
 
         function cashOutLoan(id) {
@@ -189,19 +185,19 @@
 
 
     // function showModal(){
-    //     $("#modalLoanProduct").modal("show");
+    //     $("#modalDisbursement").modal("show");
     // }
 
     // function hideModal(){
     //     clearFormInputs();
-    //     $("#modalLoanProduct").modal("hide");
+    //     $("#modalDisbursement").modal("hide");
     // }
 
     // function clearFormInputs() {
-    //     $("#modalLoanProduct [name='id']").val("");
-    //     $("#modalLoanProduct [name='name']").val("");
-    //     $("#modalLoanProduct [name='description']").val("");
-    //     $("#modalLoanProduct [name='status']").val("");
+    //     $("#modalDisbursement [name='id']").val("");
+    //     $("#modalDisbursement [name='name']").val("");
+    //     $("#modalDisbursement [name='description']").val("");
+    //     $("#modalDisbursement [name='status']").val("");
     // }
 
     function deleteData(id) {
