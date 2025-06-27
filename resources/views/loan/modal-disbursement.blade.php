@@ -11,13 +11,13 @@
                     @csrf
                     <input type="hidden" value="" name="id" id="id">
                     <div class="col-12">
-                       <label for="disbursement_date">Disbursement Date</label>
-                        <input type="date" class="form-control" name="disbursement_date" id="disbursement_date" value="{{ date('Y-m-d') }}"/>
+                       <label for="disbursed_date">Disbursement Date</label>
+                        <input type="date" class="form-control" name="disbursed_date" id="disbursed_date" value="{{ date('Y-m-d') }}"/>
                     </div>
 
                     <div class="col-12">
                         <label class="w-100" for="notes">Notes</label>
-                        <input type="text" class="form-control form-control-sm" name="notes" placeholder="Notes" required />
+                        <input type="text" class="form-control form-control-sm" name="notes" placeholder="Notes" />
                     </div>
                 </form>
             </div>

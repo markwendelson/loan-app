@@ -61,7 +61,7 @@ class LoanController extends Controller
     public function store(LoanRequest $request)
     {
         $data = $request->all();
-        
+
         try {
 
             $loan_product = LoanProduct::with('prerequisite')->find($data['loan_product_id']);
@@ -70,7 +70,7 @@ class LoanController extends Controller
                     ->where('status', LoanStatus::APPROVE)
                     ->where('is_special', 0)
                     ->first();
-                
+
                 if (!in_array($principal_loan->loan_product_id,$loan_product->prerequisite->pluck('id')->toArray())) {
                     return response()->json([
                         'status' => 'error',
@@ -86,7 +86,7 @@ class LoanController extends Controller
                             ->orWhere('status', LoanStatus::REQUEST_APPROVE)
                             ->orWhere('status', LoanStatus::PENDING)
                             ->first();
-    
+
                 if($alreadyHasLoan) {
                     return response()->json([
                         'status' => 'error',
@@ -103,7 +103,7 @@ class LoanController extends Controller
                             ->orWhere('status', LoanStatus::REQUEST_APPROVE)
                             ->orWhere('status', LoanStatus::PENDING)
                             ->first();
-    
+
                 if($alreadyHasLoan) {
                     return response()->json([
                         'status' => 'error',
@@ -114,7 +114,7 @@ class LoanController extends Controller
             }
 
             DB::transaction(function () use ($data) {
-                
+
                 $loan = Loan::create($data);
 
                 LoanCharge::create([
@@ -428,7 +428,7 @@ class LoanController extends Controller
     public function disburse(Loan $loan, Request $request)
     {
         if($loan) {
-            $loan->disbursed_date = date('Y-m-d H:i:s');
+            $loan->disbursed_date = $request->disbursed_date;
             $loan->disbursed_notes = $request->notes;
             $loan->disbursed_by = auth()->user()->id;
             $loan->save();
