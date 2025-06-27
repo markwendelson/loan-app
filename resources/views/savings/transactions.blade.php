@@ -229,7 +229,7 @@
             }
         }
 
-        
+
         $('#transaction_type').on('change', function() {
             let selected = $(this).val();
             if(selected == 'withdraw'){
@@ -251,108 +251,43 @@
             $(".withdraw").hide()
         }
 
-
-
         $("[name='amount'],[name='interest'],[name='insurance'],[name='principal']").on('change', function() {
             calculateChange();
         })
 
+        $("[name='is_early_settlement']").on('change', function () {
+            const $principal = $("#modalTransaction [name='principal']");
+
+            if ($(this).prop('checked')) {
+                const principal_balance = $principal.data('principal-balance');
+                $principal.val(principal_balance);
+            } else {
+                const monthly_amortization = $principal.data('monthly-amortization');
+                $principal.val(monthly_amortization);
+            }
+        });
+
         $("#loan_id").on("change", function() {
-            calculateLoan();
+            getData();
         })
-        async function calculateLoan() {
-            
-            var principal = $("#loan_id").find('option:selected').data('principal');
-            var interest_rate = $("#loan_id").find('option:selected').data('interest-rate');
-            var term = $("#loan_id").find('option:selected').data('term');
-            var loan_type = $("#loan_id").find('option:selected').data('loan-type');
+        async function getData() {
+            var loan_id = $("#loan_id").find('option:selected').val()
+            var transaction_date = $("#modalTransaction [name='transaction_date']").val()
 
-            console.log('principal: ' + principal)
-            console.log('interest_rate: ' + interest_rate)
-            console.log('loan_type: ' + loan_type)
-            console.log('term: ' + term)
-            if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
-                return;
-            }
+            if(loan_id===''||transaction_date==='') return;
 
-            var percentage_rate = interest_rate / 100;
-            var interest_term_value = 1 + (term * percentage_rate)
-
-            var capital_amount = 0;
-            var advance_interest = 0;
-            var monthly_amortization = 0;
-            var service_fee = 0;
-            var insurance_fee = 0;
-            var notary_fee = 0;
-
-            if(loan_type == 'loan-with-term') {
-                capital_amount = principal / interest_term_value;
-                advance_interest = principal - capital_amount;
-                monthly_amortization = principal / term;
-                service_fee = capital_amount * (5/100);
-                insurance_fee = principal * (2.5/100);
-                notary_fee = principal * (3/100);
-            } else if(loan_type == 'auto-debit') {
-                notaryFeeResponse = await getNotaryFee(principal);
-                inuranceFeeResponse = await getInsuranceFee(principal);
-
-                advance_interest = principal * (interest_rate/100);
-                monthly_amortization = advance_interest;
-                service_fee = principal * (5/100);
-                insurance_fee = inuranceFeeResponse.annual; // from insurance table
-                if(notaryFeeResponse.type == 'fixed') {
-                    notary_fee = notaryFeeResponse.notary_fee;
-                } else if(notaryFeeResponse.type == 'percentage') {
-                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
-                }
-            } else if(loan_type == 'special-loan') {
-                notaryFeeResponse = await getNotaryFee(principal);
-
-                advance_interest = (interest_rate/100) * principal * term;
-                monthly_amortization = advance_interest;
-                service_fee = principal * (5/100);
-                insurance_fee = 0;
-                if(notaryFeeResponse.type == 'fixed') {
-                    notary_fee = notaryFeeResponse.notary_fee;
-                } else if(notaryFeeResponse.type == 'percentage') {
-                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
-                }
-            } else if(loan_type == 'open-term') {
-                notaryFeeResponse = await getNotaryFee(principal);
-                inuranceFeeResponse = await getInsuranceFee(principal);
-
-                advance_interest = principal * (interest_rate/100);
-                monthly_amortization = advance_interest;
-                service_fee = principal * (3/100);
-                insurance_fee = inuranceFeeResponse.annual;
-                if(notaryFeeResponse.type == 'fixed') {
-                    notary_fee = notaryFeeResponse.notary_fee;
-                } else if(notaryFeeResponse.type == 'percentage') {
-                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
-                }
-            }
-
-            // var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee);
-
-            // var net_proceeds = principal - total_deductions;
-
-            
-
-                
-            interestResponse = await getInterest();
+            interestResponse = await getInterest(loan_id,transaction_date);
             $("#modalTransaction [name='interest']").val(parseFloat(interestResponse.interest.replace(/,/g, '')));
-            // $("#modalTransaction [name='interest_month']").val(data.interest_month);
-            // $("#modalTransaction [name='interest_year']").val(data.interest_year);
-            // $("#modalTransaction [name='insurance']").val(data.insurance);
-            // $("#modalTransaction [name='insurance_month']").val(data.insurance_month);
-            // $("#modalTransaction [name='insurance_year']").val(data.insurance_year);
-            $("#modalTransaction [name='principal']").val(monthly_amortization);
-            // $('.advance_interest').text(currencyFormat(Math.floor(advance_interest)))
-            // $('.service_fee').text(currencyFormat(Math.ceil(service_fee)))
-            // $('.insurance_fee').text(currencyFormat(Math.floor(insurance_fee)))
-            // $('.notary_fee').text(currencyFormat(Math.floor(notary_fee)))
-            // $('.monthly_amortization').text(currencyFormat(monthly_amortization))
-            // $('.net_proceeds').text(currencyFormat(Math.floor(net_proceeds)))
+            $("#modalTransaction [name='insurance']").val(parseFloat(interestResponse.insurance_monthly_fee.replace(/,/g, '')));
+
+            $("#modalTransaction [name='principal']").data('principal-balance',parseFloat(interestResponse.principal_balance.replace(/,/g, '')));
+            $("#modalTransaction [name='principal']").data('monthly-amortization',parseFloat(interestResponse.monthly_amortization.replace(/,/g, '')));
+            if ($("#modalTransaction [name='is_early_settlement']").prop('checked')) {
+                $("#modalTransaction [name='principal']").val(parseFloat(interestResponse.principal_balance.replace(/,/g, '')));
+            } else {
+                $("#modalTransaction [name='principal']").val(parseFloat(interestResponse.monthly_amortization.replace(/,/g, '')));
+            }
+
             $("[name='amount'],[name='interest'],[name='insurance'],[name='principal']").trigger('change')
 
         }
@@ -372,18 +307,16 @@
             })
         }
 
-        function getInterest() {
-            var id = $("#loan_id").find('option:selected').val()
-            var transaction_date = $("#modalTransaction [name='transaction_date']").val()
+        function getInterest(loan_id,transaction_date) {
             return $.ajax({
                 type: 'GET',
                 url: '{{ route('get_fees') }}',
-                data: {id:id,transaction_date:transaction_date},
+                data: {id:loan_id,transaction_date:transaction_date},
             })
         }
 
          $("#modalTransaction [name='transaction_date']").on('change', function() {
-            calculateLoan()
+            getData()
          })
 
     });
@@ -407,8 +340,10 @@
             change = amount - (interest + insurance + principal);
             if(change < 0) {
                 $('.btnSubmit').attr('disabled', true)
+                $("#modalTransaction [name='amount']").addClass('is-invalid')
             } else {
                 $('.btnSubmit').attr('disabled', false)
+                $("#modalTransaction [name='amount']").removeClass('is-invalid')
             }
             $("[name='change']").val(change)
         }

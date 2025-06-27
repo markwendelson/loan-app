@@ -70,8 +70,10 @@ class SavingsController extends Controller
         $client = Client::findOrFail($request->client_id);
 
         if($request->transaction_type == 'withdraw') {
-            $balance = getClientBalance($client);
-            if($balance<=0) {
+            $str_balance = getClientBalance($client);
+            $balance = (float) str_replace(',', '', $str_balance);
+
+            if($balance<=0 || $request->amount > $balance) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Insufficient Balance',
@@ -210,15 +212,16 @@ class SavingsController extends Controller
         $number_of_days = $this->getNumberOfDays($loan, $request->transaction_date);
         $interest = (0.03/30) * $number_of_days * $principal_balance;
 
-        $loan_fee = LoanFee::where($loan->id)->first();
+        $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
 
         return response()->json([
             'interest' => number_format($interest,2),
             'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
-            'insurance_monthly_fee' => number_format($loan_fee->insurance_monthly_fee,2),
-            'insurance_annual_fee' => number_format($loan_fee->insurance_annual_fee,2)
+            'insurance_monthly_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_monthly_fee,2) : '0',
+            'insurance_annual_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_annual_fee,2) : '0',
+            'principal_balance' => number_format($principal_balance,2)
         ]);
-        
+
     }
 
     function getPrincipalBalance(Loan $loan)
@@ -231,7 +234,9 @@ class SavingsController extends Controller
     function getNumberOfDays(Loan $loan, $transaction_date)
     {
         $savings = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->orderBy('transaction_date')->first();
-        $start_date = $savings->transaction_date ?? $loan->disbursed_date;
+        \Log::info($savings);
+        $start_date = $savings?->transaction_date ?? $loan->disbursed_date;
+        \Log::info($loan->disbursed_date);
 
         $start = Carbon::parse($start_date);
         $current_date = Carbon::parse($transaction_date);
@@ -244,5 +249,5 @@ class SavingsController extends Controller
         return $number_of_days;
     }
 
-    
+
 }

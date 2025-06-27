@@ -59,7 +59,7 @@
                                     <select name="loan_id" id="loan_id" class="form-control form-control-sm">
                                         <option value="">-select-</option>
                                         @foreach($loans as $loan)
-                                            <option value="{{$loan->id}}" 
+                                            <option value="{{$loan->id}}"
                                                 data-loan-product-id="{{$loan->loan_product_id}}"
                                                 data-principal="{{$loan->principal}}"
                                                 data-interest-rate="{{$loan->interest_rate}}"
@@ -114,6 +114,8 @@
                                 <div class="col-md-6 form-group">
                                     <label class="form-label" for="principal">Principal</label>
                                     <input type="number" class="form-control form-control-sm" name="principal" placeholder="0" min="0"/>
+                                    <input type="checkbox" name="is_early_settlement" id="is_early_settlement" class="form-check-input" />
+                                    <label for="is_early_settlement">Early Settlement</label>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="form-label" for="due_change">Change</label>

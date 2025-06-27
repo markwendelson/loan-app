@@ -75,11 +75,20 @@
                     <div class="tab-content" id="top-tabContent">
                     <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
                         <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div>Loan ID: {{$loan['principal_loan_no']}}</div>
+                                        <div>Loan Product: {{$loan['principal_loan_product']}}</div>
+                                        <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
+                                        <div>Remarks: <p></p></div>
+                                    </div>
+                                    <div class="col-md-4 float-end">
+                                        <a href="{{route('loan.create', ['loan_no' => $loan['principal_loan_no']])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="card-body">
-                                <div>Loan ID: {{$loan['principal_loan_no']}}</div>
-                                <div>Loan Product: {{$loan['principal_loan_product']}}</div>
-                                <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
-                                <div>Remarks: <p></p></div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-hover" id="tblLedger" style="font-size: smaller;">
                                         <thead class="bg-default">
@@ -126,10 +135,20 @@
                     @isset($special_loan)
                     <div class="tab-pane fade" id="special-loan" role="tabpanel" aria-labelledby="special-loan-tab">
                         <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div>Loan ID: {{$loan['special_loan_no']}}</div>
+                                        <div>Loan Product: {{$loan['special_loan_product']}}</div>
+                                        <div>Date Loan Granted: {{$loan['special_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['special_date_granted']))}}</div>
+                                        <div>Remarks: <p></p></div>
+                                    </div>
+                                    <div class="col-md-4 float-end">
+                                        <a href="{{route('loan.create', ['loan_no' => $loan['special_loan_no']])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="card-body">
-                                <div>Loan ID: {{$loan['special_loan_no']}}</div>
-                                <div>Loan Product: {{$loan['special_loan_product']}}</div>
-                                <div>Date Loan Granted: {{$loan['special_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['special_date_granted']))}}</div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-hover" id="tblSpecialLedger" style="font-size: smaller;">
                                         <thead class="bg-default">
@@ -180,7 +199,7 @@
             </div>
             </div>
         </div>
-    @else  
+    @else
         <div class="card card-body">No active loan.</div>
     @endisset
 @endsection
