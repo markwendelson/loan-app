@@ -140,6 +140,7 @@
     var loan = @json($loan);
     $(document).ready(function () {
         var client_id = $("#client_id").val();
+        let pathParts = window.location.pathname.split('/');
 
         const principal = $('#tblLedger').DataTable({
             dom: 'rtip',
@@ -152,7 +153,7 @@
             ajax: {
                 url: `{{ route('client.ledger.loan', [':client', ':loan_no']) }}`
                     .replace(':client', client_id)
-                    .replace(':loan_no', 'LN-2025-06-00002'),
+                    .replace(':loan_no', pathParts[3]),
             },
             columns: [
                 { data: 'transaction_date', name: 'transaction_date' },
