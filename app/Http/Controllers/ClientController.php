@@ -159,7 +159,7 @@ class ClientController extends Controller
 
     public function ledgerPrincipal(Request $request, Client $client)
     {
-        $loans = Loan::with('payments','loanCharges')->where('borrower_id', $client->id)->where('is_special',0)->where('status',LoanStatus::APPROVE)->get();
+        $loans = Loan::with('payments','loanCharges')->where('borrower_id', $client->id)->where('status',LoanStatus::APPROVE)->get();
         $filter = '';
         foreach($loans as $loan) {
             $loan_prerequisites = DB::table('loan_product_prerequisites')->where('loan_product_id', $loan->loan_product_id)->get();
@@ -265,7 +265,7 @@ class ClientController extends Controller
 
     public function ledgerSpecial(Request $request, Client $client)
     {
-        $loans = Loan::with('payments','loanCharges')->where('borrower_id', $client->id)->where('is_special',1)->where('status',LoanStatus::APPROVE)->get();
+        $loans = Loan::with('payments','loanCharges')->where('borrower_id', $client->id)->where('status',LoanStatus::APPROVE)->get();
 
         $filter = '';
         foreach($loans as $loan) {
