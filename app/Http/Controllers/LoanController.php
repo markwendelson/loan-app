@@ -47,12 +47,18 @@ class LoanController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $clients = Client::active()->get();
         $loan_products = LoanProduct::active()->get();
 
-        return view('loan.create', compact('loan_products', 'clients'));
+        $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+
+        $previous_loan_principal = $previous_loan?->principal;
+        $total_loan_payment = $previous_loan?->payments->where('transaction_type', 'withdraw')->sum('amount');
+        $reloan_deduction = $previous_loan_principal - $total_loan_payment;
+
+        return view('loan.create', compact('loan_products', 'clients','reloan_deduction'));
     }
 
     /**
@@ -62,10 +68,17 @@ class LoanController extends Controller
     {
         $data = $request->all();
 
+        if($data['reloan']) {
+            return $this->processReloan($data);
+        }
+
         try {
 
             $loan_product = LoanProduct::with('prerequisite')->find($data['loan_product_id']);
             if ($loan_product->prerequisite->isNotEmpty()) {
+                $data['is_special'] = 1;
+
+                // must have principal loan
                 $principal_loan = Loan::where('borrower_id', $data['borrower_id'])
                     ->where('status', LoanStatus::APPROVE)
                     ->where('is_special', 0)
@@ -95,6 +108,7 @@ class LoanController extends Controller
                 }
 
             } else {
+                $data['is_special'] = 0;
 
                 $alreadyHasLoan = Loan::where([
                                 'borrower_id' => $data['borrower_id'],
@@ -442,5 +456,95 @@ class LoanController extends Controller
             'status' => 'error',
             'message' => 'Loan not found'
         ], 404);
+    }
+
+    public function processReloan($data)
+    {
+        try {
+
+            $loan_product = LoanProduct::with('prerequisite')->find($data['loan_product_id']);
+            if ($loan_product->prerequisite->isNotEmpty()) {
+                $principal_loan = Loan::where('borrower_id', $data['borrower_id'])
+                    ->where('status', LoanStatus::APPROVE)
+                    ->where('is_special', 0)
+                    ->first();
+
+                if (!in_array($principal_loan->loan_product_id,$loan_product->prerequisite->pluck('id')->toArray())) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Required prerequisite loan is missing.',
+                    ], 400);
+                }
+            }
+
+            DB::transaction(function () use ($data) {
+
+                $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $data['loan_no_reference'])->first();
+                $previous_loan->closed_date = $data['loan_date'];
+                $previous_loan->status = LoanStatus::CLOSED;
+                $previous_loan->save();
+
+                $previous_loan_principal = $previous_loan->principal;
+                $total_loan_payment = $previous_loan->payments->where('transaction_type', 'withdraw')->sum('amount');
+                $previous_loan_balance = $previous_loan_principal - $total_loan_payment;
+
+                // create saving for payment
+                Savings::create([
+                    'transaction_date' => $data['loan_date'],
+                    'transaction_type' => 'deposit',
+                    'client_id' => $data['borrower_id'],
+                    'amount' => $previous_loan_balance,
+                ]);
+
+                Savings::create([
+                    'transaction_date' => $data['loan_date'],
+                    'transaction_type' => 'withdraw',
+                    'client_id' => $data['borrower_id'],
+                    'loan_id' => $previous_loan->id,
+                    'amount' => $previous_loan_balance,
+                    'principal' => $previous_loan_balance,
+                ]);
+
+                $loan = Loan::create($data);
+
+                LoanCharge::create([
+                    'loan_id' => $loan->id,
+                    'advance_interest' => $data['advance_interest'],
+                    'service_fee' => $data['service_fee'],
+                    'insurance_fee' => $data['insurance_fee'],
+                    'notary_fee' => $data['notary_fee'],
+                    'reloan_deduction' => $previous_loan_balance,
+                ]);
+
+                $insurance = InsuranceFeeSchedule::where('min_amount','<=',$data['applied_amount'])
+                                ->where('max_amount','>=',$data['applied_amount'])->first();
+
+                LoanFee::create([
+                    'loan_id' => $loan->id,
+                    'insurance_monthly_fee' => $insurance->monthly_fee,
+                    'insurance_annual_fee' => $insurance->annual_fee,
+                    'monthly_amortization' => $data['monthly_amortization']
+                ]);
+
+            });
+
+            Session::flash('Loan created successfully');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan created successfully',
+            ]);
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Duplicate entry'
+                ], 409);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.' . $e->getMessage()
+            ], 500);
+        }
     }
 }

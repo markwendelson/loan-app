@@ -84,7 +84,7 @@
                                         <div>Remarks: <p></p></div>
                                     </div>
                                     <div class="col-md-4 float-end">
-                                        <a href="{{route('loan.create', ['loan_no' => $loan['principal_loan_no']])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                        <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +144,7 @@
                                         <div>Remarks: <p></p></div>
                                     </div>
                                     <div class="col-md-4 float-end">
-                                        <a href="{{route('loan.create', ['loan_no' => $loan['special_loan_no']])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                        <a href="{{route('loan.create', ['loan_no_reference' => $loan['special_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
                                     </div>
                                 </div>
                             </div>

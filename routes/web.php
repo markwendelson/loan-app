@@ -88,8 +88,10 @@ Route::middleware('auth')->group(function(){
     Route::controller(ClientController::class)
         ->prefix('client')
         ->group(function() {
+            Route::get('{client}/{loan_no}/ledger', 'ledgerLoan')->name('client.ledger.loan');
             Route::get('{client}/ledger', 'ledgerPrincipal')->name('client.ledger.principal');
             Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
+
     });
 
     Route::post('user/{user}/permission',[UserController::class,'updatePermission'])->name('user.update-permission');

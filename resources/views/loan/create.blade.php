@@ -127,6 +127,14 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
                             </div>
                         </li>
+                        @if(request()->has('reloan') && request()->has('loan_no_reference'))
+                        <li class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="notary_fee">Reloan Deduction</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction}}">
+                            </div>
+                        </li>
+                        @endif
                     </ul>
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between">
@@ -250,7 +258,9 @@
                 }
             }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee);
+            var reloan_deduction = $('#reloan_deduction').val() || 0;
+
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
 
             var net_proceeds = principal - total_deductions;
 
@@ -269,7 +279,11 @@
             $('#notary_fee').val(currencyFormat(Math.floor(notary_fee)))
             $('#monthly_amortization').val(currencyFormat(monthly_amortization))
             $('#net_proceeds').val(currencyFormat(Math.floor(net_proceeds)))
-            $('#btn-add-loan').attr('disabled', false)
+
+            console.log(net_proceeds)
+            if(net_proceeds > 0) {
+                // $('#btn-add-loan').attr('disabled', false)
+            }
 
         }
 
@@ -297,6 +311,9 @@
         })
 
         function addLoan() {
+
+            const urlParams = new URLSearchParams(window.location.search);
+
             let params = {
                 loan_date: $('#loan_date').val(),
                 borrower_id: $('#borrower_id').val(),
@@ -310,6 +327,8 @@
                 notary_fee: $('#notary_fee').val(),
                 monthly_amortization: $('#monthly_amortization').val().replace(/,/g, ''),
                 net_proceeds: $('#net_proceeds').val(),
+                loan_no_reference: urlParams.get('loan_no_reference'),
+                reloan: urlParams.get('reloan'),
             };
 
             $.ajax({
@@ -334,7 +353,7 @@
 
                     if (response.errors) {
                         let messages = Object.values(response.errors).flat().join('<br>');
-                        showToast.error(messages); 
+                        showToast.error(messages);
                     } else if (response.message) {
                         showToast.error(response.message);
                     }

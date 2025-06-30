@@ -89,6 +89,8 @@
                         return '<span class="badge badge-danger">Declined</span>';
                     } else if (data == 3) {
                         return '<span class="badge badge-warning">Withdrawn</span>';
+                    } else if (data == 5) {
+                        return '<span class="badge badge-dark">Closed</span>';
                     } else {
                         return '<span class="badge badge-primary">Pending</span>';
                     }
@@ -97,7 +99,7 @@
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
-                        if(row.status == 1) {
+                        if(row.status == 1 || row.status == 5) {
                             return `
                                 <button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button>
                             `;
