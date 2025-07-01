@@ -255,6 +255,18 @@
             calculateChange();
         })
 
+        $("[name='amount']").on('change', function() {
+            var amount = parseFloat($("#modalTransaction [name='amount']").val())
+            var interest = parseFloat($("#modalTransaction [name='interest']").val())
+            var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
+            // var principal = parseFloat($("#modalTransaction [name='principal']").val())
+
+            var x = amount - interest - insurance;
+            $("#modalTransaction [name='principal']").val(x)
+            console.log(x)
+
+        })
+
         $("[name='is_early_settlement']").on('change', function () {
             const $principal = $("#modalTransaction [name='principal']");
 
@@ -270,32 +282,37 @@
         $("#loan_id").on("change", function() {
             getData();
         })
+
+        $("[name='interest_month'],[name='interest_year']").on("change", function() {
+            getData();
+        })
         async function getData() {
             var loan_id = $("#loan_id").find('option:selected').val()
             var interest_month = $("#modalTransaction [name='interest_month']").val()
             var interest_year = $("#modalTransaction [name='interest_year']").val()
             var interest_period = interest_month + " " + interest_year;
             var amount = $("#modalTransaction [name='amount']").val()
-            
-            if(loan_id==='' || interest_year ==='') return;
-            
-            interestResponse = await getInterest(loan_id,interest_period);
-            var monthly_amortization = parseFloat(interestResponse.monthly_amortization.replace(/,/g, ''))
-            var interest = parseFloat(interestResponse.interest.replace(/,/g, ''))
-            $("#modalTransaction [name='interest']").val(parseFloat(interestResponse.interest.replace(/,/g, '')));
-            $("#modalTransaction [name='insurance']").val(parseFloat(interestResponse.insurance_monthly_fee.replace(/,/g, '')));
 
-            $("#modalTransaction [name='principal']").data('principal-balance',parseFloat(interestResponse.principal_balance.replace(/,/g, '')));
-            $("#modalTransaction [name='principal']").data('monthly-amortization',parseFloat(interestResponse.monthly_amortization.replace(/,/g, '')));
+            if(loan_id ==='' || interest_year ==='') return;
+
+            feesResponse = await getFees(loan_id,interest_period);
+            var monthly_amortization = parseFloat(feesResponse.monthly_amortization.replace(/,/g, ''))
+            var interest = parseFloat(feesResponse.interest.replace(/,/g, ''))
+            $("#modalTransaction [name='interest']").val(parseFloat(feesResponse.interest.replace(/,/g, '')));
+            $("#modalTransaction [name='insurance']").val(parseFloat(feesResponse.insurance_monthly_fee.replace(/,/g, '')));
+
+            $("#modalTransaction [name='principal']").data('principal-balance',parseFloat(feesResponse.principal_balance.replace(/,/g, '')));
+            $("#modalTransaction [name='principal']").data('monthly-amortization',parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
             if ($("#modalTransaction [name='is_early_settlement']").prop('checked')) {
-                $("#modalTransaction [name='principal']").val(parseFloat(interestResponse.principal_balance.replace(/,/g, '')));
+                $("#modalTransaction [name='principal']").val(parseFloat(feesResponse.principal_balance.replace(/,/g, '')));
             } else {
                 var principal = amount - interest;
+                console.log(principal)
                 if(principal < monthly_amortization) {
                     $("#modalTransaction [name='principal']").val(principal);
 
                 } else {
-                    $("#modalTransaction [name='principal']").val(parseFloat(interestResponse.monthly_amortization.replace(/,/g, '')));
+                    $("#modalTransaction [name='principal']").val(parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
                 }
             }
 
@@ -318,7 +335,7 @@
             })
         }
 
-        function getInterest(loan_id,interest_period) {
+        function getFees(loan_id,interest_period) {
             return $.ajax({
                 type: 'GET',
                 url: '{{ route('get_fees') }}',
@@ -349,6 +366,11 @@
 
             var change;
             change = amount - (interest + insurance + principal);
+
+            console.log('amount:'+amount)
+            console.log('interest:'+interest)
+            console.log('insurance:'+insurance)
+            console.log('principal:'+principal)
             if(change < 0) {
                 $('.btnSubmit').attr('disabled', true)
                 $("#modalTransaction [name='amount']").addClass('is-invalid')
