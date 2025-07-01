@@ -235,7 +235,7 @@ class SavingsController extends Controller
     function getNumberOfDays(Loan $loan, $interest_period)
     {
         $savings = Savings::where('loan_id',$loan->id)->where([
-                                    ['transaction_type','!=','withdraw'],
+                                    ['transaction_type','=','withdraw'],
                                     ['interest_month','!=',''],
                                     ['interest_year','!=',''],
                                 ])->orderBy('transaction_date')->first();
