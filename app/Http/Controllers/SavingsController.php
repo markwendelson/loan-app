@@ -212,11 +212,11 @@ class SavingsController extends Controller
         $number_of_days = $this->getNumberOfDays($loan, $request->interest_period);
         $interest_rate = $loan->interest_rate / 100;
         $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
-
+        $rounded_interest = round($interest);
         $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
 
         return response()->json([
-            'interest' => number_format($interest,2),
+            'interest' => number_format($rounded_interest,2),
             'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
             'insurance_monthly_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_monthly_fee,2) : '0',
             'insurance_annual_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_annual_fee,2) : '0',
