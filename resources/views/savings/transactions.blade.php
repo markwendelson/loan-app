@@ -347,7 +347,7 @@
                 $('.btnSubmit').attr('disabled', false)
                 $("#modalTransaction [name='amount']").removeClass('is-invalid')
             }
-            $("[name='change']").val(change)
+            $("[name='due_change']").val(change)
         }
 
     function deleteData(id) {
