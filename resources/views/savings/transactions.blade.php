@@ -309,7 +309,7 @@
             })
         }
 
-        function getInterest(loan_id,transaction_date) {
+        function getInterest(loan_id,interest_period) {
             return $.ajax({
                 type: 'GET',
                 url: '{{ route('get_fees') }}',
