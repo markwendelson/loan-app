@@ -272,11 +272,13 @@
         })
         async function getData() {
             var loan_id = $("#loan_id").find('option:selected').val()
-            var transaction_date = $("#modalTransaction [name='transaction_date']").val()
+            var interest_month = $("#modalTransaction [name='interest_month']").val()
+            var interest_year = $("#modalTransaction [name='interest_year']").val()
+            var interest_period = interest_month + " " + interest_year;
 
-            if(loan_id===''||transaction_date==='') return;
+            if(loan_id==='' || interest_year ==='') return;
 
-            interestResponse = await getInterest(loan_id,transaction_date);
+            interestResponse = await getInterest(loan_id,interest_period);
             $("#modalTransaction [name='interest']").val(parseFloat(interestResponse.interest.replace(/,/g, '')));
             $("#modalTransaction [name='insurance']").val(parseFloat(interestResponse.insurance_monthly_fee.replace(/,/g, '')));
 
@@ -311,7 +313,7 @@
             return $.ajax({
                 type: 'GET',
                 url: '{{ route('get_fees') }}',
-                data: {id:loan_id,transaction_date:transaction_date},
+                data: {id:loan_id,interest_period:interest_period},
             })
         }
 
