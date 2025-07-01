@@ -210,7 +210,8 @@ class SavingsController extends Controller
 
         $principal_balance = $this->getPrincipalBalance($loan);
         $number_of_days = $this->getNumberOfDays($loan, $request->interest_period);
-        $interest = ($loan->interest_rate/30) * $number_of_days * $principal_balance;
+        $interest_rate = $loan->interest_rate / 100;
+        $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
 
         $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
 
