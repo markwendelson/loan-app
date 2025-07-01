@@ -239,6 +239,7 @@ class SavingsController extends Controller
                                     ['interest_month','!=',''],
                                     ['interest_year','!=',''],
                                 ])->orderBy('transaction_date')->first();
+        \Log::info($savings);
         if($savings) {
             $start_date = Carbon::createFromDate($savings->interest_year, $savings->interest_month, 1)->addMonth(1);
         } else {
