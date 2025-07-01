@@ -234,8 +234,16 @@ class SavingsController extends Controller
 
     function getNumberOfDays(Loan $loan, $interest_period)
     {
-        $savings = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->orderBy('transaction_date')->first();
-        $start_date = $savings?->transaction_date ?? $loan->disbursed_date;
+        $savings = Savings::where('loan_id',$loan->id)->where([
+                                    ['transaction_type','!=','withdraw'],
+                                    ['interest_month','!=',''],
+                                    ['interest_year','!=',''],
+                                ])->orderBy('transaction_date')->first();
+        if(!$savings) {
+            $start_date = Carbon::createFromDate($savings->interest_year, $savings->interest_month, 1)->addMonth(1);
+        } else {
+            $start_date = $loan->disbursed_date;
+         }
 
         $start = Carbon::parse($start_date);
         [$month, $year] = explode(' ', $interest_period);
