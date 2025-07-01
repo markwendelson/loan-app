@@ -209,8 +209,8 @@ class SavingsController extends Controller
         $loan = Loan::findOrFail($request->id);
 
         $principal_balance = $this->getPrincipalBalance($loan);
-        $number_of_days = $this->getNumberOfDays($loan, $request->transaction_date);
-        $interest = (0.03/30) * $number_of_days * $principal_balance;
+        $number_of_days = $this->getNumberOfDays($loan, $request->interest_period);
+        $interest = ($loan->interest_rate/30) * $number_of_days * $principal_balance;
 
         $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
 
@@ -231,15 +231,16 @@ class SavingsController extends Controller
         return $principal_balance;
     }
 
-    function getNumberOfDays(Loan $loan, $transaction_date)
+    function getNumberOfDays(Loan $loan, $interest_period)
     {
         $savings = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->orderBy('transaction_date')->first();
-        \Log::info($savings);
         $start_date = $savings?->transaction_date ?? $loan->disbursed_date;
-        \Log::info($loan->disbursed_date);
 
         $start = Carbon::parse($start_date);
-        $current_date = Carbon::parse($transaction_date);
+        [$month, $year] = explode(' ', $interest_period);
+
+        // Create a Carbon date and set to end of the month
+        $current_date = Carbon::createFromDate($year, $month, 1)->endOfMonth();
         $number_of_days = (int)$start->diffInDays($current_date);
 
         \Log::info($start);
