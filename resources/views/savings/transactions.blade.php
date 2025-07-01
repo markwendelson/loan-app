@@ -275,10 +275,13 @@
             var interest_month = $("#modalTransaction [name='interest_month']").val()
             var interest_year = $("#modalTransaction [name='interest_year']").val()
             var interest_period = interest_month + " " + interest_year;
-
+            var amount = $("#modalTransaction [name='amount']").val()
+            
             if(loan_id==='' || interest_year ==='') return;
-
+            
             interestResponse = await getInterest(loan_id,interest_period);
+            var monthly_amortization = parseFloat(interestResponse.monthly_amortization.replace(/,/g, ''))
+            var interest = parseFloat(interestResponse.interest.replace(/,/g, ''))
             $("#modalTransaction [name='interest']").val(parseFloat(interestResponse.interest.replace(/,/g, '')));
             $("#modalTransaction [name='insurance']").val(parseFloat(interestResponse.insurance_monthly_fee.replace(/,/g, '')));
 
@@ -287,7 +290,13 @@
             if ($("#modalTransaction [name='is_early_settlement']").prop('checked')) {
                 $("#modalTransaction [name='principal']").val(parseFloat(interestResponse.principal_balance.replace(/,/g, '')));
             } else {
-                $("#modalTransaction [name='principal']").val(parseFloat(interestResponse.monthly_amortization.replace(/,/g, '')));
+                var principal = amount - interest;
+                if(principal < monthly_amortization) {
+                    $("#modalTransaction [name='principal']").val(principal);
+
+                } else {
+                    $("#modalTransaction [name='principal']").val(parseFloat(interestResponse.monthly_amortization.replace(/,/g, '')));
+                }
             }
 
             $("[name='amount'],[name='interest'],[name='insurance'],[name='principal']").trigger('change')
