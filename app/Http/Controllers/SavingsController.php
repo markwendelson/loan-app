@@ -208,6 +208,7 @@ class SavingsController extends Controller
     {
         $loan = Loan::findOrFail($request->id);
 
+        // adb - open term
         $principal_balance = $this->getPrincipalBalance($loan);
         $number_of_days = $this->getNumberOfDays($loan, $request->interest_period);
         $interest_rate = $loan->interest_rate / 100;
@@ -218,6 +219,7 @@ class SavingsController extends Controller
         return response()->json([
             'interest' => number_format($rounded_interest,2),
             'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
+            // 12 months
             'insurance_monthly_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_monthly_fee,2) : '0',
             'insurance_annual_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_annual_fee,2) : '0',
             'principal_balance' => number_format($principal_balance,2)
