@@ -278,7 +278,7 @@ class SavingsController extends Controller
 
         // insurance
         $disbursed_date = Carbon::parse($loan->disbursed_date);
-        // $current_date = Carbon::now();
+        $current_date = Carbon::now();
         $number_of_months = (int)$disbursed_date->diffInMonths($current_date);
 
         \Log::info('start:'.$start);
