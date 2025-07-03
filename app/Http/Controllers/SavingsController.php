@@ -210,18 +210,20 @@ class SavingsController extends Controller
 
         // adb - open term
         $principal_balance = $this->getPrincipalBalance($loan);
-        $number_of_days = $this->getNumberOfDays($loan, $request->interest_period);
+        $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
         $interest_rate = $loan->interest_rate / 100;
-        $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
+        $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
         $rounded_interest = round($interest);
         $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
 
         return response()->json([
             'interest' => number_format($rounded_interest,2),
+            'interest_start_date' => $result['start_date'],
+            'interest_end_date' => $result['end_date'],
             'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
             // 12 months
-            'insurance_monthly_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_monthly_fee,2) : '0',
-            'insurance_annual_fee' => $number_of_days >= 365 ? number_format($loan_fee->insurance_annual_fee,2) : '0',
+            'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_monthly_fee,2) : 0,
+            'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_annual_fee,2) : 0,
             'principal_balance' => number_format($principal_balance,2)
         ]);
 
@@ -234,31 +236,42 @@ class SavingsController extends Controller
         return $principal_balance;
     }
 
-    function getNumberOfDays(Loan $loan, $interest_period)
+    function getNumberOfDays(Loan $loan, string $interest_period = '')
     {
+
         $savings = Savings::where('loan_id',$loan->id)->where([
                                     ['transaction_type','=','withdraw'],
-                                    ['interest_month','!=',''],
-                                    ['interest_year','!=',''],
+                                    ['interest_start_date','!=',''],
+                                    ['interest_end_date','!=',''],
                                 ])->orderBy('transaction_date')->first();
         if($savings) {
-            $start_date = Carbon::createFromDate($savings->interest_year, $savings->interest_month, 1)->addMonth(1);
+            $start_date = $savings->interest_end_date;
         } else {
             $start_date = $loan->disbursed_date;
-         }
-
+        }
         $start = Carbon::parse($start_date);
-        [$month, $year] = explode(' ', $interest_period);
+        $current_date = Carbon::now();
+        
+        $interest_end_date = explode(' ', $interest_period)[1] ?? null;
+        if ($interest_end_date) {
+            $current_date = Carbon::parse($interest_end_date);
+        }
 
-        // Create a Carbon date and set to end of the month
-        $current_date = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
         $number_of_days = (int)$start->diffInDays($current_date);
+        $number_of_months = (int)$start->diffInMonths($current_date);
 
         \Log::info($start);
         \Log::info($current_date);
         \Log::info($number_of_days);
+        \Log::info($number_of_months);
 
-        return $number_of_days;
+        return [
+            'start_date' => $start->format('m/d/Y'),
+            'end_date' => $current_date->format('m/d/Y'),
+            'number_of_days' => $number_of_days,
+            'number_of_months' => $number_of_months,
+        ];
     }
 
 

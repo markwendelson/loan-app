@@ -29,7 +29,7 @@
                         <div class="col-6">
                             <div class="form-group">
                                 <label class="form-label" for="amount">Amount</label>
-                                <input type="number" class="form-control form-control-sm" name="amount" placeholder="Amount" required min="0"/>
+                                <input type="number" class="form-control form-control-sm" name="amount" placeholder="Amount" required min="0" autocomplete="off"/>
                             </div>
                         </div>
                         <div class="col-6">
@@ -71,9 +71,14 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="interest">Interest</label>
-                                    <input type="number" class="form-control form-control-sm" name="interest" placeholder="0" min="0"/>
+                                    <input type="number" class="form-control form-control-sm" name="interest" min="0" readonly/>
                                 </div>
-                                <div class="col-md-4 form-group">
+                                <div class="col-md-8 form-group">
+                                    <label class="form-label" for="interest_period" class="form-label">Interest Period</label>
+                                    <input type="text" name="interest_period" id="interest_period" class="form-control form-control-sm"/>
+                                </div>
+
+                                {{-- <div class="col-md-4 form-group">
                                     <label class="form-label" for="interest_month" class="form-label">Month</label>
                                     <select name="interest_month" id="interest_month" class="form-control form-control-sm">
                                         <option value="" disabled>Select</option>
@@ -86,13 +91,13 @@
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="interest_year" class="form-label">Year</label>
                                     <input type="text" class="form-control form-control-sm" id="interest_year" name="interest_year">
-                                </div>
+                                </div> --}}
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance">Insurance</label>
-                                    <input type="number" class="form-control form-control-sm" name="insurance" placeholder="0" min="0"/>
+                                    <input type="number" class="form-control form-control-sm" name="insurance" min="0" readonly/>
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_month" class="form-label">Month</label>
@@ -113,13 +118,13 @@
                             <div class="row mb-3">
                                 <div class="col-md-6 form-group">
                                     <label class="form-label" for="principal">Principal</label>
-                                    <input type="number" class="form-control form-control-sm" name="principal" placeholder="0" min="0"/>
+                                    <input type="number" class="form-control form-control-sm" name="principal" min="0" readonly/>
                                     <input type="checkbox" name="is_early_settlement" id="is_early_settlement" class="form-check-input" />
                                     <label for="is_early_settlement">Early Settlement</label>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="form-label" for="due_change">Change</label>
-                                    <input type="number" class="form-control form-control-sm" name="due_change" placeholder="0" readonly min="0"/>
+                                    <input type="number" class="form-control form-control-sm" name="due_change" readonly min="0"/>
                                 </div>
                             </div>
                         </div>
