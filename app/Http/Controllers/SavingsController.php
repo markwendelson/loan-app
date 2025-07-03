@@ -93,6 +93,18 @@ class SavingsController extends Controller
                     'message' => 'Insufficient amount.',
                 ],500);
             }
+
+            $interest = $request->interest ?? 0;
+            $insurance = $request->insurance ?? 0;
+            $principal = $request->principal ?? 0;
+            $total_due = $interest + $insurance + $principal;
+
+            if($request->amount < $total_due) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Insufficient amount.',
+                ],500);
+            }
         }
 
         $data = $request->all();
@@ -103,6 +115,10 @@ class SavingsController extends Controller
         // ])->first();
 
         // $data['loan_id'] = $loan->id;
+
+        if (empty($data['insurance'])) {
+            unset($data['insurance_month'], $data['insurance_year']);
+        }
 
         Savings::create($data);
 
@@ -257,14 +273,19 @@ class SavingsController extends Controller
             $current_date = Carbon::parse($interest_end_date);
         }
 
-
+        // interest
         $number_of_days = (int)$start->diffInDays($current_date);
-        $number_of_months = (int)$start->diffInMonths($current_date);
 
-        \Log::info($start);
-        \Log::info($current_date);
-        \Log::info($number_of_days);
-        \Log::info($number_of_months);
+        // insurance
+        $disbursed_date = Carbon::parse($loan->disbursed_date);
+        // $current_date = Carbon::now();
+        $number_of_months = (int)$disbursed_date->diffInMonths($current_date);
+
+        \Log::info('start:'.$start);
+        \Log::info('current_date:'.$current_date);
+        \Log::info('number_of_days:'.$number_of_days);
+        \Log::info('disbursed_date:'.$disbursed_date);
+        \Log::info('number_of_months:'.$number_of_months);
 
         return [
             'start_date' => $start->format('m/d/Y'),

@@ -97,7 +97,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance">Insurance</label>
-                                    <input type="number" class="form-control form-control-sm" name="insurance" min="0" readonly/>
+                                    <input type="number" class="form-control form-control-sm" name="insurance" min="0"/>
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_month" class="form-label">Month</label>
@@ -111,7 +111,7 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_year" class="form-label">Year</label>
-                                    <input type="text" class="form-control form-control-sm" id="insurance_year" name="insurance_year">
+                                    <input type="text" class="form-control form-control-sm" id="insurance_year" name="insurance_year" value="{{date('Y')}}">
                                 </div>
                             </div>
 

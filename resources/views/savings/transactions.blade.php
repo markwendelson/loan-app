@@ -281,7 +281,7 @@
             var monthly_amortization = parseFloat(feesResponse.monthly_amortization.replace(/,/g, ''))
             var interest = parseFloat(feesResponse.interest.replace(/,/g, ''))
             $("#modalTransaction [name='interest']").val(parseFloat(feesResponse.interest.replace(/,/g, '')));
-            console.log(feesResponse.insurance_monthly_fee)
+            console.log(feesResponse.insurance_monthly_fee !== 0)
             if(feesResponse.insurance_monthly_fee !== 0) {
                 $("#modalTransaction [name='insurance']").val(parseFloat(feesResponse.insurance_monthly_fee.replace(/,/g, '')));
             } else {
@@ -363,30 +363,31 @@
     });
 
     function calculateChange() {
+            if($("[name='transaction_type']").find('option:selected').val() === 'deposit') return;
+
             var amount = parseFloat($("#modalTransaction [name='amount']").val())
             var interest = parseFloat($("#modalTransaction [name='interest']").val())
             var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
+            var $principal = $("#modalTransaction [name='principal']")
+            $principal.val('');
 
             if (isNaN(amount)) return;
             if (isNaN(interest)) interest = 0;
             if (isNaN(insurance)) insurance = 0;
 
-            if(transaction_type === 'deposit') return;
-
-            var $principal = $("#modalTransaction [name='principal']")
-            $principal.val('');
+            var principal = 0;
             if ($("[name='is_early_settlement']").prop('checked')) {
-                const principal_balance = $principal.data('principal-balance');
-                $principal.val(principal_balance);
+                principal = $principal.data('principal-balance');
             } else {
                 var monthly_amortization = $principal.data('monthly-amortization');
-                var principal = amount - interest - insurance;
+                principal = amount - interest - insurance;
                 if(principal<0) {
+                    $("#modalTransaction [name='amount']").addClass('is-invalid')
                     return;
                 }
-
-                $principal.val(principal)
             }
+
+            $principal.val(principal);
 
             var change;
             change = amount - (interest + insurance + principal);
