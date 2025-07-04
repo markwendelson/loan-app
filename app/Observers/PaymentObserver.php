@@ -48,12 +48,9 @@ class PaymentObserver
 
     public function saving(Savings $savings)
     {
-        if (!$savings->interest) {
-            $savings->interest_month = null;
-            $savings->interest_year = null;
-        }
-
-        if (!$savings->insurance) {
+        if ($savings->transaction_type == 'deposit') {
+            $savings->interest_start_date = null;
+            $savings->interest_end_date = null;
             $savings->insurance_month = null;
             $savings->insurance_year = null;
         }
