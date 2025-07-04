@@ -264,20 +264,14 @@
             getData();
         })
              
-        async function getData(interest_period = null) {
+        async function getData() {
             var loan_id = $("#loan_id").find('option:selected').val()
-            console.log(interest_period)
-
+            const interest_period = $("[name='transaction_date']").val()
+            
             if(loan_id ==='') return;
 
-            const data = {}
-            if (interest_period !== null) {
-                data.interest_period = interest_period;
-            }
 
-            console.log(data)
-
-            feesResponse = await getFees(loan_id,data.interest_period);
+            feesResponse = await getFees(loan_id,interest_period);
             var monthly_amortization = parseFloat(feesResponse.monthly_amortization.replace(/,/g, ''))
             var interest = parseFloat(feesResponse.interest.replace(/,/g, ''))
             $("#modalTransaction [name='interest']").val(parseFloat(feesResponse.interest.replace(/,/g, '')));
@@ -357,8 +351,27 @@
             opens: 'left'
         }, function(start, end, label) {
             var interest_period = start.format('YYYY-MM-DD') + ' ' + end.format('YYYY-MM-DD')
+            $("[name='transaction_date']").val(end.format('YYYY-MM-DD'))
             getData(interest_period)
         });
+
+
+        $("[name='transaction_date']").on('change', function() {
+            if($("[name='transaction_type']").find('option:selected').val() === 'deposit') return;
+
+            const endDate = $(this).val();
+
+            const picker = $('input[name="interest_period"]').data('daterangepicker');
+            if (picker) {
+                picker.setEndDate(moment(endDate));
+                picker.updateView();
+                picker.updateCalendars();
+
+                // Construct full interest period and call getData()
+                const interest_period = picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD');
+                getData(interest_period);
+            }
+        })
 
     });
 

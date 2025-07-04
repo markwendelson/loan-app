@@ -252,7 +252,7 @@ class SavingsController extends Controller
         return $principal_balance;
     }
 
-    function getNumberOfDays(Loan $loan, string $interest_period = '')
+    function getNumberOfDays(Loan $loan, string $interest_end_date = '')
     {
 
         $savings = Savings::where('loan_id',$loan->id)->where([
@@ -266,30 +266,24 @@ class SavingsController extends Controller
             $start_date = $loan->disbursed_date;
         }
         $start = Carbon::parse($start_date);
-        $current_date = Carbon::now();
-        
-        $interest_end_date = explode(' ', $interest_period)[1] ?? null;
-        if ($interest_end_date) {
-            $current_date = Carbon::parse($interest_end_date);
-        }
+        $end = Carbon::parse($interest_end_date);
 
         // interest
-        $number_of_days = (int)$start->diffInDays($current_date);
+        $number_of_days = (int)$start->diffInDays($end);
 
         // insurance
         $disbursed_date = Carbon::parse($loan->disbursed_date);
-        $current_date = Carbon::now();
-        $number_of_months = (int)$disbursed_date->diffInMonths($current_date);
+        $number_of_months = (int)$disbursed_date->diffInMonths($end);
 
         \Log::info('start:'.$start);
-        \Log::info('current_date:'.$current_date);
+        \Log::info('end:'.$end);
         \Log::info('number_of_days:'.$number_of_days);
         \Log::info('disbursed_date:'.$disbursed_date);
         \Log::info('number_of_months:'.$number_of_months);
 
         return [
             'start_date' => $start->format('m/d/Y'),
-            'end_date' => $current_date->format('m/d/Y'),
+            'end_date' => $end->format('m/d/Y'),
             'number_of_days' => $number_of_days,
             'number_of_months' => $number_of_months,
         ];
