@@ -146,6 +146,12 @@
                 let formData=$("#frmTransactionModal").serializeArray();
                 formData.push({ name: 'client_id', value: client_id });
 
+                const picker = $('input[name="interest_period"]').data('daterangepicker');
+                if (picker) {
+                    formData.push({ name: 'interest_start_date', value: picker.startDate.format('YYYY-MM-DD') });
+                    formData.push({ name: 'interest_end_date', value: picker.endDate.format('YYYY-MM-DD') });
+                }
+
 
                 var id=$("#modalTransaction [name='id']").val();
                 if(id) {
@@ -207,8 +213,6 @@
                 $("#modalTransaction [name='transaction_type']").val(data.transaction_type);
                 $("#modalTransaction [name='amount']").val(data.amount);
                 $("#modalTransaction [name='interest']").val(data.interest);
-                $("#modalTransaction [name='interest_month']").val(data.interest_month);
-                $("#modalTransaction [name='interest_year']").val(data.interest_year);
                 $("#modalTransaction [name='insurance']").val(data.insurance);
                 $("#modalTransaction [name='insurance_month']").val(data.insurance_month);
                 $("#modalTransaction [name='insurance_year']").val(data.insurance_year);
