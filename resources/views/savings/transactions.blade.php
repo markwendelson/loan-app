@@ -297,6 +297,9 @@
                 picker.updateCalendars();
             }
 
+            calculateChange()
+
+
 
             // if ($("#modalTransaction [name='is_early_settlement']").prop('checked')) {
             //     $("#modalTransaction [name='principal']").val(parseFloat(feesResponse.principal_balance.replace(/,/g, '')));
@@ -357,7 +360,6 @@
             var interest_period = start.format('YYYY-MM-DD') + ' ' + end.format('YYYY-MM-DD')
             $("[name='transaction_date']").val(end.format('YYYY-MM-DD'))
             getData(interest_period)
-            calculateChange()
         });
 
 
