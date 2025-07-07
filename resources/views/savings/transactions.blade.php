@@ -357,6 +357,7 @@
             var interest_period = start.format('YYYY-MM-DD') + ' ' + end.format('YYYY-MM-DD')
             $("[name='transaction_date']").val(end.format('YYYY-MM-DD'))
             getData(interest_period)
+            calculateChange()
         });
 
 
