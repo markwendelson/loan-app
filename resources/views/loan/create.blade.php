@@ -41,10 +41,10 @@
                 </div>
                 <div class="form-group">
                     <label for="borrower_id">Borrower</label>
-                    <select name="borrower_id" id="borrower_id" class="form-control">
+                    <select name="borrower_id" id="borrower_id" class="form-control" aria-disabled="true"  {{$previous_loan ? 'disabled' : ''}}>
                         <option value="" disabled>-Select-</option>
                         @foreach ($clients as $client)
-                            <option value="{{$client->id}}">{{$client->details->fullname}}</option>
+                            <option value="{{$client->id}} {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}">{{$client->details->fullname}}</option>
                         @endforeach
                     </select>
                 </div>

@@ -49,16 +49,17 @@ class LoanController extends Controller
      */
     public function create(Request $request)
     {
+        $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+
         $clients = Client::active()->get();
         $loan_products = LoanProduct::active()->get();
 
-        $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
 
         $previous_loan_principal = $previous_loan?->principal;
-        $total_loan_payment = $previous_loan?->payments->where('transaction_type', 'withdraw')->sum('amount');
+        $total_loan_payment = $previous_loan?->payments->where('transaction_type', 'withdraw')->sum('principal');
         $reloan_deduction = $previous_loan_principal - $total_loan_payment;
 
-        return view('loan.create', compact('loan_products', 'clients','reloan_deduction'));
+        return view('loan.create', compact('loan_products', 'clients','reloan_deduction','previous_loan'));
     }
 
     /**
