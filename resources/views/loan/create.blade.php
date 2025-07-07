@@ -310,6 +310,27 @@
             addLoan()
         })
 
+        $("#loan_date").on("change", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            var loan_no_reference = urlParams.get('loan_no_reference')
+            var reloan_date = $(this).val();
+            getReloanDeductionFee(loan_no_reference, reloan_date).then(function(response) {
+                var reloan_deduction_fee = response.amount
+                $("#reloan_deduction").val(reloan_deduction_fee)
+            })
+        })
+
+        function getReloanDeductionFee(loan_no_reference,reloan_date) {
+            return $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: `{{ route('loan.get-reloan-deduction') }}`,
+                data: {loan_no_reference:loan_no_reference,reloan_date:reloan_date},
+            })
+        }
+
         function addLoan() {
 
             const urlParams = new URLSearchParams(window.location.search);

@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class LoanController extends Controller
@@ -52,7 +53,7 @@ class LoanController extends Controller
     {
         $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
         if($previous_loan) {
-            $reloan_date = '2025-07-07';
+            $reloan_date = date('Y-m-d');
             $reloan_deduction = $this->calculateReloanDeduction($previous_loan, $reloan_date);
         }
 
@@ -549,6 +550,17 @@ class LoanController extends Controller
         }
     }
 
+    public function getReloanDeduction(Request $request)
+    {
+        if($request->ajax()) {
+            $loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+            $reloan_date = $request->reloan_date;
+            $amount = $this->calculateReloanDeduction($loan, $reloan_date);
+
+            return response()->json(['amount' => $amount]);
+        }
+    }
+
     function calculateReloanDeduction(Loan $previous_loan, $reloan_date)
     {
         $previous_loan_principal = $previous_loan?->principal;
@@ -573,8 +585,12 @@ class LoanController extends Controller
             $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
             $unpaid_interest = round($interest);
 
+            $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest);
 
-            $reloan_deduction = $principal_balance - $advance_interest - $unpaid_interest;
+            Log::info('principal_balance: '.$principal_balance);
+            Log::info('advance_interest: '.$advance_interest);
+            Log::info('unpaid_interest: '.$unpaid_interest);
+            Log::info('reloan_deduction: '.$reloan_deduction);
         }
 
         return number_format($reloan_deduction,2);

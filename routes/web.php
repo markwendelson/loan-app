@@ -114,6 +114,7 @@ Route::middleware('auth')->group(function(){
             Route::post('approve/{loan}','approveLoan')->name('loan.approve-loan');;
             Route::post('decline/{loan}','declineLoan')->name('loan.decline-loan');;
             Route::post('request-approve/{loan}','requestApproveLoan')->name('loan.request-approval');;
+            Route::post('get-reloan-deduction','getReloanDeduction')->name('loan.get-reloan-deduction');;
     });
     Route::controller(SavingsController::class)
         ->prefix('savings')
