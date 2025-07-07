@@ -262,7 +262,7 @@ class SavingsController extends Controller
                                 ])->orderByDesc('transaction_date')->first();
         if($savings) {
             $start_date = $savings->interest_end_date;
-            $start = Carbon::parse($start_date)->addDays(1);
+            $start = Carbon::parse($start_date)->addDay();
         } else {
             $start_date = $loan->disbursed_date;
             $start = Carbon::parse($start_date);

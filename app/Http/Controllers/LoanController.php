@@ -577,9 +577,11 @@ class LoanController extends Controller
         } else { # calculate interest
             $unpaid_interest = 0;
 
-            $start = Carbon::parse($last_payment_date);
+            $start = Carbon::parse($last_payment_date)->addDay();
             $end = Carbon::parse($reloan_date);
             $number_of_days = (int)$start->diffInDays($end);
+            Log::info($start);
+            Log::info($number_of_days);
 
             $interest_rate = $previous_loan->interest_rate / 100;
             $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
