@@ -11,6 +11,7 @@ use App\Models\LoanCharge;
 use App\Models\LoanFee;
 use App\Models\LoanProduct;
 use App\Models\Savings;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,14 +51,13 @@ class LoanController extends Controller
     public function create(Request $request)
     {
         $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+        if($previous_loan) {
+            $reloan_date = '2025-07-07';
+            $reloan_deduction = $this->calculateReloanDeduction($previous_loan, $reloan_date);
+        }
 
         $clients = Client::active()->get();
         $loan_products = LoanProduct::active()->get();
-
-
-        $previous_loan_principal = $previous_loan?->principal;
-        $total_loan_payment = $previous_loan?->payments->where('transaction_type', 'withdraw')->sum('principal');
-        $reloan_deduction = $previous_loan_principal - $total_loan_payment;
 
         return view('loan.create', compact('loan_products', 'clients','reloan_deduction','previous_loan'));
     }
@@ -547,5 +547,36 @@ class LoanController extends Controller
                 'message' => 'Something went wrong.' . $e->getMessage()
             ], 500);
         }
+    }
+
+    function calculateReloanDeduction(Loan $previous_loan, $reloan_date)
+    {
+        $previous_loan_principal = $previous_loan?->principal;
+        $payments = $previous_loan?->payments->where('transaction_type', 'withdraw');
+        $last_payment_date = $payments?->sortByDesc('transaction_date')->value('transaction_date');
+        $total_loan_payment = $payments->sum('principal');
+        $principal_balance = $previous_loan_principal - $total_loan_payment;
+        $advance_interest = $previous_loan->loanCharges->advance_interest;
+        $reloan_deduction = 0;
+
+
+        if($reloan_date == $last_payment_date) { # no interest due
+            $reloan_deduction = $principal_balance - $advance_interest;
+        } else { # calculate interest
+            $unpaid_interest = 0;
+
+            $start = Carbon::parse($last_payment_date);
+            $end = Carbon::parse($reloan_date);
+            $number_of_days = (int)$start->diffInDays($end);
+
+            $interest_rate = $previous_loan->interest_rate / 100;
+            $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
+            $unpaid_interest = round($interest);
+
+
+            $reloan_deduction = $principal_balance - $advance_interest - $unpaid_interest;
+        }
+
+        return number_format($reloan_deduction,2);
     }
 }

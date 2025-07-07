@@ -258,7 +258,7 @@
                 }
             }
 
-            var reloan_deduction = $('#reloan_deduction').val() || 0;
+            var reloan_deduction = parseFloat($('#reloan_deduction').val()) || 0;
 
             var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
 
