@@ -259,7 +259,7 @@ class SavingsController extends Controller
                                     ['transaction_type','=','withdraw'],
                                     ['interest_start_date','!=',''],
                                     ['interest_end_date','!=',''],
-                                ])->orderBy('transaction_date')->first();
+                                ])->orderByDesc('transaction_date')->first();
         if($savings) {
             $start_date = $savings->interest_end_date;
             $start = Carbon::parse($start_date)->addDays(1);
