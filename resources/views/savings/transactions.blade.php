@@ -298,26 +298,26 @@
             }
 
 
-            if ($("#modalTransaction [name='is_early_settlement']").prop('checked')) {
-                $("#modalTransaction [name='principal']").val(parseFloat(feesResponse.principal_balance.replace(/,/g, '')));
-            } else {
-                var amount = $("#modalTransaction [name='amount']").val()
-                console.log(isNaN(amount))
-                if(amount === '') return;
+            // if ($("#modalTransaction [name='is_early_settlement']").prop('checked')) {
+            //     $("#modalTransaction [name='principal']").val(parseFloat(feesResponse.principal_balance.replace(/,/g, '')));
+            // } else {
+            //     var amount = $("#modalTransaction [name='amount']").val()
+            //     console.log(isNaN(amount))
+            //     if(amount === '') return;
 
-                var principal = amount - interest;
-                console.log('principal:'+principal)
-                console.log('monthly_amortization:'+monthly_amortization)
+            //     var principal = amount - interest;
+            //     console.log('principal:'+principal)
+            //     console.log('monthly_amortization:'+monthly_amortization)
 
-                if(principal<0) return;
+            //     if(principal<0) return;
 
-                if(principal < monthly_amortization) {
-                    console.log('x')
-                    $("#modalTransaction [name='principal']").val(principal);
-                } else {
-                    $("#modalTransaction [name='principal']").val(parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
-                }
-            }
+                // if(principal < monthly_amortization) {
+                //     console.log('x')
+                //     $("#modalTransaction [name='principal']").val(principal);
+                // } else {
+                //     $("#modalTransaction [name='principal']").val(parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
+                // }
+            // }
 
             // $("[name='amount'],[name='interest'],[name='insurance'],[name='principal']").trigger('change')
 
