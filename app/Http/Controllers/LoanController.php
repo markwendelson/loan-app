@@ -69,7 +69,6 @@ class LoanController extends Controller
     public function store(LoanRequest $request)
     {
         $data = $request->all();
-        dd($data);
 
         if($data['reloan']) {
             return $this->processReloan($data);
