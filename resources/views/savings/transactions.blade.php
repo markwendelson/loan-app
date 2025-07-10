@@ -111,7 +111,6 @@
                     name: 'actions',
                     render: function(data, type, row) {
                         return `
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
                                 <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
                             `;
                     }
@@ -267,11 +266,11 @@
         $("#loan_id").on("change", function() {
             getData();
         })
-             
+
         async function getData() {
             var loan_id = $("#loan_id").find('option:selected').val()
             const interest_period = $("[name='transaction_date']").val()
-            
+
             if(loan_id ==='') return;
 
 
@@ -291,7 +290,7 @@
             const picker = $('input[name="interest_period"]').data('daterangepicker');
             if (picker) {
                 picker.minDate = moment(feesResponse.interest_start_date);
-                picker.setStartDate(feesResponse.interest_start_date) 
+                picker.setStartDate(feesResponse.interest_start_date)
                 picker.setEndDate(feesResponse.interest_end_date)
                 picker.updateView();    // visually update the calendar
                 picker.updateCalendars();
@@ -391,7 +390,7 @@
             var $principal = $("#modalTransaction [name='principal']")
             $principal.val('');
 
-            if (isNaN(amount)) return;
+            if (isNaN(amount)) amount = 0;
             if (isNaN(interest)) interest = 0;
             if (isNaN(insurance)) insurance = 0;
 

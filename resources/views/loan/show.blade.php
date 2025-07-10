@@ -102,6 +102,7 @@
                         <li>Service Fee <span class="service_fee">{{$loan->loanCharges->service_fee}}</span></li>
                         <li>Insurance Fee <span class="insurance_fee">{{$loan->loanCharges->insurance_fee}}</span></li>
                         <li>Notary Fee <span class="notary_fee">{{$loan->loanCharges->notary_fee}}</span></li>
+                        <li>Reloan Deduction <span class="reloan_deduction">{{$loan->loanCharges->reloan_deduction}}</span></li>
                     </ul>
                     <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds"></span></li>
                     <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization"></span></li>
@@ -218,7 +219,9 @@
                 }
             }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee);
+            var reloan_deduction = parseFloat($('#reloan_deduction').val()) || 0;
+
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
 
             var net_proceeds = principal - total_deductions;
 
