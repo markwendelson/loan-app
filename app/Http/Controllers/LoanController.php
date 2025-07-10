@@ -488,7 +488,7 @@ class LoanController extends Controller
                 $previous_loan->save();
 
                 $previous_loan_principal = $previous_loan->principal;
-                $total_loan_payment = $previous_loan->payments->where('transaction_type', 'withdraw')->sum('amount');
+                $total_loan_payment = $previous_loan->payments->where('transaction_type', 'withdraw')->sum('principal');
                 $previous_loan_balance = $previous_loan_principal - $total_loan_payment;
 
                 // create saving for payment
