@@ -498,7 +498,7 @@ class LoanController extends Controller
                 $reloan_date = $data['loan_date'];
                 if($reloan_date == $last_payment_date) { # no interest due
                     $reloan_deduction = $principal_balance - $advance_interest;
-                    $rebate = $advance_interest;
+                    $rebate = -$advance_interest;
                 } else { # calculate interest
                     $unpaid_interest = 0;
 
@@ -513,7 +513,7 @@ class LoanController extends Controller
                     $unpaid_interest = round($interest);
 
                     $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest);
-                    $rebate = $advance_interest - $unpaid_interest;
+                    $rebate = $unpaid_interest - $advance_interest;
 
 
                     Log::info('principal_balance: '.$principal_balance);
