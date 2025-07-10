@@ -132,6 +132,12 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
                             </div>
                         </li>
+                        <li class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="notary_fee">Reloan Deduction</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction">
+                            </div>
+                        </li>
                     </ul>
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between">
@@ -266,7 +272,9 @@
                 }
             }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee);
+            var reloan_deduction = parseFloat($('#reloan_deduction').val()) || 0;
+
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
 
             var net_proceeds = principal - total_deductions;
 
