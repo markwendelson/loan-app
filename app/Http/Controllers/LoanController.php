@@ -537,7 +537,7 @@ class LoanController extends Controller
                     'loan_id' => $previous_loan->id,
                     'amount' => $principal_balance,
                     'interest' => $rebate,
-                    'principal' => $reloan_deduction,
+                    'principal' => $reloan_deduction - $rebate,
                 ]);
 
                 $loan = Loan::create($data);
