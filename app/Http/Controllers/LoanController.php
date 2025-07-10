@@ -29,6 +29,7 @@ class LoanController extends Controller
             $search = $request->search['value'];
 
             $loans = Loan::with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+                        ->whereNotNull('borrower_id')
                         ->orderByDesc('loan_date')
                         ->orderByDesc('loan_no')
                         ->get();
