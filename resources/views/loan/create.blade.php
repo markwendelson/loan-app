@@ -44,7 +44,7 @@
                     <select name="borrower_id" id="borrower_id" class="form-control">
                         <option value="" disabled>-Select-</option>
                         @foreach ($clients as $client)
-                            <option value="{{$client->id}}" {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}">{{$client->details->fullname}}</option>
+                            <option value="{{$client->id}}" data-bid="{{$previous_loan?->borrower_id}}" {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}">{{$client->details->fullname}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -131,7 +131,7 @@
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Reloan Deduction</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
                             </div>
                         </li>
                         @endif
