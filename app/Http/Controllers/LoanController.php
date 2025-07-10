@@ -527,7 +527,7 @@ class LoanController extends Controller
                     'transaction_date' => $data['loan_date'],
                     'transaction_type' => 'deposit',
                     'client_id' => $data['borrower_id'],
-                    'amount' => $reloan_deduction,
+                    'amount' => $principal_balance,
                 ]);
 
                 Savings::create([
@@ -535,7 +535,7 @@ class LoanController extends Controller
                     'transaction_type' => 'withdraw',
                     'client_id' => $data['borrower_id'],
                     'loan_id' => $previous_loan->id,
-                    'amount' => $reloan_deduction,
+                    'amount' => $principal_balance,
                     'interest' => $rebate,
                     'principal' => $reloan_deduction,
                 ]);
