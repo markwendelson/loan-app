@@ -135,7 +135,7 @@
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Reloan Deduction</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$loan->loanCharges->reloan_deduction}}">
                             </div>
                         </li>
                     </ul>
