@@ -44,7 +44,7 @@
                     <select name="borrower_id" id="borrower_id" class="form-control">
                         <option value="" disabled>-Select-</option>
                         @foreach ($clients as $client)
-                            <option value="{{$client->id}}" data-bid="{{$previous_loan?->borrower_id}}" {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}">{{$client->details->fullname}}</option>
+                            <option value="{{$client->id}}" data-bid="{{$previous_loan?->borrower_id}}" {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}>{{$client->details->fullname}}</option>
                         @endforeach
                     </select>
                 </div>
