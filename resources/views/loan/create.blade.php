@@ -58,6 +58,10 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="form-group special-description">
+                    <label for="description">Description</label>
+                    <input type="text" class="form-control" name="description" id="description"/>
+                </div>
                 <div class="form-group">
                     <label for="principal">Principal</label>
                     <input type="number" class="form-control" name="principal" id="principal"/>
@@ -170,23 +174,45 @@
 
         var loan_type;
         var interest_rate;
+
+        $(".term").hide().removeAttr("required");
+        $(".special-description").hide().removeAttr("required");
+
         $("[name='loan_product_id']").on('change', function() {
             loan_type = $(this).find('option:selected').data('loan-type');
 
             interest_rate = $(this).find('option:selected').data('interest-rate');
             $("[name='interest_rate']").val(interest_rate)
 
-            if(loan_type == 'loan-with-term' || loan_type == 'special-loan') {3
+            if(loan_type == 'loan-with-term') {
                 $(".term").show().attr("required", true);
+            } else if(loan_type == 'special-loan') {
+                $(".term").show().attr("required", true);
+                $(".special-description").show().attr("required", true);
+                $("#term").val(12)
             } else {
                  $(".term").hide().removeAttr("required");
+                 $(".special-description").hide().removeAttr("required");
             }
 
             calculateLoan();
 
         })
 
-        $("[name='principal'],[name='term'],[name='interest_rate']").on('change', function() {
+        $("[name='term']").on("change", function() {
+            var loan_type = $("[name='loan_product_id']").find('option:selected').data('loan-type');
+            var interest_rate = $("[name='loan_product_id']").find('option:selected').data('interest-rate');
+            if(loan_type == 'special-loan') {
+                if($(this).val() > 12) {
+                    $("[name='interest_rate']").val(5)
+                } else {
+                    $("[name='interest_rate']").val(interest_rate)
+                }
+            }
+            calculateLoan();
+        })
+
+        $("[name='principal'],[name='interest_rate']").on('change', function() {
             calculateLoan();
         })
 
@@ -351,6 +377,7 @@
                 net_proceeds: $('#net_proceeds').val(),
                 loan_no_reference: urlParams.get('loan_no_reference'),
                 reloan: urlParams.get('reloan'),
+                description: $('#description').val(),
             };
 
             $.ajax({
