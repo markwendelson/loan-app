@@ -53,6 +53,7 @@ class LoanController extends Controller
     public function create(Request $request)
     {
         $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+        $reloan_deduction='';
         if($previous_loan) {
             $reloan_date = date('Y-m-d');
             $reloan_deduction = $this->calculateReloanDeduction($previous_loan, $reloan_date);
