@@ -394,6 +394,8 @@ class LoanController extends Controller
             $loan->status = LoanStatus::APPROVE;
             $loan->approved_date = date('Y-m-d H:i:s');
             $loan->approved_by = auth()->user()->id;
+            $loan->disbursed_date = $request->disbursed_date;
+            $loan->disbursed_by = auth()->user()->id;
             $loan->save();
 
             return response()->json([
