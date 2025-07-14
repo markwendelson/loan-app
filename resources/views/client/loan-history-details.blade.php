@@ -23,5 +23,12 @@
         @endphp
         <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds">{{number_format($net_proceeds,2)}}</span></li>
         <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization">{{number_format($loan->loanFees->monthly_amortization,2)}}</span></li>
+        {{-- @if($loan->status == App\Enums\LoanStatus::APPROVE->value) --}}
+        <div class="card-footer loan-status-button">
+            <div class="col-12 float-end">
+                <a href="{{route('client.ledger.loan',['client'=>$loan->borrower_id,'loan_no'=>$loan->loan_no])}}" class="btn btn-sm btn-primary mx-auto btn-edit-loan"><i class="fa fa-table"></i> Ledger</a>
+            </div>
+        </div>
+        {{-- @endif --}}
     </ul>
 </div>
