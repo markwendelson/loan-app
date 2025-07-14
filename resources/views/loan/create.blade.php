@@ -375,8 +375,8 @@
                 notary_fee: $('#notary_fee').val(),
                 monthly_amortization: $('#monthly_amortization').val().replace(/,/g, ''),
                 net_proceeds: $('#net_proceeds').val(),
-                loan_no_reference: urlParams.get('loan_no_reference'),
-                reloan: urlParams.get('reloan'),
+                reference_loan_no: urlParams.get('loan_no_reference'),
+                is_reloan: urlParams.get('reloan'),
                 description: $('#description').val(),
             };
 

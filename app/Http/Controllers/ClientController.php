@@ -293,8 +293,7 @@ class ClientController extends Controller
                 'loan_id' => $loan->id,
                 'payment_id' => null,
                 'transaction_date' => $loan->loan_date,
-                'withdraw_date' => null,
-                'salary_month' => null,
+                'description' => $loan->description,
                 'loan_principal' => number_format($loan->principal, 2),
                 'loan_interest' => number_format($interest, 2),
                 'loan_service_fee' => number_format($service_fee, 2),
@@ -322,8 +321,7 @@ class ClientController extends Controller
                     'loan_id' => $loan->id,
                     'payment_id' => $payment->id,
                     'transaction_date' => null,
-                    'withdraw_date' => $payment->transaction_date,
-                    'salary_month' => null,
+                    'description' => null,
                     'loan_principal' => null,
                     'loan_interest' => null,
                     'loan_service_fee' => null,
@@ -436,5 +434,11 @@ class ClientController extends Controller
         }
 
         return view('client.ledger-loan', compact('client', 'loan'));
+    }
+
+    public function loanHistory(Client $client)
+    {
+        $loans = Loan::where('borrower_id',$client->id)->get();
+        return view('client.loan-history', compact('client','loans'));
     }
 }

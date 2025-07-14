@@ -52,7 +52,7 @@ class LoanController extends Controller
      */
     public function create(Request $request)
     {
-        $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+        $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->reference_loan_no)->first();
         $reloan_deduction='';
         if($previous_loan) {
             $reloan_date = date('Y-m-d');
@@ -72,7 +72,7 @@ class LoanController extends Controller
     {
         $data = $request->all();
 
-        if($data['reloan']) {
+        if($data['is_reloan']) {
             return $this->processReloan($data);
         }
 
@@ -483,7 +483,7 @@ class LoanController extends Controller
 
             DB::transaction(function () use ($data) {
 
-                $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $data['loan_no_reference'])->first();
+                $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $data['reference_loan_no'])->first();
                 $previous_loan->closed_date = $data['loan_date'];
                 $previous_loan->status = LoanStatus::CLOSED;
                 $previous_loan->save();
@@ -587,7 +587,7 @@ class LoanController extends Controller
     public function getReloanDeduction(Request $request)
     {
         if($request->ajax()) {
-            $loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+            $loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->reference_loan_no)->first();
             $reloan_date = $request->reloan_date;
             $amount = $this->calculateReloanDeduction($loan, $reloan_date);
 

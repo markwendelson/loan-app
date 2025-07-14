@@ -100,9 +100,9 @@
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             </tr>
                                             <tr>
-                                                <th></th>
+                                                <th rowspan="2">Principal</th>
                                                 <th colspan="4">Deduction</th>
-                                                <th></th>
+                                                <th rowspan="2">Net Proceed</th>
                                                 <th></th>
                                                 <th></th>
                                                 <th colspan="4" style="border-right-width:1px;">Applied to</th>
@@ -111,11 +111,9 @@
                                                 <th>Transaction Date</th>
                                                 <th>Withdraw Date</th>
                                                 <th>Salary Month</th>
-                                                <th>Principal</th>
                                                 <th>Interest</th>
                                                 <th>Service Fee</th>
                                                 <th>Insurance Fee</th>
-                                                <th>Others</th>
                                                 <th>Net Proceed</th>
                                                 <th></th>
                                                 <th>WDL/DR</th>
@@ -153,30 +151,27 @@
                                     <table class="table table-bordered table-hover" id="tblSpecialLedger" style="font-size: smaller;">
                                         <thead class="bg-default">
                                             <tr>
-                                                <th class="text-center" width="80" colspan="3" rowspan="2"></th>
+                                                <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                                 <th class="text-end" width="150" colspan="6">LOAN</th>
                                                 <th class="text-center" width="80"></th>
                                                 <th class="text-end" width="150" colspan="5">PAYMENT</th>
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             </tr>
                                             <tr>
-                                                <th></th>
+                                                <th rowspan="2">Principal</th>
                                                 <th colspan="4">Deduction</th>
-                                                <th></th>
+                                                <th rowspan="2">Net Proceed</th>
                                                 <th></th>
                                                 <th></th>
                                                 <th colspan="4" style="border-right-width:1px;">Applied to</th>
                                             </tr>
                                             <tr>
                                                 <th>Transaction Date</th>
-                                                <th>Withdraw Date</th>
-                                                <th>Salary Month</th>
-                                                <th>Principal</th>
+                                                <th>Loan Type</th>
                                                 <th>Interest</th>
                                                 <th>Service Fee</th>
                                                 <th>Insurance Fee</th>
                                                 <th>Others</th>
-                                                <th>Net Proceed</th>
                                                 <th></th>
                                                 <th>WDL/DR</th>
                                                 <th>Interest</th>
@@ -258,8 +253,7 @@
             },
             columns: [
                 { data: 'transaction_date', name: 'transaction_date' },
-                { data: 'withdraw_date', name: 'withdraw_date' },
-                { data: 'salary_month', name: 'salary_month' },
+                { data: 'description', name: 'description' },
                 { data: 'loan_principal', name: 'loan_principal' },
                 { data: 'loan_interest', name: 'loan_interest' },
                 { data: 'loan_service_fee', name: 'loan_service_fee' },
