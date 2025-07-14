@@ -55,7 +55,7 @@
 		{{-- <link rel = "stylesheet" type = "text/css" href = "{{ url('assets/css/common.css?v=' . uniqid()) }}"> --}}
 
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-        
+
         @stack('css')
         <style>
             .form-group {

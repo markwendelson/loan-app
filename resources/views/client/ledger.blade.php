@@ -94,9 +94,9 @@
                                         <thead class="bg-default">
                                             <tr>
                                                 <th class="text-center" width="80" colspan="3" rowspan="2"></th>
-                                                <th class="text-leftr" width="150" colspan="6">LOAN</th>
+                                                <th class="text-center" width="150" colspan="6">LOAN</th>
                                                 <th class="text-center" width="80"></th>
-                                                <th class="text-leftr" width="150" colspan="5">PAYMENT</th>
+                                                <th class="text-center" width="150" colspan="5">PAYMENT</th>
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             </tr>
                                             <tr>
@@ -152,9 +152,9 @@
                                         <thead class="bg-default">
                                             <tr>
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
-                                                <th class="text-end" width="150" colspan="6">LOAN</th>
+                                                <th class="text-center" width="150" colspan="6">LOAN</th>
                                                 <th class="text-center" width="80"></th>
-                                                <th class="text-end" width="150" colspan="5">PAYMENT</th>
+                                                <th class="text-center" width="150" colspan="5">PAYMENT</th>
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             </tr>
                                             <tr>

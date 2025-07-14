@@ -50,11 +50,11 @@
                 <table class="table table-bordered table-hover" id="tblClient">
                     <thead class="bg-default">
                         <tr>
-                            <th class="text-center" width="80">No.</th>
-                            <th class="text-leftr" width="150">Code</th>
+                            <th class="text-center" width="40">No.</th>
+                            <th class="text-leftr" width="120">Code</th>
                             <th class="text-leftr" width="150">Name</th>
                             <th class="text-leftr" width="150">Address</th>
-                            <th class="text-center" width="180">Status</th>
+                            <th class="text-center" width="80">Status</th>
                             <th class="text-center" width="150"><i class="fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
                         </tr>
                     </thead>
@@ -100,6 +100,7 @@
                     render: function(data, type, row) {
                         return `
                                 <button class="btn btn-primary btn-xs btnLedger" data-id="${row.id}"><i class="fa fa-table"></i></button>
+                                <button class="btn btn-primary btn-xs btnHistory" data-id="${row.id}"><i class="fa fa-list"></i></button>
                                 <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
                                 <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
                             `;
@@ -121,6 +122,12 @@
         $("#tblClient").on("click", ".btnLedger", function(){
             let id = $(this).attr("data-id");
             window.location.href = `/client/${id}/ledger`;
+        })
+
+
+        $("#tblClient").on("click", ".btnHistory", function(){
+            let id = $(this).attr("data-id");
+            window.location.href = `/client/${id}/loan-history`;
         })
 
 

@@ -441,4 +441,15 @@ class ClientController extends Controller
         $loans = Loan::where('borrower_id',$client->id)->get();
         return view('client.loan-history', compact('client','loans'));
     }
+
+
+    public function loanHistoryDetails(Request $request, Client $client)
+    {
+        $loan = Loan::with('loanCharges')->where([
+            'id' => $request->loan_id,
+            'borrower_id' => $client->id
+        ])->first();
+
+        return view('client.loan-history-details', compact('client','loan'));
+    }
 }

@@ -18,6 +18,10 @@
     .list-group-item:hover {
         cursor: pointer;
     }
+
+    ul > li > span {
+        float: right;
+    }
  </style>
 @endpush
 
@@ -47,6 +51,7 @@
     <!-- button container -->
     <div class="card">
         <div class="card-body">
+            <input type="hidden" name="client_id" id="client_id" value="{{$client->id}}" />
             <div>Name: <span>{{$client->details->fullname}}</span></div>
             <div>Address: <span>{{$client->details->present_full_address}}</div>
         </div>
@@ -61,7 +66,7 @@
                 <div class="card-body">
                     <ul class="list-group list-group-flush" id="loanHistory">
                         @foreach ($loans as $loan)
-                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action">
+                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action" data-id="{{$loan->id}}">
                             <div class="ms-2 me-auto">
                                 <div>{{$loan->loanProduct->name}}</div>
                                 <div class="fw-bold">{{$loan->loan_no}}</div>
@@ -93,12 +98,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8 col-sm-12">
+        <div class="col-md-4 col-sm-12">
             <div class="card">
                 <div class="card-header">
                     <h4>Loan Details</h4>
                 </div>
-                <div class="card-body"></div>
+                <div class="card-body">
+                    <div id="loanDetails"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -110,19 +117,49 @@
 <script>
     $(document).ready(function () {
         var client_id = $("#client_id").val();
+
+        const listItems = document.querySelectorAll('#loanHistory .list-group-item');
+
+        listItems.forEach(item => {
+          item.addEventListener('click', () => {
+            // Remove 'active' class from all items
+            listItems.forEach(i => i.classList.remove('active'));
+
+            // Add 'active' class to the clicked item
+            item.classList.add('active');
+
+            // Get data attribute (e.g., data-id or data-loan-id)
+            const loanId = item.dataset.id;
+
+            const targetDiv = document.getElementById('loanDetails'); // target div to inject content
+
+            let url = "{{ route('client.loan-history-details', ':client') }}";
+            url = url.replace(':client', client_id);
+
+            // Append loan_id as a query param
+            url += `?loan_id=${encodeURIComponent(loanId)}`;
+
+            // Send AJAX request using Fetch (GET)
+            fetch(url, {
+                method: 'GET',
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text(); // because it's HTML
+            })
+            .then(html => {
+                targetDiv.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                targetDiv.innerHTML = '<div class="alert alert-danger">Failed to load details.</div>';
+            });
+
+          });
+        });
     });
 
-    const listItems = document.querySelectorAll('#loanHistory .list-group-item');
 
-    listItems.forEach(item => {
-      item.addEventListener('click', () => {
-        // Remove 'active' class from all items
-        listItems.forEach(i => i.classList.remove('active'));
-
-        // Add 'active' class to the clicked item
-        item.classList.add('active');
-      });
-    });
   </script>
 
 @endpush
