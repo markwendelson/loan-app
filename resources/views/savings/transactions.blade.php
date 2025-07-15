@@ -405,7 +405,6 @@
             var interest = parseFloat($("#modalTransaction [name='interest']").val())
             var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
             var $principal = $("#modalTransaction [name='principal']")
-            $principal.val('');
 
             if (isNaN(amount)) amount = 0;
             if (isNaN(interest)) interest = 0;
@@ -432,6 +431,7 @@
                 }
 
             } else {
+                $principal.val('');
                 $principal.val(principal);
             }
 
