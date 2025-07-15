@@ -405,6 +405,9 @@
             var interest = parseFloat($("#modalTransaction [name='interest']").val())
             var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
             var $principal = $("#modalTransaction [name='principal']")
+            var principal_amount = $("#modalTransaction [name='principal']").val()
+            let selectedOption = $("[name='loan_id']").find(':selected');
+            let loan_type = selectedOption.data('loan-type');
 
             if (isNaN(amount)) amount = 0;
             if (isNaN(interest)) interest = 0;
@@ -413,7 +416,23 @@
             var principal = 0;
             if ($("[name='is_early_settlement']").prop('checked')) {
                 principal = $principal.data('principal-balance');
+
+                if (loan_type === 'open-term') {
+                    principal = principal_amount;
+                } else {
+                    $principal.val('');
+                    $principal.val(principal);
+                }
+
             } else {
+
+                if (loan_type === 'open-term') {
+                    principal = principal_amount;
+                } else {
+                    $principal.val('');
+                    $principal.val(principal);
+                }
+
                 var monthly_amortization = $principal.data('monthly-amortization');
                 principal = amount - interest - insurance;
                 if(principal<0) {
@@ -422,20 +441,9 @@
                 }
             }
 
-            let selectedOption = $("[name='loan_id']").find(':selected');
-            let loan_type = selectedOption.data('loan-type');
 
-            if (loan_type === 'open-term') {
-                if ($("[name='is_early_settlement']").prop('checked')){
-                    $principal.val(principal);
-                } else {
-                    principal = $principal.val()
-                }
 
-            } else {
-                $principal.val('');
-                $principal.val(principal);
-            }
+
 
             var change;
             change = amount - (interest + insurance + principal);
