@@ -428,9 +428,9 @@
             if (loan_type === 'open-term') {
                 if ($("[name='is_early_settlement']").prop('checked')){
                     $principal.val(principal);
+                } else {
+                    principal = $principal.val()
                 }
-
-                principal = $principal.val()
 
             } else {
                 $principal.val('');
