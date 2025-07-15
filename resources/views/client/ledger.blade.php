@@ -96,33 +96,38 @@
                                                 <th class="text-center" width="80" colspan="3" rowspan="2"></th>
                                                 <th class="text-center" width="150" colspan="6">LOAN</th>
                                                 <th class="text-center" width="80"></th>
-                                                <th class="text-center" width="150" colspan="5">PAYMENT</th>
+                                                <th class="text-center" width="150" colspan="7">PAYMENT</th>
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             </tr>
                                             <tr>
-                                                <th rowspan="2">Principal</th>
+                                                <th rowspan="3">Principal</th>
                                                 <th colspan="4">Deduction</th>
-                                                <th rowspan="2">Net Proceed</th>
+                                                <th rowspan="3">Net Proceed</th>
                                                 <th></th>
-                                                <th></th>
-                                                <th colspan="4" style="border-right-width:1px;">Applied to</th>
+                                                <th colspan="7" style="border-right-width:1px;">Applied to</th>
                                             </tr>
                                             <tr>
-                                                <th>Transaction Date</th>
-                                                <th>Withdraw Date</th>
-                                                <th>Salary Month</th>
-                                                <th>Interest</th>
-                                                <th>Service Fee</th>
-                                                <th>Insurance Fee</th>
-                                                <th>Net Proceed</th>
-                                                <th></th>
-                                                <th>WDL/DR</th>
-                                                <th>Interest</th>
-                                                <th>Insurance</th>
-                                                <th>Principal</th>
-                                                <th>Change</th>
-                                                <th>Balance</th>
-                                                <th>Remarks</th>
+                                                <th rowspan="2">Transaction Date</th>
+                                                <th rowspan="2">Withdraw Date</th>
+                                                <th rowspan="2">Salary Month</th>
+                                                <th rowspan="2">Interest</th>
+                                                <th rowspan="2">Service Fee</th>
+                                                <th rowspan="2">Insurance Fee</th>
+                                                <th rowspan="2">Net Proceed</th>
+                                                <th rowspan="2"></th>
+                                                <th rowspan="2">WDL/DR</th>
+                                                <th colspan="2">Interest</th>
+                                                <th colspan="2">Insurance</th>
+                                                <th rowspan="2">Principal</th>
+                                                <th rowspan="2">Change</th>
+                                                <th rowspan="2">Balance</th>
+                                                <th rowspan="2">Remarks</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Amount</th>
+                                                <th>Month</th>
+                                                <th>Amount</th>
+                                                <th>Month</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -229,7 +234,9 @@
                 { data: 'signature', name: 'signature' },
                 { data: 'wdl', name: 'wdl' },
                 { data: 'payment_interest', name: 'payment_interest' },
+                { data: 'payment_interest_month', name: 'payment_interest_month' },
                 { data: 'payment_insurance', name: 'payment_insurance' },
+                { data: 'payment_insurance_month', name: 'payment_insurance_month' },
                 { data: 'payment_principal', name: 'payment_principal' },
                 { data: 'change', name: 'change' },
                 { data: 'balance', name: 'balance' },

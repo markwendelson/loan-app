@@ -8,6 +8,7 @@ use App\Models\ClientDetails;
 use App\Models\Loan;
 use App\Services\ClientRegistrationService;
 use App\Services\ClientUpdateService;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -197,7 +198,9 @@ class ClientController extends Controller
                 'signature' => null,
                 'wdl' => null,
                 'payment_interest' => null,
+                'payment_interest_month' => null,
                 'payment_insurance' => null,
+                'payment_insurance_month' => null,
                 'payment_principal' => number_format($reloan_deduction, 2),
                 'change' => null,
                 'balance' => number_format($balance, 2),
@@ -226,7 +229,11 @@ class ClientController extends Controller
                     'signature' => null,
                     'wdl' => number_format($payment->amount, 2),
                     'payment_interest' => number_format($payment->interest, 2),
+                    'payment_interest_month' => date('d-M-y', strtotime($payment->interest_end_date)),
                     'payment_insurance' => number_format($payment->insurance, 2),
+                    'payment_insurance_month' => (!empty($payment->insurance_month) && !empty($payment->insurance_year))
+                                                        ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
+                                                        : null,
                     'payment_principal' => number_format($payment->principal, 2),
                     'change' => null,
                     'balance' => number_format($balance, 2),
