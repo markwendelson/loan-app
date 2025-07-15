@@ -412,7 +412,17 @@
                 }
             }
 
-            $principal.val(principal);
+            let selectedOption = $("[name='loan_id']").find(':selected');
+            let loan_type = selectedOption.data('loan-type');
+
+            if (loan_type === 'open-term') {
+                if ($("[name='is_early_settlement']").prop('checked')){
+                    $principal.val(principal);
+                }
+
+            } else {
+                $principal.val(principal);
+            }
 
             var change;
             change = amount - (interest + insurance + principal);
