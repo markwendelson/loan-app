@@ -416,30 +416,22 @@
             var principal = 0;
             if ($("[name='is_early_settlement']").prop('checked')) {
                 principal = $principal.data('principal-balance');
-
-                if (loan_type === 'open-term') {
-                    principal = principal_amount;
-                } else {
-                    $principal.val('');
-                    $principal.val(principal);
-                }
-
             } else {
 
                 if (loan_type === 'open-term') {
                     principal = principal_amount;
                 } else {
                     $principal.val('');
-                    $principal.val(principal);
+                    principal = amount - interest - insurance;
                 }
 
-                var monthly_amortization = $principal.data('monthly-amortization');
-                principal = amount - interest - insurance;
                 if(principal<0) {
                     $("#modalTransaction [name='amount']").addClass('is-invalid')
                     return;
                 }
             }
+
+            $principal.val(principal);
 
 
 
