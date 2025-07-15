@@ -405,7 +405,7 @@
             var interest = parseFloat($("#modalTransaction [name='interest']").val())
             var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
             var $principal = $("#modalTransaction [name='principal']")
-            var principal_amount = parseFloat(("[name='principal']").val())
+            var principal_amount = parseFloat($("#modalTransaction [name='principal']").val())
             let selectedOption = $("[name='loan_id']").find(':selected');
             let loan_type = selectedOption.data('loan-type');
 
