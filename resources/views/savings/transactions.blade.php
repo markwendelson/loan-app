@@ -277,6 +277,10 @@
             getData();
         })
 
+        $("#modalTransaction .my-insurance").on("change", function() {
+            getData()
+        })
+
         async function getData() {
             var loan_id = $("#loan_id").find('option:selected').val()
             const interest_period = $("[name='transaction_date']").val()

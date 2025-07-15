@@ -101,17 +101,17 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_month" class="form-label">Month</label>
-                                    <select name="insurance_month" id="insurance_month" class="form-control form-control-sm">
+                                    <select name="insurance_month" id="insurance_month" class="form-control form-control-sm my-insurance">
                                         <option value="" disabled>Select</option>
                                         @foreach (month_names() as $number => $name)
-                                            <option value="{{ $number }}">{{ $name }}</option>
+                                            <option value="{{ $number }}"  {{ $number == date('m') ? 'selected' : ''}}>{{ $name }}</option>
                                         @endforeach
 
                                     </select>
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_year" class="form-label">Year</label>
-                                    <input type="text" class="form-control form-control-sm" id="insurance_year" name="insurance_year" value="{{date('Y')}}">
+                                    <input type="number" class="form-control form-control-sm my-insurance" id="insurance_year" name="insurance_year" value="{{date('Y')}}" min="0">
                                 </div>
                             </div>
 
