@@ -277,10 +277,6 @@
             getData();
         })
 
-        $("#modalTransaction .my-insurance").on("change", function() {
-            getData()
-        })
-
         async function getData() {
             var loan_id = $("#loan_id").find('option:selected').val()
             const interest_period = $("[name='transaction_date']").val()
@@ -371,6 +367,8 @@
             opens: 'left'
         }, function(start, end, label) {
             $("[name='transaction_date']").val(end.format('YYYY-MM-DD'))
+            $("[name='insurance_month']").val(end.format('M'));
+            $("[name='insurance_year']").val(end.format('Y'));
             getData()
         });
 
