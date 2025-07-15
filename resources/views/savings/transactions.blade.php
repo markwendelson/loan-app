@@ -366,7 +366,7 @@
         $('input[name="interest_period"]').daterangepicker({
             opens: 'left'
         }, function(start, end, label) {
-            $("[name='transaction_date']").val(end.format('YYYY-MM-DD'))
+            // $("[name='transaction_date']").val(end.format('YYYY-MM-DD'))
             $("[name='insurance_month']").val(end.format('M'));
             $("[name='insurance_year']").val(end.format('Y'));
             getData()
