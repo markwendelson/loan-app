@@ -430,6 +430,8 @@
                     $principal.val(principal);
                 }
 
+                principal = $principal.val()
+
             } else {
                 $principal.val('');
                 $principal.val(principal);
