@@ -420,7 +420,11 @@ class ClientController extends Controller
                 'signature' => null,
                 'wdl' => number_format($payment->amount, 2),
                 'payment_interest' => number_format($payment->interest, 2),
+                'payment_interest_month' => date('d-M-y', strtotime($payment->interest_end_date)),
                 'payment_insurance' => number_format($payment->insurance, 2),
+                    'payment_insurance_month' => (!empty($payment->insurance_month) && !empty($payment->insurance_year))
+                                                        ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
+                                                        : null,
                 'payment_principal' => number_format($payment->principal, 2),
                 'change' => null,
                 'balance' => number_format($balance, 2),
