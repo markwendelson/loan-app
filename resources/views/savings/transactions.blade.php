@@ -264,6 +264,16 @@
         });
 
         $("#loan_id").on("change", function() {
+            let selectedOption = $(this).find(':selected');
+            let loan_type = selectedOption.data('loan-type');
+
+            if (loan_type === 'open-term') {
+                $("[name='principal']").prop('readonly', false);
+            } else {
+                $("[name='principal']").prop('readonly', true);
+            }
+
+
             getData();
         })
 
@@ -356,9 +366,8 @@
         $('input[name="interest_period"]').daterangepicker({
             opens: 'left'
         }, function(start, end, label) {
-            var interest_period = start.format('YYYY-MM-DD') + ' ' + end.format('YYYY-MM-DD')
             $("[name='transaction_date']").val(end.format('YYYY-MM-DD'))
-            getData(interest_period)
+            getData()
         });
 
 
@@ -372,10 +381,7 @@
                 picker.setEndDate(moment(endDate));
                 picker.updateView();
                 picker.updateCalendars();
-
-                // Construct full interest period and call getData()
-                const interest_period = picker.startDate.format('YYYY-MM-DD') + ' ' + picker.endDate.format('YYYY-MM-DD');
-                getData(interest_period);
+                getData();
             }
         })
 

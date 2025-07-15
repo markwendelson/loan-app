@@ -55,7 +55,7 @@
                         <div class="withdraw">
                             <div class="row mb-3">
                                 <div class="col-12 form-group">
-                                    <label for="loan_id">Select Loan</label>
+                                    <label class="form-label" for="loan_id">Select Loan</label>
                                     <select name="loan_id" id="loan_id" class="form-control form-control-sm">
                                         <option value="">-select-</option>
                                         @foreach($loans as $loan)
@@ -65,7 +65,7 @@
                                                 data-interest-rate="{{$loan->interest_rate}}"
                                                 data-term="{{$loan->loan_duration}}"
                                                 data-loan-type="{{Str::slug($loan->loanProduct->loanType->name)}}"
-                                            >{{$loan->loan_no}}</option>
+                                            >{{$loan->is_special ? 'Special Loan | '.$loan->loan_no : 'Principal Loan | '.$loan->loan_no}}</option>
                                         @endforeach
                                     </select>
                                 </div>
