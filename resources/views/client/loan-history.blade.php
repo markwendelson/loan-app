@@ -66,7 +66,7 @@
                 <div class="card-body">
                     <ul class="list-group list-group-flush" id="loanHistory">
                         @foreach ($loans as $loan)
-                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action" data-id="{{$loan->id}}">
+                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action" data-id="{{$loan->id}}" data-loan_no="{{$loan->loan_no}}">
                             <div class="ms-2 me-auto">
                                 <div>{{$loan->loanProduct->name}}</div>
                                 <div class="fw-bold">{{$loan->loan_no}}</div>
@@ -137,9 +137,10 @@
 
             // Get data attribute (e.g., data-id or data-loan-id)
             const loanId = item.dataset.id;
+            const loanNo = item.dataset.loan_no;
 
             fetchLoanDetails(loanId)
-            fetchLoanLedger(loanId)
+            fetchLoanLedger(loanId,loanNo)
 
 
           });
@@ -173,7 +174,7 @@
         });
     }
 
-    function fetchLoanLedger(loanId) {
+    function fetchLoanLedger(loanId, loanNo) {
         var client_id = $("#client_id").val();
         const targetDiv = document.getElementById('loanLedger'); // target div to inject content
 
@@ -194,8 +195,6 @@
         .then(html => {
             targetDiv.innerHTML = html;
 
-            var loan = @json($loan);
-
             const principal = $('#tblLedger').DataTable({
                 dom: 'rtip',
                 autoWidth: true,
@@ -207,7 +206,7 @@
                 ajax: {
                     url: `{{ route('client.ledger.loan', [':client', ':loan_no']) }}`
                         .replace(':client', client_id)
-                        .replace(':loan_no', loan.loan_no),
+                        .replace(':loan_no', loanNo),
                 },
                 columns: [
                     { data: 'transaction_date', name: 'transaction_date' },
