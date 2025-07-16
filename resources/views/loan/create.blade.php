@@ -68,7 +68,7 @@
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="number" class="form-control" name="term" id="term"/>
+                    <input type="number" class="form-control" name="term" id="term" step="0.5"/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>
@@ -203,7 +203,7 @@
             var loan_type = $("[name='loan_product_id']").find('option:selected').data('loan-type');
             var interest_rate = $("[name='loan_product_id']").find('option:selected').data('interest-rate');
             if(loan_type == 'special-loan') {
-                if($(this).val() > 12) {
+                if($(this).val() != 12) {
                     $("[name='interest_rate']").val(5)
                 } else {
                     $("[name='interest_rate']").val(interest_rate)
@@ -220,7 +220,7 @@
             $('#btn-add-loan').attr('disabled', true)
             var principal = parseFloat($("[name='principal']").val())
             interest_rate = parseFloat($("[name='interest_rate']").val())
-            var term = parseInt($("[name='term']").val())
+            var term = parseFloat($("[name='term']").val())
 
 
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
@@ -265,6 +265,8 @@
                 monthly_amortization = advance_interest;
                 if(principal<3000) {
                     service_fee = 200;
+                } else if(principal==3000) {
+                    service_fee = 300;
                 } else {
                     service_fee = principal * (5/100);
                 }
