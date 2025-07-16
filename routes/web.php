@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function(){
     Route::controller(ClientController::class)
         ->prefix('client')
         ->group(function() {
+            Route::get('{client}/get-balance', 'getBalance')->name('client.get-balance');
             Route::get('{client}/{loan_no}/ledger', 'ledgerLoan')->name('client.ledger.loan');
             Route::get('{client}/loan-history', 'loanHistory')->name('client.loan-history');
             Route::get('{client}/ledger', 'ledgerPrincipal')->name('client.ledger.principal');

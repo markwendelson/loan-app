@@ -238,6 +238,13 @@
             let selected = $(this).val();
             if(selected == 'withdraw'){
                 $('.withdraw').show();
+                getBalance().then(function(balanceResponse) {
+                    var balance = parseFloat(balanceResponse.balance.replace(/,/g, ''));
+                    $("[name='amount']").val(balance)
+                }).catch(function(error) {
+                    console.error("Failed to fetch balance:", error);
+                });
+
                 calculateChange();
             }else{
                 $('.withdraw').hide();
@@ -296,7 +303,7 @@
             var monthly_amortization = parseFloat(feesResponse.monthly_amortization.replace(/,/g, ''))
             var interest = parseFloat(feesResponse.interest.replace(/,/g, ''))
             $("#modalTransaction [name='interest']").val(parseFloat(feesResponse.interest.replace(/,/g, '')));
-            console.log(feesResponse.insurance_monthly_fee !== 0)
+
             if(feesResponse.insurance_monthly_fee !== 0) {
                 $("#modalTransaction [name='insurance']").val(parseFloat(feesResponse.insurance_monthly_fee.replace(/,/g, '')));
             } else {
@@ -478,6 +485,15 @@
 
             }
         })
+    }
+
+    function getBalance()
+    {
+        var client_id = $("#client_id").val();
+        return $.ajax({
+                type: 'GET',
+                url: `{{ route('client.get-balance',':client_id') }}`.replace(':client_id',client_id)
+            })
     }
 
 </script>

@@ -564,4 +564,10 @@ class ClientController extends Controller
 
         return view('client.partial-ledger', compact('client','loan'));
     }
+
+    public function getBalance(Client $client)
+    {
+        $balance = getClientBalance($client);
+        return response()->json(['balance' => $balance]);
+    }
 }
