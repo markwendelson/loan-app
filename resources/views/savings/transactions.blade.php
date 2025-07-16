@@ -288,12 +288,11 @@
 
         async function getData() {
             var loan_id = $("#loan_id").find('option:selected').val()
-            const interest_period = $("[name='transaction_date']").val()
 
             if(loan_id ==='') return;
 
 
-            feesResponse = await getFees(loan_id,interest_period);
+            feesResponse = await getFees(loan_id);
             var monthly_amortization = parseFloat(feesResponse.monthly_amortization.replace(/,/g, ''))
             var interest = parseFloat(feesResponse.interest.replace(/,/g, ''))
             $("#modalTransaction [name='interest']").val(parseFloat(feesResponse.interest.replace(/,/g, '')));
@@ -359,11 +358,10 @@
             })
         }
 
-        function getFees(loan_id, interest_period = null) {
-            const data = { id: loan_id };
-            if (interest_period !== null) {
-                data.interest_period = interest_period;
-            }
+        function getFees(loan_id) {
+            const picker = $('input[name="interest_period"]').data('daterangepicker');
+            const endDate = picker.endDate.format('YYYY-MM-DD');
+            const data = { id: loan_id, interest_period: endDate};
 
             return $.ajax({
                 type: 'GET',
