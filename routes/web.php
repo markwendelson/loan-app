@@ -93,6 +93,7 @@ Route::middleware('auth')->group(function(){
             Route::get('{client}/ledger', 'ledgerPrincipal')->name('client.ledger.principal');
             Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
             Route::get('{client}/loan-history-details', 'loanHistoryDetails')->name('client.loan-history-details');
+            Route::get('{client}/partial-ledger', 'partialLedger')->name('client.partial-ledger');
     });
 
     Route::post('user/{user}/permission',[UserController::class,'updatePermission'])->name('user.update-permission');

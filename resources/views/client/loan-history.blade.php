@@ -97,14 +97,22 @@
                     </ul>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 col-sm-12">
             <div class="card">
                 <div class="card-header">
                     <h4>Loan Details</h4>
                 </div>
                 <div class="card-body">
                     <div id="loanDetails"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Loan Ledger</h4>
+                </div>
+                <div class="card-body">
+                    <div id="loanLedger"></div>
                 </div>
             </div>
         </div>
@@ -116,7 +124,6 @@
 
 <script>
     $(document).ready(function () {
-        var client_id = $("#client_id").val();
 
         const listItems = document.querySelectorAll('#loanHistory .list-group-item');
 
@@ -131,33 +138,109 @@
             // Get data attribute (e.g., data-id or data-loan-id)
             const loanId = item.dataset.id;
 
-            const targetDiv = document.getElementById('loanDetails'); // target div to inject content
+            fetchLoanDetails(loanId)
+            fetchLoanLedger(loanId)
 
-            let url = "{{ route('client.loan-history-details', ':client') }}";
-            url = url.replace(':client', client_id);
-
-            // Append loan_id as a query param
-            url += `?loan_id=${encodeURIComponent(loanId)}`;
-
-            // Send AJAX request using Fetch (GET)
-            fetch(url, {
-                method: 'GET',
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text(); // because it's HTML
-            })
-            .then(html => {
-                targetDiv.innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                targetDiv.innerHTML = '<div class="alert alert-danger">Failed to load details.</div>';
-            });
 
           });
         });
     });
+
+    function fetchLoanDetails(loanId) {
+        var client_id = $("#client_id").val();
+        const targetDiv = document.getElementById('loanDetails'); // target div to inject content
+
+        let url = "{{ route('client.loan-history-details', ':client') }}";
+        url = url.replace(':client', client_id);
+
+        // Append loan_id as a query param
+        url += `?loan_id=${encodeURIComponent(loanId)}`;
+
+        // Send AJAX request using Fetch (GET) Loan Details
+        fetch(url, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text(); // because it's HTML
+        })
+        .then(html => {
+            targetDiv.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            targetDiv.innerHTML = '<div class="alert alert-danger">Failed to load details.</div>';
+        });
+    }
+
+    function fetchLoanLedger(loanId) {
+        var client_id = $("#client_id").val();
+        const targetDiv = document.getElementById('loanLedger'); // target div to inject content
+
+        let url = "{{ route('client.partial-ledger', ':client') }}";
+        url = url.replace(':client', client_id);
+
+        // Append loan_id as a query param
+        url += `?loan_id=${encodeURIComponent(loanId)}`;
+
+        // Send AJAX request using Fetch (GET) Loan Details
+        fetch(url, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text(); // because it's HTML
+        })
+        .then(html => {
+            targetDiv.innerHTML = html;
+
+            var loan = @json($loan);
+
+            const principal = $('#tblLedger').DataTable({
+                dom: 'rtip',
+                autoWidth: true,
+                ordering: false,
+                processing: true,
+                serverSide: true,
+                stateSave: true,
+                searching: true,
+                ajax: {
+                    url: `{{ route('client.ledger.loan', [':client', ':loan_no']) }}`
+                        .replace(':client', client_id)
+                        .replace(':loan_no', loan.loan_no),
+                },
+                columns: [
+                    { data: 'transaction_date', name: 'transaction_date' },
+                    { data: 'withdraw_date', name: 'withdraw_date' },
+                    { data: 'salary_month', name: 'salary_month' },
+                    { data: 'loan_principal', name: 'loan_principal' },
+                    { data: 'loan_interest', name: 'loan_interest' },
+                    { data: 'loan_service_fee', name: 'loan_service_fee' },
+                    { data: 'loan_insurance_fee', name: 'loan_insurance_fee' },
+                    { data: 'others', name: 'others' },
+                    { data: 'net_proceed', name: 'net_proceed' },
+                    { data: 'signature', name: 'signature' },
+                    { data: 'wdl', name: 'wdl' },
+                    { data: 'payment_interest', name: 'payment_interest' },
+                    { data: 'payment_interest_month', name: 'payment_interest_month' },
+                    { data: 'payment_insurance', name: 'payment_insurance' },
+                    { data: 'payment_insurance_month', name: 'payment_insurance_month' },
+                    { data: 'payment_principal', name: 'payment_principal' },
+                    { data: 'change', name: 'change' },
+                    { data: 'balance', name: 'balance' },
+                    { data: 'remarks', name: 'remarks' },
+                ],
+                columnDefs: [
+                    // { className: "text-center", targets: [4,5] },
+                ]
+            });
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            targetDiv.innerHTML = '<div class="alert alert-danger">Failed to load details.</div>';
+        });
+    }
 
 
   </script>

@@ -416,6 +416,8 @@
                 principal = $principal.data('principal-balance');
             } else {
 
+                if(loan_type==='') return;
+
                 if (loan_type === 'open-term') {
                     principal = principal_amount;
                 } else {
@@ -430,9 +432,6 @@
             }
 
             $principal.val(principal);
-
-
-
 
 
             var change;

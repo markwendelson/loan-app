@@ -26,7 +26,7 @@
         {{-- @if($loan->status == App\Enums\LoanStatus::APPROVE->value) --}}
         <div class="card-footer loan-status-button">
             <div class="col-12 float-end">
-                <a href="{{route('client.ledger.loan',['client'=>$loan->borrower_id,'loan_no'=>$loan->loan_no])}}" class="btn btn-sm btn-primary mx-auto btn-edit-loan"><i class="fa fa-table"></i> Ledger</a>
+                <a href="{{route('client.ledger.loan',['client'=>$loan->borrower_id,'loan_no'=>$loan->loan_no])}}" class="btn btn-sm btn-primary mx-auto btn-edit-loan" target="_blank"><i class="fa fa-table"></i> Ledger</a>
             </div>
         </div>
         {{-- @endif --}}

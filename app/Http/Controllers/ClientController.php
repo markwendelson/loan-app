@@ -469,4 +469,99 @@ class ClientController extends Controller
 
         return view('client.loan-history-details', compact('client','loan'));
     }
+
+    public function partialLedger(Request $request, Client $client)
+    {
+
+        $loan = Loan::with('payments','loanCharges')->where([
+            'id' => $request->loan_id,
+            'borrower_id' => $client->id
+        ])->first();
+
+        $interest = $loan->loanCharges->advance_interest;
+        $service_fee = $loan->loanCharges->service_fee;
+        $insurance_fee = $loan->loanCharges->insurance_fee;
+        $notary_fee = $loan->loanCharges->notary_fee;
+        $reloan_deduction = $loan->loanCharges->reloan_deduction;
+
+        $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
+        $net_proceed = $loan->principal - $loan_charges;
+
+        $balance = $loan->principal;
+
+        // Initial loan row
+        $rows = [[
+            'loan_id' => $loan->id,
+            'payment_id' => null,
+            'transaction_date' => $loan->loan_date,
+            'withdraw_date' => null,
+            'salary_month' => null,
+            'loan_principal' => number_format($loan->principal, 2),
+            'loan_interest' => number_format($interest, 2),
+            'loan_service_fee' => number_format($service_fee, 2),
+            'loan_insurance_fee' => number_format($insurance_fee, 2),
+            'others' => number_format($notary_fee, 2),
+            'net_proceed' => number_format($net_proceed, 2),
+            'signature' => null,
+            'wdl' => null,
+            'payment_interest' => null,
+            'payment_interest_month' => null,
+            'payment_insurance' => null,
+            'payment_insurance_month' => null,
+            'payment_principal' => number_format($reloan_deduction, 2),
+            'change' => null,
+            'balance' => number_format($balance, 2),
+            'remarks' => null,
+        ]];
+
+        // Running total
+        $total_payment_principal = 0;
+
+        foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
+            $total_payment_principal += $payment->principal;
+            $balance = $loan->principal - $total_payment_principal;
+
+            $rows[] = [
+                'loan_id' => $loan->id,
+                'payment_id' => $payment->id,
+                'transaction_date' => null,
+                'withdraw_date' => $payment->transaction_date,
+                'salary_month' => strtoupper(date('M y', strtotime($payment->transaction_date))),
+                'loan_principal' => null,
+                'loan_interest' => null,
+                'loan_service_fee' => null,
+                'loan_insurance_fee' => null,
+                'others' => null,
+                'net_proceed' => null,
+                'signature' => null,
+                'wdl' => number_format($payment->amount, 2),
+                'payment_interest' => number_format($payment->interest, 2),
+                'payment_interest_month' => (!empty($payment->interest_end_date))
+                                                    ? date('d-M-y', strtotime($payment->interest_end_date))
+                                                    : null,
+                'payment_insurance' => number_format($payment->insurance, 2),
+                'payment_insurance_month' => (!empty($payment->insurance_month) && !empty($payment->insurance_year))
+                                                    ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
+                                                    : null,
+                'payment_principal' => number_format($payment->principal, 2),
+                'change' => null,
+                'balance' => number_format($balance, 2),
+                'remarks' => null,
+            ];
+        }
+
+        $mappedData = collect($rows);
+
+        if($request->ajax()) {
+            $totalRecords = 0;
+            return response()->json([
+                'draw' => intval($request->draw),
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $totalRecords,
+                'data' => $mappedData
+            ]);
+        }
+
+        return view('client.partial-ledger', compact('client','loan'));
+    }
 }
