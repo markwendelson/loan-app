@@ -63,8 +63,8 @@ class SavingsController extends Controller
 
         $request->validate([
             'amount' => 'required',
-            'interest_year' => 'required_if:interest,!=,0',
-            'insurance_year' => 'required_if:insurance,!=,0'
+            // 'interest_year' => 'required_if:interest,!=,0',
+            // 'insurance_year' => 'required_if:insurance,!=,0'
         ]);
 
         // check balance if withdraw
