@@ -414,6 +414,7 @@
             let selectedOption = $("[name='loan_id']").find(':selected');
             let loan_type = selectedOption.data('loan-type');
 
+            if (isNaN(principal_amount)) principal_amount = 0;
             if (isNaN(amount)) amount = 0;
             if (isNaN(interest)) interest = 0;
             if (isNaN(insurance)) insurance = 0;

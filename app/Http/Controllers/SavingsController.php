@@ -8,6 +8,7 @@ use App\Models\Loan;
 use App\Models\LoanFee;
 use App\Models\Savings;
 use Carbon\Carbon;
+use Illuminate\Cache\Events\RetrievingKey;
 use Illuminate\Http\Request;
 
 class SavingsController extends Controller
@@ -198,7 +199,7 @@ class SavingsController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $transactions = Savings::filter($search)->where('client_id', $client->id)->get();
+            $transactions = Savings::filter($search)->where('client_id', $client->id)->orderBy('transaction_date', 'DESC')->get();
 
             $data = $transactions->map(function($saving) {
                 $saving['amount'] = number_format($saving['amount'],2);
@@ -232,16 +233,30 @@ class SavingsController extends Controller
         $rounded_interest = round($interest);
         $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
 
-        return response()->json([
-            'interest' => number_format($rounded_interest,2),
-            'interest_start_date' => $result['start_date'],
-            'interest_end_date' => $result['end_date'],
-            'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
-            // 12 months
-            'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_monthly_fee * ($result['number_of_months'] - 12) ,2) : 0,
-            'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_annual_fee,2) : 0,
-            'principal_balance' => number_format($principal_balance,2)
-        ]);
+        if($loan->is_special) {
+            return response()->json([
+                'interest' => 0,
+                'interest_start_date' => $result['start_date'],
+                'interest_end_date' => $result['end_date'],
+                'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
+                // 12 months
+                'insurance_monthly_fee' => 0,
+                'insurance_annual_fee' => 0,
+                'principal_balance' => number_format($principal_balance,2)
+            ]);
+        } else {
+            return response()->json([
+                'interest' => number_format($rounded_interest,2),
+                'interest_start_date' => $result['start_date'],
+                'interest_end_date' => $result['end_date'],
+                'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
+                // 12 months
+                'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_monthly_fee * ($result['number_of_months'] - 12) ,2) : 0,
+                'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_annual_fee,2) : 0,
+                'principal_balance' => number_format($principal_balance,2)
+            ]);
+        }
+
 
     }
 

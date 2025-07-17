@@ -213,6 +213,7 @@ class ClientController extends Controller
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
                 $total_payment_principal += $payment->principal;
                 $balance = $loan->principal - $total_payment_principal;
+                $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
                     'loan_id' => $loan->id,
@@ -237,7 +238,7 @@ class ClientController extends Controller
                                                         ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
                                                         : null,
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => null,
+                    'change' => number_format($change,2),
                     'balance' => number_format($balance, 2),
                     'remarks' => null,
                 ];
@@ -325,6 +326,7 @@ class ClientController extends Controller
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
                 $total_payment_principal += $payment->principal;
                 $balance = $loan->principal - $total_payment_principal;
+                $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
                     'loan_id' => $loan->id,
@@ -342,7 +344,7 @@ class ClientController extends Controller
                     'payment_interest' => number_format($payment->interest, 2),
                     'payment_insurance' => number_format($payment->insurance, 2),
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => null,
+                    'change' => number_format($change,2),
                     'balance' => number_format($balance, 2),
                     'remarks' => null,
                 ];
