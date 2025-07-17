@@ -178,7 +178,7 @@
                                                 <th>Insurance Fee</th>
                                                 <th>Others</th>
                                                 <th></th>
-                                                <th>WDL/DR</th>
+                                                <th>Transaction Date</th>
                                                 <th>Interest</th>
                                                 <th>Insurance</th>
                                                 <th>Principal</th>

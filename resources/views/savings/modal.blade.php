@@ -65,7 +65,7 @@
                                                 data-interest-rate="{{$loan->interest_rate}}"
                                                 data-term="{{$loan->loan_duration}}"
                                                 data-loan-type="{{Str::slug($loan->loanProduct->loanType->name)}}"
-                                            >{{$loan->is_special ? 'Special Loan | '.$loan->loan_no : 'Principal Loan | '.$loan->loan_no}}</option>
+                                            >{{$loan->is_special ? 'Special Loan | '.$loan->description .' | ' .$loan->loan_no : 'Principal Loan | '.$loan->loan_no}}</option>
                                         @endforeach
                                     </select>
                                 </div>
