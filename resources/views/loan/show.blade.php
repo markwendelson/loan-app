@@ -160,7 +160,7 @@
         async function calculateLoan() {
             var principal = parseFloat($("[name='principal']").val())
             interest_rate = parseFloat($("[name='interest_rate']").val())
-            var term = parseInt($("[name='term']").val())
+            var term = parseFloat($("[name='term']").val())
 
 
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
