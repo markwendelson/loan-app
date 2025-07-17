@@ -67,7 +67,7 @@
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="number" class="form-control" name="term" id="term" value="{{$loan->loan_duration}}" readonly/>
+                    <input type="text" class="form-control" name="term" id="term" value="{{$loan->loan_duration}}" readonly/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>
