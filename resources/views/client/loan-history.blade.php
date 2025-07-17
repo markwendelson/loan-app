@@ -219,7 +219,7 @@
                     { data: 'others', name: 'others' },
                     { data: 'net_proceed', name: 'net_proceed' },
                     { data: 'signature', name: 'signature' },
-                    { data: 'transaction_date', name: 'transaction_date' },
+                    { data: 'transaction_date', name: 'withdraw_date' },
                     { data: 'payment_interest', name: 'payment_interest' },
                     { data: 'payment_interest_month', name: 'payment_interest_month' },
                     { data: 'payment_insurance', name: 'payment_insurance' },
