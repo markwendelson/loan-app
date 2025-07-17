@@ -95,21 +95,21 @@ class LoanController extends Controller
                     ], 400);
                 }
 
-                $alreadyHasLoan = Loan::where([
-                                'borrower_id' => $data['borrower_id'],
-                                'is_special' => 1
-                            ])
-                            ->where('status', LoanStatus::APPROVE)
-                            ->orWhere('status', LoanStatus::REQUEST_APPROVE)
-                            ->orWhere('status', LoanStatus::PENDING)
-                            ->first();
+                // $alreadyHasLoan = Loan::where([
+                //                 'borrower_id' => $data['borrower_id'],
+                //                 'is_special' => 1
+                //             ])
+                //             ->where('status', LoanStatus::APPROVE)
+                //             ->orWhere('status', LoanStatus::REQUEST_APPROVE)
+                //             ->orWhere('status', LoanStatus::PENDING)
+                //             ->first();
 
-                if($alreadyHasLoan) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Client already has a pending or approved loan']
-                        , 400);
-                }
+                // if($alreadyHasLoan) {
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Client already has a pending or approved loan']
+                //         , 400);
+                // }
 
             } else {
                 $data['is_special'] = 0;
