@@ -203,7 +203,13 @@
 
                 advance_interest = (interest_rate/100) * principal * term;
                 monthly_amortization = advance_interest;
-                service_fee = principal * (5/100);
+                if(principal<3000) {
+                    service_fee = 200;
+                } else if(principal==3000) {
+                    service_fee = 300;
+                } else {
+                    service_fee = principal * (5/100);
+                }
                 insurance_fee = 0;
                 if(notaryFeeResponse.type == 'fixed') {
                     notary_fee = notaryFeeResponse.notary_fee;
