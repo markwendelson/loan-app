@@ -235,7 +235,7 @@ class SavingsController extends Controller
 
         if($loan->is_special) {
             return response()->json([
-                'interest' => 0,
+                'interest' => number_format(0,2),
                 'interest_start_date' => $result['start_date'],
                 'interest_end_date' => $result['end_date'],
                 'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
