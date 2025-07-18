@@ -4,11 +4,14 @@ namespace App\Models;
 
 use App\Enums\LoanStatus;
 use DateTime;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Loan extends Model
 {
-    protected $fillable = ['loan_date','loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal','repayment_order','is_special','description','is_reloan','reference_loan_no'];
+    protected $fillable = ['loan_date','loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal','repayment_order','is_special','description','is_reloan','reference_loan_no','is_additional_loan'];
+
+    protected $appends = ['final_principal','final_monthly_amortization'];
 
     protected $casts = [
         'repayment_order' => 'array',
@@ -88,4 +91,26 @@ class Loan extends Model
     {
         return $this->hasMany(Savings::class);
     }
+
+    public function finalPrincipal(): Attribute
+    {
+        return Attribute::get(function () {
+            $referencingLoans = self::where('reference_loan_no', $this->loan_no)->get();
+
+            return $referencingLoans->sum('principal') + $this->principal;
+        });
+    }
+
+    public function finalMonthlyAmortization(): Attribute
+    {
+        return Attribute::get(function () {
+            $referencingLoanIds = self::where('reference_loan_no', $this->loan_no)->pluck('id')->toArray();
+            $loanIds = array_merge($referencingLoanIds, [$this->id]);
+
+            return LoanFee::whereIn('loan_id', $loanIds)->sum('monthly_amortization');
+        });
+    }
+
+
+
 }

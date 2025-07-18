@@ -170,7 +170,10 @@ class ClientController extends Controller
             }
         }
 
-        $mappedData = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) {
+        // Running total
+        $total_payment_principal = 0;
+        $balance = 0;
+        $mappedData = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) use(&$balance,&$total_payment_principal){
             $interest = $loan->loanCharges->advance_interest;
             $service_fee = $loan->loanCharges->service_fee;
             $insurance_fee = $loan->loanCharges->insurance_fee;
@@ -180,7 +183,7 @@ class ClientController extends Controller
             $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
             $net_proceed = $loan->principal - $loan_charges;
 
-            $balance = $loan->principal;
+            $balance += $loan->principal;
 
             // Initial loan row
             $rows = [[
@@ -208,8 +211,6 @@ class ClientController extends Controller
                 'remarks' => null,
             ]];
 
-            // Running total
-            $total_payment_principal = 0;
 
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
                 $total_payment_principal += $payment->principal;
@@ -266,6 +267,7 @@ class ClientController extends Controller
         $loan = [
             'principal_loan_no' => $principal_loan->loan_no ?? '',
             'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
+            'principal_loan_product_type' => $principal_loan->loanProduct->loanType->name ?? '',
             'principal_date_granted' => $principal_loan->approved_date ?? '',
             'special_loan_no' => $special_loan->loan_no ?? '',
             'special_loan_product' => $special_loan->loanProduct->name ?? '',

@@ -85,6 +85,9 @@
                                     </div>
                                     <div class="col-md-4 float-end">
                                         <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                        @if(Str::slug($loan['principal_loan_product_type']) == 'open-term')
+                                        <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'additional_loan'=>true])}}" class="btn btn-sm btn-primary mx-auto">Add Loan</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -113,7 +116,7 @@
                                                 <th rowspan="2">Interest</th>
                                                 <th rowspan="2">Service Fee</th>
                                                 <th rowspan="2">Insurance Fee</th>
-                                                <th rowspan="2">Net Proceed</th>
+                                                <th rowspan="2">Others</th>
                                                 <th rowspan="2"></th>
                                                 <th rowspan="2">Transaction Date</th>
                                                 <th colspan="2">Interest</th>

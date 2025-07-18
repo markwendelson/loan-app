@@ -120,12 +120,14 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="service_fee" id="service_fee">
                             </div>
                         </li>
+                        @if(!filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="insurance_fee">Insurance Fee</label>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="insurance_fee" id="insurance_fee">
                             </div>
                         </li>
+                        @endif
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Notary Fee</label>
@@ -170,6 +172,9 @@
 
 @push('js')
 <script>
+
+    const urlParams = new URLSearchParams(window.location.search);
+
     $(document).ready(function () {
 
         var loan_type;
@@ -277,13 +282,18 @@
                     notary_fee = principal * (notaryFeeResponse.notary_fee/100);
                 }
             } else if(loan_type == 'open-term') {
+                var is_additional_loan = urlParams.get('additional_loan')
+                if(is_additional_loan) {
+                    insurance_fee = 0;
+                } else {
+                    inuranceFeeResponse = await getInsuranceFee(principal);
+                    insurance_fee = inuranceFeeResponse.annual;
+                }
                 notaryFeeResponse = await getNotaryFee(principal);
-                inuranceFeeResponse = await getInsuranceFee(principal);
 
                 advance_interest = principal * (interest_rate/100);
                 monthly_amortization = advance_interest;
                 service_fee = principal * (3/100);
-                insurance_fee = inuranceFeeResponse.annual;
                 if(notaryFeeResponse.type == 'fixed') {
                     notary_fee = notaryFeeResponse.notary_fee;
                 } else if(notaryFeeResponse.type == 'percentage') {
@@ -344,29 +354,29 @@
         })
 
         $("#loan_date").on("change", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            var loan_no_reference = urlParams.get('loan_no_reference')
-            var reloan_date = $(this).val();
-            getReloanDeductionFee(loan_no_reference, reloan_date).then(function(response) {
-                var reloan_deduction_fee = response.amount
-                $("#reloan_deduction").val(reloan_deduction_fee)
-            })
+            var reference_loan_no = urlParams.get('loan_no_reference')
+            var is_reloan = urlParams.get('reloan')
+            if(is_reloan) {
+                var reloan_date = $(this).val();
+                getReloanDeductionFee(reference_loan_no, reloan_date).then(function(response) {
+                    var reloan_deduction_fee = response.amount
+                    $("#reloan_deduction").val(reloan_deduction_fee)
+                })
+            }
         })
 
-        function getReloanDeductionFee(loan_no_reference,reloan_date) {
+        function getReloanDeductionFee(reference_loan_no,reloan_date) {
             return $.ajax({
                 type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 url: `{{ route('loan.get-reloan-deduction') }}`,
-                data: {loan_no_reference:loan_no_reference,reloan_date:reloan_date},
+                data: {reference_loan_no:reference_loan_no,reloan_date:reloan_date},
             })
         }
 
         function addLoan() {
-
-            const urlParams = new URLSearchParams(window.location.search);
 
             let params = {
                 loan_date: $('#loan_date').val(),
@@ -383,6 +393,7 @@
                 net_proceeds: $('#net_proceeds').val(),
                 reference_loan_no: urlParams.get('loan_no_reference'),
                 is_reloan: urlParams.get('reloan'),
+                is_additional_loan: urlParams.get('additional_loan'),
                 description: $('#description').val(),
             };
 

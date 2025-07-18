@@ -95,6 +95,10 @@ class Client extends Model implements Auditable
             'loanProduct.loanType:id,name'
        ])
         ->where('borrower_id', $this->id)
+        ->where(function ($query) {
+            $query->where('is_additional_loan', 0)
+                  ->orWhere('is_special', 1);
+        })
         ->where('status', LoanStatus::APPROVE)
         ->get();
     }

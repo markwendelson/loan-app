@@ -40,6 +40,7 @@
                     <input type="date" class="form-control" name="loan_date" id="loan_date" value="{{$loan->loan_date}}" readonly/>
                 </div>
                 <div class="form-group">
+                    <input type="hidden" name="is_additional_loan" id="is_additional_loan" value="{{$loan->is_additional_loan}}">
                     <label for="borrower_id">Borrower</label>
                     <select name="borrower_id" id="borrower_id" class="form-control" disabled>
                         <option value="" disabled>-Select-</option>
@@ -57,10 +58,12 @@
                         @endforeach
                     </select>
                 </div>
+                @if($loan->is_reloan)
                 <div class="form-group special-description">
                     <label for="description">Description</label>
                     <input type="text" class="form-control" name="description" id="description" value="{{$loan->description}}" readonly/>
                 </div>
+                @endif
                 <div class="form-group pricipal">
                     <label for="principal">Principal</label>
                     <input type="number" class="form-control" name="principal" id="principal" value="{{$loan->principal}}" readonly/>
@@ -104,7 +107,9 @@
                     <ul style="margin-left: 1rem;">
                         <li>Advance Interest <span class="advance_interest">{{$loan->loanCharges->advance_interest}}</span></li>
                         <li>Service Fee <span class="service_fee">{{$loan->loanCharges->service_fee}}</span></li>
+                        @if(!$loan->is_additional_loan)
                         <li>Insurance Fee <span class="insurance_fee">{{$loan->loanCharges->insurance_fee}}</span></li>
+                        @endif
                         <li>Notary Fee <span class="notary_fee">{{$loan->loanCharges->notary_fee}}</span></li>
                         @if($loan->is_reloan)
                         <li>Reloan Deduction <span class="reloan_deduction">{{$loan->loanCharges->reloan_deduction}}</span></li>
@@ -217,13 +222,18 @@
                     notary_fee = principal * (notaryFeeResponse.notary_fee/100);
                 }
             } else if(loan_type == 'open-term') {
+                var is_additional_loan = $("#is_additional_loan").val();
+                if(is_additional_loan) {
+                    insurance_fee = 0;
+                } else {
+                    inuranceFeeResponse = await getInsuranceFee(principal);
+                    insurance_fee = inuranceFeeResponse.annual;
+                }
                 notaryFeeResponse = await getNotaryFee(principal);
-                inuranceFeeResponse = await getInsuranceFee(principal);
 
                 advance_interest = principal * (interest_rate/100);
                 monthly_amortization = advance_interest;
                 service_fee = principal * (3/100);
-                insurance_fee = inuranceFeeResponse.annual;
                 if(notaryFeeResponse.type == 'fixed') {
                     notary_fee = notaryFeeResponse.notary_fee;
                 } else if(notaryFeeResponse.type == 'percentage') {

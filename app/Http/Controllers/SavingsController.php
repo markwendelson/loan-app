@@ -238,7 +238,7 @@ class SavingsController extends Controller
                 'interest' => number_format(0,2),
                 'interest_start_date' => $result['start_date'],
                 'interest_end_date' => $result['end_date'],
-                'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
+                'monthly_amortization' => number_format($loan->final_monthly_amortization,2),
                 // 12 months
                 'insurance_monthly_fee' => number_format(0,2),
                 'insurance_annual_fee' => number_format(0,2),
@@ -249,7 +249,7 @@ class SavingsController extends Controller
                 'interest' => number_format($rounded_interest,2),
                 'interest_start_date' => $result['start_date'],
                 'interest_end_date' => $result['end_date'],
-                'monthly_amortization' => number_format($loan_fee->monthly_amortization,2),
+                'monthly_amortization' => number_format($loan->final_monthly_amortization,2),
                 // 12 months
                 'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_monthly_fee * ($result['number_of_months'] - 12) ,2) : 0,
                 'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_annual_fee,2) : 0,
@@ -263,7 +263,7 @@ class SavingsController extends Controller
     function getPrincipalBalance(Loan $loan)
     {
         $total_principal_payment = Savings::where('loan_id',$loan->id)->sum('principal');
-        $principal_balance = $loan->principal - $total_principal_payment;
+        $principal_balance = $loan->final_principal - $total_principal_payment;
         return $principal_balance;
     }
 

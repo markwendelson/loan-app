@@ -52,15 +52,22 @@ class LoanController extends Controller
      */
     public function create(Request $request)
     {
-        $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->reference_loan_no)->first();
+        $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+        $reloan = $request->reloan;
         $reloan_deduction='';
-        if($previous_loan) {
+        if($previous_loan && $reloan) {
             $reloan_date = date('Y-m-d');
             $reloan_deduction = $this->calculateReloanDeduction($previous_loan, $reloan_date);
         }
 
         $clients = Client::active()->get();
-        $loan_products = LoanProduct::active()->get();
+
+        $additional_loan = $request->additional_loan;
+        if($previous_loan && $additional_loan) {
+            $loan_products = LoanProduct::where('id', $previous_loan->loan_product_id)->get();
+        } else {
+            $loan_products = LoanProduct::active()->get();
+        }
 
         return view('loan.create', compact('loan_products', 'clients','reloan_deduction','previous_loan'));
     }
@@ -74,6 +81,10 @@ class LoanController extends Controller
 
         if($data['is_reloan']) {
             return $this->processReloan($data);
+        }
+
+        if($data['is_additional_loan']) {
+            return $this->processAdditionalLoan($data);
         }
 
         try {
@@ -559,6 +570,59 @@ class LoanController extends Controller
                     'loan_id' => $loan->id,
                     'insurance_monthly_fee' => $insurance->monthly_fee,
                     'insurance_annual_fee' => $insurance->annual_fee,
+                    'monthly_amortization' => $data['monthly_amortization']
+                ]);
+
+            });
+
+            Session::flash('Loan created successfully');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan created successfully',
+            ]);
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Duplicate entry'
+                ], 409);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function processAdditionalLoan($data)
+    {
+        try {
+
+            DB::transaction(function () use ($data) {
+
+                $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $data['reference_loan_no'])->first();
+
+                $previous_loan_principal = $previous_loan->principal;
+                $payments = $previous_loan?->payments->where('transaction_type', 'withdraw');
+                $total_loan_payment = $payments->sum('principal');
+                $principal_balance = $previous_loan_principal - $total_loan_payment;
+
+                $loan = Loan::create($data);
+
+                LoanCharge::create([
+                    'loan_id' => $loan->id,
+                    'advance_interest' => $data['advance_interest'],
+                    'service_fee' => $data['service_fee'],
+                    'insurance_fee' => $data['insurance_fee'] == "" ? 0 : $data['insurance_fee'],
+                    'notary_fee' => $data['notary_fee'],
+                    'reloan_deduction' => 0,
+                ]);
+
+                LoanFee::create([
+                    'loan_id' => $loan->id,
+                    'insurance_monthly_fee' => 0,
+                    'insurance_annual_fee' => 0,
                     'monthly_amortization' => $data['monthly_amortization']
                 ]);
 
