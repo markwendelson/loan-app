@@ -115,7 +115,7 @@
                                                 <th rowspan="2">Insurance Fee</th>
                                                 <th rowspan="2">Net Proceed</th>
                                                 <th rowspan="2"></th>
-                                                <th rowspan="2">WDL/DR</th>
+                                                <th rowspan="2">Transaction Date</th>
                                                 <th colspan="2">Interest</th>
                                                 <th colspan="2">Insurance</th>
                                                 <th rowspan="2">Principal</th>
@@ -232,7 +232,7 @@
                 { data: 'others', name: 'others' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
-                { data: 'transaction_date', name: 'withdraw_date' },
+                { data: 'payment_date', name: 'payment_date' },
                 { data: 'payment_interest', name: 'payment_interest' },
                 { data: 'payment_interest_month', name: 'payment_interest_month' },
                 { data: 'payment_insurance', name: 'payment_insurance' },

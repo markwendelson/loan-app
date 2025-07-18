@@ -197,6 +197,7 @@ class ClientController extends Controller
                 'net_proceed' => number_format($net_proceed, 2),
                 'signature' => null,
                 'wdl' => null,
+                'payment_date' => null,
                 'payment_interest' => null,
                 'payment_interest_month' => null,
                 'payment_insurance' => null,
@@ -229,6 +230,7 @@ class ClientController extends Controller
                     'net_proceed' => null,
                     'signature' => null,
                     'wdl' => number_format($payment->amount, 2),
+                    'payment_date' => $payment->transaction_date,
                     'payment_interest' => number_format($payment->interest, 2),
                     'payment_interest_month' => (!empty($payment->interest_end_date))
                                                     ? date('d-M-y', strtotime($payment->interest_end_date))
@@ -394,6 +396,7 @@ class ClientController extends Controller
             'net_proceed' => number_format($net_proceed, 2),
             'signature' => null,
             'wdl' => null,
+            'payment_date' => null,
             'payment_interest' => null,
             'payment_interest_month' => null,
             'payment_insurance' => null,
@@ -425,6 +428,7 @@ class ClientController extends Controller
                 'net_proceed' => null,
                 'signature' => null,
                 'wdl' => number_format($payment->amount, 2),
+                'payment_date' => $payment->transaction_date,
                 'payment_interest' => number_format($payment->interest, 2),
                 'payment_interest_month' => (!empty($payment->interest_end_date))
                                                     ? date('d-M-y', strtotime($payment->interest_end_date))
@@ -506,6 +510,7 @@ class ClientController extends Controller
             'net_proceed' => number_format($net_proceed, 2),
             'signature' => null,
             'wdl' => null,
+            'payment_date' => null,
             'payment_interest' => null,
             'payment_interest_month' => null,
             'payment_insurance' => null,
@@ -537,6 +542,7 @@ class ClientController extends Controller
                 'net_proceed' => null,
                 'signature' => null,
                 'wdl' => number_format($payment->amount, 2),
+                'payment_date' => $payment->transaction_date,
                 'payment_interest' => number_format($payment->interest, 2),
                 'payment_interest_month' => (!empty($payment->interest_end_date))
                                                     ? date('d-M-y', strtotime($payment->interest_end_date))
