@@ -247,11 +247,7 @@ class ClientController extends Controller
             }
 
             return collect($rows);
-        })
-        ->sortByDesc(function ($item) {
-            return $item['withdraw_date'] ?? $item['transaction_date'];
-        })
-        ->values();
+        });
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -357,11 +353,7 @@ class ClientController extends Controller
             }
 
             return collect($rows);
-        })
-        ->sortByDesc(function ($item) {
-            return $item['withdraw_date'] ?? $item['transaction_date'];
-        })
-        ->values();
+        });
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -453,10 +445,6 @@ class ClientController extends Controller
         }
 
         $mappedData = collect($rows);
-        $mappedData->sortByDesc(function ($item) {
-            return $item['withdraw_date'] ?? $item['transaction_date'];
-        })
-        ->values();
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -571,10 +559,6 @@ class ClientController extends Controller
         }
 
         $mappedData = collect($rows);
-        $mappedData->sortByDesc(function ($item) {
-            return $item['withdraw_date'] ?? $item['transaction_date'];
-        })
-        ->values();
 
         if($request->ajax()) {
             $totalRecords = 0;
