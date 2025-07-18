@@ -268,7 +268,7 @@
                 { data: 'others', name: 'others' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
-                { data: 'wdl', name: 'wdl' },
+                { data: 'payment_date', name: 'payment_date' },
                 { data: 'payment_interest', name: 'payment_interest' },
                 { data: 'payment_insurance', name: 'payment_insurance' },
                 { data: 'payment_principal', name: 'payment_principal' },

@@ -1,11 +1,14 @@
 <?php
 
+use App\Enums\LoanStatus;
 use App\Models\Bank;
 use App\Models\Branch;
 use App\Models\CountryCode;
 use App\Models\JobTitle;
 use App\Models\Province;
 use App\Models\Client;
+use App\Models\Loan;
+use App\Models\Savings;
 
 if(!function_exists('getProvinces')) {
     function getProvinces() {
@@ -69,7 +72,27 @@ if(!function_exists('getClientBalance')) {
         $withdraw = $client->savings
                 ->where('transaction_type', 'withdraw')->sum('amount');
         $balance = $deposit - $withdraw;
-        
+
         return number_format($balance,2);
+    }
+}
+
+if(!function_exists('getLoanBalance')) {
+    function getLoanBalance(Loan $loan)
+    {
+        $principal = $loan->principal;
+        $payment = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->sum('amount');
+        $balance = $principal - $payment;
+
+        return $balance;
+    }
+}
+
+
+if(!function_exists('markLoanAsClosed')) {
+    function markLoanAsClosed(Loan $loan)
+    {
+        $loan->status = LoanStatus::CLOSED;
+        $loan->save();
     }
 }

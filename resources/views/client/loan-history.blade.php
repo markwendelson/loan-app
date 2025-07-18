@@ -66,31 +66,24 @@
                 <div class="card-body">
                     <ul class="list-group list-group-flush" id="loanHistory">
                         @foreach ($loans as $loan)
-                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action" data-id="{{$loan->id}}" data-loan_no="{{$loan->loan_no}}">
+                        @php
+                            $loanStatus = \App\Enums\LoanStatus::from($loan->status);
+
+                            $badge = match ($loan->status) {
+                                1 => 'badge-success',
+                                2 => 'badge-danger',
+                                3, 5 => 'badge-secondary',
+                                default => 'badge-primary',
+                            };
+
+                            $textStyle = $loan->status === 5 ? 'text-muted' : '';
+                        @endphp
+                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action {{$textStyle}}" data-id="{{$loan->id}}" data-loan_no="{{$loan->loan_no}}">
                             <div class="ms-2 me-auto">
                                 <div>{{$loan->loanProduct->name}}</div>
                                 <div class="fw-bold">{{$loan->loan_no}}</div>
                                 <div>{{$loan->loan_date}}</div>
-
                             </div>
-                            @php
-                                $loanStatus = \App\Enums\LoanStatus::from($loan->status);
-                                switch ($loan->status) {
-                                    case 1:
-                                        $badge = 'badge-success';
-                                        break;
-                                    case 2:
-                                        $badge = 'badge-danger';
-                                        break;
-                                    case 3:
-                                        $badge = 'badge-secondary';
-                                        break;
-                                    default:
-                                        $badge = 'badge-primary';
-                                        break;
-                                }
-                            @endphp
-
                             <span class="badge {{$badge}} rounded-pill">{{$loanStatus->name}}</span>
                         </li>
                         @endforeach
