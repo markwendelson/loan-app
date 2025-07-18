@@ -461,7 +461,7 @@ class ClientController extends Controller
 
     public function loanHistory(Client $client)
     {
-        $loans = Loan::where('borrower_id',$client->id)->get();
+        $loans = Loan::where('borrower_id',$client->id)->orderBy('status')->orderByDesc('loan_date')->get();
         return view('client.loan-history', compact('client','loans'));
     }
 
