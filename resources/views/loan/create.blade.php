@@ -301,7 +301,7 @@
                 }
             }
 
-            var reloan_deduction = parseFloat($('#reloan_deduction').val()) || 0;
+            var reloan_deduction = parseFloat($('#reloan_deduction').val().replace(/,/g, '')) || 0;
 
             var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
 
@@ -323,9 +323,10 @@
             $('#monthly_amortization').val(currencyFormat(monthly_amortization))
             $('#net_proceeds').val(currencyFormat(Math.floor(net_proceeds)))
 
-            console.log(net_proceeds)
             if(net_proceeds > 0) {
-                // $('#btn-add-loan').attr('disabled', false)
+                $('.btn-add-loan').attr('disabled', false)
+            } else {
+                $('.btn-add-loan').attr('disabled', true)
             }
 
         }
@@ -363,6 +364,7 @@
                     $("#reloan_deduction").val(reloan_deduction_fee)
                 })
             }
+            calculateLoan()
         })
 
         function getReloanDeductionFee(reference_loan_no,reloan_date) {
@@ -384,13 +386,13 @@
                 loan_product_id: $('#loan_product_id').val(),
                 loan_duration: $('#term').val(),
                 interest_rate: $('#interest_rate').val(),
-                applied_amount: $('#principal').val(),
-                advance_interest: $('#advance_interest').val(),
-                service_fee: $('#service_fee').val(),
-                insurance_fee: $('#insurance_fee').val(),
-                notary_fee: $('#notary_fee').val(),
+                applied_amount: $('#principal').val().replace(/,/g, ''),
+                advance_interest: $('#advance_interest').val().replace(/,/g, ''),
+                service_fee: $('#service_fee').val().replace(/,/g, ''),
+                insurance_fee: $('#insurance_fee').val().replace(/,/g, ''),
+                notary_fee: $('#notary_fee').val().replace(/,/g, ''),
                 monthly_amortization: $('#monthly_amortization').val().replace(/,/g, ''),
-                net_proceeds: $('#net_proceeds').val(),
+                net_proceeds: $('#net_proceeds').val().replace(/,/g, ''),
                 reference_loan_no: urlParams.get('loan_no_reference'),
                 is_reloan: urlParams.get('reloan'),
                 is_additional_loan: urlParams.get('additional_loan'),

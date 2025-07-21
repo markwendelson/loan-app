@@ -26,6 +26,7 @@ class LoanRequest extends FormRequest
             'loan_product_id' => 'required',
             'loan_date' => 'required|date',
             'applied_amount' => 'required',
+            'net_proceeds' => 'numeric|min:0'
         ];
     }
 

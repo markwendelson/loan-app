@@ -74,9 +74,9 @@
                             <div class="card-header">
                                 <div class="row">
                                     <div class="col-md-8">
-                                        <div>Loan ID: {{$loan['loan_no']}}</div>
-                                        <div>Loan Product: {{$loan->loanProduct->name}}</div>
-                                        <div>Date Loan Granted: {{$loan['approved_date'] ?? date('l, F j, Y, g:i A',strtotime($loan['approved_date']))}}</div>
+                                        <div>Loan ID: {{$loan['loan_no'] ?? ''}}</div>
+                                        <div>Loan Product: {{$loan['principal_loan_product']}}</div>
+                                        <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['approved_date']))}}</div>
                                         <div>Remarks: <p></p></div>
                                     </div>
                                 </div>
@@ -108,7 +108,7 @@
                                                 <th rowspan="2">Insurance Fee</th>
                                                 <th rowspan="2">Net Proceed</th>
                                                 <th rowspan="2"></th>
-                                                <th rowspan="2">WDL/DR</th>
+                                                <th rowspan="2">Transaction Date</th>
                                                 <th colspan="2">Interest</th>
                                                 <th colspan="2">Insurance</th>
                                                 <th rowspan="2">Principal</th>
@@ -169,7 +169,7 @@
                 { data: 'others', name: 'others' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
-                { data: 'wdl', name: 'wdl' },
+                { data: 'payment_date', name: 'payment_date' },
                 { data: 'payment_interest', name: 'payment_interest' },
                 { data: 'payment_interest_month', name: 'payment_interest_month' },
                 { data: 'payment_insurance', name: 'payment_insurance' },

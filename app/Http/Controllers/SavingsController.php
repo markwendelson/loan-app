@@ -251,8 +251,8 @@ class SavingsController extends Controller
                 'interest_end_date' => $result['end_date'],
                 'monthly_amortization' => number_format($loan->final_monthly_amortization,2),
                 // 12 months
-                'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_monthly_fee * ($result['number_of_months'] - 12) ,2) : 0,
-                'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan_fee->insurance_annual_fee,2) : 0,
+                'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * ($result['number_of_months'] - 12) ,2) : 0,
+                'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0,
                 'principal_balance' => number_format($principal_balance,2)
             ]);
         }
@@ -289,7 +289,7 @@ class SavingsController extends Controller
 
         // insurance
         $disbursed_date = Carbon::parse($loan->disbursed_date);
-        $number_of_months = (int)$disbursed_date->diffInMonths($end);
+        $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
 
         \Log::info('start:'.$start);
         \Log::info('end:'.$end);

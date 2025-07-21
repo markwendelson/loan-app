@@ -58,7 +58,7 @@
                         @endforeach
                     </select>
                 </div>
-                @if($loan->is_reloan)
+                @if($loan->is_special)
                 <div class="form-group special-description">
                     <label for="description">Description</label>
                     <input type="text" class="form-control" name="description" id="description" value="{{$loan->description}}" readonly/>
@@ -112,7 +112,7 @@
                         @endif
                         <li>Notary Fee <span class="notary_fee">{{$loan->loanCharges->notary_fee}}</span></li>
                         @if($loan->is_reloan)
-                        <li>Reloan Deduction <span class="reloan_deduction">{{$loan->loanCharges->reloan_deduction}}</span></li>
+                        <li>Reloan Deduction <span class="reloan_deduction">{{number_format($loan->loanCharges->reloan_deduction,2)}}</span></li>
                         @endif
                     </ul>
                     <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds"></span></li>
@@ -241,7 +241,7 @@
                 }
             }
 
-            var reloan_deduction = parseFloat($('#reloan_deduction').val()) || 0;
+            var reloan_deduction = parseFloat($('.reloan_deduction').text().replace(/,/g, '')) || 0;
 
             var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
 

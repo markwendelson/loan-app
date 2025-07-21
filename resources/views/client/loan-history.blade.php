@@ -90,14 +90,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="card">
+            {{-- <div class="card">
                 <div class="card-header">
                     <h4>Loan Details</h4>
                 </div>
                 <div class="card-body">
                     <div id="loanDetails"></div>
                 </div>
-            </div>
+            </div> --}}
         </div>
         <div class="col-md-8 col-sm-12">
             <div class="card">

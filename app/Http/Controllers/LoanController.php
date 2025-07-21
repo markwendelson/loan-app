@@ -16,6 +16,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
 
 class LoanController extends Controller
@@ -60,7 +61,11 @@ class LoanController extends Controller
             $reloan_deduction = $this->calculateReloanDeduction($previous_loan, $reloan_date);
         }
 
-        $clients = Client::active()->get();
+        if($previous_loan) {
+            $clients = Client::where('id',$previous_loan->borrower_id)->get();
+        } else {
+            $clients = Client::active()->get();
+        }
 
         $additional_loan = $request->additional_loan;
         if($previous_loan && $additional_loan) {
@@ -407,6 +412,11 @@ class LoanController extends Controller
             $loan->approved_by = auth()->user()->id;
             $loan->save();
 
+            // close previous loan if is_reloan
+            if($loan->is_reloan) {
+                $this->closeLoan($loan->reference_loan_no, $loan->approved_date);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Loan successfully approved.'
@@ -495,11 +505,17 @@ class LoanController extends Controller
             DB::transaction(function () use ($data) {
 
                 $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $data['reference_loan_no'])->first();
-                $previous_loan->closed_date = $data['loan_date'];
-                $previous_loan->status = LoanStatus::CLOSED;
-                $previous_loan->save();
+                // $previous_loan->closed_date = $data['loan_date'];
+                // $previous_loan->status = LoanStatus::CLOSED;
+                // $previous_loan->save();
 
-                $previous_loan_principal = $previous_loan->principal;
+                // reference loans
+                // Loan::where('reference_loan_no',$data['reference_loan_no'])
+                //     ->update([
+                //         'status' => LoanStatus::CLOSED
+                //     ]);
+
+                $previous_loan_principal = $previous_loan->final_principal;
                 $payments = $previous_loan?->payments->where('transaction_type', 'withdraw');
                 $last_payment_date = $payments?->sortByDesc('transaction_date')->value('transaction_date');
                 $total_loan_payment = $payments->sum('principal');
@@ -661,38 +677,73 @@ class LoanController extends Controller
 
     function calculateReloanDeduction(Loan $previous_loan, $reloan_date)
     {
-        $previous_loan_principal = $previous_loan?->principal;
+        $previous_loan_principal = $previous_loan?->final_principal;
         $payments = $previous_loan?->payments->where('transaction_type', 'withdraw');
         $last_payment_date = $payments?->sortByDesc('transaction_date')->value('transaction_date');
         $total_loan_payment = $payments->sum('principal');
         $principal_balance = $previous_loan_principal - $total_loan_payment;
-        $advance_interest = $previous_loan->loanCharges->advance_interest;
+        $advance_interest = (float)$previous_loan->loanCharges->advance_interest;
         $reloan_deduction = 0;
 
+        $end = Carbon::now();
+        $disbursed_date = Carbon::parse($previous_loan->disbursed_date);
+        $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
 
-        if($reloan_date == $last_payment_date) { # no interest due
+        $unpaid_insurance = $number_of_months >= 12 ? $loan->final_insurance_monthly * ($number_of_months - 12) : 0;
+        if (Carbon::parse($reloan_date)->format('Y-m-d') == Carbon::parse($last_payment_date ?? $previous_loan->disbursed_date)) {
+            // No interest due
             $reloan_deduction = $principal_balance - $advance_interest;
-        } else { # calculate interest
-            $unpaid_interest = 0;
 
+            if (Str::slug($previous_loan->loanProduct->loanType->name) == 'open-term') {
+                $reloan_deduction = $principal_balance - $advance_interest - $unpaid_insurance;
+            }
+        } else {
+            // Calculate interest
             $start = Carbon::parse($last_payment_date)->addDay();
             $end = Carbon::parse($reloan_date);
-            $number_of_days = (int)$start->diffInDays($end);
-            Log::info($start);
+            $number_of_days = abs((int) $start->diffInDays($end));
+            Log::info('start:'.$start);
+            Log::info('end:'.$end);
             Log::info($number_of_days);
 
             $interest_rate = $previous_loan->interest_rate / 100;
-            $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
+            $interest = ($interest_rate / 30) * $number_of_days * $principal_balance;
             $unpaid_interest = round($interest);
 
-            $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest);
-
-            Log::info('principal_balance: '.$principal_balance);
-            Log::info('advance_interest: '.$advance_interest);
-            Log::info('unpaid_interest: '.$unpaid_interest);
-            Log::info('reloan_deduction: '.$reloan_deduction);
+            if (Str::slug($previous_loan->loanProduct->loanType->name) == 'open-term') {
+                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) - $unpaid_insurance;
+                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest .')-'. $unpaid_insurance);
+            } else {
+                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest);
+                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest.')');
+            }
         }
 
+
+
+        Log::info('principal_balance: '.$principal_balance);
+        Log::info('principal_balance: '.$principal_balance);
+        Log::info('total_loan_payment: '.$total_loan_payment);
+        Log::info('advance_interest: '.$advance_interest);
+        Log::info('unpaid_interest: '.$unpaid_interest);
+        Log::info('unpaid_insurance: '.$unpaid_insurance);
+        Log::info('reloan_deduction: '.$reloan_deduction);
+
         return number_format($reloan_deduction,2);
+    }
+
+    function closeLoan($reference_loan, $closed_date)
+    {
+        $previous_loan = Loan::where('loan_no', $reference_loan)->first();
+        $previous_loan->closed_date = $closed_date;
+        $previous_loan->status = LoanStatus::CLOSED;
+        $previous_loan->save();
+
+        // reference loans related to previous loan
+        Loan::where('reference_loan_no',$reference_loan)
+            ->update([
+                'status' => LoanStatus::CLOSED,
+                'closed_date' => $closed_date
+            ]);
     }
 }
