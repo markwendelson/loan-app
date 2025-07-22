@@ -101,7 +101,7 @@
             <div class="card-body">
                 <ul>
                     <li>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center">
                             <label>Principal Loan</label>
                             <input type="text" class="form-control form-control-sm w-25 text-end principal" readonly>
                         </div>
@@ -109,50 +109,66 @@
                     <li class="mt-3 mb-3">Deductions</li>
                     <ul style="margin-left: 1rem;">
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="advance_interest">Advance Interest</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="advance_interest" id="advance_interest">
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_advance_interest" id="override_advance_interest">
+                                    <label for="override_advance_interest" class="form-label text-muted">override?</label>
+                                </div>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="advance_interest" id="advance_interest">
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="service_fee">Service Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="service_fee" id="service_fee">
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_service_fee" id="override_service_fee">
+                                    <label for="override_service_fee" class="form-label text-muted">override?</label>
+                                </div>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="service_fee" id="service_fee">
                             </div>
                         </li>
                         @if(!filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN))
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="insurance_fee">Insurance Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="insurance_fee" id="insurance_fee">
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_insurance_fee" id="override_insurance_fee">
+                                    <label for="override_insurance_fee" class="form-label text-muted">override?</label>
+                                </div>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="insurance_fee" id="insurance_fee">
                             </div>
                         </li>
                         @endif
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="notary_fee">Notary Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="notary_fee" id="notary_fee">
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_notary_fee" id="override_notary_fee">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="notary_fee" id="notary_fee">
                             </div>
                         </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="notary_fee">Reloan Deduction</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
                             </div>
                         </li>
                         @endif
                     </ul>
                     <li class="mt-3 mb-3">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center">
                             <label for="net_proceeds">Net Proceeds</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="net_proceeds" id="net_proceeds">
+                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="net_proceeds" id="net_proceeds">
                         </div>
                     </li>
                     <li class="mt-3 mb-3">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center">
                             <label for="monthly_amortization">Monthly Amortization</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="monthly_amortization" id="monthly_amortization">
+                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="monthly_amortization" id="monthly_amortization">
                         </div>
                     </li>
                 </ul>
@@ -254,12 +270,28 @@
             calculateLoan();
         })
 
+        $('.over-ride').on("change", function () {
+            const isChecked = $(this).prop("checked");
+
+            // Find the closest wrapper with .d-flex, then find the input[type=text] inside it
+            const $input = $(this).closest('.d-flex').find('input[type="text"]');
+
+            $input.prop("readonly", !isChecked);
+
+            calculateLoan()
+        });
+
         async function calculateLoan() {
             $('#btn-add-loan').attr('disabled', true)
             var principal = parseFloat($("[name='principal']").val())
             interest_rate = parseFloat($("[name='interest_rate']").val())
             var term = parseFloat($("[name='term']").val())
 
+            // override
+            var override_advance_interest = $("#override_advance_interest").prop("checked");
+            var override_service_fee = $("#override_service_fee").prop("checked");
+            var override_insurance_fee = $("#override_insurance_fee").prop("checked");
+            var override_notary_fee = $("#override_notary_fee").prop("checked");
 
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
                 return;
@@ -278,59 +310,142 @@
 
             if(loan_type == 'loan-with-term') {
                 capital_amount = principal / interest_term_value;
-                advance_interest = principal - capital_amount;
+
+                if(override_advance_interest) {
+                    advance_interest = $('#advance_interest').val()
+                } else {
+                    advance_interest = principal - capital_amount;
+                }
+
                 monthly_amortization = principal / term;
-                service_fee = capital_amount * (5/100);
-                insurance_fee = principal * (2.5/100);
-                notary_fee = principal * (3/100);
+
+                if(override_service_fee) {
+                    service_fee = $('#service_fee').val()
+                } else {
+                    service_fee = capital_amount * (5/100);
+                }
+
+                if(override_insurance_fee) {
+                    insurance_fee = $('#insurance_fee').val()
+                } else {
+                    insurance_fee = principal * (2.5/100);
+                }
+
+                if(override_notary_fee) {
+                    notary_fee = $('#notary_fee').val()
+                } else {
+                    notary_fee = principal * (3/100);
+                }
             } else if(loan_type == 'auto-debit') {
                 notaryFeeResponse = await getNotaryFee(principal);
                 inuranceFeeResponse = await getInsuranceFee(principal);
 
-                advance_interest = principal * (interest_rate/100);
-                monthly_amortization = advance_interest;
-                service_fee = principal * (5/100);
-                insurance_fee = inuranceFeeResponse.annual; // from insurance table
-                if(notaryFeeResponse.type == 'fixed') {
-                    notary_fee = notaryFeeResponse.notary_fee;
-                } else if(notaryFeeResponse.type == 'percentage') {
-                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                if(override_advance_interest) {
+                    advance_interest = $('#advance_interest').val()
+                } else {
+                    advance_interest = principal * (interest_rate/100);
                 }
-            } else if(loan_type == 'special-loan') {
-                notaryFeeResponse = await getNotaryFee(principal);
 
-                advance_interest = (interest_rate/100) * principal * term;
                 monthly_amortization = advance_interest;
-                if(principal<3000) {
-                    service_fee = 200;
-                } else if(principal==3000) {
-                    service_fee = 300;
+
+                if(override_service_fee) {
+                    service_fee = $('#service_fee').val()
                 } else {
                     service_fee = principal * (5/100);
                 }
-                insurance_fee = 0;
-                if(notaryFeeResponse.type == 'fixed') {
-                    notary_fee = notaryFeeResponse.notary_fee;
-                } else if(notaryFeeResponse.type == 'percentage') {
-                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
-                }
-            } else if(loan_type == 'open-term') {
-                var is_additional_loan = urlParams.get('additional_loan')
-                if(is_additional_loan) {
-                    insurance_fee = 0;
+
+                if(override_insurance_fee) {
+                    insurance_fee = $('#insurance_fee').val()
                 } else {
-                    inuranceFeeResponse = await getInsuranceFee(principal);
-                    insurance_fee = inuranceFeeResponse.annual;
+                    insurance_fee = inuranceFeeResponse.annual; // from insurance table
                 }
+
+                if(override_notary_fee) {
+                    notary_fee = $('#notary_fee').val()
+                } else {
+                    if(notaryFeeResponse.type == 'fixed') {
+                        notary_fee = notaryFeeResponse.notary_fee;
+                    } else if(notaryFeeResponse.type == 'percentage') {
+                        notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                    }
+                }
+
+            } else if(loan_type == 'special-loan') {
                 notaryFeeResponse = await getNotaryFee(principal);
 
-                advance_interest = principal * (interest_rate/100);
+                if(override_advance_interest) {
+                    advance_interest = $('#advance_interest').val()
+                } else {
+                    advance_interest = (interest_rate/100) * principal * term;
+                }
+
                 monthly_amortization = advance_interest;
-                service_fee = principal * (3/100);
-                if(notaryFeeResponse.type == 'fixed') {
-                    notary_fee = notaryFeeResponse.notary_fee;
-                } else if(notaryFeeResponse.type == 'percentage') {
-                    notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+
+                if(override_service_fee) {
+                    service_fee = $('#service_fee').val()
+                } else {
+                    if(principal<3000) {
+                        service_fee = 200;
+                    } else if(principal==3000) {
+                        service_fee = 300;
+                    } else {
+                        service_fee = principal * (5/100);
+                    }
+                }
+
+                if(override_insurance_fee) {
+                    insurance_fee = $('#insurance_fee').val()
+                } else {
+                    insurance_fee = 0;
+                }
+
+                if(override_notary_fee) {
+                    notary_fee = $('#notary_fee').val()
+                } else {
+                    if(notaryFeeResponse.type == 'fixed') {
+                        notary_fee = notaryFeeResponse.notary_fee;
+                    } else if(notaryFeeResponse.type == 'percentage') {
+                        notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                    }
+                }
+            } else if(loan_type == 'open-term') {
+
+                if(override_insurance_fee) {
+                    insurance_fee = $('#insurance_fee').val()
+                } else {
+                    var is_additional_loan = urlParams.get('additional_loan')
+                    if(is_additional_loan) {
+                        insurance_fee = 0;
+                    } else {
+                        inuranceFeeResponse = await getInsuranceFee(principal);
+                        insurance_fee = inuranceFeeResponse.annual;
+                    }
+                }
+
+                notaryFeeResponse = await getNotaryFee(principal);
+
+                if(override_advance_interest) {
+                    advance_interest = $('#advance_interest').val()
+                } else {
+                    advance_interest = principal * (interest_rate/100);
+                }
+
+                monthly_amortization = advance_interest;
+
+                if(override_service_fee) {
+                    service_fee = $('#service_fee').val()
+                } else {
+                    service_fee = principal * (3/100);
+                }
+
+                if(override_notary_fee) {
+                    notary_fee = $('#notary_fee').val()
+                } else {
+                    if(notaryFeeResponse.type == 'fixed') {
+                        notary_fee = notaryFeeResponse.notary_fee;
+                    } else if(notaryFeeResponse.type == 'percentage') {
+                        notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                    }
                 }
             }
 
