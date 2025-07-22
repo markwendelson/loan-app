@@ -111,34 +111,34 @@
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="advance_interest">Advance Interest</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" name="advance_interest" id="advance_interest">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="advance_interest" id="advance_interest">
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="service_fee">Service Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" name="service_fee" id="service_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="service_fee" id="service_fee">
                             </div>
                         </li>
                         @if(!filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="insurance_fee">Insurance Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" name="insurance_fee" id="insurance_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="insurance_fee" id="insurance_fee">
                             </div>
                         </li>
                         @endif
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Notary Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" name="notary_fee" id="notary_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="notary_fee" id="notary_fee">
                             </div>
                         </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Reloan Deduction</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
                             </div>
                         </li>
                         @endif
@@ -146,13 +146,13 @@
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between">
                             <label for="net_proceeds">Net Proceeds</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end" name="net_proceeds" id="net_proceeds">
+                            <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="net_proceeds" id="net_proceeds">
                         </div>
                     </li>
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between">
                             <label for="monthly_amortization">Monthly Amortization</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end" name="monthly_amortization" id="monthly_amortization">
+                            <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="monthly_amortization" id="monthly_amortization">
                         </div>
                     </li>
                 </ul>
@@ -176,6 +176,39 @@
     const urlParams = new URLSearchParams(window.location.search);
 
     $(document).ready(function () {
+
+        // jQuery Combined Decimal Input Handler
+        $(document).on('input', '.decimal-only', function () {
+        let val = this.value;
+
+        // Remove all characters except digits and dot
+        val = val.replace(/[^0-9.]/g, '');
+
+        // Prevent multiple dots
+        const parts = val.split('.');
+        if (parts.length > 2) {
+            val = parts[0] + '.' + parts[1];
+        }
+
+        // Limit to 2 decimal places
+        if (parts[1]) {
+            parts[1] = parts[1].substring(0, 2);
+            val = parts[0] + '.' + parts[1];
+        }
+
+        this.value = val;
+
+        calculateLoan();
+
+        });
+
+        // Optional: prevent typing multiple dots directly
+        $(document).on('keypress', '.decimal-only', function (e) {
+        if (e.which === 46 && $(this).val().includes('.')) {
+            e.preventDefault();
+        }
+        });
+
 
         var loan_type;
         var interest_rate;
