@@ -111,34 +111,34 @@
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="advance_interest">Advance Interest</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="advance_interest" id="advance_interest">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" name="advance_interest" id="advance_interest">
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="service_fee">Service Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="service_fee" id="service_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" name="service_fee" id="service_fee">
                             </div>
                         </li>
                         @if(!filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="insurance_fee">Insurance Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="insurance_fee" id="insurance_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" name="insurance_fee" id="insurance_fee">
                             </div>
                         </li>
                         @endif
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Notary Fee</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" name="notary_fee" id="notary_fee">
                             </div>
                         </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Reloan Deduction</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
                             </div>
                         </li>
                         @endif
@@ -146,7 +146,7 @@
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between">
                             <label for="net_proceeds">Net Proceeds</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="net_proceeds" id="net_proceeds">
+                            <input type="text" class="form-control form-control-sm w-25 text-end" name="net_proceeds" id="net_proceeds">
                         </div>
                     </li>
                     <li class="mt-3 mb-3">

@@ -689,7 +689,7 @@ class LoanController extends Controller
         $disbursed_date = Carbon::parse($previous_loan->disbursed_date);
         $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
 
-        $unpaid_insurance = $number_of_months >= 12 ? $loan->final_insurance_monthly * ($number_of_months - 12) : 0;
+        $unpaid_insurance = $number_of_months >= 12 ? $previous_loan->final_insurance_monthly * ($number_of_months - 12) : 0;
         if (Carbon::parse($reloan_date)->format('Y-m-d') == Carbon::parse($last_payment_date ?? $previous_loan->disbursed_date)) {
             // No interest due
             $reloan_deduction = $principal_balance - $advance_interest;
