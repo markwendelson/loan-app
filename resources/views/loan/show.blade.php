@@ -102,21 +102,31 @@
             <div class="card-header">Loan Summary</div>
             <div class="card-body">
                 <ul>
-                    <li>Principal Loan <span class="principal"></span></li>
+                    <li>Principal Loan <span class="principal">{{number_format($loan->principal,2)}}</span></li>
                     <li class="mt-3 mb-3">Deductions</li>
                     <ul style="margin-left: 1rem;">
-                        <li>Advance Interest <span class="advance_interest">{{$loan->loanCharges->advance_interest}}</span></li>
-                        <li>Service Fee <span class="service_fee">{{$loan->loanCharges->service_fee}}</span></li>
+                        <li>Advance Interest <span class="advance_interest">{{number_format($loan->loanCharges->advance_interest,2)}}</span></li>
+                        <li>Service Fee <span class="service_fee">{{number_format($loan->loanCharges->service_fee,2)}}</span></li>
                         @if(!$loan->is_additional_loan)
-                        <li>Insurance Fee <span class="insurance_fee">{{$loan->loanCharges->insurance_fee}}</span></li>
+                        <li>Insurance Fee <span class="insurance_fee">{{number_format($loan->loanCharges->insurance_fee,2)}}</span></li>
                         @endif
-                        <li>Notary Fee <span class="notary_fee">{{$loan->loanCharges->notary_fee}}</span></li>
+                        <li>Notary Fee <span class="notary_fee">{{number_format($loan->loanCharges->notary_fee,2)}}</span></li>
                         @if($loan->is_reloan)
                         <li>Reloan Deduction <span class="reloan_deduction">{{number_format($loan->loanCharges->reloan_deduction,2)}}</span></li>
                         @endif
                     </ul>
-                    <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds"></span></li>
-                    <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization"></span></li>
+                    @php
+                        $principal = $loan->principal;
+                        $advance_interest = $loan->loanCharges->advance_interest ?? 0;
+                        $service_fee = $loan->loanCharges->service_fee ?? 0;
+                        $insurance_fee = $loan->loanCharges->insurance_fee ?? 0;
+                        $notary_fee = $loan->loanCharges->notary_fee ?? 0;
+                        $reloan_deduction = $loan->loanCharges->reloan_deduction ?? 0;
+                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
+                        $net_proceeds = $principal - $total_deductions;
+                    @endphp
+                    <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds"></span>{{ $net_proceeds }}</li>
+                    <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization">{{ number_format($loan->loanFees->monthly_amortization,2) }}</span></li>
                 </ul>
             </div>
             @if($loan->status == App\Enums\LoanStatus::PENDING->value)
@@ -163,6 +173,7 @@
         // })
 
         async function calculateLoan() {
+            return;
             var principal = parseFloat($("[name='principal']").val())
             interest_rate = parseFloat($("[name='interest_rate']").val())
             var term = parseFloat($("[name='term']").val())
