@@ -125,7 +125,7 @@
                         $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
                         $net_proceeds = $principal - $total_deductions;
                     @endphp
-                    <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds"></span>{{ $net_proceeds }}</li>
+                    <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds">{{ $net_proceeds }}</span></li>
                     <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization">{{ number_format($loan->loanFees->monthly_amortization,2) }}</span></li>
                 </ul>
             </div>
