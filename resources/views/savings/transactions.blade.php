@@ -426,11 +426,8 @@
 
                 if(loan_type==='' || loan_type===undefined) return;
 
-                if (loan_type === 'open-term') {
+                if (loan_type === 'open-term' || loan_type === 'loan-with-term') {
                     principal = principal_amount;
-                } else if (loan_type === 'loan-with-term') {
-                    $principal.val('');
-                    principal = amount - insurance;
                 } else {
                     $principal.val('');
                     principal = amount - interest - insurance;
