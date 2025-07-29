@@ -8,8 +8,8 @@ use App\Models\Loan;
 use App\Models\LoanFee;
 use App\Models\Savings;
 use Carbon\Carbon;
-use Illuminate\Cache\Events\RetrievingKey;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SavingsController extends Controller
 {
@@ -228,10 +228,15 @@ class SavingsController extends Controller
         // adb - open term
         $principal_balance = $this->getPrincipalBalance($loan);
         $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
-        $interest_rate = $loan->interest_rate / 100;
-        $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
-        $rounded_interest = round($interest);
-        $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
+        // $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
+        if(Str::slug($loan->loanProduct->loanType->name) == 'loan-with-term') {
+            $interest = 0;
+            $rounded_interest = 0;
+        } else {
+            $interest_rate = $loan->interest_rate / 100;
+            $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
+            $rounded_interest = round($interest);
+        }
 
         if($loan->is_special) {
             return response()->json([
