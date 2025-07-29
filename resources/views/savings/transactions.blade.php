@@ -274,7 +274,7 @@
             let selectedOption = $("[name='loan_id']").find(':selected');
             let loan_type = selectedOption.data('loan-type');
 
-            if (loan_type === 'open-term') {
+            if (loan_type === 'open-term' || loan_type === 'loan-with-term') {
                 calculateChange()
             }
         })
