@@ -449,7 +449,12 @@
                 }
             }
 
-            var reloan_deduction = parseFloat($('#reloan_deduction').val().replace(/,/g, '')) || 0;
+            var is_reloan = urlParams.get('reloan')
+            if(is_reloan) {
+                var reloan_deduction = parseFloat($('#reloan_deduction').val().replace(/,/g, '')) || 0;
+            } else {
+                var reloan_deduction = 0;
+            }
 
             var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
 
