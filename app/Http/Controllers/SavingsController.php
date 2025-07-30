@@ -314,7 +314,8 @@ class SavingsController extends Controller
     function diffInCalendarMonths($start, $end) {
         $start = Carbon::parse($start);
         $end = Carbon::parse($end);
-        return ($end->year - $start->year) * 12 + ($end->month - $start->month);
+        return ($end->year - $start->year) * 12 + ($end->month - $start->month) + 1;
+
     }
 
 
