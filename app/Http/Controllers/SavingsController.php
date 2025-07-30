@@ -294,7 +294,8 @@ class SavingsController extends Controller
 
         // insurance
         $disbursed_date = Carbon::parse($loan->disbursed_date);
-        $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
+        // $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
+        $number_of_months = $this->diffInCalendarMonths($disbursed_date,$end);
 
         \Log::info('start:'.$start);
         \Log::info('end:'.$end);
@@ -308,6 +309,12 @@ class SavingsController extends Controller
             'number_of_days' => $number_of_days,
             'number_of_months' => $number_of_months,
         ];
+    }
+
+    function diffInCalendarMonths($start, $end) {
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
+        return ($end->year - $start->year) * 12 + ($end->month - $start->month);
     }
 
 
