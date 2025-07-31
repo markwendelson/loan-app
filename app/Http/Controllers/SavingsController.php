@@ -281,12 +281,16 @@ class SavingsController extends Controller
                                     ['interest_start_date','!=',''],
                                     ['interest_end_date','!=',''],
                                 ])->orderByDesc('transaction_date')->first();
-        $excluded_months = [];
+
+        $savings_insurance = Savings::where('loan_id',$loan->id)->where([
+                                    ['transaction_type','=','withdraw'],
+                                    ['insurance_year','!=',''],
+                                    ['insurance_month','!=',''],
+                                ])->orderByDesc('transaction_date')->first();
         if($savings) {
             $start_date = $savings->interest_end_date;
             $start = Carbon::parse($start_date)->addDay();
-            $insurance_start_date = $savings->interest_end_date;
-            $excluded_months = [$savings->insurance_year . '-' . str_pad($savings->insurance_month, 2, '0', STR_PAD_LEFT)];
+            $insurance_start_date =  Carbon::parse($savings->interest_end_date)->addDay();
         } else {
             $start_date = $loan->disbursed_date;
             $start = Carbon::parse($start_date);
@@ -300,8 +304,10 @@ class SavingsController extends Controller
         // insurance
         $disbursed_date = Carbon::parse($loan->disbursed_date);
         $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
+        \Log::info($insurance_start_date);
+        \Log::info($end);
         if($number_of_months >= 12) {
-            $insurance_month = $this->diffInCalendarMonths($insurance_start_date,$end,$excluded_months);
+            $insurance_month = $this->diffInCalendarMonths($insurance_start_date,$end,$savings_insurance->insurance_year, $savings_insurance->insurance_month);
         }
 
         \Log::info('start:'.$start);
@@ -310,7 +316,6 @@ class SavingsController extends Controller
         \Log::info('disbursed_date:'.$disbursed_date);
         \Log::info('number_of_months:'.$number_of_months);
         \Log::info('insurance_month:'.$insurance_month);
-        \Log::info($excluded_months);
 
         return [
             'start_date' => $start->format('m/d/Y'),
@@ -321,20 +326,37 @@ class SavingsController extends Controller
         ];
     }
 
-    function diffInCalendarMonths($start, $end, $excluded_months = []) {
+    function diffInCalendarMonths($start, $end, $insurance_year, $insurance_month) {
+         // 1. Normalize inputs
         $start = Carbon::parse($start)->startOfMonth();
         $end = Carbon::parse($end)->startOfMonth();
 
+        // 2. Build full month list between disbursed_date and end_date
         $months = collect();
-        while ($start <= $end) {
-            $str_month = $start->format('Y-m');
-            if (!in_array($str_month, $excluded_months)) {
-                $months->push($str_month);
-            }
-            $start->addMonth();
+        $current = $start->copy();
+        while ($current <= $end) {
+            $months->push($current->format('Y-m'));
+            $current->addMonth();
         }
 
-        return $months->count();
+        // 3. Build exclusion list: from disbursed_date to insurance YYYY-MM (inclusive)
+        $insurance_cutoff = Carbon::createFromDate($insurance_year, $insurance_month)->startOfMonth();
+        \Log::info('insurance_cutoff'.$insurance_cutoff);
+        \Log::info('insurance_year'.$insurance_year);
+        \Log::info('insurance_month'.$insurance_month);
+        $excluded_months = collect();
+        $current = $start->copy();
+        while ($current <= $insurance_cutoff) {
+            $excluded_months->push($current->format('Y-m'));
+            $current->addMonth();
+        }
+
+        // 4. Exclude those months
+        \Log::info($excluded_months);
+        $final_months = $months->diff($excluded_months);
+
+        // 5. Return count or array of months if needed
+        return $final_months->count(); // or return $final_months if you need the list
     }
 
 

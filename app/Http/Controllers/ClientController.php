@@ -461,7 +461,7 @@ class ClientController extends Controller
         $sortedRows = $rawRows->sortBy('order_date')->values();
 
         $balance = 0;
-        $mappedData = $sortedRows->map(function ($row) use (&$balance) {
+        $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
             $delta = $row['raw_principal'] ?? 0;
             $balance += $delta;
 
@@ -469,6 +469,10 @@ class ClientController extends Controller
             unset($row['raw_principal']); // cleanup
             return $row;
         });
+
+        // Step 3: Sort again to DESCENDING if needed for display
+        $mappedData = $balancedRows->sortByDesc('order_date')->values();
+
 
 
         $principal_loan = $loans[0] ?? null;
