@@ -17,7 +17,7 @@ class PaymentObserver
             if($loan) {
                 $balance = getLoanBalance($loan);
                 if($balance == 0) {
-                    markLoanAsClosed($loan);
+                    markLoanAsClosed($loan, $savings->transaction_date);
                 }
             }
         }

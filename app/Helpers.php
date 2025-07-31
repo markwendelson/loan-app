@@ -9,6 +9,7 @@ use App\Models\Province;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\Savings;
+use Illuminate\Support\Facades\Log;
 
 if(!function_exists('getProvinces')) {
     function getProvinces() {
@@ -81,18 +82,23 @@ if(!function_exists('getLoanBalance')) {
     function getLoanBalance(Loan $loan)
     {
         $principal = $loan->principal;
-        $payment = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->sum('amount');
+        $payment = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->sum('principal');
         $balance = $principal - $payment;
 
+        Log::info('loan_id:'.$loan->id);
+        Log::info('principal:'.$principal);
+        Log::info('payment:'.$payment);
+        Log::info('balance:'.$balance);
         return $balance;
     }
 }
 
 
 if(!function_exists('markLoanAsClosed')) {
-    function markLoanAsClosed(Loan $loan)
+    function markLoanAsClosed(Loan $loan, $closed_date)
     {
         $loan->status = LoanStatus::CLOSED;
+        $loan->closed_date = $closed_date;
         $loan->save();
     }
 }
