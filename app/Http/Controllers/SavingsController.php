@@ -306,6 +306,7 @@ class SavingsController extends Controller
         $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
         \Log::info($insurance_start_date);
         \Log::info($end);
+        $insurance_month = 0;
         if($number_of_months >= 12) {
             $insurance_month = $this->diffInCalendarMonths($insurance_start_date,$end,$savings_insurance?->insurance_year, $savings_insurance?->insurance_month);
         }
