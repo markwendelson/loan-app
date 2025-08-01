@@ -315,14 +315,14 @@ class SavingsController extends Controller
         \Log::info('number_of_days:'.$number_of_days);
         \Log::info('disbursed_date:'.$disbursed_date);
         \Log::info('number_of_months:'.$number_of_months);
-        \Log::info('insurance_month:'.$insurance_month);
+        \Log::info('insurance_month:'.$insurance_month ?? 0);
 
         return [
             'start_date' => $start->format('m/d/Y'),
             'end_date' => $end->format('m/d/Y'),
             'number_of_days' => $number_of_days,
             'number_of_months' => $number_of_months,
-            'insurance_month' => $insurance_month,
+            'insurance_month' => $insurance_month ?? 0,
         ];
     }
 
