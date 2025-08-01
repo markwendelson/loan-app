@@ -174,7 +174,7 @@ class ClientController extends Controller
         // Running total
         $total_payment_principal = 0;
         $balance = 0;
-        $mappedData = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) use(&$balance,&$total_payment_principal){
+        $rawRows = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) use(&$balance,&$total_payment_principal){
             $interest = $loan->loanCharges->advance_interest;
             $service_fee = $loan->loanCharges->service_fee;
             $insurance_fee = $loan->loanCharges->insurance_fee;
@@ -183,8 +183,6 @@ class ClientController extends Controller
 
             $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
             $net_proceed = $loan->principal - $loan_charges;
-
-            $balance += $loan->principal;
 
             // Initial loan row
             $rows = [[
@@ -208,9 +206,10 @@ class ClientController extends Controller
                 'payment_insurance_month' => null,
                 'payment_principal' => number_format($reloan_deduction, 2),
                 'change' => null,
-                'balance' => number_format($balance, 2),
+                'balance' => null, // to be filled after sorting
                 'remarks' => null,
-                'order_date' => $loan->loan_date,// for sorting
+                'order_date' => Carbon::parse($loan->loan_date),
+                'raw_principal' => $loan->principal, // used for recomputing
             ]];
 
 
@@ -244,14 +243,30 @@ class ClientController extends Controller
                                                         : null,
                     'payment_principal' => number_format($payment->principal, 2),
                     'change' => number_format($change,2),
-                    'balance' => number_format($balance, 2),
+                    'balance' => null, // to be computed
                     'remarks' => null,
-                    'order_date' => $payment->transaction_date,// for sorting
+                    'order_date' => Carbon::parse($payment->transaction_date),
+                    'raw_principal' => -1 * $payment->principal, // subtract from balance
                 ];
             }
 
             return collect($rows);
         });
+
+        $sortedRows = $rawRows->sortBy('order_date')->values();
+
+        $balance = 0;
+        $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
+            $delta = $row['raw_principal'] ?? 0;
+            $balance += $delta;
+
+            $row['balance'] = number_format($balance, 2);
+            unset($row['raw_principal']); // cleanup
+            return $row;
+        });
+
+        // Step 3: Sort again to DESCENDING if needed for display
+        $mappedData = $balancedRows->sortByDesc('order_date')->values();
 
         if($request->ajax()) {
             $totalRecords = 0;
