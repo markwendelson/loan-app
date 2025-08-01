@@ -13,6 +13,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ClientController extends Controller
 {
@@ -174,7 +175,8 @@ class ClientController extends Controller
         // Running total
         $total_payment_principal = 0;
         $balance = 0;
-        $rawRows = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) use(&$balance,&$total_payment_principal){
+        $i = 0;
+        $rawRows = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) use(&$balance,&$total_payment_principal,&$i){
             $interest = $loan->loanCharges->advance_interest;
             $service_fee = $loan->loanCharges->service_fee;
             $insurance_fee = $loan->loanCharges->insurance_fee;
@@ -183,9 +185,10 @@ class ClientController extends Controller
 
             $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
             $net_proceed = $loan->principal - $loan_charges;
-
+            $i++;
             // Initial loan row
             $rows = [[
+                'index' => $i,
                 'loan_id' => $loan->id,
                 'payment_id' => null,
                 'transaction_date' => $loan->loan_date,
@@ -214,11 +217,12 @@ class ClientController extends Controller
 
 
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
-                $total_payment_principal += $payment->principal;
-                $balance = $loan->principal - $total_payment_principal;
+                // $total_payment_principal += $payment->principal;
+                // $balance = $loan->principal - $total_payment_principal;
                 $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
+                    'index' => $i,
                     'loan_id' => $loan->id,
                     'payment_id' => $payment->id,
                     'transaction_date' => null,
@@ -246,14 +250,17 @@ class ClientController extends Controller
                     'balance' => null, // to be computed
                     'remarks' => null,
                     'order_date' => Carbon::parse($payment->transaction_date),
-                    'raw_principal' => -1 * $payment->principal, // subtract from balance
+                    'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                 ];
             }
 
             return collect($rows);
         });
 
-        $sortedRows = $rawRows->sortBy('order_date')->values();
+        $sortedRows = $rawRows->sortBy([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
 
         $balance = 0;
         $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
@@ -266,7 +273,10 @@ class ClientController extends Controller
         });
 
         // Step 3: Sort again to DESCENDING if needed for display
-        $mappedData = $balancedRows->sortByDesc('order_date')->values();
+        $mappedData = $balancedRows->sortByDesc([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -308,7 +318,8 @@ class ClientController extends Controller
             }
         }
 
-        $mappedData = $loans->filter(fn($loan) => $loan->loan_product_id !== $filter)->flatMap(function ($loan) {
+        $i = 0;
+        $rawRows = $loans->filter(fn($loan) => $loan->loan_product_id !== $filter)->flatMap(function ($loan) use(&$i){
             $interest = $loan->loanCharges->advance_interest;
             $service_fee = $loan->loanCharges->service_fee;
             $insurance_fee = $loan->loanCharges->insurance_fee;
@@ -317,11 +328,10 @@ class ClientController extends Controller
 
             $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee;
             $net_proceed = $loan->principal - $loan_charges;
-
-            $balance = $loan->principal;
-
+            $i++;
             // Initial loan row
             $rows = [[
+                'index' => $i,
                 'loan_id' => $loan->id,
                 'payment_id' => null,
                 'transaction_date' => $loan->loan_date,
@@ -339,8 +349,10 @@ class ClientController extends Controller
                 'payment_insurance' => null,
                 'payment_principal' => number_format($reloan_deduction, 2),
                 'change' => null,
-                'balance' => number_format($balance, 2),
+                'balance' => null, // to be computed
                 'remarks' => null,
+                'order_date' => Carbon::parse($loan->loan_date),
+                'raw_principal' => $loan->principal, // used for recomputing
             ]];
 
             // Running total
@@ -352,6 +364,7 @@ class ClientController extends Controller
                 $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
+                    'index' => $i,
                     'loan_id' => $loan->id,
                     'payment_id' => $payment->id,
                     'transaction_date' => null,
@@ -369,13 +382,36 @@ class ClientController extends Controller
                     'payment_insurance' => number_format($payment->insurance, 2),
                     'payment_principal' => number_format($payment->principal, 2),
                     'change' => number_format($change,2),
-                    'balance' => number_format($balance, 2),
+                    'balance' => null, // to be computed
                     'remarks' => null,
+                    'order_date' => Carbon::parse($payment->transaction_date),
+                    'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                 ];
             }
 
             return collect($rows);
         });
+
+        $sortedRows = $rawRows->sortBy([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
+
+        $balance = 0;
+        $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
+            $delta = $row['raw_principal'] ?? 0;
+            $balance += $delta;
+
+            $row['balance'] = number_format($balance, 2);
+            unset($row['raw_principal']); // cleanup
+            return $row;
+        });
+
+        // Step 3: Sort again to DESCENDING if needed for display
+        $mappedData = $balancedRows->sortByDesc([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -393,12 +429,15 @@ class ClientController extends Controller
         $loans = Loan::with('payments','loanCharges')->where(function($q) use($loan_no){
                         $q->where('loan_no', $loan_no)
                             ->orWhere('reference_loan_no',$loan_no)
-                            ->where('is_reloan',0);
+                            ->where('is_additional_loan',1)
+                            ->orWhere('is_reloan',0);
                     })
                     ->where('borrower_id', $client->id)->get();
 
+        $i = 0;
         // Running total
-        $rawRows = $loans->flatMap(function ($loan) {
+        $rawRows = $loans->flatMap(function ($loan) use(&$i) {
+            $i++;
             $interest = $loan->loanCharges->advance_interest;
             $service_fee = $loan->loanCharges->service_fee;
             $insurance_fee = $loan->loanCharges->insurance_fee;
@@ -409,6 +448,7 @@ class ClientController extends Controller
             $net_proceed = $loan->principal - $loan_charges;
 
             $rows = [[
+                'index' => $i,
                 'loan_id' => $loan->id,
                 'payment_id' => null,
                 'transaction_date' => $loan->loan_date,
@@ -439,6 +479,7 @@ class ClientController extends Controller
                 $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
+                    'index' => $i,
                     'loan_id' => $loan->id,
                     'payment_id' => $payment->id,
                     'transaction_date' => null,
@@ -473,11 +514,14 @@ class ClientController extends Controller
             return $rows;
         });
 
-        $sortedRows = $rawRows->sortBy('order_date')->values();
+        $sortedRows = $rawRows->sortBy([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
 
         $balance = 0;
         $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
-            $delta = $row['raw_principal'] ?? 0;
+            $delta = ($row['raw_principal'] ?? 0);
             $balance += $delta;
 
             $row['balance'] = number_format($balance, 2);
@@ -486,9 +530,10 @@ class ClientController extends Controller
         });
 
         // Step 3: Sort again to DESCENDING if needed for display
-        $mappedData = $balancedRows->sortByDesc('order_date')->values();
-
-
+        $mappedData = $balancedRows->sortByDesc([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
 
         $principal_loan = $loans[0] ?? null;
 
