@@ -307,7 +307,7 @@ class SavingsController extends Controller
         \Log::info($insurance_start_date);
         \Log::info($end);
         if($number_of_months >= 12) {
-            $insurance_month = $this->diffInCalendarMonths($insurance_start_date,$end,$savings_insurance->insurance_year, $savings_insurance->insurance_month);
+            $insurance_month = $this->diffInCalendarMonths($insurance_start_date,$end,$savings_insurance?->insurance_year, $savings_insurance?->insurance_month);
         }
 
         \Log::info('start:'.$start);
@@ -338,6 +338,11 @@ class SavingsController extends Controller
             $months->push($current->format('Y-m'));
             $current->addMonth();
         }
+        // If no exclusions, return full count
+        if (empty($insurance_year) || empty($insurance_month)) {
+            return $months->count() - 12;
+        }
+
 
         // 3. Build exclusion list: from disbursed_date to insurance YYYY-MM (inclusive)
         $insurance_cutoff = Carbon::createFromDate($insurance_year, $insurance_month)->startOfMonth();
