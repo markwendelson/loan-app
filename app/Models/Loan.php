@@ -47,6 +47,13 @@ class Loan extends Model
         return $query->where('status', LoanStatus::CLOSED);
     }
 
+    public function scopeSpecialLoan($query,$borrower_id)
+    {
+        return $query->where('borrower_id', $borrower_id)
+                    ->where('is_special',1)
+                    ->where('status', LoanStatus::APPROVE);;
+    }
+
     public function loanProduct()
     {
         return $this->belongsTo(LoanProduct::class);

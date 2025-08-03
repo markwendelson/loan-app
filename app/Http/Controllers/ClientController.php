@@ -217,6 +217,7 @@ class ClientController extends Controller
 
 
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
+                $i++;
                 // $total_payment_principal += $payment->principal;
                 // $balance = $loan->principal - $total_payment_principal;
                 $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
@@ -253,7 +254,6 @@ class ClientController extends Controller
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                 ];
             }
-
             return collect($rows);
         });
 

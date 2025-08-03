@@ -112,6 +112,7 @@
                         @endif
                         <li>Notary Fee <span class="notary_fee">{{number_format($loan->loanCharges->notary_fee,2)}}</span></li>
                         @if($loan->is_reloan)
+                        <li>Special Loan Balance <span class="reloan_deduction">{{number_format($loan->loanCharges->special_loan_balance,2)}}</span></li>
                         <li>Reloan Deduction <span class="reloan_deduction">{{number_format($loan->loanCharges->reloan_deduction,2)}}</span></li>
                         @endif
                     </ul>
@@ -122,7 +123,8 @@
                         $insurance_fee = $loan->loanCharges->insurance_fee ?? 0;
                         $notary_fee = $loan->loanCharges->notary_fee ?? 0;
                         $reloan_deduction = $loan->loanCharges->reloan_deduction ?? 0;
-                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
+                        $special_loan_balance = $loan->loanCharges->special_loan_balance ?? 0;
+                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance;
                         $net_proceeds = $principal - $total_deductions;
                     @endphp
                     <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds">{{ number_format($net_proceeds,2) }}</span></li>

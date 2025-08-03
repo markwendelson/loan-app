@@ -9,6 +9,7 @@ use App\Models\LoanFee;
 use App\Models\Savings;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SavingsController extends Controller
@@ -121,7 +122,35 @@ class SavingsController extends Controller
             unset($data['insurance_month'], $data['insurance_year']);
         }
 
-        Savings::create($data);
+        if(!empty($data['is_early_settlement'])) {
+            $loans = $client->getApproveLoans();
+
+            foreach ($loans as $loan) {
+                $payments = $loan?->payments->where('transaction_type', 'withdraw');
+
+                $principal_balance = $loan->final_principal;
+                $principal_payments = $payments->sum('principal');
+                $earyl_settlement_amount = $principal_balance - $principal_payments;
+
+                $data['amount'] = $earyl_settlement_amount;
+                $data['principal'] = $earyl_settlement_amount;
+                $data['loan_id'] = $loan->id;
+
+                if($loan->is_special) {
+                    $data['interest'] = 0;
+                    $data['insurance'] = 0;
+                }
+
+                Log::info('principal'.$loan->final_principal);
+                Log::info('payment:'.$payments->sum('principal'));
+                Log::info('earyl_settlement_amount'.$earyl_settlement_amount);
+                Log::info('----------------------------------------------------------');
+                Savings::create($data);
+            }
+
+        } else {
+            Savings::create($data);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -227,6 +256,7 @@ class SavingsController extends Controller
 
         // adb - open term
         $principal_balance = $this->getPrincipalBalance($loan);
+        $special_loan_balance = getSpecialLoanBalance($loan->borrower_id);
         $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
         // $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
         if(Str::slug($loan->loanProduct->loanType->name) == 'loan-with-term') {
@@ -247,7 +277,9 @@ class SavingsController extends Controller
                 // 12 months
                 'insurance_monthly_fee' => number_format(0,2),
                 'insurance_annual_fee' => number_format(0,2),
-                'principal_balance' => number_format($principal_balance,2)
+                'principal_balance' => number_format($principal_balance,2),
+                'special_loan_balance' => '0',
+                'early_settlement_amount' => number_format($principal_balance,2)
             ]);
         } else {
             return response()->json([
@@ -258,7 +290,9 @@ class SavingsController extends Controller
                 // 12 months
                 'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0,
                 'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0,
-                'principal_balance' => number_format($principal_balance,2)
+                'principal_balance' => number_format($principal_balance,2),
+                'special_loan_balance' => number_format($special_loan_balance,2),
+                'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2)
             ]);
         }
 

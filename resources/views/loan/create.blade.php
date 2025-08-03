@@ -153,6 +153,18 @@
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between align-items-center">
+                                <label for="notary_fee">Special Loan Balance</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input special-loan-balance" name="include_special_loan_balance" id="include_special_loan_balance" checked>
+                                    <label for="include_special_loan_balance" class="form-label text-muted">include?</label>
+                                </div>
+                                <input type="hidden" name="principal_loan_balance" id="principal_loan_balance" value="{{ $principal_loan_balance }}">
+                                <input type="hidden" name="total_reloan_deduction" id="total_reloan_deduction" value="{{ $reloan_deduction }}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="special_loan_balance" id="special_loan_balance" value="{{ $special_loan_balance }}">
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="notary_fee">Reloan Deduction</label>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
                             </div>
@@ -514,11 +526,27 @@
                 var reloan_date = $(this).val();
                 getReloanDeductionFee(reference_loan_no, reloan_date).then(function(response) {
                     var reloan_deduction_fee = response.amount
+                    var principal_loan_balance = response.principal_loan_balance
+                    var special_loan_balance = response.special_loan_balance
                     $("#reloan_deduction").val(reloan_deduction_fee)
+                    $("#principal_loan_balance").val(principal_loan_balance)
+                    $("#total_reloan_deduction").val(reloan_deduction_fee)
+                    $("#special_loan_balance").val(special_loan_balance)
                 })
             }
             calculateLoan()
         })
+
+        $('#include_special_loan_balance').on('change', function() {
+            if ($(this).is(':checked')) {
+                let reloanReduction = $("#total_reloan_deduction").val();
+                $("#reloan_deduction").val(reloanReduction);
+            } else {
+                let principalLoanBalance = $("#principal_loan_balance").val();
+                $("#reloan_deduction").val(principalLoanBalance);
+            }
+            calculateLoan()
+        });
 
         function getReloanDeductionFee(reference_loan_no,reloan_date) {
             return $.ajax({
@@ -550,6 +578,8 @@
                 is_reloan: urlParams.get('reloan'),
                 is_additional_loan: urlParams.get('additional_loan'),
                 description: $('#description').val(),
+                special_loan_balance: $('#special_loan_balance').val().replace(/,/g, ''),
+                include_special_loan_balance: $('#include_special_loan_balance').is(':checked') ? 1 : 0,
             };
 
             $.ajax({

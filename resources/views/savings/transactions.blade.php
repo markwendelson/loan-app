@@ -267,6 +267,11 @@
         })
 
         $("[name='is_early_settlement']").on('change', function () {
+            $("[name='include_special_loan_balance']").prop('checked', true);
+            calculateChange()
+        });
+
+        $("[name='include_special_loan_balance']").on('change', function () {
             calculateChange()
         });
 
@@ -289,6 +294,12 @@
                 $("[name='principal']").prop('readonly', true);
             }
 
+            if(loan_type == 'special-loan') {
+                $(".special-loan-group").hide()
+            } else {
+                $(".special-loan-group").show()
+            }
+
 
             getData();
         })
@@ -309,8 +320,9 @@
             } else {
                 $("#modalTransaction [name='insurance']").val('');
             }
-
             $("#modalTransaction [name='principal']").data('principal-balance',parseFloat(feesResponse.principal_balance.replace(/,/g, '')));
+            $("#modalTransaction [name='principal']").data('early-settlement-amount',parseFloat(feesResponse.early_settlement_amount.replace(/,/g, '')));
+            $("#modalTransaction [name='principal']").data('special-loan-balance',parseFloat(feesResponse.special_loan_balance.replace(/,/g, '')));
             $("#modalTransaction [name='principal']").data('monthly-amortization',parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
             const picker = $('input[name="interest_period"]').data('daterangepicker');
             if (picker) {
@@ -422,6 +434,9 @@
             var principal = 0;
             if ($("[name='is_early_settlement']").prop('checked')) {
                 principal = $principal.data('principal-balance');
+                if($("[name='include_special_loan_balance']").prop('checked')) {
+                    principal = $principal.data('early-settlement-amount');
+                }
             } else {
 
                 if(loan_type==='' || loan_type===undefined) return;

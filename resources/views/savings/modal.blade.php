@@ -116,11 +116,15 @@
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 d-block form-group">
                                     <label class="form-label" for="principal">Principal</label>
                                     <input type="number" class="form-control form-control-sm" name="principal" min="0" readonly/>
                                     <input type="checkbox" name="is_early_settlement" id="is_early_settlement" class="form-check-input" />
-                                    <label for="is_early_settlement">Early Settlement</label>
+                                    <label for="is_early_settlement"><small>Early Settlement</small></label>
+                                    <div class="special-loan-group">
+                                        <input type="checkbox" name="include_special_loan_balance" id="include_special_loan_balance" class="form-check-input" />
+                                        <label for="include_special_loan_balance"><small>Include Special Loan Balance</small></label>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="form-label" for="due_change">Change</label>

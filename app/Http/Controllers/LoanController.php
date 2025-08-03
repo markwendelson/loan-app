@@ -56,9 +56,14 @@ class LoanController extends Controller
         $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
         $reloan = $request->reloan;
         $reloan_deduction='';
+        $principal_loan_balance='';
+        $special_loan_balance='';
         if($previous_loan && $reloan) {
             $reloan_date = date('Y-m-d');
-            $reloan_deduction = $this->calculateReloanDeduction($previous_loan, $reloan_date);
+            $amt = $this->calculateReloanDeduction($previous_loan, $reloan_date);
+            $reloan_deduction = $amt['reloan_deduction'];
+            $principal_loan_balance = $amt['principal_loan_balance'];
+            $special_loan_balance = $amt['special_loan_balance'];
         }
 
         if($previous_loan) {
@@ -74,7 +79,7 @@ class LoanController extends Controller
             $loan_products = LoanProduct::active()->get();
         }
 
-        return view('loan.create', compact('loan_products', 'clients','reloan_deduction','previous_loan'));
+        return view('loan.create', compact('loan_products', 'clients','reloan_deduction','previous_loan','principal_loan_balance','special_loan_balance'));
     }
 
     /**
@@ -522,8 +527,12 @@ class LoanController extends Controller
                 $principal_balance = $previous_loan_principal - $total_loan_payment;
                 $advance_interest = $previous_loan->loanCharges->advance_interest;
                 $reloan_deduction = 0;
+                $unpaid_interest = 0;
+                $special_loan_balance = 0;
 
                 $reloan_date = $data['loan_date'];
+                Log::info('last_payment_date:'.$last_payment_date);
+                Log::info('reloan_date:'.$reloan_date);
                 if($reloan_date == $last_payment_date) { # no interest due
                     $reloan_deduction = $principal_balance - $advance_interest;
                     $rebate = -$advance_interest;
@@ -542,31 +551,84 @@ class LoanController extends Controller
 
                     $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest);
                     $rebate = $unpaid_interest - $advance_interest;
-
-
-                    Log::info('principal_balance: '.$principal_balance);
-                    Log::info('advance_interest: '.$advance_interest);
-                    Log::info('unpaid_interest: '.$unpaid_interest);
-                    Log::info('reloan_deduction: '.$reloan_deduction);
                 }
 
-                // create saving for payment
-                Savings::create([
-                    'transaction_date' => $data['loan_date'],
-                    'transaction_type' => 'deposit',
-                    'client_id' => $data['borrower_id'],
-                    'amount' => $principal_balance,
-                ]);
+                Log::info('principal_balance: '.$principal_balance);
+                Log::info('advance_interest: '.$advance_interest);
+                Log::info('unpaid_interest: '.$unpaid_interest);
+                Log::info('interest(rebate): '.$rebate);
+                Log::info('reloan_deduction: '.$reloan_deduction);
 
-                Savings::create([
-                    'transaction_date' => $data['loan_date'],
-                    'transaction_type' => 'withdraw',
-                    'client_id' => $data['borrower_id'],
-                    'loan_id' => $previous_loan->id,
-                    'amount' => $principal_balance,
-                    'interest' => $rebate,
-                    'principal' => $reloan_deduction - $rebate,
-                ]);
+                if($data['include_special_loan_balance']) {
+                    $special_loan_balance = $data['special_loan_balance'];
+                    // create saving for payment
+                    Savings::create([
+                        'transaction_date' => $data['loan_date'],
+                        'transaction_type' => 'deposit',
+                        'client_id' => $data['borrower_id'],
+                        'amount' => $principal_balance + $special_loan_balance,
+                    ]);
+
+                    $client = Client::findOrFail($data['borrower_id']);
+                    $loans = $client->getApproveLoans();
+
+                    foreach ($loans as $loan) {
+                        $payments = $loan?->payments->where('transaction_type', 'withdraw');
+
+                        $loan_principal_balance = $loan->final_principal;
+                        $loan_principal_payments = $payments->sum('principal');
+                        $earyl_settlement_amount = $loan_principal_balance - $loan_principal_payments;
+
+                        Log::info('principal:'.$loan->final_principal);
+                        Log::info('payment:'.$payments->sum('principal'));
+                        Log::info('earyl_settlement_amount'.$earyl_settlement_amount);
+                        Log::info('----------------------------------------------------------');
+
+                        if($loan->is_special) {
+                            Savings::create([
+                                'transaction_date' => $data['loan_date'],
+                                'transaction_type' => 'withdraw',
+                                'client_id' => $data['borrower_id'],
+                                'loan_id' => $loan->id,
+                                'amount' => $earyl_settlement_amount,
+                                'interest' => 0,
+                                'principal' => $earyl_settlement_amount,
+                            ]);
+                        } else {
+                            $principal_amount =  $reloan_deduction - $special_loan_balance;
+
+                            Savings::create([
+                                'transaction_date' => $data['loan_date'],
+                                'transaction_type' => 'withdraw',
+                                'client_id' => $data['borrower_id'],
+                                'loan_id' => $previous_loan->id,
+                                'amount' => $principal_balance,
+                                'interest' => $rebate,
+                                'principal' => $principal_amount - $rebate,
+                            ]);
+                        }
+                    }
+
+                } else {
+
+                    // create saving for payment
+                    Savings::create([
+                        'transaction_date' => $data['loan_date'],
+                        'transaction_type' => 'deposit',
+                        'client_id' => $data['borrower_id'],
+                        'amount' => $principal_balance,
+                    ]);
+
+                    Savings::create([
+                        'transaction_date' => $data['loan_date'],
+                        'transaction_type' => 'withdraw',
+                        'client_id' => $data['borrower_id'],
+                        'loan_id' => $previous_loan->id,
+                        'amount' => $principal_balance,
+                        'interest' => $rebate,
+                        'principal' => $reloan_deduction - $rebate,
+                    ]);
+                }
 
                 $loan = Loan::create($data);
 
@@ -576,6 +638,7 @@ class LoanController extends Controller
                     'service_fee' => $data['service_fee'],
                     'insurance_fee' => $data['insurance_fee'],
                     'notary_fee' => $data['notary_fee'],
+                    'special_loan_balance' => $special_loan_balance,
                     'reloan_deduction' => $reloan_deduction,
                 ]);
 
@@ -670,8 +733,15 @@ class LoanController extends Controller
             $loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->reference_loan_no)->first();
             $reloan_date = $request->reloan_date;
             $amount = $this->calculateReloanDeduction($loan, $reloan_date);
+            $reloan_deduction = $amount['reloan_deduction'];
+            $principal_loan_balance = $amount['principal_loan_balance'];
+            $special_loan_balance = $amount['special_loan_balance'];
 
-            return response()->json(['amount' => $amount]);
+            return response()->json([
+                'amount' => $reloan_deduction,
+                'principal_loan_balance' => $principal_loan_balance,
+                'special_loan_balance' => $special_loan_balance,
+            ]);
         }
     }
 
@@ -681,27 +751,39 @@ class LoanController extends Controller
         $payments = $previous_loan?->payments->where('transaction_type', 'withdraw');
         $last_payment_date = $payments?->sortByDesc('transaction_date')->value('transaction_date');
         $total_loan_payment = $payments->sum('principal');
+        Log::info('calculate reloan deduction');
+        Log::info('previous_loan_principal:'.$previous_loan_principal);
+        Log::info('total_loan_payment:'.$total_loan_payment);
         $principal_balance = $previous_loan_principal - $total_loan_payment;
+        Log::info('principal_balance:'.$principal_balance);
         $advance_interest = (float)$previous_loan->loanCharges->advance_interest;
         $reloan_deduction = 0;
+        $unpaid_interest = 0;
 
-        $end = Carbon::now();
-        $disbursed_date = Carbon::parse($previous_loan->disbursed_date);
-        $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
+        $end = Carbon::parse($reloan_date);
+        $previous_loan_date = Carbon::parse($previous_loan->loan_date);
+        $number_of_months = abs((int)$previous_loan_date->diffInMonths($end)) + 1;
+        Log::info(Str::slug($previous_loan->loanProduct->loanType->name));
 
         $unpaid_insurance = $number_of_months >= 12 ? $previous_loan->final_insurance_monthly * ($number_of_months - 12) : 0;
-        if (Carbon::parse($reloan_date)->format('Y-m-d') == Carbon::parse($last_payment_date ?? $previous_loan->disbursed_date)) {
+
+        $special_loan_balance = getSpecialLoanBalance($previous_loan->borrower_id);
+        if (Carbon::parse($reloan_date)->format('Y-m-d') == Carbon::parse($last_payment_date ?? $previous_loan->disbursed_date)->format('Y-m-d')) {
+            Log::info('-----------------');
+            Log::info(Carbon::parse($reloan_date)->format('Y-m-d'));
+            Log::info(Carbon::parse($last_payment_date ?? $previous_loan->disbursed_date)->format('Y-m-d'));
+            Log::info('-----------------');
             // No interest due
-            $reloan_deduction = $principal_balance - $advance_interest;
+            $reloan_deduction = $principal_balance - $advance_interest + $special_loan_balance;
 
             if (Str::slug($previous_loan->loanProduct->loanType->name) == 'open-term') {
-                $reloan_deduction = $principal_balance - $advance_interest - $unpaid_insurance;
+                $reloan_deduction = $principal_balance - $advance_interest - $unpaid_insurance + $special_loan_balance;
             }
         } else {
             // Calculate interest
             $start = Carbon::parse($last_payment_date)->addDay();
-            $end = Carbon::parse($reloan_date);
-            $number_of_days = abs((int) $start->diffInDays($end));
+
+            $number_of_days = abs((int) $start->diffInDays($end)) + 1;
             Log::info('start:'.$start);
             Log::info('end:'.$end);
             Log::info($number_of_days);
@@ -711,11 +793,11 @@ class LoanController extends Controller
             $unpaid_interest = round($interest);
 
             if (Str::slug($previous_loan->loanProduct->loanType->name) == 'open-term') {
-                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) - $unpaid_insurance;
-                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest .')-'. $unpaid_insurance);
+                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) - $unpaid_insurance + $special_loan_balance;
+                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest .')-'. $unpaid_insurance .'+'. $special_loan_balance);
             } else {
-                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest);
-                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest.')');
+                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) + $special_loan_balance;
+                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest.')' .'+'. $special_loan_balance);
             }
         }
 
@@ -727,9 +809,14 @@ class LoanController extends Controller
         Log::info('advance_interest: '.$advance_interest);
         Log::info('unpaid_interest: '.$unpaid_interest);
         Log::info('unpaid_insurance: '.$unpaid_insurance);
+        Log::info('special_loan_balance: '.$special_loan_balance);
         Log::info('reloan_deduction: '.$reloan_deduction);
 
-        return number_format($reloan_deduction,2);
+        return [
+            'reloan_deduction' => number_format($reloan_deduction,2),
+            'principal_loan_balance' => number_format($reloan_deduction - $special_loan_balance,2),
+            'special_loan_balance' => number_format($special_loan_balance,2)
+        ];
     }
 
     function closeLoan($reference_loan, $closed_date)
