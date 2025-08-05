@@ -9,7 +9,9 @@
          color: white; /* Set white text for <th> elements */
          border: 1px solid white;
      }
- </style>
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
 @endpush
 
 @section('content')
@@ -74,6 +76,8 @@
 @endsection
 
 @push('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
 <script>
     $(document).ready(function () {
 
@@ -324,6 +328,8 @@
             $("#modalTransaction [name='principal']").data('early-settlement-amount',parseFloat(feesResponse.early_settlement_amount.replace(/,/g, '')));
             $("#modalTransaction [name='principal']").data('special-loan-balance',parseFloat(feesResponse.special_loan_balance.replace(/,/g, '')));
             $("#modalTransaction [name='principal']").data('monthly-amortization',parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
+            $("[name='insurance_month']").val(moment(feesResponse.interest_end_date).format('M'));
+            $("[name='insurance_year']").val(moment(feesResponse.interest_end_date).format('Y'));
             const picker = $('input[name="interest_period"]').data('daterangepicker');
             if (picker) {
                 picker.minDate = moment(feesResponse.interest_start_date);
@@ -380,7 +386,8 @@
         function getFees(loan_id) {
             const picker = $('input[name="interest_period"]').data('daterangepicker');
             const endDate = picker.endDate.format('YYYY-MM-DD');
-            const data = { id: loan_id, interest_period: endDate};
+            const transaction_date = $('[name="transaction_date"]').val();
+            const data = { id: loan_id, interest_period: endDate, transaction_date:transaction_date};
 
             return $.ajax({
                 type: 'GET',
@@ -396,6 +403,13 @@
             $("[name='insurance_month']").val(end.format('M'));
             $("[name='insurance_year']").val(end.format('Y'));
             getData()
+        });
+
+        $('input[name="insurance_year"]').datepicker({
+            format: "yyyy",
+            viewMode: "years",
+            minViewMode: "years",
+            autoclose: true
         });
 
 

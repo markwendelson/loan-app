@@ -528,7 +528,11 @@
                     var reloan_deduction_fee = response.amount
                     var principal_loan_balance = response.principal_loan_balance
                     var special_loan_balance = response.special_loan_balance
-                    $("#reloan_deduction").val(reloan_deduction_fee)
+                    if ($('#include_special_loan_balance').is(':checked')) {
+                        $("#reloan_deduction").val(reloan_deduction_fee)
+                    } else {
+                        $("#reloan_deduction").val(principal_loan_balance);
+                    }
                     $("#principal_loan_balance").val(principal_loan_balance)
                     $("#total_reloan_deduction").val(reloan_deduction_fee)
                     $("#special_loan_balance").val(special_loan_balance)

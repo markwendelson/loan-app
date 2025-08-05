@@ -783,7 +783,15 @@ class LoanController extends Controller
             // Calculate interest
             $start = Carbon::parse($last_payment_date)->addDay();
 
-            $number_of_days = abs((int) $start->diffInDays($end)) + 1;
+            if ($start->gt($end)) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Reloan date is after/on last payment date',
+                ],422);
+            } else {
+                $number_of_days = abs((int) $start->diffInDays($end)) + 1;
+            }
+
             Log::info('start:'.$start);
             Log::info('end:'.$end);
             Log::info($number_of_days);

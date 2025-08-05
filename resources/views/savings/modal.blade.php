@@ -111,7 +111,7 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_year" class="form-label">Year</label>
-                                    <input type="number" class="form-control form-control-sm my-insurance" id="insurance_year" name="insurance_year" value="{{date('Y')}}" min="0">
+                                    <input type="text" class="form-control form-control-sm my-insurance" id="insurance_year" name="insurance_year" value="{{date('Y')}}" min="0">
                                 </div>
                             </div>
 

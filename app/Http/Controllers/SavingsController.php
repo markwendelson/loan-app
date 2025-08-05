@@ -257,15 +257,21 @@ class SavingsController extends Controller
         // adb - open term
         $principal_balance = $this->getPrincipalBalance($loan);
         $special_loan_balance = getSpecialLoanBalance($loan->borrower_id);
-        $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
         // $loan_fee = LoanFee::where('loan_id',$loan->id)->first();
+        $result = array();
         if(Str::slug($loan->loanProduct->loanType->name) == 'loan-with-term') {
+            $result = $this->getInsuranceFee($loan, $request->transaction_date);
             $interest = 0;
             $rounded_interest = 0;
+            $insurance_monthly_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0;
+            $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
         } else {
+            $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
             $interest_rate = $loan->interest_rate / 100;
             $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
             $rounded_interest = round($interest);
+            $insurance_monthly_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0;
+            $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
         }
 
         if($loan->is_special) {
@@ -288,8 +294,8 @@ class SavingsController extends Controller
                 'interest_end_date' => $result['end_date'],
                 'monthly_amortization' => number_format($loan->final_monthly_amortization,2),
                 // 12 months
-                'insurance_monthly_fee' => $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0,
-                'insurance_annual_fee' => $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0,
+                'insurance_monthly_fee' => $insurance_monthly_fee,
+                'insurance_annual_fee' => $insurance_annual_fee,
                 'principal_balance' => number_format($principal_balance,2),
                 'special_loan_balance' => number_format($special_loan_balance,2),
                 'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2)
@@ -304,6 +310,45 @@ class SavingsController extends Controller
         $total_principal_payment = Savings::where('loan_id',$loan->id)->sum('principal');
         $principal_balance = $loan->final_principal - $total_principal_payment;
         return $principal_balance;
+    }
+
+    function getInsuranceFee(Loan $loan, string $transaction_date)
+    {
+        $savings_insurance = Savings::where('loan_id',$loan->id)->where([
+            ['transaction_type','=','withdraw'],
+            ['insurance_year','!=',''],
+            ['insurance_month','!=',''],
+        ])->orderByDesc('transaction_date')->first();
+
+        $start = Carbon::parse($loan->disbursed_date);
+
+        if($savings_insurance) {
+            $month = $savings_insurance->insurance_month;
+            $year = $savings_insurance->insurance_year;
+            $insurance_start_date = Carbon::createFromDate($year, $month, 1)->addMonth();
+        } else {
+            $insurance_start_date = Carbon::parse($loan->disbursed_date);
+        }
+        $end = Carbon::parse($transaction_date);
+        $disbursed_date = Carbon::parse($loan->disbursed_date);
+        $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
+        $insurance_month = 0;
+        if($number_of_months >= 12) {
+            $insurance_month = $this->diffInCalendarMonths($insurance_start_date,$end,$savings_insurance?->insurance_year, $savings_insurance?->insurance_month);
+        }
+
+        \Log::info('start:'.$start);
+        \Log::info('end:'.$end);
+        \Log::info('disbursed_date:'.$disbursed_date);
+        \Log::info('number_of_months:'.$number_of_months);
+        \Log::info('insurance_month:'.$insurance_month ?? 0);
+
+        return [
+            'start_date' => $start->format('m/d/Y'),
+            'end_date' => $end->format('m/d/Y'),
+            'number_of_months' => $number_of_months,
+            'insurance_month' => $insurance_month ?? 0,
+        ];
     }
 
     function getNumberOfDays(Loan $loan, string $interest_end_date = '')
@@ -338,8 +383,7 @@ class SavingsController extends Controller
         // insurance
         $disbursed_date = Carbon::parse($loan->disbursed_date);
         $number_of_months = abs((int)$disbursed_date->diffInMonths($end));
-        \Log::info($insurance_start_date);
-        \Log::info($end);
+        \Log::info('insurance_start_date: '.$insurance_start_date);
         $insurance_month = 0;
         if($number_of_months >= 12) {
             $insurance_month = $this->diffInCalendarMonths($insurance_start_date,$end,$savings_insurance?->insurance_year, $savings_insurance?->insurance_month);
@@ -381,9 +425,10 @@ class SavingsController extends Controller
 
         // 3. Build exclusion list: from disbursed_date to insurance YYYY-MM (inclusive)
         $insurance_cutoff = Carbon::createFromDate($insurance_year, $insurance_month)->startOfMonth();
-        \Log::info('insurance_cutoff'.$insurance_cutoff);
-        \Log::info('insurance_year'.$insurance_year);
-        \Log::info('insurance_month'.$insurance_month);
+        \Log::info('start:'.$start);
+        \Log::info('insurance_cutoff:'.$insurance_cutoff);
+        \Log::info('insurance_year:'.$insurance_year);
+        \Log::info('insurance_month:'.$insurance_month);
         $excluded_months = collect();
         $current = $start->copy();
         while ($current <= $insurance_cutoff) {
