@@ -121,20 +121,22 @@ class Loan extends Model
     public function finalInsuranceMonthly(): Attribute
     {
         return Attribute::get(function () {
-            $referencingLoanIds = self::where('reference_loan_no', $this->loan_no)->pluck('id')->toArray();
-            $loanIds = array_merge($referencingLoanIds, [$this->id]);
+            $amount = getLoanBalance($this);
+            $insurance_fee =  InsuranceFeeSchedule::where('min_amount','<=',$amount)
+                    ->where('max_amount','>=',$amount)->first();
 
-            return LoanFee::whereIn('loan_id', $loanIds)->sum('insurance_monthly_fee');
+            return $insurance_fee->monthly_fee ?? 0;
         });
     }
 
     public function finalInsuranceYearly(): Attribute
     {
         return Attribute::get(function () {
-            $referencingLoanIds = self::where('reference_loan_no', $this->loan_no)->pluck('id')->toArray();
-            $loanIds = array_merge($referencingLoanIds, [$this->id]);
+            $amount = getLoanBalance($this);
+            $insurance_fee =  InsuranceFeeSchedule::where('min_amount','<=',$amount)
+                    ->where('max_amount','>=',$amount)->first();
 
-            return LoanFee::whereIn('loan_id', $loanIds)->sum('insurance_annual_fee');
+            return $insurance_fee->annual_fee ?? 0;
         });
     }
 
