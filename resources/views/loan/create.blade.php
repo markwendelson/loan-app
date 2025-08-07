@@ -582,8 +582,8 @@
                 is_reloan: urlParams.get('reloan'),
                 is_additional_loan: urlParams.get('additional_loan'),
                 description: $('#description').val(),
-                special_loan_balance: $('#special_loan_balance').val().replace(/,/g, ''),
-                include_special_loan_balance: $('#include_special_loan_balance').is(':checked') ? 1 : 0,
+                special_loan_balance: $('#special_loan_balance').length ? $('#special_loan_balance').val().replace(/,/g, '') : '0',
+                include_special_loan_balance: $('#include_special_loan_balance').length && $('#include_special_loan_balance').is(':checked') ? 1 : 0,
             };
 
             $.ajax({
