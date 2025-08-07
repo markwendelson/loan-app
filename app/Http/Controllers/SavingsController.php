@@ -228,7 +228,7 @@ class SavingsController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $transactions = Savings::filter($search)->where('client_id', $client->id)->orderBy('transaction_date', 'DESC')->get();
+            $transactions = Savings::filter($search)->where('client_id', $client->id)->orderBy('transaction_date', 'DESC')->orderBy('id','DESC')->get();
 
             $data = $transactions->map(function($saving) {
                 $saving['amount'] = number_format($saving['amount'],2);
