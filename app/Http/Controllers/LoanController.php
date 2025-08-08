@@ -784,10 +784,11 @@ class LoanController extends Controller
             $start = Carbon::parse($last_payment_date)->addDay();
 
             if ($start->gt($end)) {
-                return response()->json([
-                    'status' => 'failed',
-                    'message' => 'Reloan date is after/on last payment date',
-                ],422);
+                $number_of_days = 0;
+                // return response()->json([
+                //     'status' => 'failed',
+                //     'message' => 'Reloan date is after/on last payment date',
+                // ],422);
             } else {
                 $number_of_days = abs((int) $start->diffInDays($end)) + 1;
             }
