@@ -756,7 +756,7 @@ class LoanController extends Controller
         Log::info('total_loan_payment:'.$total_loan_payment);
         $principal_balance = $previous_loan_principal - $total_loan_payment;
         Log::info('principal_balance:'.$principal_balance);
-        $advance_interest = (float)$previous_loan->loanCharges->advance_interest;
+        $advance_interest = (float)$previous_loan?->final_advance_interest;
         $reloan_deduction = 0;
         $unpaid_interest = 0;
 
