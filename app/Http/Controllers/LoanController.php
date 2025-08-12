@@ -801,12 +801,12 @@ class LoanController extends Controller
             $interest = ($interest_rate / 30) * $number_of_days * $principal_balance;
             $unpaid_interest = round($interest);
 
-            if (Str::slug($previous_loan->loanProduct->loanType->name) == 'open-term') {
-                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) - $unpaid_insurance + $special_loan_balance;
-                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest .')-'. $unpaid_insurance .'+'. $special_loan_balance);
+            if (Str::slug($previous_loan->loanProduct->loanType->name) == 'open-term' || Str::slug($previous_loan->loanProduct->loanType->name) == 'auto-debit') {
+                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) + $unpaid_insurance + $special_loan_balance;
+                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest .') + '. $unpaid_insurance .'+'. $special_loan_balance);
             } else {
-                $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) + $special_loan_balance;
-                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest.')' .'+'. $special_loan_balance);
+                $reloan_deduction = $principal_balance + $unpaid_insurance + $special_loan_balance;
+                Log::info($reloan_deduction .'='. $principal_balance .'+'. $unpaid_insurance .'+'. $special_loan_balance);
             }
         }
 
