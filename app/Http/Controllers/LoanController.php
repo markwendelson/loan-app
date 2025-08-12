@@ -419,7 +419,7 @@ class LoanController extends Controller
 
             // close previous loan if is_reloan
             if($loan->is_reloan) {
-                $this->closeLoan($loan->reference_loan_no, $loan->approved_date);
+                $this->closeLoan($loan->reference_loan_no, $loan->approved_date, $current_loan_no);
             }
 
             return response()->json([
@@ -828,7 +828,7 @@ class LoanController extends Controller
         ];
     }
 
-    function closeLoan($reference_loan, $closed_date)
+    function closeLoan($reference_loan, $closed_date, $current_loan_no)
     {
         $previous_loan = Loan::where('loan_no', $reference_loan)->first();
         $previous_loan->closed_date = $closed_date;
@@ -837,6 +837,7 @@ class LoanController extends Controller
 
         // reference loans related to previous loan
         Loan::where('reference_loan_no',$reference_loan)
+            ->where('loan_no', '!=', $current_loan_no)
             ->update([
                 'status' => LoanStatus::CLOSED,
                 'closed_date' => $closed_date

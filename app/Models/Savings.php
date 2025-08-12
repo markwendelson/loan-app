@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Savings extends Model
+class Savings extends Model implements Auditable
 {
+
+    use \OwenIt\Auditing\Auditable;
+
     protected $fillable = ['transaction_date','client_id','loan_id','description','notes','amount','transaction_type','classifications',
                             'interest','interest_start_date','interest_end_date','insurance','insurance_month','insurance_year','principal','due_change'];
 
