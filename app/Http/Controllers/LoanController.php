@@ -419,7 +419,7 @@ class LoanController extends Controller
 
             // close previous loan if is_reloan
             if($loan->is_reloan) {
-                $this->closeLoan($loan->reference_loan_no, $loan->approved_date, $current_loan_no);
+                $this->closeLoan($loan->reference_loan_no, $loan->approved_date, $loan->loan_no);
             }
 
             return response()->json([
