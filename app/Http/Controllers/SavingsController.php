@@ -305,6 +305,29 @@ class SavingsController extends Controller
 
     }
 
+    public function getFeesByMonthAndYear(Request $request)
+    {
+        $loan = Loan::findOrFail($request->id);
+        $date = Carbon::create($request->insurance_year,$request->insurance_month,1);
+        // adb - open term
+        $result = array();
+        if(Str::slug($loan->loanProduct->loanType->name) == 'loan-with-term') {
+            $result = $this->getInsuranceFee($loan, $date);
+            $insurance_monthly_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0;
+            $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
+        } else {
+            $result = $this->getNumberOfDays($loan);
+            $insurance_monthly_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0;
+            $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
+        }
+
+
+        return response()->json([
+            'insurance_monthly_fee' => $insurance_monthly_fee,
+            'insurance_annual_fee' => $insurance_annual_fee,
+        ]);
+    }
+
     function getPrincipalBalance(Loan $loan)
     {
         $total_principal_payment = Savings::where('loan_id',$loan->id)->sum('principal');

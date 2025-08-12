@@ -396,10 +396,14 @@
                 if(override_service_fee) {
                     service_fee = $('#service_fee').val()
                 } else {
-                    if(principal<3000) {
+                    if(principal<=1000) {
+                        service_fee = 100;
+                    } else if(principal<3000) {
                         service_fee = 200;
-                    } else if(principal==3000) {
+                    } else if(principal<6000) {
                         service_fee = 300;
+                    } else if(principal<11000) {
+                        service_fee = 500;
                     } else {
                         service_fee = principal * (5/100);
                     }

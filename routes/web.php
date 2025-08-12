@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function(){
     Route::get('/get-insurance-fee', [InsuranceFeeScheduleController::class, 'getInsuranceFee'])->name('get_insurance_fee');
     Route::get('/get-notary-fee', [NotaryFeeScheduleController::class, 'getNotaryFee'])->name('get_notary_fee');
     Route::get('/get-fees', [SavingsController::class, 'getFees'])->name('get_fees');
+    Route::get('/get-fees-by-month-and-year', [SavingsController::class, 'getFeesByMonthAndYear'])->name('get_fees_by_month_and_year');
 
     Route::controller(ClientController::class)
         ->prefix('client')

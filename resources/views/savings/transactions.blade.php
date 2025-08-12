@@ -396,6 +396,18 @@
             });
         }
 
+        function getFeesByMonthAndYear(loan_id) {
+            const insurance_month = $('[name="insurance_month"]').val();
+            const insurance_year = $('[name="insurance_year"]').val();
+            const data = { id: loan_id, insurance_month:insurance_month, insurance_year:insurance_year};
+
+            return $.ajax({
+                type: 'GET',
+                url: '{{ route('get_fees_by_month_and_year') }}',
+                data: data,
+            });
+        }
+
         $('input[name="interest_period"]').daterangepicker({
             opens: 'left'
         }, function(start, end, label) {
@@ -411,6 +423,20 @@
             minViewMode: "years",
             autoclose: true
         });
+
+        $('.my-insurance').on('change', async function(){
+            var loan_id = $("#loan_id").find('option:selected').val()
+
+            if(loan_id ==='') return;
+
+            console.log('get insurance fee')
+            feesResponse = await getFeesByMonthAndYear(loan_id);
+            if(feesResponse.insurance_monthly_fee !== 0) {
+                $("#modalTransaction [name='insurance']").val(parseFloat(feesResponse.insurance_monthly_fee.replace(/,/g, '')));
+            } else {
+                $("#modalTransaction [name='insurance']").val('');
+            }
+        })
 
 
         $("[name='transaction_date']").on('change', function() {
