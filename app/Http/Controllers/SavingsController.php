@@ -208,12 +208,29 @@ class SavingsController extends Controller
      */
     public function destroy(Savings $saving)
     {
-        if($saving->loan->status == LoanStatus::CLOSED) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Transaction cannot be deleted',
-            ],422);
+        if($saving->loan->status == LoanStatus::CLOSED->value) {
+            Log::info('updating: '.$saving->loan->loan_no);
+            Loan::where([
+                'loan_no' => $saving->loan->loan_no,
+            ])->update([
+                'status' => LoanStatus::APPROVE,
+                'closed_date' => null,
+            ]);
+
+            Loan::where([
+                'is_additional_loan' => 1,
+                'reference_loan_no' => $saving->loan->loan_no,
+            ])->update([
+                'status' => LoanStatus::APPROVE,
+                'closed_date' => null,
+            ]);
+
+            // return response()->json([
+            //     'status' => 'failed',
+            //     'message' => 'Transaction cannot be deleted',
+            // ],422);
         }
+
         $saving->delete();
         $client = Client::findOrFail($saving->client_id);
 
