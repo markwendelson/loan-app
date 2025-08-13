@@ -292,7 +292,7 @@
             let selectedOption = $(this).find(':selected');
             let loan_type = selectedOption.data('loan-type');
 
-            if (loan_type === 'open-term' || loan_type === 'loan-with-term') {
+            if (loan_type === 'open-term' || loan_type === 'loan-with-term' || loan_type === 'special-loan'  ) {
                 $("[name='principal']").prop('readonly', false);
             } else {
                 $("[name='principal']").prop('readonly', true);
