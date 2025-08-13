@@ -102,11 +102,21 @@
                     data: 'transaction_type',
                     name: 'transaction_type',
                     render: function (data, type, row) {
-                        if (data == 'deposit') {
-                            return '<span class="badge badge-success">deposit</span>';
-                        } else if (data == 'withdraw') {
-                            return '<span class="badge badge-danger">withdraw</span>';
+                        let typeBadge = '';
+                        let deletedBadge = '';
+
+                        if (row.deleted_at) {
+                            deletedBadge = ` <span class="badge badge-warning">reversal</span>`;
+                            return `${deletedBadge}`;
                         }
+
+                        if (data === 'deposit') {
+                            typeBadge = `<span class="badge badge-success">deposit</span>`;
+                        } else if (data === 'withdraw') {
+                            typeBadge = `<span class="badge badge-danger">withdraw</span>`;
+                        }
+
+                        return `${typeBadge}`;
                     }
                 },
                 { data: 'classifications', name: 'classifications' },
