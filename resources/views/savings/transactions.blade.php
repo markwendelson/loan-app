@@ -124,6 +124,8 @@
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
+                        if (row.deleted_at) return ``;
+
                         return `
                                 <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
                             `;
@@ -493,6 +495,8 @@
 
                 if (loan_type === 'open-term' || loan_type === 'loan-with-term') {
                     principal = principal_amount;
+                } else if( loan_type === 'special-loan') {
+                    principal = $principal.data('principal-balance');
                 } else {
                     $principal.val('');
                     principal = amount - interest - insurance;

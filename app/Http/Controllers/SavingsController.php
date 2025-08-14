@@ -208,7 +208,7 @@ class SavingsController extends Controller
      */
     public function destroy(Savings $saving)
     {
-        if($saving->loan->status == LoanStatus::CLOSED->value) {
+        if($saving->transaction_type == 'withdraw' && $saving->loan->status == LoanStatus::CLOSED->value) {
             Log::info('updating: '.$saving->loan->loan_no);
             Loan::where([
                 'loan_no' => $saving->loan->loan_no,
