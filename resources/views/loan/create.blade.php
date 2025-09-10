@@ -52,9 +52,16 @@
                 <div class="form-group">
                     <label for="loan_product_id">Loan Product</label>
                     <select name="loan_product_id" id="loan_product_id" class="form-control" required>
-                        <option value="" disabled selected>-Select-</option>
+                        <option value="" disabled
+                            @if(filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN)) selected @endif
+                        >-Select-</option>
                         @foreach ($loan_products as $loan_product)
-                            <option value="{{$loan_product->id}}" data-loan-type={{Str::slug($loan_product->loanType->name)}} data-interest-rate="{{$loan_product->loanType->interest_rate}}">{{$loan_product->name}}</option>
+                            <option
+                                value="{{$loan_product->id}}"
+                                data-loan-type={{Str::slug($loan_product->loanType->name)}}
+                                data-interest-rate="{{$loan_product->loanType->interest_rate}}"
+                                @if(filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN)) selected @endif
+                            >{{$loan_product->name}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -205,6 +212,32 @@
 
     $(document).ready(function () {
 
+        var loan_type;
+        var interest_rate;
+
+        $(".term").hide().removeAttr("required");
+        $(".special-description").hide().removeAttr("required");
+
+        var is_additional_loan = urlParams.get('additional_loan')
+        if(is_additional_loan) {
+            loan_type = $("[name='loan_product_id']").find('option:selected').data('loan-type');
+
+            interest_rate = $("[name='loan_product_id']").find('option:selected').data('interest-rate');
+            $("[name='interest_rate']").val(interest_rate)
+
+            if(loan_type == 'loan-with-term') {
+                $(".term").show().attr("required", true);
+            } else if(loan_type == 'special-loan') {
+                $(".term").show().attr("required", true);
+                $(".special-description").show().attr("required", true);
+                $("#term").val(12)
+            } else {
+                 $(".term").hide().removeAttr("required");
+                 $(".special-description").hide().removeAttr("required");
+            }
+
+            calculateLoan();
+        }
         // jQuery Combined Decimal Input Handler
         $(document).on('input', '.decimal-only', function () {
         let val = this.value;
@@ -236,13 +269,6 @@
             e.preventDefault();
         }
         });
-
-
-        var loan_type;
-        var interest_rate;
-
-        $(".term").hide().removeAttr("required");
-        $(".special-description").hide().removeAttr("required");
 
         $("[name='loan_product_id']").on('change', function() {
             loan_type = $(this).find('option:selected').data('loan-type');
@@ -306,6 +332,10 @@
             var override_notary_fee = $("#override_notary_fee").prop("checked");
 
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
+                console.log(principal)
+                console.log(interest_rate)
+                console.log(loan_type)
+                console.log(term)
                 return;
             }
 
@@ -324,7 +354,7 @@
                 capital_amount = principal / interest_term_value;
 
                 if(override_advance_interest) {
-                    advance_interest = $('#advance_interest').val()
+                    advance_interest = $('#advance_interest').val().replace(/,/g, '') || 0
                 } else {
                     advance_interest = principal - capital_amount;
                 }
@@ -332,19 +362,19 @@
                 monthly_amortization = principal / term;
 
                 if(override_service_fee) {
-                    service_fee = $('#service_fee').val()
+                    service_fee = $('#service_fee').val().replace(/,/g, '') || 0
                 } else {
                     service_fee = capital_amount * (5/100);
                 }
 
                 if(override_insurance_fee) {
-                    insurance_fee = $('#insurance_fee').val()
+                    insurance_fee = $('#insurance_fee').val().replace(/,/g, '') || 0
                 } else {
                     insurance_fee = principal * (2.5/100);
                 }
 
                 if(override_notary_fee) {
-                    notary_fee = $('#notary_fee').val()
+                    notary_fee = $('#notary_fee').val().replace(/,/g, '') || 0
                 } else {
                     notary_fee = principal * (3/100);
                 }
@@ -353,7 +383,7 @@
                 inuranceFeeResponse = await getInsuranceFee(principal);
 
                 if(override_advance_interest) {
-                    advance_interest = $('#advance_interest').val()
+                    advance_interest = $('#advance_interest').val().replace(/,/g, '') || 0
                 } else {
                     advance_interest = principal * (interest_rate/100);
                 }
@@ -361,19 +391,19 @@
                 monthly_amortization = advance_interest;
 
                 if(override_service_fee) {
-                    service_fee = $('#service_fee').val()
+                    service_fee = $('#service_fee').val().replace(/,/g, '') || 0
                 } else {
                     service_fee = principal * (5/100);
                 }
 
                 if(override_insurance_fee) {
-                    insurance_fee = $('#insurance_fee').val()
+                    insurance_fee = $('#insurance_fee').val().replace(/,/g, '') || 0
                 } else {
                     insurance_fee = inuranceFeeResponse.annual; // from insurance table
                 }
 
                 if(override_notary_fee) {
-                    notary_fee = $('#notary_fee').val()
+                    notary_fee = $('#notary_fee').val().replace(/,/g, '') || 0
                 } else {
                     if(notaryFeeResponse.type == 'fixed') {
                         notary_fee = notaryFeeResponse.notary_fee;
@@ -386,7 +416,7 @@
                 notaryFeeResponse = await getNotaryFee(principal);
 
                 if(override_advance_interest) {
-                    advance_interest = $('#advance_interest').val()
+                    advance_interest = $('#advance_interest').val().replace(/,/g, '') || 0
                 } else {
                     advance_interest = (interest_rate/100) * principal * term;
                 }
@@ -394,7 +424,7 @@
                 monthly_amortization = advance_interest;
 
                 if(override_service_fee) {
-                    service_fee = $('#service_fee').val()
+                    service_fee = $('#service_fee').val().replace(/,/g, '') || 0
                 } else {
                     if(principal<=1000) {
                         service_fee = 100;
@@ -410,13 +440,13 @@
                 }
 
                 if(override_insurance_fee) {
-                    insurance_fee = $('#insurance_fee').val()
+                    insurance_fee = $('#insurance_fee').val().replace(/,/g, '') || 0
                 } else {
                     insurance_fee = 0;
                 }
 
                 if(override_notary_fee) {
-                    notary_fee = $('#notary_fee').val()
+                    notary_fee = $('#notary_fee').val().replace(/,/g, '') || 0
                 } else {
                     if(notaryFeeResponse.type == 'fixed') {
                         notary_fee = notaryFeeResponse.notary_fee;
@@ -427,7 +457,7 @@
             } else if(loan_type == 'open-term') {
 
                 if(override_insurance_fee) {
-                    insurance_fee = $('#insurance_fee').val()
+                    insurance_fee = $('#insurance_fee').val().replace(/,/g, '') || 0
                 } else {
                     var is_additional_loan = urlParams.get('additional_loan')
                     if(is_additional_loan) {
@@ -441,7 +471,7 @@
                 notaryFeeResponse = await getNotaryFee(principal);
 
                 if(override_advance_interest) {
-                    advance_interest = $('#advance_interest').val()
+                    advance_interest = $('#advance_interest').val().replace(/,/g, '') || 0
                 } else {
                     advance_interest = principal * (interest_rate/100);
                 }
@@ -449,13 +479,13 @@
                 monthly_amortization = advance_interest;
 
                 if(override_service_fee) {
-                    service_fee = $('#service_fee').val()
+                    service_fee = $('#service_fee').val().replace(/,/g, '') || 0
                 } else {
                     service_fee = principal * (3/100);
                 }
 
                 if(override_notary_fee) {
-                    notary_fee = $('#notary_fee').val()
+                    notary_fee = $('#notary_fee').val().replace(/,/g, '') || 0
                 } else {
                     if(notaryFeeResponse.type == 'fixed') {
                         notary_fee = notaryFeeResponse.notary_fee;
@@ -578,7 +608,7 @@
                 applied_amount: $('#principal').val().replace(/,/g, ''),
                 advance_interest: $('#advance_interest').val().replace(/,/g, ''),
                 service_fee: $('#service_fee').val().replace(/,/g, ''),
-                insurance_fee: $('#insurance_fee').val().replace(/,/g, ''),
+                insurance_fee: $('#insurance_fee').length ? $('#insurance_fee').val().replace(/,/g, '') : '0',
                 notary_fee: $('#notary_fee').val().replace(/,/g, ''),
                 monthly_amortization: $('#monthly_amortization').val().replace(/,/g, ''),
                 net_proceeds: $('#net_proceeds').val().replace(/,/g, ''),
