@@ -21,6 +21,9 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
+// ----- Others
+use App\Http\Controllers\WalkinController;
+use App\Http\Controllers\CheckController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -127,5 +130,27 @@ Route::middleware('auth')->group(function(){
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
+
+
+ // Others (Group: requires auth)
+// Others (Group: requires auth)
+Route::middleware('auth')->group(function() {
+
+    // Walk-In Routes (WEB)
+    Route::prefix('walkin')->name('walkin.')->group(function () {
+        Route::get('/', [App\Http\Controllers\WalkinController::class, 'index'])->name('index');
+        // In the future, you can add Blade-based form submissions here if needed
+    });
+
+    // Check Encashment Routes
+    Route::prefix('check')->name('check.')->group(function () {
+        Route::get('/', [App\Http\Controllers\CheckController::class, 'index'])->name('index');
+    });
+
+});
+
+
+
+
 
 });

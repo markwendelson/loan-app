@@ -77,6 +77,31 @@
     </a>
 </li>
 
+
+<!-- Others Menu -->
+<li class="sidebar-list">
+    <a class="sidebar-link sidebar-title" href="#">
+        <i class="fa fa-thumb-tack me-2"></i>
+        <span>Others</span>
+        <div class="according-menu ms-auto"><i class="fa fa-angle-right"></i></div>
+    </a>
+
+    <ul class="sidebar-submenu" style="display: none;">
+        <li>
+            <a href="{{ route('walkin.index') }}">
+                <i class="fa fa-user-walking me-2"></i> Walk-In
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('check.index') }}">
+                <i class="fa fa-money-check-alt me-2"></i> Check Encashment
+            </a>
+        </li>
+    </ul>
+</li>
+
+
+
 <li class="sidebar-main-title">
     <div>
         <h6 class="">Settings</h6>
