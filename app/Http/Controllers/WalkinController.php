@@ -14,7 +14,6 @@ class WalkinController extends Controller
         return view('others.walkin.index', compact('walkins'));
     }
 
-   
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -31,7 +30,6 @@ class WalkinController extends Controller
 
         return response()->json($walkin, 201);
     }
-
 
     public function show($id)
     {
@@ -59,10 +57,25 @@ class WalkinController extends Controller
 
 
     public function printReceipt($id)
-{
-    $walkin = Walkin::findOrFail($id);
-    return view('others.walkin.receipt', compact('walkin'));
-}
+    {
+        $walkin = Walkin::findOrFail($id);
+
+        // Get authenticated user
+         $user = auth()->user();
+        
+         // Get branch name
+         $branchName = $user->branch ? $user->branch->name : 'Unknown';
+
+         // Custom title rules
+        if (strcasecmp($branchName, 'Guiuan') === 0) {
+             $branchTitle = 'Head Office Branch';
+         } else {
+             $branchTitle = $branchName . ' Branch';
+         }
+
+    return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
+        // return view('others.walkin.receipt', compact('walkin'));
+    }
 
    
     public function update(Request $request, $id)
