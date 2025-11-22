@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+//For Branch ----------------------------------------
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

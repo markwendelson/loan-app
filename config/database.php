@@ -20,7 +20,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Database Connections
+    | Database 
     |--------------------------------------------------------------------------
     |
     | Below are all of the database connections defined for your application.
