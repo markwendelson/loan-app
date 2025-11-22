@@ -2,69 +2,71 @@
 
 @section('content')
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-        <h4>Check Encashments</h4>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkModal" onclick="openCreateModal()">
-            Add Check
-        </button>
+     <!-- Header + Add button card -->
+    <div class="card mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h4 class="mb-0">Check Encashments</h4>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#checkModal" onclick="openCreateModal()">
+                Add Check
+            </button>
+        </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped" id="checksTable">
-            <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Date</th>
-                    <th>Check No</th>
-                    <th>Bank</th>
-                    <th>Amount</th>
-                    <th>Net Proceeds</th>
+    <!-- Table card -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="checksTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Check No</th>
+                            <th>Bank</th>
+                            <th>Amount</th>
+                            <th>Net Proceeds</th>
 
-                    <!-- NEW FIELDS -->
-                    <th>ID Type</th>
-                    <th>ID Number</th>
-                    <th>ID Picture</th>
+                            <!-- NEW FIELDS -->
+                            <th>ID Type</th>
+                            <th>ID Number</th>
+                            <th>ID Picture</th>
 
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($checks as $check)
-                <tr id="checkRow{{ $check->id }}">
-                    <td>{{ $check->id }}</td>
-                    <td>{{ $check->transDate->format('M-d-Y') }}</td>
-                    <td>{{ $check->checkNo }}</td>
-                    <td>{{ $check->bankName }}</td>
-                    <td>{{ number_format($check->checkAmount, 2) }}</td>
-                    <td>{{ number_format($check->net_proceeds, 2) }}</td>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($checks as $check)
+                        <tr id="checkRow{{ $check->id }}">
+                            <td>{{ $check->id }}</td>
+                            <td>{{ $check->transDate->format('M-d-Y') }}</td>
+                            <td>{{ $check->checkNo }}</td>
+                            <td>{{ $check->bankName }}</td>
+                            <td>{{ number_format($check->checkAmount, 2) }}</td>
+                            <td>{{ number_format($check->net_proceeds, 2) }}</td>
 
-                    <!-- NEW: ID TYPE -->
-                    <td>{{ $check->id_type }}</td>
+                            <td>{{ $check->id_type }}</td>
+                            <td>{{ $check->id_number }}</td>
+                            <td>
+                                @if($check->id_picture_path)
+                                    <a href="{{ asset('storage/' . $check->id_picture_path) }}" target="_blank">
+                                        <img src="{{ asset('storage/' . $check->id_picture_path) }}" width="50" class="img-thumbnail">
+                                    </a>
+                                @else
+                                    No Image
+                                @endif
+                            </td>
 
-                    <!-- NEW: ID NUMBER -->
-                    <td>{{ $check->id_number }}</td>
-
-                    <!-- NEW: PICTURE -->
-                    <td>
-                        @if($check->id_picture_path)
-                            <a href="{{ asset('storage/' . $check->id_picture_path) }}" target="_blank">
-                                <img src="{{ asset('storage/' . $check->id_picture_path) }}" width="50" class="img-thumbnail">
-                            </a>
-                        @else
-                            No Image
-                        @endif
-                    </td>
-
-                    <td class="d-flex flex-column flex-md-row gap-1">
-                        <button class="btn btn-sm btn-warning" onclick="editCheck({{ $check->id }})">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteCheck({{ $check->id }})">Delete</button>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+                            <td class="d-flex flex-column flex-md-row gap-1">
+                                <button class="btn btn-sm btn-warning" onclick="editCheck({{ $check->id }})">Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCheck({{ $check->id }})">Delete</button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 
 {{-- Include modal --}}
 @include('others.check-encashments.modal')

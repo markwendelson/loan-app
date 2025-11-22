@@ -77,16 +77,20 @@
             <span>{{ number_format($walkin->amount_withdrawn, 2) }}</span>
         </div>
 
-        <!-- Highlighted Net Proceeds with larger font -->
-        <div class="spaced label net-proceeds">
-            <span class="bold">Net Proceeds:</span>
-            <span class="bold">{{ number_format($walkin->net_proceeds, 2) }}</span>
-        </div>
+      <!-- Less: Service Fee -->
+<div class="spaced">
+    <div class="bold">Less:</div>
+    <div class="label" style="margin-left:10px;">
+        <span>Service Fee:</span>
+        <span>{{ number_format($walkin->charge, 2) }}</span>
+    </div>
+</div>
 
-        <div class="spaced label">
-            <span>Service Fee:</span>
-            <span>{{ number_format($walkin->charge, 2) }}</span>
-        </div>
+<!-- Net Proceeds -->
+<div class="spaced label net-proceeds">
+    <span class="bold">Net Proceeds:</span>
+    <span class="bold" style="font-size:14px;">{{ number_format($walkin->net_proceeds, 2) }}</span>
+</div>
 
         <div class="spaced label">
             <span>Reference No.:</span>
