@@ -18,9 +18,13 @@ use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SavingsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CheckEncashmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
+// ----- Others
+use App\Http\Controllers\WalkinController;
+use App\Http\Controllers\CheckController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -130,5 +134,31 @@ Route::middleware('auth')->group(function(){
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
+
+
+
+// Others (Group: requires auth)
+// Walk-in Index page (web view)
+Route::get('walkin', [WalkinController::class, 'index'])->name('walkin.index');
+
+// CRUD endpoints (AJAX / fetch)
+Route::post('walkin', [WalkinController::class, 'store'])->name('walkin.store');
+Route::get('walkin/{id}', [WalkinController::class, 'show'])->name('walkin.show');
+Route::put('walkin/{id}', [WalkinController::class, 'update'])->name('walkin.update');
+Route::delete('walkin/{id}', [WalkinController::class, 'destroy'])->name('walkin.destroy');
+
+
+// Check Encashments Index
+Route::get('check-encashments', [CheckEncashmentController::class, 'index'])->name('check-encashments.index');
+
+// CRUD endpoints
+Route::post('check-encashments', [CheckEncashmentController::class, 'store'])->name('check-encashments.store');
+Route::get('check-encashments/{id}', [CheckEncashmentController::class, 'show'])->name('check-encashments.show');
+Route::put('check-encashments/{id}', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');
+Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'destroy'])->name('check-encashments.destroy');
+
+
+
+
 
 });

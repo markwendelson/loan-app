@@ -62,9 +62,7 @@ class ClientController extends Controller
         return view('client.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         $branches = $this->branches;
