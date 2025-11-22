@@ -57,6 +57,13 @@ class WalkinController extends Controller
     ]);
     }
 
+
+    public function printReceipt($id)
+{
+    $walkin = Walkin::findOrFail($id);
+    return view('others.walkin.receipt', compact('walkin'));
+}
+
    
     public function update(Request $request, $id)
     {

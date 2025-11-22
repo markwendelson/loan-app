@@ -147,6 +147,8 @@ Route::get('walkin/{id}', [WalkinController::class, 'show'])->name('walkin.show'
 Route::put('walkin/{id}', [WalkinController::class, 'update'])->name('walkin.update');
 Route::delete('walkin/{id}', [WalkinController::class, 'destroy'])->name('walkin.destroy');
 
+Route::get('/walkin/{id}/receipt', [WalkinController::class, 'printReceipt'])->name('walkin.receipt');
+
 
 // Check Encashments Index
 Route::get('check-encashments', [CheckEncashmentController::class, 'index'])->name('check-encashments.index');
