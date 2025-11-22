@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WalkinController;
+// use App\Http\Controllers\WalkinController;
 
-// Walk-in API routes
-Route::get('/walkin', [WalkinController::class, 'getAll']);
-Route::post('/walkin', [WalkinController::class, 'store']);
-Route::put('/walkin/{walkin}', [WalkinController::class, 'update']);
-Route::delete('/walkin/{walkin}', [WalkinController::class, 'destroy']);
+// Route::get('/walkin', [WalkinController::class, 'index'])->name('api.walkin.index');
+// Route::get('/walkin/{id}', [WalkinController::class, 'show'])->name('api.walkin.show');
+// Route::post('/walkin', [WalkinController::class, 'store'])->name('api.walkin.store');
+// Route::put('/walkin/{id}', [WalkinController::class, 'update'])->name('api.walkin.update');
+// Route::delete('/walkin/{id}', [WalkinController::class, 'destroy'])->name('api.walkin.destroy');

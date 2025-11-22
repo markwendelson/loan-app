@@ -135,25 +135,20 @@ Route::middleware('auth')->group(function(){
 
 
 // Others (Group: requires auth)
-Route::middleware('auth')->group(function() {
+// Walk-in Index page (web view)
+Route::get('walkin', [WalkinController::class, 'index'])->name('walkin.index');
 
-    // Walk-In Routes (WEB)
-    Route::prefix('walkin')->name('walkin.')->group(function () {
-        Route::get('/', [App\Http\Controllers\WalkinController::class, 'index'])->name('index');
-        // In the future, you can add Blade-based form submissions here if needed
-    });
+// CRUD endpoints (AJAX / fetch)
+Route::post('walkin', [WalkinController::class, 'store'])->name('walkin.store');
+Route::get('walkin/{id}', [WalkinController::class, 'show'])->name('walkin.show');
+Route::put('walkin/{id}', [WalkinController::class, 'update'])->name('walkin.update');
+Route::delete('walkin/{id}', [WalkinController::class, 'destroy'])->name('walkin.destroy');
 
-    // Check Encashment Routes
-    Route::prefix('check')->name('check.')->group(function () {
-        Route::get('/', [App\Http\Controllers\CheckController::class, 'index'])->name('index');
-    });
 
-});
-
-// Index page (show the table)
+// Check Encashments Index
 Route::get('check-encashments', [CheckEncashmentController::class, 'index'])->name('check-encashments.index');
 
-// CRUD AJAX endpoints
+// CRUD endpoints
 Route::post('check-encashments', [CheckEncashmentController::class, 'store'])->name('check-encashments.store');
 Route::get('check-encashments/{id}', [CheckEncashmentController::class, 'show'])->name('check-encashments.show');
 Route::put('check-encashments/{id}', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');

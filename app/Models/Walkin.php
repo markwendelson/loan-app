@@ -22,4 +22,9 @@ class Walkin extends Model
         'charge',
         'net_proceeds',
     ];
+
+     // Cast 'date' field to a Carbon instance
+    protected $casts = [
+        'date' => 'date',
+    ];
 }

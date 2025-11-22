@@ -7,71 +7,89 @@ use App\Models\Walkin;
 
 class WalkinController extends Controller
 {
+ 
     public function index()
     {
-        $walkins = Walkin::orderBy('id', 'desc')->get();
+        $walkins = Walkin::orderBy('date', 'desc')->get();
         return view('others.walkin.index', compact('walkins'));
     }
 
-    public function getAll()
-    {
-        $walkins = Walkin::orderBy('date', 'desc')->get();
-        return response()->json($walkins);
-    }
-
+   
     public function store(Request $request)
     {
-        \Log::info('STORE reached', $request->all());
-       dd('Store controller reached', $request->all());
-
-        $request->merge($request->json()->all());
-
         $validated = $request->validate([
             'date' => 'required|date',
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:100',
+            'first_name' => 'required|string|max:100',
             'middle_initial' => 'nullable|string|max:5',
             'amount_withdrawn' => 'required|numeric',
-            'charge' => 'required|numeric',
+            'charge' => 'nullable|numeric',
             'net_proceeds' => 'required|numeric',
         ]);
 
-        // CHECK IF ALREADY EXISTS 
-        $existing = Walkin::where('date', $validated['date'])
-            ->where('first_name', $validated['first_name'])
-            ->where('last_name', $validated['last_name'])
-            ->first();
-
-        if ($existing) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This walk-in record already exists.',
-                'existing_record' => $existing
-            ], 409); 
-        }
-
-        // Save new walk-in
         $walkin = Walkin::create($validated);
 
-        return response()->json(['success' => true, 'data' => $walkin]);
+        return response()->json($walkin, 201);
     }
 
-    public function update(Request $request, Walkin $walkin)
+
+    public function show($id)
     {
-        $request->merge($request->json()->all());
+        $walkin = Walkin::find($id);
+        if (!$walkin) {
+            return response()->json(['message' => 'Record not found'], 404);
+        }
+
+        // Format date for modal (YYYY-MM-DD)
+        $walkin->date = $walkin->date->format('Y-m-d');
+
+           $walkin = Walkin::findOrFail($id);
+
+    return response()->json([
+        'id' => $walkin->id,
+        'date' => $walkin->date->format('Y-m-d'), // <- safe for <input type="date">
+        'last_name' => $walkin->last_name,
+        'first_name' => $walkin->first_name,
+        'middle_initial' => $walkin->middle_initial,
+        'amount_withdrawn' => $walkin->amount_withdrawn,
+        'charge' => $walkin->charge,
+        'net_proceeds' => $walkin->net_proceeds,
+    ]);
+    }
+
+   
+    public function update(Request $request, $id)
+    {
+        $walkin = Walkin::find($id);
+        if (!$walkin) {
+            return response()->json(['message' => 'Record not found'], 404);
+        }
 
         $validated = $request->validate([
             'date' => 'required|date',
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:100',
+            'first_name' => 'required|string|max:100',
             'middle_initial' => 'nullable|string|max:5',
             'amount_withdrawn' => 'required|numeric',
-            'charge' => 'required|numeric',
+            'charge' => 'nullable|numeric',
             'net_proceeds' => 'required|numeric',
         ]);
 
         $walkin->update($validated);
 
-        return response()->json(['success' => true, 'data' => $walkin]);
+        return response()->json($walkin);
+    }
+
+
+    public function destroy($id)
+    {
+        $walkin = Walkin::find($id);
+        if (!$walkin) {
+            return response()->json(['message' => 'Record not found'], 404);
+        }
+
+        $walkin->delete();
+
+        return response()->json(['message' => 'Record deleted successfully']);
     }
 }
