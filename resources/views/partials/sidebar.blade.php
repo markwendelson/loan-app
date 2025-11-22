@@ -93,7 +93,7 @@
             </a>
         </li>
         <li>
-            <a href="{{ route('check.index') }}">
+            <a href="{{ route('check-encashments.index') }}">
                 <i class="fa fa-money-check-alt me-2"></i> Check Encashment
             </a>
         </li>

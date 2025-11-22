@@ -18,6 +18,7 @@ use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SavingsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CheckEncashmentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
@@ -132,7 +133,7 @@ Route::middleware('auth')->group(function(){
     Route::resource('charge', ChargeController::class);
 
 
- // Others (Group: requires auth)
+
 // Others (Group: requires auth)
 Route::middleware('auth')->group(function() {
 
@@ -148,6 +149,15 @@ Route::middleware('auth')->group(function() {
     });
 
 });
+
+// Index page (show the table)
+Route::get('check-encashments', [CheckEncashmentController::class, 'index'])->name('check-encashments.index');
+
+// CRUD AJAX endpoints
+Route::post('check-encashments', [CheckEncashmentController::class, 'store'])->name('check-encashments.store');
+Route::get('check-encashments/{id}', [CheckEncashmentController::class, 'show'])->name('check-encashments.show');
+Route::put('check-encashments/{id}', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');
+Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'destroy'])->name('check-encashments.destroy');
 
 
 
