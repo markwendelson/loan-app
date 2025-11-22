@@ -79,6 +79,28 @@ public function show($id)
 ]);
 }
 
+
+
+    public function printReceipt($id)
+    {
+        $check = CheckEncashment::findOrFail($id);
+
+        // Get authenticated user
+         $user = auth()->user();
+        
+         // Get branch name
+         $branchName = $user->branch ? $user->branch->name : 'Unknown';
+
+         // Custom title rules
+        if (strcasecmp($branchName, 'Guiuan') === 0) {
+             $branchTitle = 'Head Office';
+         } else {
+             $branchTitle = $branchName . ' Branch';
+         }
+
+    return view('others.check-encashments.receipt', compact('check', 'branchTitle'));
+    }
+
   
 public function update(Request $request, $id)
 {

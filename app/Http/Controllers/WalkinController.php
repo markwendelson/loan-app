@@ -68,7 +68,7 @@ class WalkinController extends Controller
 
          // Custom title rules
         if (strcasecmp($branchName, 'Guiuan') === 0) {
-             $branchTitle = 'Head Office Branch';
+             $branchTitle = 'Head Office';
          } else {
              $branchTitle = $branchName . ' Branch';
          }
