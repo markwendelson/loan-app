@@ -103,6 +103,7 @@ class LoanTypeController extends Controller
 
         $loanType->name = $request->name;
         $loanType->description = $request->description;
+        $loanType->interest_rate = $request->interest_rate;
         $loanType->status = $request->status;
         $loanType->save();
 

@@ -136,7 +136,7 @@
                             </div>
                         </li>
                         @if(!filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN))
-                        <li class="mt-3 mb-3">
+                        <li class="mt-3 mb-3" id="insurance">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="insurance_fee">Insurance Fee</label>
                                 <div class="ms-auto gap-3">
@@ -147,7 +147,7 @@
                             </div>
                         </li>
                         @endif
-                        <li class="mt-3 mb-3">
+                        <li class="mt-3 mb-3" id="notary">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="notary_fee">Notary Fee</label>
                                 <div class="ms-auto gap-3">
@@ -276,12 +276,20 @@
             interest_rate = $(this).find('option:selected').data('interest-rate');
             $("[name='interest_rate']").val(interest_rate)
 
+            $("#insurance").show()
+            $("#notary").show()
+
             if(loan_type == 'loan-with-term') {
                 $(".term").show().attr("required", true);
             } else if(loan_type == 'special-loan') {
                 $(".term").show().attr("required", true);
                 $(".special-description").show().attr("required", true);
                 $("#term").val(12)
+            } else if(loan_type == 'mortgage-loan') {
+                $(".term").show().attr("required", true);
+                $("#term").val(12)
+                $("#insurance").hide()
+                $("#notary").hide()
             } else {
                  $(".term").hide().removeAttr("required");
                  $(".special-description").hide().removeAttr("required");
@@ -492,6 +500,23 @@
                     } else if(notaryFeeResponse.type == 'percentage') {
                         notary_fee = principal * (notaryFeeResponse.notary_fee/100);
                     }
+                }
+            } else if(loan_type == 'mortgage-loan') {
+                insurance_fee = 0
+                notary_fee = 0
+
+                if(override_advance_interest) {
+                    advance_interest = $('#advance_interest').val().replace(/,/g, '') || 0
+                } else {
+                    advance_interest = principal * (interest_rate/100);
+                }
+
+                monthly_amortization = advance_interest;
+
+                if(override_service_fee) {
+                    service_fee = $('#service_fee').val().replace(/,/g, '') || 0
+                } else {
+                    service_fee = principal * (6/100);
                 }
             }
 

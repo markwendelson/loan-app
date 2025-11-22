@@ -111,33 +111,51 @@
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="advance_interest">Advance Interest</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_advance_interest" id="override_advance_interest">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="advance_interest" id="advance_interest">
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="service_fee">Service Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_service_fee" id="override_service_fee">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="service_fee" id="service_fee">
                             </div>
                         </li>
-                        <li class="mt-3 mb-3">
+                        <li class="mt-3 mb-3" id="insurance">
                             <div class="d-flex justify-content-between">
                                 <label for="insurance_fee">Insurance Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_insurance_fee" id="override_insurance_fee">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="insurance_fee" id="insurance_fee">
                             </div>
                         </li>
-                        <li class="mt-3 mb-3">
+                        <li class="mt-3 mb-3" id="notary">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Notary Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_notary_fee" id="override_notary_fee">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
                             </div>
                         </li>
+                        @if($loan->is_reloan)
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Reloan Deduction</label>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$loan->loanCharges->reloan_deduction}}">
                             </div>
                         </li>
+                        @endif
                     </ul>
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between">
@@ -174,10 +192,20 @@
 
         interest_rate = $("[name='loan_product_id']").find('option:selected').data('interest-rate');
 
-        if(loan_type == 'loan-with-term' || loan_type == 'special-loan') {
-            $(".term").show()
+        if(loan_type == 'loan-with-term') {
+            $(".term").show().attr("required", true);
+        } else if(loan_type == 'special-loan') {
+            $(".term").show().attr("required", true);
+            $(".special-description").show().attr("required", true);
+            $("#term").val(12)
+        } else if(loan_type == 'mortgage-loan') {
+            $(".term").show().attr("required", true);
+            $("#term").val(12)
+            $("#insurance").hide()
+            $("#notary").hide()
         } else {
-            $(".term").hide()
+                $(".term").hide().removeAttr("required");
+                $(".special-description").hide().removeAttr("required");
         }
 
         calculateLoan();
@@ -190,10 +218,23 @@
             interest_rate = $(this).find('option:selected').data('interest-rate');
             $("[name='interest_rate']").val(interest_rate)
 
-            if(loan_type == 'loan-with-term' || loan_type == 'special-loan') {
-                $(".term").show()
+            $("#insurance").show()
+            $("#notary").show()
+
+            if(loan_type == 'loan-with-term') {
+                $(".term").show().attr("required", true);
+            } else if(loan_type == 'special-loan') {
+                $(".term").show().attr("required", true);
+                $(".special-description").show().attr("required", true);
+                $("#term").val(12)
+            } else if(loan_type == 'mortgage-loan') {
+                $(".term").show().attr("required", true);
+                $("#term").val(12)
+                $("#insurance").hide()
+                $("#notary").hide()
             } else {
-                $(".term").hide()
+                 $(".term").hide().removeAttr("required");
+                 $(".special-description").hide().removeAttr("required");
             }
 
             calculateLoan();
@@ -209,6 +250,11 @@
             interest_rate = parseFloat($("[name='interest_rate']").val())
             var term = parseInt($("[name='term']").val())
 
+            // override
+            var override_advance_interest = $("#override_advance_interest").prop("checked");
+            var override_service_fee = $("#override_service_fee").prop("checked");
+            var override_insurance_fee = $("#override_insurance_fee").prop("checked");
+            var override_notary_fee = $("#override_notary_fee").prop("checked");
 
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
                 return;
@@ -269,6 +315,23 @@
                     notary_fee = notaryFeeResponse.notary_fee;
                 } else if(notaryFeeResponse.type == 'percentage') {
                     notary_fee = principal * (notaryFeeResponse.notary_fee/100);
+                }
+            } else if(loan_type == 'mortgage-loan') {
+                insurance_fee = 0
+                notary_fee = 0
+
+                if(override_advance_interest) {
+                    advance_interest = $('#advance_interest').val().replace(/,/g, '') || 0
+                } else {
+                    advance_interest = principal * (interest_rate/100);
+                }
+
+                monthly_amortization = advance_interest;
+
+                if(override_service_fee) {
+                    service_fee = $('#service_fee').val().replace(/,/g, '') || 0
+                } else {
+                    service_fee = principal * (6/100);
                 }
             }
 
