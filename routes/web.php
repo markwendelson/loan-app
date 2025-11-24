@@ -159,6 +159,8 @@ Route::get('check-encashments/{id}', [CheckEncashmentController::class, 'show'])
 Route::put('check-encashments/{id}', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');
 Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'destroy'])->name('check-encashments.destroy');
 
+Route::get('/check-encashments/{id}/receipt', [CheckEncashmentController::class, 'printReceipt'])->name('check-encashments.receipt');
+
 
 
 

@@ -32,17 +32,20 @@
 
             <div class="col-md-6 mb-3">
               <label>Check Amount</label>
-              <input type="number" step="0.01" id="checkAmount" name="checkAmount" class="form-control" required>
+              <input type="text" id="checkAmount" name="checkAmount" class="form-control" required>
+              <!-- <input type="number" step="0.01" id="checkAmount" name="checkAmount" class="form-control" required> -->
             </div>
 
             <div class="col-md-6 mb-3">
               <label>Charge</label>
-              <input type="number" step="0.01" id="charge" name="charge" class="form-control">
+              <input type="text" id="charge" name="charge" class="form-control">
+              <!-- <input type="number" step="0.01" id="charge" name="charge" class="form-control"> -->
             </div>
 
             <div class="col-md-6 mb-3">
               <label>Net Proceeds</label>
-              <input type="number" step="0.01" id="netProceeds" name="net_proceeds" class="form-control" required>
+              <input type="text" id="netProceeds" name="net_proceeds" class="form-control" required>
+              <!-- <input type="number" step="0.01" id="netProceeds" name="net_proceeds" class="form-control" required> -->
             </div>
 
             <div class="col-md-6 mb-3">

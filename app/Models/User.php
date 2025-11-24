@@ -67,4 +67,9 @@ class User extends Authenticatable implements Auditable
         return $query;
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
 }
