@@ -119,7 +119,7 @@ public function update(Request $request, $id)
         'net_proceeds'    => 'sometimes|numeric',
         'id_type'         => 'nullable|string|max:50',
         'id_number'       => 'nullable|string|max:50',
-        'id_picture'      => 'nullable|image|max:2048', // <-- file input
+        'id_picture'      => 'nullable|image|max:5120', // <-- file input
     ]);
 
     // Handle file upload
