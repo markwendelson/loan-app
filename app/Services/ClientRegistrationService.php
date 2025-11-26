@@ -46,7 +46,7 @@ class ClientRegistrationService
                 $this->createClientReferences($data['client_references'] ?? []);
                 $this->saveJobTitle($data['client_job_information'] ?? []);
                 $this->savePayrollAccount($data['client_payroll_account'] ?? []);
-                $this->saveDocuments($data['client_documents']);
+                $this->saveDocuments($data['client_documents'] ?? []);
                 $this->dispatchEvent();
 
                 return [
