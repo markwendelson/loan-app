@@ -151,22 +151,59 @@ document.addEventListener('click', async e => {
 // Save (Create/Update)
 document.getElementById('walkinForm').addEventListener('submit', async e => {
     e.preventDefault();
+
     const form = e.target;
     const data = Object.fromEntries(new FormData(form));
     const id = data.id;
+
     const url = id ? `/walkin/${id}` : '/walkin';
     const method = id ? 'PUT' : 'POST';
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    await fetch(url, {
+    const csrfToken =
+        document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    const response = await fetch(url, {
         method,
-        headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': csrfToken },
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json', // ← REQUIRED
+            'X-CSRF-TOKEN': csrfToken
+        },
         body: JSON.stringify(data)
     });
 
-    resetForm();
+  // First, parse the JSON
+const result = await response.json();
+
+// Then, if successful, do modal hide, open receipt, reload table
+if(response.ok){
     modal.hide();
-    location.reload(); // reload table to reflect changes
+    resetForm();
+        window.open(result.print_url, '_blank'); //  open in new tab
+     location.reload();
+
+   
+} else {
+    alert(result.message || "Failed to save");
+    console.error(result);
+}
+    // e.preventDefault();
+    // const form = e.target;
+    // const data = Object.fromEntries(new FormData(form));
+    // const id = data.id;
+    // const url = id ? `/walkin/${id}` : '/walkin';
+    // const method = id ? 'PUT' : 'POST';
+    // const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // await fetch(url, {
+    //     method,
+    //     headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': csrfToken },
+    //     body: JSON.stringify(data)
+    // });
+
+    // resetForm();
+    // modal.hide();
+    // location.reload(); // reload table to reflect changes
 });
 
 // Delete

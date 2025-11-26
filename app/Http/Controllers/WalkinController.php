@@ -28,7 +28,11 @@ class WalkinController extends Controller
 
         $walkin = Walkin::create($validated);
 
-        return response()->json($walkin, 201);
+          return response()->json([
+            'data' => $walkin,
+            'print_url' => route('walkin.receipt', $walkin->id),
+        ], 201);
+        // return response()->json($walkin, 201);
     }
 
     public function show($id)
@@ -58,22 +62,33 @@ class WalkinController extends Controller
 
     public function printReceipt($id)
     {
-        $walkin = Walkin::findOrFail($id);
+         $walkin = Walkin::findOrFail($id);
 
-        // Get authenticated user
          $user = auth()->user();
+         $branchName = $user?->branch?->name ?? 'Unknown';
+
+         $branchTitle = strcasecmp($branchName, 'Guiuan') === 0
+             ? 'Head Office'
+             : $branchName . ' Branch';
+
+         return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
+
+    //     $walkin = Walkin::findOrFail($id);
+
+    //     // Get authenticated user
+    //      $user = auth()->user();
         
-         // Get branch name
-         $branchName = $user->branch ? $user->branch->name : 'Unknown';
+    //      // Get branch name
+    //      $branchName = $user->branch ? $user->branch->name : 'Unknown';
 
-         // Custom title rules
-        if (strcasecmp($branchName, 'Guiuan') === 0) {
-             $branchTitle = 'Head Office';
-         } else {
-             $branchTitle = $branchName . ' Branch';
-         }
+    //      // Custom title rules
+    //     if (strcasecmp($branchName, 'Guiuan') === 0) {
+    //          $branchTitle = 'Head Office';
+    //      } else {
+    //          $branchTitle = $branchName . ' Branch';
+    //      }
 
-    return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
+    // return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
         // return view('others.walkin.receipt', compact('walkin'));
     }
 
