@@ -39,7 +39,9 @@ class ClientRegistrationService
                 $this->client = $this->createClient($client_details);
                 $this->createClientDetails($client_details);
 
-                $this->client->coMakers()->syncWithoutDetaching($data['client_comaker']);
+                if (isset($data['client_comaker'])) {
+                    $this->client->coMakers()->syncWithoutDetaching($data['client_comaker']);
+                }
 
                 $this->createClientReferences($data['client_references'] ?? []);
                 $this->saveJobTitle($data['client_job_information'] ?? []);
