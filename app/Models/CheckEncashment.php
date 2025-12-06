@@ -17,6 +17,9 @@ class CheckEncashment extends Model
     protected $fillable = [
         'transDate',
         'checkNo',
+        'last_name',
+        'first_name',
+        'middle_name',
         'bankName',
         'checkAmount',
         'charge',
@@ -33,6 +36,13 @@ class CheckEncashment extends Model
         'charge'        => 'decimal:2',
         'net_proceeds'  => 'decimal:2',
     ];
+
+     // Accessor for full customer name
+    public function getCustomerNameAttribute()
+    {
+        $middleInitial = $this->middle_name ? strtoupper($this->middle_name[0]) . '.' : '';
+        return "{$this->last_name}, {$this->first_name} {$middleInitial}";
+    }
 
     // Example relationship (if you later link to a Customer table)
 //     public function customer()

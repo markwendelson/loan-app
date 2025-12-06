@@ -32,14 +32,16 @@
                             </th>
                             <th class="d-none">ID</th>
                             <th>Date</th>
+                            <th>Customer Name</th>
                             <th>Check No</th>
                             <th>Bank</th>
                             <th>Amount</th>
+                            <th>Charge</th>
                             <th>Net Proceeds</th>
 
                             <!-- NEW FIELDS -->
-                            <th>ID Type</th>
-                            <th>ID Number</th>
+                            <th class="d-none">ID Type</th>
+                            <th class="d-none">ID Number</th>
                             <th>ID Picture</th>
 
                             <th>Actions</th>
@@ -53,13 +55,15 @@
                             </td>
                             <td class="d-none">{{ $check->id }}</td>
                             <td>{{ $check->transDate->format('M-d-Y') }}</td>
+                            <td>{{ $check->customer_name }}</td>
                             <td>{{ $check->checkNo }}</td>
                             <td>{{ $check->bankName }}</td>
                             <td>{{ number_format($check->checkAmount, 2) }}</td>
+                            <td>{{ number_format($check->charge, 2) }}</td>
                             <td>{{ number_format($check->net_proceeds, 2) }}</td>
 
-                            <td>{{ $check->id_type }}</td>
-                            <td>{{ $check->id_number }}</td>
+                            <td class="d-none">{{ $check->id_type }}</td>
+                            <td class="d-none">{{ $check->id_number }}</td>
                             <td>
                                 @if($check->id_picture_path)
                                     <a href="{{ asset('storage/' . $check->id_picture_path) }}" target="_blank">
@@ -92,6 +96,11 @@ function openCreateModal() {
 
     $('#checkForm')[0].reset();
     $('#checkId').val('');
+    // Clear name fields
+    $('#lastName').val('');
+    $('#firstName').val('');
+    $('#middleName').val('');
+
     $('#idPicturePreview').attr('src', ''); // clear preview
     $('#checkModalLabel').text('Add Check');
 
@@ -105,15 +114,7 @@ function openCreateModal() {
     preview.style.display = "none";
 }
 
-// function formatNumber(num) {
-//    if (num === null || num === undefined || num === '') return '';
-//     if (isNaN(num)) return '';
 
-//     return parseFloat(num).toLocaleString('en-US', {
-//         minimumFractionDigits: 2,
-//         maximumFractionDigits: 2
-//     });
-// }
 
 // Format a number with commas
 function formatNumberWithCommas(num) {
@@ -168,6 +169,9 @@ document.getElementById('checkAmount').addEventListener('input', function() {
 });
 
 
+
+
+
 /* ===========================
    LOAD CHECK INTO EDIT MODAL
    =========================== */
@@ -191,6 +195,11 @@ function editCheck(id) {
         $('#idType').val(data.id_type);
         $('#idNumber').val(data.id_number);
 
+          // Populate Last Name, First Name, Middle Initial
+        $('#lastName').val(data.last_name ? data.last_name : '');
+        $('#firstName').val(data.first_name ? data.first_name : '');
+        $('#middleName').val(data.middle_name ? data.middle_name.toUpperCase() : '');
+
         const preview = $('#idPicturePreview');
         if (data.id_picture_path) {
             preview.attr('src', '/storage/' + data.id_picture_path);
@@ -204,6 +213,8 @@ function editCheck(id) {
         $('#checkModal').modal('show');
     });
 }
+
+
 
 
 document.getElementById('btnPrint').addEventListener('click', () => {
@@ -233,6 +244,9 @@ $('#checkForm').submit(function(e){
     let id = $('#checkId').val();
 
     formData.append('transDate', $('#transDate').val());
+     formData.append('last_name', $('#lastName').val());
+      formData.append('first_name', $('#firstName').val());
+       formData.append('middle_name', $('#middleName').val());
     formData.append('checkNo', $('#checkNo').val());
     formData.append('bankName', $('#bankName').val());
     formData.append('checkAmount', unformatNumber($('#checkAmount').val()));
