@@ -13,73 +13,99 @@
           <input type="hidden" id="checkId" name="id">
           <input type="hidden" id="oldPicture" name="oldPicture">
 
-          <div class="row">
-            
-            <div class="col-md-6 mb-3">
-              <label>Date</label>
-              <input type="date" id="transDate" name="transDate" class="form-control" required>
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label>Check No</label>
-              <input type="text" id="checkNo" name="checkNo" class="form-control" required>
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label>Bank Name</label>
-              <input type="text" id="bankName" name="bankName" class="form-control" required>
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label>Check Amount</label>
-              <input type="text" id="checkAmount" name="checkAmount" class="form-control" required>
-              <!-- <input type="number" step="0.01" id="checkAmount" name="checkAmount" class="form-control" required> -->
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label>Charge</label>
-              <input type="text" id="charge" name="charge" class="form-control">
-              <!-- <input type="number" step="0.01" id="charge" name="charge" class="form-control"> -->
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label>Net Proceeds</label>
-              <input type="text" id="netProceeds" name="net_proceeds" class="form-control" required>
-              <!-- <input type="number" step="0.01" id="netProceeds" name="net_proceeds" class="form-control" required> -->
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label>ID Type</label>
-              <select id="idType" name="id_type" class="form-control" required>
-                <option value="">Select ID Type</option>
-                <option value="Driver's License">Driver's License</option>
-                <option value="Passport">Passport</option>
-                <option value="Postal ID">Postal ID</option>
-                <option value="National ID">National ID</option>
-                <option value="UMID">UMID</option>
-              </select>
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label>ID Number</label>
-              <input type="text" id="idNumber" name="id_number" class="form-control" required>
-            </div>
-
-            <div class="col-md-12 mb-3">
-              <label>ID Picture</label>
-              <input type="file" id="idPicture" name="id_picture" class="form-control" accept="image/*">
-
-              <div class="mt-2">
-                <img id="idPicturePreview" 
-                     src="" 
-                     class="img-thumbnail" 
-                     width="120"
-                     style="display:none;">
+         <div class="row mb-3">
+                  <div class="col-md-6">
+                      <label>Date</label>
+                      <input type="date" id="transDate" name="transDate" class="form-control" required>
+                  </div>
               </div>
-            </div>
 
-          </div>
-        </div>
+              <!-- Last Name, First Name, M.I on one row -->
+              <div class="row mb-3">
+                  <div class="col-md-4">
+                      <label>Last Name</label>
+                      <input type="text" id="lastName" name="last_name" class="form-control" required>
+                  </div>
+
+                  <div class="col-md-5">
+                      <label>First Name</label>
+                      <input type="text" id="firstName" name="first_name" class="form-control" required>
+                  </div>
+
+                  <div class="col-md-1">
+                      <label>M.I</label>
+                      <input type="text" id="middleName" name="middle_name" class="form-control" maxlength="1">
+                  </div>
+              </div>
+
+              <!-- Check No and Bank Name -->
+              <div class="row mb-3">
+                  <div class="col-md-6">
+                      <label>Check No</label>
+                      <input type="text" id="checkNo" name="checkNo" class="form-control" required>
+                  </div>
+
+                  <div class="col-md-6">
+                      <label>Bank Name</label>
+                      <input type="text" id="bankName" name="bankName" class="form-control" required>
+                  </div>
+              </div>
+
+              <!-- Check Amount, Charge, Net Proceeds -->
+              <div class="row mb-3">
+                  <div class="col-md-4">
+                      <label>Check Amount</label>
+                      <input type="text" id="checkAmount" name="checkAmount" class="form-control" required>
+                  </div>
+
+                  <div class="col-md-4">
+                      <label>Charge</label>
+                      <input type="text" id="charge" name="charge" class="form-control">
+                  </div>
+
+                  <div class="col-md-4">
+                      <label>Net Proceeds</label>
+                      <input type="text" id="netProceeds" name="net_proceeds" class="form-control" required>
+                  </div>
+              </div>
+
+              <!-- ID Type and ID Number -->
+              <div class="row mb-3">
+                  <div class="col-md-6">
+                      <label>ID Type</label>
+                      <select id="idType" name="id_type" class="form-control" required>
+                          <option value="">Select ID Type</option>
+                          <option value="Driver's License">Driver's License</option>
+                          <option value="Passport">Passport</option>
+                          <option value="Postal ID">Postal ID</option>
+                          <option value="National ID">National ID</option>
+                          <option value="UMID">UMID</option>
+                      </select>
+                  </div>
+
+                  <div class="col-md-6">
+                      <label>ID Number</label>
+                      <input type="text" id="idNumber" name="id_number" class="form-control" required>
+                  </div>
+              </div>
+
+              <!-- ID Picture -->
+              <div class="row mb-3">
+                  <div class="col-md-12">
+                      <label>ID Picture</label>
+                      <input type="file" id="idPicture" name="id_picture" class="form-control" accept="image/*">
+
+                      <div class="mt-2">
+                          <img id="idPicturePreview" 
+                               src="" 
+                               class="img-thumbnail" 
+                               width="120"
+                               style="display:none;">
+                      </div>
+                  </div>
+              </div>
+
+    
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -135,5 +161,29 @@ document.getElementById("checkAmount").addEventListener("input", function(e) {
     // Update net proceeds
     const netProceeds = amount - charge;
     document.getElementById("netProceeds").value = Math.round(netProceeds * 100) / 100;
+});
+
+
+// Capitalize first letter of Last Name and First Name
+function capitalizeFirstLetter(input) {
+    input.value = input.value
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
+
+// Event listeners
+document.getElementById("lastName").addEventListener("input", function() {
+    capitalizeFirstLetter(this);
+});
+
+document.getElementById("firstName").addEventListener("input", function() {
+    capitalizeFirstLetter(this);
+});
+
+// Uppercase Middle Initial
+document.getElementById("middleName").addEventListener("input", function() {
+    this.value = this.value.toUpperCase();
 });
 </script>

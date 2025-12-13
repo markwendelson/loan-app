@@ -45,6 +45,11 @@
             <span>{{ $check->transDate->format('Y-m-d') }}</span>
         </div>
 
+           <div class="label">
+            <span>Customer Name:</span>
+          <span>{{ $check->customer_name ?? 'N/A' }}</span>
+        </div>
+
         <div class="label">
             <span>Bank Name:</span>
             <span>{{ $check->bankName ?? 'N/A' }}</span>

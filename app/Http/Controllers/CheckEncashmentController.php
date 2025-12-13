@@ -23,6 +23,9 @@ class CheckEncashmentController extends Controller
         $validated = $request->validate([
             'transDate'       => 'required|date',
             'checkNo'         => 'required|string|max:50',
+            'last_name'       => 'required|string|max:100',
+            'first_name'      => 'required|string|max:100',
+            'middle_name'     => 'required|string|max:100',
             'bankName'        => 'required|string|max:100',
             'checkAmount'     => 'required|numeric',
             'charge'          => 'nullable|numeric',
@@ -65,10 +68,14 @@ public function show($id)
     logger('Formatted Check Data:', $check->toArray());
 
 
-   return response()->json([
+   return response()->json([ 
     'id' => $check->id,
     'transDate' => $check->transDate->format('Y-m-d'),
     'checkNo' => $check->checkNo,
+     'last_name' => $check->last_name,
+    'first_name' => $check->first_name,
+    'middle_name' => $check->middle_name,
+    'customer_name' => $check->customer_name,
     'bankName' => $check->bankName,
     'checkAmount' => $check->checkAmount,
     'charge' => $check->charge,
@@ -113,6 +120,9 @@ public function update(Request $request, $id)
     $validated = $request->validate([
         'transDate'       => 'sometimes|date',
         'checkNo'         => 'sometimes|string|max:50',
+        'last_name'        => 'sometimes|string|max:100',
+        'first_name'        => 'sometimes|string|max:100',
+        'middle_name'        => 'sometimes|string|max:100',
         'bankName'        => 'sometimes|string|max:100',
         'checkAmount'     => 'sometimes|numeric',
         'charge'          => 'nullable|numeric',
