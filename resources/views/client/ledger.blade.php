@@ -43,8 +43,8 @@
     <!-- button container -->
     <div class="card">
         <div class="card-body">
-            <div>Name: <span>{{$client->details->fullname}}</span></div>
-            <div>Address: <span>{{$client->details->present_full_address}}</div>
+            <h3><span>{{$client->details->fullname}}</span></h3>
+            <h3><span>{{$client->details->present_full_address}}</h3>
         </div>
     </div>
 

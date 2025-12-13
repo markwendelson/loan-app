@@ -20,7 +20,7 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-6">
-                    <h4>Savings | Manage Savings | {{$client->details->fullname}}</h4>
+                    <h4>Savings | Manage Savings</h4>
                 </div>
                 <div class="col-6">
                     <ol class="breadcrumb">
@@ -38,6 +38,13 @@
     </div>
 
     <!-- button container -->
+    <div class="card">
+        <div class="card-body">
+            <h3><span>{{$client->details->fullname}}</span></h3>
+            <h3><span>{{$client->details->present_full_address}}</h3>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between">
