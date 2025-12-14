@@ -32,6 +32,7 @@ return [
             ['name' => 'decline-loan','label' => 'Decline Loan'],
             ['name' => 'withdraw-loan','label' => 'Withdraw Loan'],
             ['name' => 'request-secondary-approval','label' => 'Request Secondary Approval'],
+            ['name' => 'approve-secondary-approval','label' => 'Approve Request Secondary Approval'],
         ]
     ],
     'savings' => [
@@ -42,6 +43,22 @@ return [
             ['name' => 'withdraw-transactions','label' => 'Withdraw Transactions'],
             ['name' => 'edit-savings-transaction','label' => 'Edit Savings Transaction'],
             ['name' => 'delete-savings-transaction','label' => 'Delete Savings Transaction'],
+        ]
+    ],
+    'walk-in-transaction' => [
+        'permissions' => [
+            ['name' => 'view-walk-in-transaction','label' => 'View Walk-in Transaction'],
+            ['name' => 'create-walk-in-transaction','label' => 'Create Walk-in Transaction'],
+            ['name' => 'edit-walk-in-transaction','label' => 'Edit Walk-in Transaction'],
+            ['name' => 'delete-walk-in-transaction','label' => 'Delete Walk-in Transaction'],
+        ]
+    ],
+    'check-encashment' => [
+        'permissions' => [
+            ['name' => 'view-check-encashment','label' => 'View Check Encashment'],
+            ['name' => 'create-check-encashment','label' => 'Create Check Encashment'],
+            ['name' => 'edit-check-encashment','label' => 'Edit Check Encashment'],
+            ['name' => 'delete-check-encashment','label' => 'Delete Check Encashment'],
         ]
     ],
     'libraries' => [

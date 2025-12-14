@@ -13,7 +13,20 @@
     <div class="page-title">
         <div class="row">
             <div class="col-6">
-                <h4>Loan | View Loan - {{$loan->loan_no}}</h4>
+                <h4>Loan | View Loan</h4>
+                <h4>{{$loan->loan_no}}
+                    @if($loan->status == \App\Enums\LoanStatus::APPROVE->value)
+                        <span class="badge badge-sm badge-success">Approved</span>
+                    @elseif($loan->status == \App\Enums\LoanStatus::DECLINE->value)
+                        <span class="badge badge-sm badge-danger">Declined</span>
+                    @elseif($loan->status == \App\Enums\LoanStatus::WITHDRAWN->value)
+                        <span class="badge badge-sm badge-warning">Withdrawn</span>
+                    @elseif($loan->status == \App\Enums\LoanStatus::CLOSED->value)
+                        <span class="badge badge-sm badge-dark">Closed</span>
+                    @else
+                        <span class="badge badge-sm badge-primary">Pending</span>
+                    @endif
+                </h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
@@ -154,12 +167,31 @@
         @if($loan->status == App\Enums\LoanStatus::PENDING->value)
         <!-- Used flexbox for alignment -->
         <div class="d-flex justify-content-end gap-2"> 
+            @can('edit-loan')
             <a href="{{route('loan.edit',$loan->id)}}" class="btn btn-sm btn-primary btn-edit-loan"><i class="fa fa-pencil"></i> Edit</a>
+            @endcan
+            @can('withdraw-loan')
             <button type="button" class="btn btn-sm btn-warning" onclick="withdrawnLoan({{$loan->id}})"><i class="fa fa-undo"></i> Withdrawn</button>
+            @endcan
+            @can('approve-loan')
             <button type="button" class="btn btn-sm btn-success" onclick="approveLoan({{$loan->id}})"><i class="fa fa-check"></i> Approve</button>
+            @endcan
+            @can('decline-loan')
             <button type="button" class="btn btn-sm btn-danger" onclick="declineLoan({{$loan->id}})"><i class="fa fa-remove"></i> Decline</button>
+            @endcan
+            @can('request-secondary-approval')
             <button type="button" class="btn btn-sm btn-success" onclick="requestApproval({{$loan->id}})"><i class="fa fa-check"></i> Request Approval</button>
+            @endcan
         </div>
+        @endif
+        @if($loan->status == App\Enums\LoanStatus::REQUEST_APPROVE->value)
+        <div class="d-flex justify-content-end gap-2"> 
+            @can('approve-secondary-approval')
+            <button type="button" class="btn btn-sm btn-success" onclick="approveLoan({{$loan->id}})"><i class="fa fa-check"></i> Approve</button>
+            @endcan
+            @can('approve-secondary-approval')
+            <button type="button" class="btn btn-sm btn-danger" onclick="declineLoan({{$loan->id}})"><i class="fa fa-remove"></i> Decline</button>
+            @endcan
         @endif
     </div>
 </div>

@@ -150,11 +150,40 @@
 
         $("#tblRole").on("click", ".btnEdit", function(){
             let id=$(this).attr("data-id");
-            window.location.href = `/role/${id}/edit`;
+
+            fetchRoleData(id).then((data) => {
+                // Populate the form fields with the fetched data
+                $("#modalRole [name='id']").val(data.id);
+                $("#modalRole [name='name']").val(data.name);
+
+                // Uncheck all permissions first
+                $("#modalRole input[name='permissions[]']").prop('checked', false);
+
+                // Check the permissions that the role has
+                data.permissions.forEach(function(permission) {
+                    $("#modalRole input[name='permissions[]'][id='" + permission.name + "']").prop('checked', true);
+                });
+
+                // Show the modal
+                showModal('modalRole');
+            }).catch((error) => {
+                showToast.error("Failed to fetch role data.");
+            });
         })
 
 
     });
+
+    async function fetchRoleData(id) {
+        let response = await fetch(`/role/${id}`, {
+            method: "GET",
+        });
+
+        if (!response.ok) throw new Error("Network response was not ok");
+
+        let data = await response.json();
+        return data;
+    }
 
     function deleteData(id) {
         swal({
