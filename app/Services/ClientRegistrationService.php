@@ -39,9 +39,9 @@ class ClientRegistrationService
                 $this->client = $this->createClient($client_details);
                 $this->createClientDetails($client_details);
 
-                if (isset($data['client_comaker'])) {
-                    $this->client->coMakers()->syncWithoutDetaching($data['client_comaker']);
-                }
+                // if (isset($data['client_comaker'])) {
+                //     $this->client->coMakers()->syncWithoutDetaching($data['client_comaker']);
+                // }
 
                 $this->createClientReferences($data['client_references'] ?? []);
                 $this->saveJobTitle($data['client_job_information'] ?? []);
@@ -175,26 +175,37 @@ class ClientRegistrationService
 
     protected function saveDocuments(array $documents)
     {
-        if(empty($documents)) {
+        if (empty($documents)) {
             return;
         }
 
         $docData = [];
-        foreach($documents['doc_type'] as $key => $val){
-            
-            if (isset($documents['file_upload'][$key])) {
-                $path = $documents['file_upload'][$key]->store('client_uploads', 'public');
-                $docData[] = [
-                    'client_id' => $this->client->id,
-                    'document_type' => $documents['doc_type'][$key],
-                    'file_path' => $path ?? null,
-                    'remarks' => $documents['file_upload_remarks'][$key] ?? '',
-                ];
-            } 
+
+        foreach ($documents as $doc) {
+
+            if (
+                empty($doc['doc_type']) ||
+                empty($doc['file_upload']) ||
+                !($doc['file_upload'] instanceof \Illuminate\Http\UploadedFile)
+            ) {
+                continue;
+            }
+
+            $path = $doc['file_upload']->store('client_uploads', 'public');
+
+            $docData[] = [
+                'client_id'      => $this->client->id,
+                'document_type'  => $doc['doc_type'],
+                'file_path'      => $path,
+                'remarks'        => $doc['file_upload_remarks'] ?? '',
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ];
         }
 
-        if($docData)
+        if (!empty($docData)) {
             ClientDocument::insert($docData);
+        }
     }
 
     protected function createCoMaker(array $data)

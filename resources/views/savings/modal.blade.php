@@ -26,6 +26,19 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="mode_of_payment">Mode of Payment</label>
+                                    @php
+                                        $modes = config('settings.mode_of_payment');
+                                    @endphp
+                                    <select name="mode_of_payment" id="mode_of_payment" class="form-control form-control-sm">
+                                        @foreach($modes as $key => $mode)
+                                            <option value="{{ $key }}">{{ $mode }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label class="form-label" for="amount">Amount</label>

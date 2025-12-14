@@ -33,15 +33,15 @@
 <div class="row">
     <div class="col-md-6 col-sm-12">
         <div class="card">
-            <div class="card-header">Add Loan</div>
+            <div class="card-header">Loan Information</div>
             <div class="card-body">
                 <div class="form-group">
                     <label for="loan_date">Loan Date</label>
-                    <input type="date" class="form-control" name="loan_date" id="loan_date" value="{{ date('Y-m-d') }}"/>
+                    <input type="date" class="form-control form-control-sm" name="loan_date" id="loan_date" value="{{ date('Y-m-d') }}"/>
                 </div>
                 <div class="form-group">
                     <label for="borrower_id">Borrower</label>
-                    <select name="borrower_id" id="borrower_id" class="form-control">
+                    <select name="borrower_id" id="borrower_id" class="form-control form-control-sm">
                         <option value="" disabled>-Select-</option>
 
                         @foreach ($clients as $client)
@@ -51,7 +51,7 @@
                 </div>
                 <div class="form-group">
                     <label for="loan_product_id">Loan Product</label>
-                    <select name="loan_product_id" id="loan_product_id" class="form-control" required>
+                    <select name="loan_product_id" id="loan_product_id" class="form-control form-control-sm" required>
                         <option value="" disabled
                             @if(filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN)) selected @endif
                         >-Select-</option>
@@ -67,19 +67,19 @@
                 </div>
                 <div class="form-group special-description">
                     <label for="description">Description</label>
-                    <input type="text" class="form-control" name="description" id="description"/>
+                    <input type="text" class="form-control form-control-sm" name="description" id="description"/>
                 </div>
                 <div class="form-group">
                     <label for="principal">Principal</label>
-                    <input type="number" class="form-control" name="principal" id="principal"/>
+                    <input type="number" class="form-control form-control-sm" name="principal" id="principal"/>
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="number" class="form-control" name="term" id="term" step="0.5"/>
+                    <input type="number" class="form-control form-control-sm" name="term" id="term" step="0.5"/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>
-                    <input type="number" class="form-control" name="interest_rate" id="interest_rate"/>
+                    <input type="number" class="form-control form-control-sm" name="interest_rate" id="interest_rate"/>
                 </div>
                 {{-- <div class="form-group">
                     <label for="interest_method">Interest Method</label>
@@ -157,6 +157,16 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="notary_fee" id="notary_fee">
                             </div>
                         </li>
+                        <li class="mt-3 mb-3" id="membership">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="membership_fee">Membership Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_membership_fee" id="override_membership_fee">
+                                    <label for="override_membership_fee" class="form-label text-muted">override?</label>
+                                </div>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{config('settings.membership_fee')}}">
+                            </div>
+                        </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between align-items-center">
@@ -192,14 +202,25 @@
                     </li>
                 </ul>
             </div>
-            <div class="card-footer">
-                <div class="row">
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary float-end btn-add-loan"><i class="fa fa-save"></i> Add Loan</button>
-                    </div>
-                </div>
-            </div>
         </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        @include('client.co-maker')
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        @include('client.documents')
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary float-end btn-add-loan"><i class="fa fa-save"></i> Add Loan</button>
     </div>
 </div>
 
@@ -280,6 +301,7 @@
             $("#notary").show()
 
             if(loan_type == 'loan-with-term') {
+                $(".special-description").hide().removeAttr("required");
                 $(".term").show().attr("required", true);
             } else if(loan_type == 'special-loan') {
                 $(".term").show().attr("required", true);
@@ -290,6 +312,7 @@
                 $("#term").val(12)
                 $("#insurance").hide()
                 $("#notary").hide()
+                $(".special-description").hide().removeAttr("required");
             } else {
                  $(".term").hide().removeAttr("required");
                  $(".special-description").hide().removeAttr("required");
@@ -338,6 +361,7 @@
             var override_service_fee = $("#override_service_fee").prop("checked");
             var override_insurance_fee = $("#override_insurance_fee").prop("checked");
             var override_notary_fee = $("#override_notary_fee").prop("checked");
+            var override_membership_fee = $("#override_membership_fee").prop("checked");
 
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
                 console.log(principal)
@@ -527,7 +551,9 @@
                 var reloan_deduction = 0;
             }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
+            var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
+
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee);
 
             var net_proceeds = principal - total_deductions;
 
@@ -624,26 +650,49 @@
 
         function addLoan() {
 
-            let params = {
-                loan_date: $('#loan_date').val(),
-                borrower_id: $('#borrower_id').val(),
-                loan_product_id: $('#loan_product_id').val(),
-                loan_duration: $('#term').val(),
-                interest_rate: $('#interest_rate').val(),
-                applied_amount: $('#principal').val().replace(/,/g, ''),
-                advance_interest: $('#advance_interest').val().replace(/,/g, ''),
-                service_fee: $('#service_fee').val().replace(/,/g, ''),
-                insurance_fee: $('#insurance_fee').length ? $('#insurance_fee').val().replace(/,/g, '') : '0',
-                notary_fee: $('#notary_fee').val().replace(/,/g, ''),
-                monthly_amortization: $('#monthly_amortization').val().replace(/,/g, ''),
-                net_proceeds: $('#net_proceeds').val().replace(/,/g, ''),
-                reference_loan_no: urlParams.get('loan_no_reference'),
-                is_reloan: urlParams.get('reloan'),
-                is_additional_loan: urlParams.get('additional_loan'),
-                description: $('#description').val(),
-                special_loan_balance: $('#special_loan_balance').length ? $('#special_loan_balance').val().replace(/,/g, '') : '0',
-                include_special_loan_balance: $('#include_special_loan_balance').length && $('#include_special_loan_balance').is(':checked') ? 1 : 0,
-            };
+            let formData = new FormData();
+
+            // basic fields
+            formData.append('loan_date', $('#loan_date').val());
+            formData.append('borrower_id', $('#borrower_id').val());
+            formData.append('loan_product_id', $('#loan_product_id').val());
+            formData.append('loan_duration', $('#term').val());
+            formData.append('interest_rate', $('#interest_rate').val());
+            formData.append('applied_amount', $('#principal').val().replace(/,/g, ''));
+            formData.append('advance_interest', $('#advance_interest').val().replace(/,/g, ''));
+            formData.append('service_fee', $('#service_fee').val().replace(/,/g, ''));
+            formData.append('insurance_fee', $('#insurance_fee').length ? $('#insurance_fee').val().replace(/,/g, '') : '0');
+            formData.append('notary_fee', $('#notary_fee').val().replace(/,/g, ''));
+            formData.append('membership_fee', $('#membership_fee').val().replace(/,/g, ''));
+            formData.append('monthly_amortization', $('#monthly_amortization').val().replace(/,/g, ''));
+            formData.append('net_proceeds', $('#net_proceeds').val().replace(/,/g, ''));
+            formData.append('reference_loan_no', urlParams.get('loan_no_reference') ?? '');
+            formData.append('is_reloan', urlParams.get('reloan') ?? '');
+            formData.append('is_additional_loan', urlParams.get('additional_loan') ?? '');
+            formData.append('description', $('#description').val());
+            formData.append('special_loan_balance', $('#special_loan_balance').length ? $('#special_loan_balance').val().replace(/,/g, '') : '0');
+            formData.append(
+                'include_special_loan_balance',
+                $('#include_special_loan_balance').length && $('#include_special_loan_balance').is(':checked') ? 1 : 0
+            );
+
+            // comakers (array)
+            $('input[name="client_comaker[]"]').each(function () {
+                formData.append('client_comaker[]', $(this).val());
+            });
+
+            // documents (files)
+            $('#documents_table tbody tr').each(function(index) {
+                const docType = $(this).find('select[name*="[doc_type]"]').val();
+                const fileInput = $(this).find('input[type="file"]')[0];
+                const remarks = $(this).find('input[type="text"][name*="[file_upload_remarks]"]').val();
+
+                if (docType && fileInput.files.length > 0) {
+                    formData.append(`client_documents[${index}][doc_type]`, docType);
+                    formData.append(`client_documents[${index}][file_upload]`, fileInput.files[0]);
+                    formData.append(`client_documents[${index}][file_upload_remarks]`, remarks || '');
+                }
+            });
 
             $.ajax({
                 type: 'POST',
@@ -651,29 +700,33 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                data: params,
-                success: function(data) {
-                    console.log(data)
-                    if (data.status == 'success') {
-                        showToast.success(data.message)
-                        window.location.href = "{{ route('loan.index') }}"
+                data: formData,
+                processData: false, // REQUIRED
+                contentType: false, // REQUIRED
+                success: function (data) {
+                    if (data.status === 'success') {
+                        showToast.success(data.message);
+                        $('#client_comaker tbody').empty();
+                        $('#documents_table tbody').empty();
+                        window.location.href = "{{ route('loan.index') }}";
                     } else {
-                        showToast.error(data.message)
-                        $('.btn-add-loan').attr("disabled", false);
+                        showToast.error(data.message);
+                        $('.btn-add-loan').prop('disabled', false);
                     }
                 },
-                error: function(error) {
+                error: function (error) {
                     let response = error.responseJSON;
 
-                    if (response.errors) {
+                    if (response?.errors) {
                         let messages = Object.values(response.errors).flat().join('<br>');
                         showToast.error(messages);
-                    } else if (response.message) {
+                    } else if (response?.message) {
                         showToast.error(response.message);
                     }
-                    $('.btn-add-loan').attr("disabled", false);
+
+                    $('.btn-add-loan').prop('disabled', false);
                 }
-            })
+            });
 
 
         }

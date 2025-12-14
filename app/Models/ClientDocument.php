@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClientDocument extends Model
 {
-    //
+    protected $fillable = [
+        'client_id',
+        'loan_id',
+        'document_type',
+        'file_path',
+        'remarks',
+    ];
 }

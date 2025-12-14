@@ -490,5 +490,21 @@ class SavingsController extends Controller
         return $final_months->count(); // or return $final_months if you need the list
     }
 
+    public function printReceipt($id)
+    {
+        $savings = Savings::with('client.details','client.branch')->findOrFail($id);
+        
+        // Get branch name from client's branch
+        $branchName = $savings->client->branch ? $savings->client->branch->name : 'Unknown';
+
+        // Custom title rules
+        if (strcasecmp($branchName, 'Guiuan') === 0) {
+            $branchTitle = 'Head Office';
+        } else {
+            $branchTitle = $branchName . ' Branch';
+        }
+
+        return view('savings.receipt', compact('savings', 'branchTitle'));
+    }
 
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Enums\LoanStatus;
 use App\Http\Requests\LoanRequest;
 use App\Models\Client;
+use App\Models\ClientDocument;
+use App\Models\ClientMembershipFee;
 use App\Models\InsuranceFeeSchedule;
 use App\Models\Loan;
 use App\Models\LoanCharge;
@@ -71,7 +73,6 @@ class LoanController extends Controller
         } else {
             $clients = Client::active()->get();
         }
-
         $additional_loan = $request->additional_loan;
         if($previous_loan && $additional_loan) {
             $loan_products = LoanProduct::where('id', $previous_loan->loan_product_id)->get();
@@ -89,11 +90,11 @@ class LoanController extends Controller
     {
         $data = $request->all();
 
-        if($data['is_reloan']) {
+        if(!empty($data['is_reloan']) && filter_var($data['is_reloan'], FILTER_VALIDATE_BOOLEAN)) {
             return $this->processReloan($data);
         }
 
-        if($data['is_additional_loan']) {
+        if(!empty($data['is_additional_loan']) && filter_var($data['is_additional_loan'], FILTER_VALIDATE_BOOLEAN)) {
             return $this->processAdditionalLoan($data);
         }
 
@@ -135,13 +136,13 @@ class LoanController extends Controller
             } else {
                 $data['is_special'] = 0;
 
-                $alreadyHasLoan = Loan::where([
-                                'borrower_id' => $data['borrower_id'],
-                            ])
-                            ->where('status', LoanStatus::APPROVE)
-                            ->orWhere('status', LoanStatus::REQUEST_APPROVE)
-                            ->orWhere('status', LoanStatus::PENDING)
-                            ->first();
+                $alreadyHasLoan = Loan::where('borrower_id', $data['borrower_id'])
+                                        ->whereIn('status', [
+                                            LoanStatus::APPROVE,
+                                            LoanStatus::REQUEST_APPROVE,
+                                            LoanStatus::PENDING
+                                        ])
+                                        ->first();
 
                 if($alreadyHasLoan) {
                     return response()->json([
@@ -153,8 +154,12 @@ class LoanController extends Controller
             }
 
             DB::transaction(function () use ($data) {
-
                 $loan = Loan::create($data);
+
+                $borrower = Client::findOrFail($data['borrower_id']);
+                $borrower->coMakers()->syncWithoutDetaching(
+                    array_fill_keys($data['client_comaker'], ['loan_id' => $loan->id])
+                );
 
                 LoanCharge::create([
                     'loan_id' => $loan->id,
@@ -173,6 +178,44 @@ class LoanController extends Controller
                     'insurance_annual_fee' => $insurance->annual_fee,
                     'monthly_amortization' => $data['monthly_amortization']
                 ]);
+
+                // Membership Fee
+                $membership_fee = $data['membership_fee'];
+                if($membership_fee > 0) {
+                    ClientMembershipFee::updateOrCreate(
+                        [
+                            'client_id' => $data['borrower_id'],
+                            'reference_model' => Loan::class,
+                            'reference_id' => $loan->id,
+                        ],
+                        [
+                            'amount_paid' => $membership_fee,
+                        ]
+                    );
+                }
+
+                // Save Documents
+                if (isset($data['client_documents']) && is_array($data['client_documents'])) {
+                    foreach ($data['client_documents'] as $doc) {
+                        if (
+                            empty($doc['doc_type']) ||
+                            empty($doc['file_upload']) ||
+                            !($doc['file_upload'] instanceof \Illuminate\Http\UploadedFile)
+                        ) {
+                            continue;
+                        }
+
+                        $path = $doc['file_upload']->store('client_uploads', 'public');
+
+                        ClientDocument::create([
+                            'client_id'      => $data['borrower_id'],
+                            'loan_id'        => $loan->id,
+                            'document_type'  => $doc['doc_type'],
+                            'file_path'      => $path,
+                            'remarks'        => $doc['file_upload_remarks'] ?? '',
+                        ]);
+                    }
+                }
 
             });
 
@@ -237,36 +280,133 @@ class LoanController extends Controller
             'loan_date' => 'required|date',
         ]);
 
-        $request->merge([
-            'applied_amount' => str_replace(',', '', $request->applied_amount),
-            'principal' => str_replace(',', '', $request->applied_amount),
-            'advance_interest' => str_replace(',', '', $request->advance_interest),
-            'service_fee' => str_replace(',', '', $request->service_fee),
-            'insurance_fee' => str_replace(',', '', $request->insurance_fee),
-            'notary_fee' => str_replace(',', '', $request->notary_fee),
-            'loan_no' => Loan::generateLoanNumber($request->loan_date)
-        ]);
+        try {
+            DB::transaction(function () use ($request, $loan) {
 
-        $loan->loan_date = $request->loan_date;
-        $loan->borrower_id = $request->borrower_id;
-        $loan->loan_product_id = $request->loan_product_id;
-        $loan->loan_duration = $request->loan_duration;
-        $loan->interest_rate = $request->interest_rate;
-        $loan->principal = $request->applied_amount;
-        $loan->applied_amount = $request->applied_amount;
+                $request->merge([
+                    'applied_amount' => str_replace(',', '', $request->applied_amount),
+                    'principal' => str_replace(',', '', $request->applied_amount),
+                    'advance_interest' => str_replace(',', '', $request->advance_interest),
+                    'service_fee' => str_replace(',', '', $request->service_fee),
+                    'insurance_fee' => str_replace(',', '', $request->insurance_fee),
+                    'notary_fee' => str_replace(',', '', $request->notary_fee),
+                    'membership_fee' => str_replace(',', '', $request->membership_fee),
+                    // 'loan_no' => Loan::generateLoanNumber($request->loan_date) // Don't regenerate loan no on edit
+                ]);
 
-        $loan->loanCharges->advance_interest = $request->advance_interest;
-        $loan->loanCharges->service_fee = $request->service_fee;
-        $loan->loanCharges->insurance_fee = $request->insurance_fee;
-        $loan->loanCharges->notary_fee = $request->notary_fee;
+                $loan->loan_date = $request->loan_date;
+                $loan->borrower_id = $request->borrower_id;
+                $loan->loan_product_id = $request->loan_product_id;
+                $loan->loan_duration = $request->loan_duration;
+                $loan->interest_rate = $request->interest_rate;
+                $loan->principal = $request->applied_amount;
+                $loan->applied_amount = $request->applied_amount;
 
-        $loan->loanCharges->save();
-        $loan->save();
+                $loan->loanCharges->advance_interest = $request->advance_interest;
+                $loan->loanCharges->service_fee = $request->service_fee;
+                $loan->loanCharges->insurance_fee = $request->insurance_fee;
+                $loan->loanCharges->notary_fee = $request->notary_fee;
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Loan updated successfully',
-        ]);
+                $loan->loanCharges->save();
+                $loan->save();
+
+                // Membership Fee
+                $membership_fee = $request->membership_fee;
+                if($membership_fee > 0) {
+                    ClientMembershipFee::updateOrCreate(
+                        [
+                            'client_id' => $request->borrower_id,
+                            'reference_model' => Loan::class,
+                            'reference_id' => $loan->id,
+                        ],
+                        [
+                            'amount_paid' => $membership_fee,
+                        ]
+                    );
+                }
+
+                // Sync Co-makers
+                $borrower = Client::findOrFail($request->borrower_id);
+                
+                $newCoMakers = $request->client_comaker ?? [];
+                
+                // Get existing co-makers for this specific loan
+                $currentCoMakers = DB::table('client_co_makers')
+                    ->where('client_id', $borrower->id)
+                    ->where('loan_id', $loan->id)
+                    ->pluck('co_maker_id')
+                    ->toArray();
+
+                // Determine what to remove (in current but not in new request)
+                $toRemove = array_diff($currentCoMakers, $newCoMakers);
+                
+                // Determine what to add (in new request but not in current)
+                $toAdd = array_diff($newCoMakers, $currentCoMakers);
+
+                // Detach removed
+                if (!empty($toRemove)) {
+                    DB::table('client_co_makers')
+                        ->where('client_id', $borrower->id)
+                        ->where('loan_id', $loan->id)
+                        ->whereIn('co_maker_id', $toRemove)
+                        ->delete();
+                }
+
+                // Attach added
+                if (!empty($toAdd)) {
+                    $borrower->coMakers()->attach(
+                        array_fill_keys($toAdd, ['loan_id' => $loan->id])
+                    );
+                }
+
+                // Sync Documents (Delete removed ones)
+                $existingDocIds = $request->existing_document_ids ?? [];
+                
+                // Get current documents for this loan
+                $currentDocuments = ClientDocument::where('loan_id', $loan->id)->get();
+                
+                foreach ($currentDocuments as $doc) {
+                    if (!in_array($doc->id, $existingDocIds)) {
+                        // Optimally delete file from storage here: Storage::disk('public')->delete($doc->file_path);
+                        $doc->delete();
+                    }
+                }
+
+                // Save New Documents
+                if ($request->has('client_documents') && is_array($request->client_documents)) {
+                    foreach ($request->client_documents as $doc) {
+                        if (
+                            empty($doc['doc_type']) ||
+                            empty($doc['file_upload']) ||
+                            !($doc['file_upload'] instanceof \Illuminate\Http\UploadedFile)
+                        ) {
+                            continue;
+                        }
+
+                        $path = $doc['file_upload']->store('client_uploads', 'public');
+
+                        ClientDocument::create([
+                            'client_id'      => $request->borrower_id,
+                            'loan_id'        => $loan->id,
+                            'document_type'  => $doc['doc_type'],
+                            'file_path'      => $path,
+                            'remarks'        => $doc['file_upload_remarks'] ?? '',
+                        ]);
+                    }
+                }
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Loan updated successfully',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong. ' . $e->getMessage()
+            ], 500);
+        }
 
     }
 
@@ -311,11 +451,24 @@ class LoanController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::approved()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
+            $loans = Loan::approved()->with('loanProduct','loanProduct.loanType','borrower.details','loanCharges')->filter($search)
                     ->whereNull('disbursed_date')
                     ->orderByDesc('loan_date')
                         ->orderByDesc('loan_no')
                         ->get();
+
+            $loans->map(function($loan){
+                $loan->net_proceeds = $loan->principal - (
+                    ($loan->loanCharges->advance_interest ?? 0) +
+                    ($loan->loanCharges->service_fee ?? 0) +
+                    ($loan->loanCharges->insurance_fee ?? 0) +
+                    ($loan->loanCharges->notary_fee ?? 0) +
+                    ($loan->loanCharges->reloan_deduction ?? 0) + 
+                    ($loan->membership_fee ?? 0)
+                );
+                return $loan;
+            });
+
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -474,6 +627,7 @@ class LoanController extends Controller
         if($loan) {
             $loan->disbursed_date = $request->disbursed_date;
             $loan->disbursed_notes = $request->notes;
+            $loan->mode_of_payment = $request->mode_of_payment;
             $loan->disbursed_by = auth()->user()->id;
             $loan->save();
 
@@ -486,6 +640,34 @@ class LoanController extends Controller
             'status' => 'error',
             'message' => 'Loan not found'
         ], 404);
+    }
+
+    public function printReceipt($id)
+    {
+        $loan = Loan::with('borrower.details','loanCharges')->findOrFail($id);
+        
+        // Calculate Net Proceeds
+        $net_proceeds = $loan->principal - (
+            ($loan->loanCharges->advance_interest ?? 0) +
+            ($loan->loanCharges->service_fee ?? 0) +
+            ($loan->loanCharges->insurance_fee ?? 0) +
+            ($loan->loanCharges->notary_fee ?? 0) +
+            ($loan->loanCharges->reloan_deduction ?? 0) + 
+            ($loan->loanCharges->special_loan_balance ?? 0) + 
+            ($loan->membership_fee ?? 0)
+        );
+
+        // Get branch name
+        $branchName = $loan->borrower->branch ? $loan->borrower->branch->name : 'Unknown';
+
+        // Custom title rules
+        if (strcasecmp($branchName, 'Guiuan') === 0) {
+            $branchTitle = 'Head Office';
+        } else {
+            $branchTitle = $branchName . ' Branch';
+        }
+
+        return view('loan.receipt', compact('loan', 'branchTitle', 'net_proceeds'));
     }
 
     public function processReloan($data)

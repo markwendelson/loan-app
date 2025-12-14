@@ -134,6 +134,7 @@
                         if (row.deleted_at) return ``;
 
                         return `
+                                <button class="btn btn-dark btn-xs" onclick="window.open('/savings/${row.id}/print', '_blank')"><i class="fa fa-print"></i></button>
                                 <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
                             `;
                     }
@@ -233,6 +234,7 @@
                 $("#modalTransaction [name='id']").val(data.id);
                 $("#modalTransaction [name='transaction_date']").val(data.transaction_date);
                 $("#modalTransaction [name='transaction_type']").val(data.transaction_type);
+                $("#modalTransaction [name='mode_of_payment']").val(data.mode_of_payment);
                 $("#modalTransaction [name='amount']").val(data.amount);
                 $("#modalTransaction [name='interest']").val(data.interest);
                 $("#modalTransaction [name='insurance']").val(data.insurance);

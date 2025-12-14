@@ -123,11 +123,13 @@ Route::middleware('auth')->group(function(){
             Route::post('decline/{loan}','declineLoan')->name('loan.decline-loan');;
             Route::post('request-approve/{loan}','requestApproveLoan')->name('loan.request-approval');;
             Route::post('get-reloan-deduction','getReloanDeduction')->name('loan.get-reloan-deduction');;
+            Route::get('{id}/print', 'printReceipt')->name('loan.print');
     });
     Route::controller(SavingsController::class)
         ->prefix('savings')
         ->group(function() {
             Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
+            Route::get('{id}/print', 'printReceipt')->name('savings.print');
     });
     Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);
@@ -163,6 +165,6 @@ Route::get('/check-encashments/{id}/receipt', [CheckEncashmentController::class,
 
 
 
-
+include_once(__DIR__ . '/ajax.php');
 
 });

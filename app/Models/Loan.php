@@ -15,7 +15,7 @@ class Loan extends Model implements Auditable
 
     protected $fillable = ['loan_date','loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal','repayment_order','is_special','description','is_reloan','reference_loan_no','is_additional_loan'];
 
-    protected $appends = ['final_principal','final_advance_interest','final_monthly_amortization','final_insurance_monthly','final_insurance_yearly'];
+    protected $appends = ['final_principal','final_advance_interest','final_monthly_amortization','final_insurance_monthly','final_insurance_yearly','membership_fee'];
 
     protected $casts = [
         'repayment_order' => 'array',
@@ -154,8 +154,16 @@ class Loan extends Model implements Auditable
         });
     }
 
+    public function membershipFee(): Attribute
+    {
+        return Attribute::get(function () {
+            $membership_fee =  ClientMembershipFee::where([
+                'reference_model' => Loan::class,
+                'reference_id' => $this->id,
+            ])->first();
 
-
-
+            return $membership_fee->amount_paid ?? 0;
+        });
+    }
 
 }

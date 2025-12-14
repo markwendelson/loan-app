@@ -31,18 +31,18 @@
 </div>
 
 <div class="row">
-    <div class="col-6">
+    <div class="col-md-6 col-sm-12">
         <div class="card">
-            <div class="card-header">View Loan</div>
+            <div class="card-header">Loan Information</div>
             <div class="card-body">
                 <div class="form-group">
                     <label for="loan_date">Loan Date</label>
-                    <input type="date" class="form-control" name="loan_date" id="loan_date" value="{{$loan->loan_date}}" readonly/>
+                    <input type="date" class="form-control form-control-sm" name="loan_date" id="loan_date" value="{{$loan->loan_date}}" readonly/>
                 </div>
                 <div class="form-group">
                     <input type="hidden" name="is_additional_loan" id="is_additional_loan" value="{{$loan->is_additional_loan}}">
                     <label for="borrower_id">Borrower</label>
-                    <select name="borrower_id" id="borrower_id" class="form-control" disabled>
+                    <select name="borrower_id" id="borrower_id" class="form-control form-control-sm" disabled>
                         <option value="" disabled>-Select-</option>
                         @foreach ($clients as $client)
                             <option value="{{$client->id}}" {{ $client->id == $loan->borrower_id ? 'selected' : ''}}>{{$client->details->fullname}}</option>
@@ -51,7 +51,7 @@
                 </div>
                 <div class="form-group">
                     <label for="loan_product_id">Loan Product</label>
-                    <select name="loan_product_id" id="loan_product_id" class="form-control" disabled>
+                    <select name="loan_product_id" id="loan_product_id" class="form-control form-control-sm" disabled>
                         <option value="" disabled selected>-Select-</option>
                         @foreach ($loan_products as $loan_product)
                             <option value="{{$loan_product->id}}" {{ $loan_product->id == $loan->loan_product_id ? 'selected' : '' }} data-loan-type={{Str::slug($loan_product->loanType->name)}} data-interest-rate="{{$loan_product->loanType->interest_rate}}">{{$loan_product->name}}</option>
@@ -61,20 +61,20 @@
                 @if($loan->is_special)
                 <div class="form-group special-description">
                     <label for="description">Description</label>
-                    <input type="text" class="form-control" name="description" id="description" value="{{$loan->description}}" readonly/>
+                    <input type="text" class="form-control form-control-sm" name="description" id="description" value="{{$loan->description}}" readonly/>
                 </div>
                 @endif
                 <div class="form-group pricipal">
                     <label for="principal">Principal</label>
-                    <input type="number" class="form-control" name="principal" id="principal" value="{{$loan->principal}}" readonly/>
+                    <input type="number" class="form-control form-control-sm" name="principal" id="principal" value="{{$loan->principal}}" readonly/>
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="text" class="form-control" name="term" id="term" value="{{$loan->loan_duration}}" readonly/>
+                    <input type="text" class="form-control form-control-sm" name="term" id="term" value="{{$loan->loan_duration}}" readonly/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>
-                    <input type="number" class="form-control" name="interest_rate" id="interest_rate" value="{{$loan->interest_rate}}" readonly/>
+                    <input type="number" class="form-control form-control-sm" name="interest_rate" id="interest_rate" value="{{$loan->interest_rate}}" readonly/>
                 </div>
                 {{-- <div class="form-group">
                     <label for="interest_method">Interest Method</label>
@@ -97,7 +97,7 @@
             </div>
         </div>
     </div>
-    <div class="col-6">
+    <div class="col-md-6 col-sm-12">
         <div class="card">
             <div class="card-header">Loan Summary</div>
             <div class="card-body">
@@ -111,6 +111,7 @@
                         <li>Insurance Fee <span class="insurance_fee">{{number_format($loan->loanCharges->insurance_fee,2)}}</span></li>
                         @endif
                         <li>Notary Fee <span class="notary_fee">{{number_format($loan->loanCharges->notary_fee,2)}}</span></li>
+                        <li>Membership Fee <span class="membership_fee">{{number_format($loan->membership_fee,2)}}</span></li>
                         @if($loan->is_reloan)
                         <li>Special Loan Balance <span class="reloan_deduction">{{number_format($loan->loanCharges->special_loan_balance,2)}}</span></li>
                         <li>Reloan Deduction <span class="reloan_deduction">{{number_format($loan->loanCharges->reloan_deduction,2)}}</span></li>
@@ -122,27 +123,44 @@
                         $service_fee = $loan->loanCharges->service_fee ?? 0;
                         $insurance_fee = $loan->loanCharges->insurance_fee ?? 0;
                         $notary_fee = $loan->loanCharges->notary_fee ?? 0;
+                        $membership_fee = $loan->membership_fee ?? 0;
                         $reloan_deduction = $loan->loanCharges->reloan_deduction ?? 0;
                         $special_loan_balance = $loan->loanCharges->special_loan_balance ?? 0;
-                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance;
+                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance + $membership_fee;
                         $net_proceeds = $principal - $total_deductions;
                     @endphp
                     <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds">{{ number_format($net_proceeds,2) }}</span></li>
                     <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization">{{ number_format($loan->loanFees->monthly_amortization,2) }}</span></li>
                 </ul>
             </div>
-            @if($loan->status == App\Enums\LoanStatus::PENDING->value)
-            <div class="card-footer loan-status-button">
-                <div class="col-12 float-end">
-                    <a href="{{route('loan.edit',$loan->id)}}" class="btn btn-sm btn-primary mx-auto btn-edit-loan"><i class="fa fa-pencil"></i> Edit</a>
-                    <button type="button" class="btn btn-sm btn-warning mx-auto" onclick="withdrawnLoan({{$loan->id}})"><i class="fa fa-undo"></i> Withdrawn</button>
-                    <button type="button" class="btn btn-sm btn-success mx-auto" onclick="approveLoan({{$loan->id}})"><i class="fa fa-check"></i> Approve</button>
-                    <button type="button" class="btn btn-sm btn-danger mx-auto" onclick="declineLoan({{$loan->id}})"><i class="fa fa-remove"></i> Decline</button>
-                    <button type="button" class="btn btn-sm btn-success mx-auto mt-1" onclick="requestApproval({{$loan->id}})"><i class="fa fa-check"></i> Request Approval</button>
-                </div>
-            </div>
-            @endif
         </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        @include('client.co-maker')
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        @include('client.documents')
+    </div>
+</div>
+
+<div class="row loan-status-button">
+    <div class="col-12"> {{-- Use a column to wrap content --}}
+        @if($loan->status == App\Enums\LoanStatus::PENDING->value)
+        <!-- Used flexbox for alignment -->
+        <div class="d-flex justify-content-end gap-2"> 
+            <a href="{{route('loan.edit',$loan->id)}}" class="btn btn-sm btn-primary btn-edit-loan"><i class="fa fa-pencil"></i> Edit</a>
+            <button type="button" class="btn btn-sm btn-warning" onclick="withdrawnLoan({{$loan->id}})"><i class="fa fa-undo"></i> Withdrawn</button>
+            <button type="button" class="btn btn-sm btn-success" onclick="approveLoan({{$loan->id}})"><i class="fa fa-check"></i> Approve</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="declineLoan({{$loan->id}})"><i class="fa fa-remove"></i> Decline</button>
+            <button type="button" class="btn btn-sm btn-success" onclick="requestApproval({{$loan->id}})"><i class="fa fa-check"></i> Request Approval</button>
+        </div>
+        @endif
     </div>
 </div>
 
@@ -388,6 +406,19 @@
 
             }
         })
+    }
+
+    hideElementsOnLoad();
+
+    function hideElementsOnLoad() {
+        $('.comaker-search-section').hide();
+        
+        $('#client_comaker thead tr th:last-child').remove();
+        $('#client_comaker tbody tr td:last-child').remove();
+        
+        $('#documents_table thead tr th:last-child').remove();
+        $('#documents_table tbody tr td:last-child').remove();
+        $('#addFileRow').hide();
     }
 </script>
 @endpush

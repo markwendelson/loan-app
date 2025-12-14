@@ -60,7 +60,8 @@ class Client extends Model implements Auditable
 
     public function coMakers()
     {
-        return $this->belongsToMany(Client::class, 'client_co_makers', 'client_id', 'co_maker_id');
+        return $this->belongsToMany(Client::class, 'client_co_makers', 'client_id', 'co_maker_id')
+            ->withPivot('loan_id');
     }
 
     public function isCoMakerFor()
@@ -101,5 +102,10 @@ class Client extends Model implements Auditable
         })
         ->where('status', LoanStatus::APPROVE)
         ->get();
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

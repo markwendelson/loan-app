@@ -16,17 +16,20 @@
         border: 1px solid #dee2e6; /* or whatever border color you use */
         padding: 8px;
     }
+
+    /* Hide comaker_table initially */
+    #comaker_table_wrapper {
+        display: none;
+    }
 </style>
 @endpush
 <div class="card">
-    <div class="card-header">
-        <h5>Co-Maker</h5>
-    </div>
+    <div class="card-header">Co-Maker</div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-4 comaker-search-section">
                 <div class="col mb-2">
-                    <input type="text" class="form-control" name="comaker_search" id="comaker_search" placeholder="Search"/>
+                    <input type="text" class="form-control" name="comaker_search" id="comaker_search" placeholder="Search co-maker to add"/>
                 </div>
                 <div class="row">
                     <div class="table-responsive">
@@ -48,16 +51,23 @@
                             <tr>
                                 <th class="text-left" width="150">Name</th>
                                 <th class="text-left" width="150">Address</th>
-                                <th class="text-center" width="80"><i class="fa fa-cog"></i></th>
+                                <th class="text-center co-maker-action-btn-header" width="80"><i class="fa fa-cog"></i></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if(isset($client->coMakers))
-                                @foreach($client->coMakers as $comaker)
+                            {{-- Show co-makers for specific loan when editing, empty when creating --}}
+                            @if(isset($loan) && isset($loan->borrower))
+                                @php
+                                    // Filter co-makers by this loan's ID
+                                    $loanCoMakers = $loan->borrower->coMakers->filter(function($comaker) use ($loan) {
+                                        return $comaker->pivot->loan_id == $loan->id;
+                                    });
+                                @endphp
+                                @foreach($loanCoMakers as $comaker)
                                     <tr data-id="{{$comaker->id}}">
                                         <td>{{$comaker->details->fullname}}</td>
                                         <td>{{$comaker->details->present_full_address}}</td>
-                                        <td>
+                                        <td class="text-center co-maker-action-btn-col">
                                             <button class="register-comaker btn btn-sm btn-danger btn-remove" data-id="{{$comaker->id}}">Remove</button>
                                         </td>
                                     </tr>
@@ -74,15 +84,7 @@
 @push('js')
 <script>
     $(document).ready(function() {
-        const match = window.location.pathname.match(/^\/client\/(\d+)\/edit$/);
-        const clientId = match ? match[1] : null;
-
-        if (clientId) {
-            
-            dataUrl = `{{ route('client.edit',':client') }}`.replace(':client',clientId)
-        } else {
-            dataUrl = "{{ route('client.index') }}"
-        }
+        dataUrl = "{{ route('ajax.get-clients') }}"
         const table = $('#comaker_table').DataTable({
             dom: 't',
             paging: false,
@@ -91,8 +93,22 @@
             processing: true,
             serverSide: true,
             searching: true,
+            deferLoading: 0, // Prevent initial load
             ajax: {
                 url: dataUrl,
+                data: function(d) {
+                    // Only load if there's a search value
+                    var searchValue = $('#comaker_search').val();
+                    if (!searchValue || searchValue.length === 0) {
+                        return false; // Cancel the request
+                    }
+                    
+                    var $borrower = $('#borrower_id');
+                    // Check element exists AND has value
+                    if ($borrower.length && $borrower.val()) {
+                        d.borrower_id = $borrower.val();
+                    }
+                }
             },
             columns: [
                 {
@@ -125,7 +141,16 @@
         });
 
         $('#comaker_search').on('keyup', function () {
-            table.search(this.value).draw();
+            const searchValue = this.value;
+            
+            // Show table only if there's search text
+            if (searchValue.length > 0) {
+                $('#comaker_table_wrapper').show();
+                table.search(searchValue).draw();
+            } else {
+                $('#comaker_table_wrapper').hide();
+                table.search('').draw();
+            }
         });
 
         table.on('click', '.register-comaker', function () {

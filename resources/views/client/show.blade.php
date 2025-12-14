@@ -55,7 +55,7 @@
                                             Personal Information
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a class="nav-link nav-link:hover "
                                             id="top-comaker"
                                             data-bs-toggle="tab"
@@ -67,7 +67,7 @@
                                             <i data-feather="users"></i>
                                             Co-Maker
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li class="nav-item">
                                         <a class="nav-link"
                                             id="top-documents"
@@ -95,9 +95,9 @@
                     </div>
 
                     <!-- gaurantor -->
-                    <div class="tab-pane fade show" id="tab-comaker" role="tabpanel" aria-labelledby="top-gurantor">
+                    {{-- <div class="tab-pane fade show" id="tab-comaker" role="tabpanel" aria-labelledby="top-gurantor">
                         @include('client.co-maker')
-                    </div>
+                    </div> --}}
 
 
                     <!-- documents -->
