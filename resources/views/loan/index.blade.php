@@ -68,6 +68,10 @@
 @push('js')
 <script>
     $(document).ready(function () {
+        const canView = {{ auth()->user()->can('view-loan') ? 1 : 0 }};
+        const canEdit = {{ auth()->user()->can('edit-loan') ? 1 : 0 }};
+        const canDelete = {{ auth()->user()->can('delete-loan') ? 1 : 0 }};
+        
         const table = $('#tblLoan').DataTable({
             ordering: false,
             processing: true,
@@ -99,17 +103,22 @@
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
-                        if(row.status == 1 || row.status == 5) {
-                            return `
-                                <button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button>
-                            `;
+                        let buttons = '';
+
+                        if (canView) {
+                            buttons += `<button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button> `;
                         }
 
-                        return `
-                                <button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button>
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
-                            `;
+                        if (row.status != 1 && row.status != 5) {
+                            if (canEdit) {
+                                buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
+                            }
+                            if (canDelete) {
+                                buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
+                            }
+                        }
+
+                        return buttons;
                     }
                 }
             ],

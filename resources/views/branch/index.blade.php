@@ -102,15 +102,19 @@
                             <td>
                                 <!-- Edit Button -->
                                  <!-- Edit Button to trigger modal -->
+                                 @can('edit-branch')
                                  <button class="btn btn-primary btn-sm" onclick="openEditModal({{ $branch }})">Edit</button>
+                                 @endcan
 
 
                                 <!-- Delete Button with confirmation dialog -->
+                                @can('delete-branch')
                                 <form action="{{ route('branch.destroy', $branch->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this branch?')">Delete</button>
                                 </form>
+                                @endcan
                             </td>
 
                             <input type="hidden" value="{{ $branch->id }}"> <!-- Hidden ID -->
