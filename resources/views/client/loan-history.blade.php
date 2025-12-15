@@ -66,45 +66,46 @@
                 <div class="card-body">
                     <ul class="list-group list-group-flush" id="loanHistory">
                         @foreach ($loans as $loan)
-                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action" data-id="{{$loan->id}}">
+                        @php
+                            $loanStatus = \App\Enums\LoanStatus::from($loan->status);
+
+                            $badge = match ($loan->status) {
+                                1 => 'badge-success',
+                                2 => 'badge-danger',
+                                3, 5 => 'badge-secondary',
+                                default => 'badge-primary',
+                            };
+
+                            $textStyle = $loan->status === 5 ? 'text-muted' : '';
+                        @endphp
+                        <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action {{$textStyle}}" data-id="{{$loan->id}}" data-loan_no="{{$loan->loan_no}}">
                             <div class="ms-2 me-auto">
                                 <div>{{$loan->loanProduct->name}}</div>
                                 <div class="fw-bold">{{$loan->loan_no}}</div>
                                 <div>{{$loan->loan_date}}</div>
-
                             </div>
-                            @php
-                                $loanStatus = \App\Enums\LoanStatus::from($loan->status);
-                                switch ($loan->status) {
-                                    case 1:
-                                        $badge = 'badge-success';
-                                        break;
-                                    case 2:
-                                        $badge = 'badge-danger';
-                                        break;
-                                    case 3:
-                                        $badge = 'badge-secondary';
-                                        break;
-                                    default:
-                                        $badge = 'badge-primary';
-                                        break;
-                                }
-                            @endphp
-
                             <span class="badge {{$badge}} rounded-pill">{{$loanStatus->name}}</span>
                         </li>
                         @endforeach
                     </ul>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 col-sm-12">
-            <div class="card">
+            {{-- <div class="card">
                 <div class="card-header">
                     <h4>Loan Details</h4>
                 </div>
                 <div class="card-body">
                     <div id="loanDetails"></div>
+                </div>
+            </div> --}}
+        </div>
+        <div class="col-md-8 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Loan Ledger</h4>
+                </div>
+                <div class="card-body">
+                    <div id="loanLedger"></div>
                 </div>
             </div>
         </div>
@@ -116,7 +117,6 @@
 
 <script>
     $(document).ready(function () {
-        var client_id = $("#client_id").val();
 
         const listItems = document.querySelectorAll('#loanHistory .list-group-item');
 
@@ -130,34 +130,109 @@
 
             // Get data attribute (e.g., data-id or data-loan-id)
             const loanId = item.dataset.id;
+            const loanNo = item.dataset.loan_no;
 
-            const targetDiv = document.getElementById('loanDetails'); // target div to inject content
+            fetchLoanDetails(loanId)
+            fetchLoanLedger(loanId,loanNo)
 
-            let url = "{{ route('client.loan-history-details', ':client') }}";
-            url = url.replace(':client', client_id);
-
-            // Append loan_id as a query param
-            url += `?loan_id=${encodeURIComponent(loanId)}`;
-
-            // Send AJAX request using Fetch (GET)
-            fetch(url, {
-                method: 'GET',
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text(); // because it's HTML
-            })
-            .then(html => {
-                targetDiv.innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                targetDiv.innerHTML = '<div class="alert alert-danger">Failed to load details.</div>';
-            });
 
           });
         });
     });
+
+    function fetchLoanDetails(loanId) {
+        var client_id = $("#client_id").val();
+        const targetDiv = document.getElementById('loanDetails'); // target div to inject content
+
+        let url = "{{ route('client.loan-history-details', ':client') }}";
+        url = url.replace(':client', client_id);
+
+        // Append loan_id as a query param
+        url += `?loan_id=${encodeURIComponent(loanId)}`;
+
+        // Send AJAX request using Fetch (GET) Loan Details
+        fetch(url, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text(); // because it's HTML
+        })
+        .then(html => {
+            targetDiv.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            targetDiv.innerHTML = '<div class="alert alert-danger">Failed to load details.</div>';
+        });
+    }
+
+    function fetchLoanLedger(loanId, loanNo) {
+        var client_id = $("#client_id").val();
+        const targetDiv = document.getElementById('loanLedger'); // target div to inject content
+
+        let url = "{{ route('client.partial-ledger', ':client') }}";
+        url = url.replace(':client', client_id);
+
+        // Append loan_id as a query param
+        url += `?loan_id=${encodeURIComponent(loanId)}`;
+
+        // Send AJAX request using Fetch (GET) Loan Details
+        fetch(url, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text(); // because it's HTML
+        })
+        .then(html => {
+            targetDiv.innerHTML = html;
+
+            const principal = $('#tblLedger').DataTable({
+                dom: 'rtip',
+                autoWidth: true,
+                ordering: false,
+                processing: true,
+                serverSide: true,
+                stateSave: true,
+                searching: true,
+                ajax: {
+                    url: `{{ route('client.ledger.loan', [':client', ':loan_no']) }}`
+                        .replace(':client', client_id)
+                        .replace(':loan_no', loanNo),
+                },
+                columns: [
+                    { data: 'transaction_date', name: 'transaction_date' },
+                    { data: 'withdraw_date', name: 'withdraw_date' },
+                    { data: 'salary_month', name: 'salary_month' },
+                    { data: 'loan_principal', name: 'loan_principal' },
+                    { data: 'loan_interest', name: 'loan_interest' },
+                    { data: 'loan_service_fee', name: 'loan_service_fee' },
+                    { data: 'loan_insurance_fee', name: 'loan_insurance_fee' },
+                    { data: 'others', name: 'others' },
+                    { data: 'net_proceed', name: 'net_proceed' },
+                    { data: 'signature', name: 'signature' },
+                    { data: 'payment_date', name: 'payment_date' },
+                    { data: 'payment_interest', name: 'payment_interest' },
+                    { data: 'payment_interest_month', name: 'payment_interest_month' },
+                    { data: 'payment_insurance', name: 'payment_insurance' },
+                    { data: 'payment_insurance_month', name: 'payment_insurance_month' },
+                    { data: 'payment_principal', name: 'payment_principal' },
+                    { data: 'change', name: 'change' },
+                    { data: 'balance', name: 'balance' },
+                    { data: 'remarks', name: 'remarks' },
+                ],
+                columnDefs: [
+                    // { className: "text-center", targets: [4,5] },
+                ]
+            });
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            targetDiv.innerHTML = '<div class="alert alert-danger">Failed to load details.</div>';
+        });
+    }
 
 
   </script>

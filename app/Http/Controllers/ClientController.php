@@ -8,9 +8,12 @@ use App\Models\ClientDetails;
 use App\Models\Loan;
 use App\Services\ClientRegistrationService;
 use App\Services\ClientUpdateService;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ClientController extends Controller
 {
@@ -167,7 +170,11 @@ class ClientController extends Controller
             }
         }
 
-        $mappedData = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) {
+        // Running total
+        $total_payment_principal = 0;
+        $balance = 0;
+        $i = 0;
+        $rawRows = $loans->filter(fn($loan) => $loan->loan_product_id == $filter)->flatMap(function ($loan) use(&$balance,&$total_payment_principal,&$i){
             $interest = $loan->loanCharges->advance_interest;
             $service_fee = $loan->loanCharges->service_fee;
             $insurance_fee = $loan->loanCharges->insurance_fee;
@@ -176,11 +183,10 @@ class ClientController extends Controller
 
             $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
             $net_proceed = $loan->principal - $loan_charges;
-
-            $balance = $loan->principal;
-
+            $i++;
             // Initial loan row
             $rows = [[
+                'index' => $i,
                 'loan_id' => $loan->id,
                 'payment_id' => null,
                 'transaction_date' => $loan->loan_date,
@@ -194,22 +200,28 @@ class ClientController extends Controller
                 'net_proceed' => number_format($net_proceed, 2),
                 'signature' => null,
                 'wdl' => null,
+                'payment_date' => null,
                 'payment_interest' => null,
+                'payment_interest_month' => null,
                 'payment_insurance' => null,
+                'payment_insurance_month' => null,
                 'payment_principal' => number_format($reloan_deduction, 2),
                 'change' => null,
-                'balance' => number_format($balance, 2),
+                'balance' => null, // to be filled after sorting
                 'remarks' => null,
+                'order_date' => Carbon::parse($loan->loan_date),
+                'raw_principal' => $loan->principal, // used for recomputing
             ]];
 
-            // Running total
-            $total_payment_principal = 0;
 
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
-                $total_payment_principal += $payment->principal;
-                $balance = $loan->principal - $total_payment_principal;
+                $i++;
+                // $total_payment_principal += $payment->principal;
+                // $balance = $loan->principal - $total_payment_principal;
+                $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
+                    'index' => $i,
                     'loan_id' => $loan->id,
                     'payment_id' => $payment->id,
                     'transaction_date' => null,
@@ -223,17 +235,46 @@ class ClientController extends Controller
                     'net_proceed' => null,
                     'signature' => null,
                     'wdl' => number_format($payment->amount, 2),
+                    'payment_date' => $payment->transaction_date,
                     'payment_interest' => number_format($payment->interest, 2),
+                    'payment_interest_month' => (!empty($payment->interest_end_date))
+                                                    ? date('d-M-y', strtotime($payment->interest_end_date))
+                                                    : null,
                     'payment_insurance' => number_format($payment->insurance, 2),
+                    'payment_insurance_month' => (!empty($payment->insurance_month) && !empty($payment->insurance_year))
+                                                        ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
+                                                        : null,
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => null,
-                    'balance' => number_format($balance, 2),
+                    'change' => number_format($change,2),
+                    'balance' => null, // to be computed
                     'remarks' => null,
+                    'order_date' => Carbon::parse($payment->transaction_date),
+                    'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                 ];
             }
-
             return collect($rows);
         });
+
+        $sortedRows = $rawRows->sortBy([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
+
+        $balance = 0;
+        $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
+            $delta = $row['raw_principal'] ?? 0;
+            $balance += $delta;
+
+            $row['balance'] = number_format($balance, 2);
+            unset($row['raw_principal']); // cleanup
+            return $row;
+        });
+
+        // Step 3: Sort again to DESCENDING if needed for display
+        $mappedData = $balancedRows->sortByDesc([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -252,6 +293,7 @@ class ClientController extends Controller
         $loan = [
             'principal_loan_no' => $principal_loan->loan_no ?? '',
             'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
+            'principal_loan_product_type' => $principal_loan->loanProduct->loanType->name ?? '',
             'principal_date_granted' => $principal_loan->approved_date ?? '',
             'special_loan_no' => $special_loan->loan_no ?? '',
             'special_loan_product' => $special_loan->loanProduct->name ?? '',
@@ -274,7 +316,8 @@ class ClientController extends Controller
             }
         }
 
-        $mappedData = $loans->filter(fn($loan) => $loan->loan_product_id !== $filter)->flatMap(function ($loan) {
+        $i = 0;
+        $rawRows = $loans->filter(fn($loan) => $loan->loan_product_id !== $filter)->flatMap(function ($loan) use(&$i){
             $interest = $loan->loanCharges->advance_interest;
             $service_fee = $loan->loanCharges->service_fee;
             $insurance_fee = $loan->loanCharges->insurance_fee;
@@ -283,11 +326,10 @@ class ClientController extends Controller
 
             $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee;
             $net_proceed = $loan->principal - $loan_charges;
-
-            $balance = $loan->principal;
-
+            $i++;
             // Initial loan row
             $rows = [[
+                'index' => $i,
                 'loan_id' => $loan->id,
                 'payment_id' => null,
                 'transaction_date' => $loan->loan_date,
@@ -300,12 +342,15 @@ class ClientController extends Controller
                 'net_proceed' => number_format($net_proceed, 2),
                 'signature' => null,
                 'wdl' => null,
+                'payment_date' => null,
                 'payment_interest' => null,
                 'payment_insurance' => null,
                 'payment_principal' => number_format($reloan_deduction, 2),
                 'change' => null,
-                'balance' => number_format($balance, 2),
+                'balance' => null, // to be computed
                 'remarks' => null,
+                'order_date' => Carbon::parse($loan->loan_date),
+                'raw_principal' => $loan->principal, // used for recomputing
             ]];
 
             // Running total
@@ -314,8 +359,10 @@ class ClientController extends Controller
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
                 $total_payment_principal += $payment->principal;
                 $balance = $loan->principal - $total_payment_principal;
+                $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
+                    'index' => $i,
                     'loan_id' => $loan->id,
                     'payment_id' => $payment->id,
                     'transaction_date' => null,
@@ -328,17 +375,41 @@ class ClientController extends Controller
                     'net_proceed' => null,
                     'signature' => null,
                     'wdl' => number_format($payment->amount, 2),
+                    'payment_date' => $payment->transaction_date,
                     'payment_interest' => number_format($payment->interest, 2),
                     'payment_insurance' => number_format($payment->insurance, 2),
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => null,
-                    'balance' => number_format($balance, 2),
+                    'change' => number_format($change,2),
+                    'balance' => null, // to be computed
                     'remarks' => null,
+                    'order_date' => Carbon::parse($payment->transaction_date),
+                    'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                 ];
             }
 
             return collect($rows);
         });
+
+        $sortedRows = $rawRows->sortBy([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
+
+        $balance = 0;
+        $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
+            $delta = $row['raw_principal'] ?? 0;
+            $balance += $delta;
+
+            $row['balance'] = number_format($balance, 2);
+            unset($row['raw_principal']); // cleanup
+            return $row;
+        });
+
+        // Step 3: Sort again to DESCENDING if needed for display
+        $mappedData = $balancedRows->sortByDesc([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -353,73 +424,123 @@ class ClientController extends Controller
 
     public function ledgerLoan(Request $request, Client $client, string $loan_no)
     {
-        $loan = Loan::with('payments','loanCharges')->where('borrower_id', $client->id)->where('loan_no',$loan_no)->firstOrFail();
+        $loans = Loan::with('payments','loanCharges')->where(function($q) use($loan_no){
+                        $q->where('loan_no', $loan_no)
+                            ->orWhere('reference_loan_no',$loan_no)
+                            ->where('is_additional_loan',1)
+                            ->orWhere('is_reloan',0);
+                    })
+                    ->where('borrower_id', $client->id)->get();
 
-        $interest = $loan->loanCharges->advance_interest;
-        $service_fee = $loan->loanCharges->service_fee;
-        $insurance_fee = $loan->loanCharges->insurance_fee;
-        $notary_fee = $loan->loanCharges->notary_fee;
-        $reloan_deduction = $loan->loanCharges->reloan_deduction;
-
-        $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
-        $net_proceed = $loan->principal - $loan_charges;
-
-        $balance = $loan->principal;
-
-        // Initial loan row
-        $rows = [[
-            'loan_id' => $loan->id,
-            'payment_id' => null,
-            'transaction_date' => $loan->loan_date,
-            'withdraw_date' => null,
-            'salary_month' => null,
-            'loan_principal' => number_format($loan->principal, 2),
-            'loan_interest' => number_format($interest, 2),
-            'loan_service_fee' => number_format($service_fee, 2),
-            'loan_insurance_fee' => number_format($insurance_fee, 2),
-            'others' => number_format($notary_fee, 2),
-            'net_proceed' => number_format($net_proceed, 2),
-            'signature' => null,
-            'wdl' => null,
-            'payment_interest' => null,
-            'payment_insurance' => null,
-            'payment_principal' => number_format($reloan_deduction, 2),
-            'change' => null,
-            'balance' => number_format($balance, 2),
-            'remarks' => null,
-        ]];
-
+        $i = 0;
         // Running total
-        $total_payment_principal = 0;
+        $rawRows = $loans->flatMap(function ($loan) use(&$i) {
+            $i++;
+            $interest = $loan->loanCharges->advance_interest;
+            $service_fee = $loan->loanCharges->service_fee;
+            $insurance_fee = $loan->loanCharges->insurance_fee;
+            $notary_fee = $loan->loanCharges->notary_fee;
+            $reloan_deduction = $loan->loanCharges->reloan_deduction;
 
-        foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
-            $total_payment_principal += $payment->principal;
-            $balance = $loan->principal - $total_payment_principal;
+            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
+            $net_proceed = $loan->principal - $loan_charges;
 
-            $rows[] = [
+            $rows = [[
+                'index' => $i,
                 'loan_id' => $loan->id,
-                'payment_id' => $payment->id,
-                'transaction_date' => null,
-                'withdraw_date' => $payment->transaction_date,
-                'salary_month' => strtoupper(date('M y', strtotime($payment->transaction_date))),
-                'loan_principal' => null,
-                'loan_interest' => null,
-                'loan_service_fee' => null,
-                'loan_insurance_fee' => null,
-                'others' => null,
-                'net_proceed' => null,
+                'payment_id' => null,
+                'transaction_date' => $loan->loan_date,
+                'withdraw_date' => null,
+                'salary_month' => null,
+                'loan_principal' => number_format($loan->principal, 2),
+                'loan_interest' => number_format($interest, 2),
+                'loan_service_fee' => number_format($service_fee, 2),
+                'loan_insurance_fee' => number_format($insurance_fee, 2),
+                'others' => number_format($notary_fee, 2),
+                'net_proceed' => number_format($net_proceed, 2),
                 'signature' => null,
-                'wdl' => number_format($payment->amount, 2),
-                'payment_interest' => number_format($payment->interest, 2),
-                'payment_insurance' => number_format($payment->insurance, 2),
-                'payment_principal' => number_format($payment->principal, 2),
+                'wdl' => null,
+                'payment_date' => null,
+                'payment_interest' => null,
+                'payment_interest_month' => null,
+                'payment_insurance' => null,
+                'payment_insurance_month' => null,
+                'payment_principal' => number_format($reloan_deduction, 2),
                 'change' => null,
-                'balance' => number_format($balance, 2),
+                'balance' => null, // to be filled after sorting
                 'remarks' => null,
-            ];
-        }
+                'order_date' => Carbon::parse($loan->loan_date),
+                'raw_principal' => $loan->principal, // used for recomputing
+            ]];
 
-        $mappedData = collect($rows);
+            foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
+                $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
+
+                $rows[] = [
+                    'index' => $i,
+                    'loan_id' => $loan->id,
+                    'payment_id' => $payment->id,
+                    'transaction_date' => null,
+                    'withdraw_date' => $payment->transaction_date,
+                    'salary_month' => strtoupper(date('M y', strtotime($payment->transaction_date))),
+                    'loan_principal' => null,
+                    'loan_interest' => null,
+                    'loan_service_fee' => null,
+                    'loan_insurance_fee' => null,
+                    'others' => null,
+                    'net_proceed' => null,
+                    'signature' => null,
+                    'wdl' => number_format($payment->amount, 2),
+                    'payment_date' => $payment->transaction_date,
+                    'payment_interest' => number_format($payment->interest, 2),
+                    'payment_interest_month' => (!empty($payment->interest_end_date))
+                        ? date('d-M-y', strtotime($payment->interest_end_date))
+                        : null,
+                    'payment_insurance' => number_format($payment->insurance, 2),
+                    'payment_insurance_month' => (!empty($payment->insurance_month) && !empty($payment->insurance_year))
+                        ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
+                        : null,
+                    'payment_principal' => number_format($payment->principal, 2),
+                    'change' => number_format($change, 2),
+                    'balance' => null, // to be computed
+                    'remarks' => null,
+                    'order_date' => Carbon::parse($payment->transaction_date),
+                    'raw_principal' => -1 * $payment->principal, // subtract from balance
+                ];
+            }
+
+            return $rows;
+        });
+
+        $sortedRows = $rawRows->sortBy([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
+
+        $balance = 0;
+        $balancedRows = $sortedRows->map(function ($row) use (&$balance) {
+            $delta = ($row['raw_principal'] ?? 0);
+            $balance += $delta;
+
+            $row['balance'] = number_format($balance, 2);
+            unset($row['raw_principal']); // cleanup
+            return $row;
+        });
+
+        // Step 3: Sort again to DESCENDING if needed for display
+        $mappedData = $balancedRows->sortByDesc([
+            ['order_date', 'asc'],
+            ['index', 'asc'],
+        ])->values();
+
+        $principal_loan = $loans[0] ?? null;
+
+        $loan = [
+            'principal_loan_no' => $principal_loan->loan_no ?? '',
+            'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
+            'principal_loan_product_type' => $principal_loan->loanProduct->loanType->name ?? '',
+            'principal_date_granted' => $principal_loan->approved_date ?? '',
+        ];
 
         if($request->ajax()) {
             $totalRecords = 0;
@@ -436,7 +557,7 @@ class ClientController extends Controller
 
     public function loanHistory(Client $client)
     {
-        $loans = Loan::where('borrower_id',$client->id)->get();
+        $loans = Loan::where('borrower_id',$client->id)->orderBy('status')->orderByDesc('loan_date')->where('is_additional_loan',0)->get();
         return view('client.loan-history', compact('client','loans'));
     }
 
@@ -449,5 +570,22 @@ class ClientController extends Controller
         ])->first();
 
         return view('client.loan-history-details', compact('client','loan'));
+    }
+
+    public function partialLedger(Request $request, Client $client)
+    {
+
+        $loan = Loan::with('payments','loanCharges')->where([
+            'id' => $request->loan_id,
+            'borrower_id' => $client->id
+        ])->first();
+
+        return view('client.partial-ledger', compact('client','loan'));
+    }
+
+    public function getBalance(Client $client)
+    {
+        $balance = getClientBalance($client);
+        return response()->json(['balance' => $balance]);
     }
 }

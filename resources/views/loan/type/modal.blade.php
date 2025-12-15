@@ -21,6 +21,11 @@
                     </div>
 
                     <div class="col-12">
+                        <label class="w-100" for="interest_rate">Interest Rate</label>
+                        <input type="number" class="form-control form-control-sm" name="interest_rate" placeholder="Interest Rate" required min="1"/>
+                    </div>
+
+                    <div class="col-12">
                         <label class="w-100">Status</label>
                         <select class="form-select form-select-sm" name="status">
                             <option value="" disabled>-- Select --</option>

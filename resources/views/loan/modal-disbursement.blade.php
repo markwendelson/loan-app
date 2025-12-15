@@ -15,6 +15,23 @@
                         <input type="date" class="form-control" name="disbursed_date" id="disbursed_date" value="{{ date('Y-m-d') }}"/>
                     </div>
 
+                     <div class="col-12">
+                       <label for="mode_of_payment">Mode of Payment</label>
+                            @php
+                                $modes = config('settings.mode_of_payment');
+                            @endphp
+                        <select name="mode_of_payment" id="mode_of_payment" class="form-select form-select-sm">
+                            @foreach($modes as $key => $mode)
+                                <option value="{{ $key }}">{{ $mode }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="amount">Amount</label>
+                        <input type="text" class="form-control form-control-sm" name="amount" placeholder="0.00" readonly/>
+                    </div>
+
                     <div class="col-12">
                         <label class="w-100" for="notes">Notes</label>
                         <input type="text" class="form-control form-control-sm" name="notes" placeholder="Notes" />

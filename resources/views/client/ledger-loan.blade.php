@@ -74,9 +74,9 @@
                             <div class="card-header">
                                 <div class="row">
                                     <div class="col-md-8">
-                                        <div>Loan ID: {{$loan['loan_no']}}</div>
-                                        <div>Loan Product: {{$loan->loanProduct->name}}</div>
-                                        <div>Date Loan Granted: {{$loan['approved_date'] ?? date('l, F j, Y, g:i A',strtotime($loan['approved_date']))}}</div>
+                                        <div>Loan ID: {{$loan['loan_no'] ?? ''}}</div>
+                                        <div>Loan Product: {{$loan['principal_loan_product']}}</div>
+                                        <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['approved_date']))}}</div>
                                         <div>Remarks: <p></p></div>
                                     </div>
                                 </div>
@@ -87,37 +87,40 @@
                                         <thead class="bg-default">
                                             <tr>
                                                 <th class="text-center" width="80" colspan="3" rowspan="2"></th>
-                                                <th class="text-leftr" width="150" colspan="6">LOAN</th>
+                                                <th class="text-center" width="150" colspan="6">LOAN</th>
                                                 <th class="text-center" width="80"></th>
-                                                <th class="text-leftr" width="150" colspan="5">PAYMENT</th>
+                                                <th class="text-center" width="150" colspan="7">PAYMENT</th>
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             </tr>
                                             <tr>
-                                                <th></th>
+                                                <th rowspan="3">Principal</th>
                                                 <th colspan="4">Deduction</th>
+                                                <th rowspan="3">Net Proceed</th>
                                                 <th></th>
-                                                <th></th>
-                                                <th></th>
-                                                <th colspan="4" style="border-right-width:1px;">Applied to</th>
+                                                <th colspan="7" style="border-right-width:1px;">Applied to</th>
                                             </tr>
                                             <tr>
-                                                <th>Transaction Date</th>
-                                                <th>Withdraw Date</th>
-                                                <th>Salary Month</th>
-                                                <th>Principal</th>
-                                                <th>Interest</th>
-                                                <th>Service Fee</th>
-                                                <th>Insurance Fee</th>
-                                                <th>Others</th>
-                                                <th>Net Proceed</th>
-                                                <th></th>
-                                                <th>WDL/DR</th>
-                                                <th>Interest</th>
-                                                <th>Insurance</th>
-                                                <th>Principal</th>
-                                                <th>Change</th>
-                                                <th>Balance</th>
-                                                <th>Remarks</th>
+                                                <th rowspan="2">Transaction Date</th>
+                                                <th rowspan="2">Withdraw Date</th>
+                                                <th rowspan="2">Salary Month</th>
+                                                <th rowspan="2">Interest</th>
+                                                <th rowspan="2">Service Fee</th>
+                                                <th rowspan="2">Insurance Fee</th>
+                                                <th rowspan="2">Net Proceed</th>
+                                                <th rowspan="2"></th>
+                                                <th rowspan="2">Transaction Date</th>
+                                                <th colspan="2">Interest</th>
+                                                <th colspan="2">Insurance</th>
+                                                <th rowspan="2">Principal</th>
+                                                <th rowspan="2">Change</th>
+                                                <th rowspan="2">Balance</th>
+                                                <th rowspan="2">Remarks</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Amount</th>
+                                                <th>Month</th>
+                                                <th>Amount</th>
+                                                <th>Month</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -166,9 +169,11 @@
                 { data: 'others', name: 'others' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
-                { data: 'wdl', name: 'wdl' },
+                { data: 'payment_date', name: 'payment_date' },
                 { data: 'payment_interest', name: 'payment_interest' },
+                { data: 'payment_interest_month', name: 'payment_interest_month' },
                 { data: 'payment_insurance', name: 'payment_insurance' },
+                { data: 'payment_insurance_month', name: 'payment_insurance_month' },
                 { data: 'payment_principal', name: 'payment_principal' },
                 { data: 'change', name: 'change' },
                 { data: 'balance', name: 'balance' },

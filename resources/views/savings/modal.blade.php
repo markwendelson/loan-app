@@ -26,6 +26,19 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="mode_of_payment">Mode of Payment</label>
+                                    @php
+                                        $modes = config('settings.mode_of_payment');
+                                    @endphp
+                                    <select name="mode_of_payment" id="mode_of_payment" class="form-control form-control-sm">
+                                        @foreach($modes as $key => $mode)
+                                            <option value="{{ $key }}">{{ $mode }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label class="form-label" for="amount">Amount</label>
@@ -55,7 +68,7 @@
                         <div class="withdraw">
                             <div class="row mb-3">
                                 <div class="col-12 form-group">
-                                    <label for="loan_id">Select Loan</label>
+                                    <label class="form-label" for="loan_id">Select Loan</label>
                                     <select name="loan_id" id="loan_id" class="form-control form-control-sm">
                                         <option value="">-select-</option>
                                         @foreach($loans as $loan)
@@ -65,7 +78,7 @@
                                                 data-interest-rate="{{$loan->interest_rate}}"
                                                 data-term="{{$loan->loan_duration}}"
                                                 data-loan-type="{{Str::slug($loan->loanProduct->loanType->name)}}"
-                                            >{{$loan->loan_no}}</option>
+                                            >{{$loan->is_special ? 'Special Loan | '.$loan->description .' | ' .$loan->loan_no : 'Principal Loan | '.$loan->loan_no}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -101,26 +114,30 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_month" class="form-label">Month</label>
-                                    <select name="insurance_month" id="insurance_month" class="form-control form-control-sm">
+                                    <select name="insurance_month" id="insurance_month" class="form-control form-control-sm my-insurance">
                                         <option value="" disabled>Select</option>
                                         @foreach (month_names() as $number => $name)
-                                            <option value="{{ $number }}">{{ $name }}</option>
+                                            <option value="{{ $number }}"  {{ $number == date('m') ? 'selected' : ''}}>{{ $name }}</option>
                                         @endforeach
 
                                     </select>
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="insurance_year" class="form-label">Year</label>
-                                    <input type="text" class="form-control form-control-sm" id="insurance_year" name="insurance_year" value="{{date('Y')}}">
+                                    <input type="text" class="form-control form-control-sm my-insurance" id="insurance_year" name="insurance_year" value="{{date('Y')}}" min="0">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-md-6 form-group">
+                                <div class="col-md-6 d-block form-group">
                                     <label class="form-label" for="principal">Principal</label>
                                     <input type="number" class="form-control form-control-sm" name="principal" min="0" readonly/>
                                     <input type="checkbox" name="is_early_settlement" id="is_early_settlement" class="form-check-input" />
-                                    <label for="is_early_settlement">Early Settlement</label>
+                                    <label for="is_early_settlement"><small>Early Settlement</small></label>
+                                    <div class="special-loan-group">
+                                        <input type="checkbox" name="include_special_loan_balance" id="include_special_loan_balance" class="form-check-input" />
+                                        <label for="include_special_loan_balance"><small>Include Special Loan Balance</small></label>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="form-label" for="due_change">Change</label>

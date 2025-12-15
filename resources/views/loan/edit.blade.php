@@ -37,7 +37,7 @@
 <div class="row">
     <div class="col-md-6 col-sm-12">
         <div class="card">
-            <div class="card-header">Edit Loan</div>
+            <div class="card-header">Loan Information</div>
             <div class="card-body">
                 <input type="hidden" name="loan_id" id="loan_id" value="{{$loan->id}}"/>
                 <div class="form-group">
@@ -111,33 +111,61 @@
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="advance_interest">Advance Interest</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_advance_interest" id="override_advance_interest">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="advance_interest" id="advance_interest">
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3" id="membership">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="membership_fee">Membership Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_membership_fee" id="override_membership_fee">
+                                    <label for="override_membership_fee" class="form-label text-muted">override?</label>
+                                </div>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{ number_format($loan->membership_fee,2) }}">
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="service_fee">Service Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_service_fee" id="override_service_fee">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="service_fee" id="service_fee">
                             </div>
                         </li>
-                        <li class="mt-3 mb-3">
+                        <li class="mt-3 mb-3" id="insurance">
                             <div class="d-flex justify-content-between">
                                 <label for="insurance_fee">Insurance Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_insurance_fee" id="override_insurance_fee">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="insurance_fee" id="insurance_fee">
                             </div>
                         </li>
-                        <li class="mt-3 mb-3">
+                        <li class="mt-3 mb-3" id="notary">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Notary Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_notary_fee" id="override_notary_fee">
+                                    <label for="override_notary_fee" class="form-label text-muted">override?</label>
+                                </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
                             </div>
                         </li>
+                        @if($loan->is_reloan)
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="notary_fee">Reloan Deduction</label>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$loan->loanCharges->reloan_deduction}}">
                             </div>
                         </li>
+                        @endif
                     </ul>
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between">
@@ -153,17 +181,27 @@
                     </li>
                 </ul>
             </div>
-            <div class="card-footer">
-                <div class="row">
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary float-end btn-update-loan"><i class="fa fa-save"></i> Update Loan</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        @include('client.co-maker')
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        @include('client.documents')
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary float-end btn-update-loan"><i class="fa fa-save"></i> Update Loan</button>
+    </div>
+</div>
 @endsection
 
 @push('js')
@@ -174,10 +212,20 @@
 
         interest_rate = $("[name='loan_product_id']").find('option:selected').data('interest-rate');
 
-        if(loan_type == 'loan-with-term' || loan_type == 'special-loan') {
-            $(".term").show()
+        if(loan_type == 'loan-with-term') {
+            $(".term").show().attr("required", true);
+        } else if(loan_type == 'special-loan') {
+            $(".term").show().attr("required", true);
+            $(".special-description").show().attr("required", true);
+            $("#term").val(12)
+        } else if(loan_type == 'mortgage-loan') {
+            $(".term").show().attr("required", true);
+            $("#term").val(12)
+            $("#insurance").hide()
+            $("#notary").hide()
         } else {
-            $(".term").hide()
+                $(".term").hide().removeAttr("required");
+                $(".special-description").hide().removeAttr("required");
         }
 
         calculateLoan();
@@ -190,25 +238,68 @@
             interest_rate = $(this).find('option:selected').data('interest-rate');
             $("[name='interest_rate']").val(interest_rate)
 
-            if(loan_type == 'loan-with-term' || loan_type == 'special-loan') {
-                $(".term").show()
+            $("#insurance").show()
+            $("#notary").show()
+
+            if(loan_type == 'loan-with-term') {
+                $(".term").show().attr("required", true);
+            } else if(loan_type == 'special-loan') {
+                $(".term").show().attr("required", true);
+                $(".special-description").show().attr("required", true);
+                $("#term").val(12)
+            } else if(loan_type == 'mortgage-loan') {
+                $(".term").show().attr("required", true);
+                $("#term").val(12)
+                $("#insurance").hide()
+                $("#notary").hide()
             } else {
-                $(".term").hide()
+                 $(".term").hide().removeAttr("required");
+                 $(".special-description").hide().removeAttr("required");
             }
 
             calculateLoan();
 
         })
 
-        $("[name='principal'],[name='term'],[name='interest_rate']").on('change', function() {
+        $("[name='term']").on("change", function() {
+            var loan_type = $("[name='loan_product_id']").find('option:selected').data('loan-type');
+            var interest_rate = $("[name='loan_product_id']").find('option:selected').data('interest-rate');
+            if(loan_type == 'special-loan') {
+                if($(this).val() != 12) {
+                    $("[name='interest_rate']").val(5)
+                } else {
+                    $("[name='interest_rate']").val(interest_rate)
+                }
+            }
             calculateLoan();
         })
+
+        $("[name='principal'],[name='interest_rate']").on('change', function() {
+            calculateLoan();
+        })
+
+        $('.over-ride').on("change", function () {
+            const isChecked = $(this).prop("checked");
+
+            // Find the closest wrapper with .d-flex, then find the input[type=text] inside it
+            const $input = $(this).closest('.d-flex').find('input[type="text"]');
+
+            $input.prop("readonly", !isChecked);
+
+            calculateLoan()
+        });
 
         async function calculateLoan() {
             var principal = parseFloat($("[name='principal']").val())
             interest_rate = parseFloat($("[name='interest_rate']").val())
             var term = parseInt($("[name='term']").val())
 
+            // override
+            var override_advance_interest = $("#override_advance_interest").prop("checked");
+            var override_service_fee = $("#override_service_fee").prop("checked");
+            var override_insurance_fee = $("#override_insurance_fee").prop("checked");
+            var override_notary_fee = $("#override_notary_fee").prop("checked");
+            var override_membership_fee = $("#override_membership_fee").prop("checked");
 
             if (isNaN(principal) || isNaN(interest_rate) || (loan_type === 'loan-with-term' && isNaN(term))) {
                 return;
@@ -270,11 +361,33 @@
                 } else if(notaryFeeResponse.type == 'percentage') {
                     notary_fee = principal * (notaryFeeResponse.notary_fee/100);
                 }
+            } else if(loan_type == 'mortgage-loan') {
+                insurance_fee = 0
+                notary_fee = 0
+
+                if(override_advance_interest) {
+                    advance_interest = $('#advance_interest').val().replace(/,/g, '') || 0
+                } else {
+                    advance_interest = principal * (interest_rate/100);
+                }
+
+                monthly_amortization = advance_interest;
+
+                if(override_service_fee) {
+                    service_fee = $('#service_fee').val().replace(/,/g, '') || 0
+                } else {
+                    service_fee = principal * (6/100);
+                }
             }
 
-            var reloan_deduction = parseFloat($('#reloan_deduction').val()) || 0;
+            var reloan_deduction = 0;
+            if($('#reloan_deduction').length) {
+                reloan_deduction = parseFloat($('#reloan_deduction').val().replace(/,/g, '')) || 0;
+            }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
+            var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
+
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee);
 
             var net_proceeds = principal - total_deductions;
 
@@ -312,43 +425,89 @@
         })
 
         function updateLoan() {
-            let params = {
-                id: $('#loan_id').val(),
-                loan_date: $('#loan_date').val(),
-                borrower_id: $('#borrower_id').val(),
-                loan_product_id: $('#loan_product_id').val(),
-                loan_duration: $('#term').val(),
-                interest_rate: $('#interest_rate').val(),
-                applied_amount: $('#principal').val(),
-                advance_interest: $('#advance_interest').val(),
-                service_fee: $('#service_fee').val(),
-                insurance_fee: $('#insurance_fee').val(),
-                notary_fee: $('#notary_fee').val(),
-                monthly_amortization: $('#monthly_amortization').val(),
-                net_proceeds: $('#net_proceeds').val(),
-            };
+            let formData = new FormData();
 
+            // basic fields
+            formData.append('id', $('#loan_id').val());
+            formData.append('loan_date', $('#loan_date').val());
+            formData.append('borrower_id', $('#borrower_id').val());
+            formData.append('loan_product_id', $('#loan_product_id').val());
+            formData.append('loan_duration', $('#term').val());
+            formData.append('interest_rate', $('#interest_rate').val());
+            formData.append('applied_amount', $('#principal').val().replace(/,/g, ''));
+            formData.append('advance_interest', $('#advance_interest').val().replace(/,/g, ''));
+            formData.append('service_fee', $('#service_fee').val().replace(/,/g, ''));
+            formData.append('insurance_fee', $('#insurance_fee').length ? $('#insurance_fee').val().replace(/,/g, '') : '0');
+            formData.append('notary_fee', $('#notary_fee').val().replace(/,/g, ''));
+            formData.append('monthly_amortization', $('#monthly_amortization').val().replace(/,/g, ''));
+            formData.append('net_proceeds', $('#net_proceeds').val().replace(/,/g, ''));
+            formData.append('membership_fee', $('#membership_fee').val().replace(/,/g, ''));
+            
+            // Needed for PUT method with FormData in Laravel
+            formData.append('_method', 'PUT'); 
+
+            // co-makers
+            $('#client_comaker tbody tr').each(function() {
+                const id = $(this).data('id');
+                // Or if you are using hidden inputs:
+                // const id = $(this).find('input[name="client_comaker[]"]').val();
+                if(id) {
+                    formData.append('client_comaker[]', id);
+                }
+            });
+
+            // documents (files)
+            $('#documents_table tbody tr').each(function(index) {
+                const docType = $(this).find('select[name*="[doc_type]"]').val();
+                const fileInput = $(this).find('input[type="file"]')[0];
+                const remarks = $(this).find('input[type="text"][name*="[file_upload_remarks]"]').val();
+                
+                // Check if this is an existing file (has data-id)
+                // Note: .data('id') on the TR, not the remove button
+                const existingId = $(this).data('id');
+                
+                if (existingId) {
+                    formData.append('existing_document_ids[]', existingId);
+                }
+
+                if (docType && fileInput && fileInput.files.length > 0) {
+                    formData.append(`client_documents[${index}][doc_type]`, docType);
+                    formData.append(`client_documents[${index}][file_upload]`, fileInput.files[0]);
+                    formData.append(`client_documents[${index}][file_upload_remarks]`, remarks || '');
+                }
+            });
 
             $.ajax({
-                type: 'PUT',
-                url: `{{route('loan.update', ':id')}}`.replace(':id',params.id),
+                type: 'POST', // Use POST with _method: PUT for FormData
+                url: `{{route('loan.update', ':id')}}`.replace(':id', $('#loan_id').val()),
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                data: params,
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     console.log(response)
                     if (response.status == 'success') {
                         showToast.success(response.message)
                         setTimeout(() => {
-                            window.location.href = "{{ route('loan.index') }}"
+                        window.location.href = "{{ route('loan.show', ':id') }}".replace(':id', $('#loan_id').val());
                         }, 1000);
                     } else {
                         showToast.error('Failed to update loan')
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.log(xhr.responseText);
+                    let response = xhr.responseJSON;
+                    if (response?.errors) {
+                        let messages = Object.values(response.errors).flat().join('<br>');
+                        showToast.error(messages);
+                    } else if (response?.message) {
+                        showToast.error(response.message);
+                    } else {
+                        showToast.error('Something went wrong.');
+                    }
+                    $('.btn-update-loan').prop('disabled', false);
                 }
             })
         }

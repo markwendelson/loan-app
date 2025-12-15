@@ -72,6 +72,10 @@
 
 <script>
     $(document).ready(function () {
+        const canViewLedger = {{ auth()->user()->can('view-ledger') ? 1 : 0 }};
+        const canViewClient = {{ auth()->user()->can('view-client') ? 1 : 0 }};
+        const canEdit = {{ auth()->user()->can('edit-client') ? 1 : 0 }};
+        const canDelete = {{ auth()->user()->can('delete-client') ? 1 : 0 }};
 
         const table = $('#tblClient').DataTable({
             ordering: false,
@@ -98,12 +102,20 @@
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
-                        return `
-                                <button class="btn btn-primary btn-xs btnLedger" data-id="${row.id}"><i class="fa fa-table"></i></button>
-                                <button class="btn btn-primary btn-xs btnHistory" data-id="${row.id}"><i class="fa fa-list"></i></button>
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
-                            `;
+                        let buttons = '';
+                        if (canViewLedger) {
+                            buttons += `<button class="btn btn-primary btn-xs btnLedger" data-id="${row.id}"><i class="fa fa-table"></i></button> `;
+                        }
+                        if (canViewClient) {
+                            buttons += `<button class="btn btn-primary btn-xs btnHistory" data-id="${row.id}"><i class="fa fa-list"></i></button> `;
+                        }
+                        if (canEdit) {
+                            buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
+                        }
+                        if (canDelete) {
+                            buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
+                        }
+                        return buttons;
                     }
                 }
             ],

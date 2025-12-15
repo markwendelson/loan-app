@@ -11,7 +11,17 @@ class PaymentObserver
      */
     public function created(Savings $savings): void
     {
-        //
+        // check loan balance
+        if ($savings->transaction_type == 'withdraw') {
+            $loan = $savings->loan;
+            if($loan) {
+                $balance = getLoanBalance($loan);
+                if($balance == 0) {
+                    markLoanAsClosed($loan, $savings->transaction_date);
+                }
+            }
+        }
+
     }
 
     /**

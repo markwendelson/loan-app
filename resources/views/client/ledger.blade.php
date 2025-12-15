@@ -43,8 +43,8 @@
     <!-- button container -->
     <div class="card">
         <div class="card-body">
-            <div>Name: <span>{{$client->details->fullname}}</span></div>
-            <div>Address: <span>{{$client->details->present_full_address}}</div>
+            <h3><span>{{$client->details->fullname}}</span></h3>
+            <h3><span>{{$client->details->present_full_address}}</h3>
         </div>
     </div>
 
@@ -85,6 +85,9 @@
                                     </div>
                                     <div class="col-md-4 float-end">
                                         <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                        {{-- @if(Str::slug($loan['principal_loan_product_type']) == 'open-term') --}}
+                                        <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'additional_loan'=>true])}}" class="btn btn-sm btn-primary mx-auto">Add Loan</a>
+                                        {{-- @endif --}}
                                     </div>
                                 </div>
                             </div>
@@ -96,33 +99,38 @@
                                                 <th class="text-center" width="80" colspan="3" rowspan="2"></th>
                                                 <th class="text-center" width="150" colspan="6">LOAN</th>
                                                 <th class="text-center" width="80"></th>
-                                                <th class="text-center" width="150" colspan="5">PAYMENT</th>
+                                                <th class="text-center" width="150" colspan="7">PAYMENT</th>
                                                 <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             </tr>
                                             <tr>
-                                                <th rowspan="2">Principal</th>
+                                                <th rowspan="3">Principal</th>
                                                 <th colspan="4">Deduction</th>
-                                                <th rowspan="2">Net Proceed</th>
+                                                <th rowspan="3">Net Proceed</th>
                                                 <th></th>
-                                                <th></th>
-                                                <th colspan="4" style="border-right-width:1px;">Applied to</th>
+                                                <th colspan="7" style="border-right-width:1px;">Applied to</th>
                                             </tr>
                                             <tr>
-                                                <th>Transaction Date</th>
-                                                <th>Withdraw Date</th>
-                                                <th>Salary Month</th>
-                                                <th>Interest</th>
-                                                <th>Service Fee</th>
-                                                <th>Insurance Fee</th>
-                                                <th>Net Proceed</th>
-                                                <th></th>
-                                                <th>WDL/DR</th>
-                                                <th>Interest</th>
-                                                <th>Insurance</th>
-                                                <th>Principal</th>
-                                                <th>Change</th>
-                                                <th>Balance</th>
-                                                <th>Remarks</th>
+                                                <th rowspan="2">Transaction Date</th>
+                                                <th rowspan="2">Withdraw Date</th>
+                                                <th rowspan="2">Salary Month</th>
+                                                <th rowspan="2">Interest</th>
+                                                <th rowspan="2">Service Fee</th>
+                                                <th rowspan="2">Insurance Fee</th>
+                                                <th rowspan="2">Others</th>
+                                                <th rowspan="2"></th>
+                                                <th rowspan="2">Transaction Date</th>
+                                                <th colspan="2">Interest</th>
+                                                <th colspan="2">Insurance</th>
+                                                <th rowspan="2">Principal</th>
+                                                <th rowspan="2">Change</th>
+                                                <th rowspan="2">Balance</th>
+                                                <th rowspan="2">Remarks</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Amount</th>
+                                                <th>Month</th>
+                                                <th>Amount</th>
+                                                <th>Month</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -173,7 +181,7 @@
                                                 <th>Insurance Fee</th>
                                                 <th>Others</th>
                                                 <th></th>
-                                                <th>WDL/DR</th>
+                                                <th>Transaction Date</th>
                                                 <th>Interest</th>
                                                 <th>Insurance</th>
                                                 <th>Principal</th>
@@ -227,9 +235,11 @@
                 { data: 'others', name: 'others' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
-                { data: 'wdl', name: 'wdl' },
+                { data: 'payment_date', name: 'payment_date' },
                 { data: 'payment_interest', name: 'payment_interest' },
+                { data: 'payment_interest_month', name: 'payment_interest_month' },
                 { data: 'payment_insurance', name: 'payment_insurance' },
+                { data: 'payment_insurance_month', name: 'payment_insurance_month' },
                 { data: 'payment_principal', name: 'payment_principal' },
                 { data: 'change', name: 'change' },
                 { data: 'balance', name: 'balance' },
@@ -261,7 +271,7 @@
                 { data: 'others', name: 'others' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
-                { data: 'wdl', name: 'wdl' },
+                { data: 'payment_date', name: 'payment_date' },
                 { data: 'payment_interest', name: 'payment_interest' },
                 { data: 'payment_insurance', name: 'payment_insurance' },
                 { data: 'payment_principal', name: 'payment_principal' },

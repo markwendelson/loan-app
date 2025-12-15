@@ -169,7 +169,7 @@
         <script src="{{url('assets/js/script.js')}}"></script>
         <script>
             const showToast = {
-                show(message, className = 'text-bg-primary', delay = 3000) {
+                show(message, className = 'text-bg-primary', delay = 5000) {
                     const toastEl = document.getElementById('liveToast1');
                     const toastBody = document.getElementById('toastBody');
 

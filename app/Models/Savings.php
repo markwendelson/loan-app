@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Savings extends Model
+class Savings extends Model implements Auditable
 {
+
+    use \OwenIt\Auditing\Auditable, SoftDeletes;
+
     protected $fillable = ['transaction_date','client_id','loan_id','description','notes','amount','transaction_type','classifications',
-                            'interest','interest_start_date','interest_end_date','insurance','insurance_month','insurance_year','principal','due_change'];
+                            'interest','interest_start_date','interest_end_date','insurance','insurance_month','insurance_year','principal','due_change','mode_of_payment'];
 
     public function scopeFilter($query, $search)
     {
@@ -23,5 +28,10 @@ class Savings extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function loan()
+    {
+        return $this->belongsTo(Loan::class);
     }
 }

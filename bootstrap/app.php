@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->append(CheckDeviceIP::class);
+        // $middleware->append(CheckDeviceIP::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

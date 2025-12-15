@@ -98,6 +98,9 @@
 @push('js')
 <script>
     $(document).ready(function () {
+        const canEdit = {{ auth()->user()->can('edit-loan-product') ? 1 : 0 }};
+        const canDelete = {{ auth()->user()->can('delete-loan-product') ? 1 : 0 }};
+
         const table = $('#tblLoanProduct').DataTable({
             ordering: false,
             processing: true,
@@ -123,10 +126,14 @@
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
-                        return `
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
-                            `;
+                        let buttons = '';
+                        if (canEdit) {
+                            buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
+                        }
+                        if (canDelete) {
+                            buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
+                        }
+                        return buttons;
                     }
                 }
             ],

@@ -89,15 +89,18 @@ Route::middleware('auth')->group(function(){
     Route::get('/get-insurance-fee', [InsuranceFeeScheduleController::class, 'getInsuranceFee'])->name('get_insurance_fee');
     Route::get('/get-notary-fee', [NotaryFeeScheduleController::class, 'getNotaryFee'])->name('get_notary_fee');
     Route::get('/get-fees', [SavingsController::class, 'getFees'])->name('get_fees');
+    Route::get('/get-fees-by-month-and-year', [SavingsController::class, 'getFeesByMonthAndYear'])->name('get_fees_by_month_and_year');
 
     Route::controller(ClientController::class)
         ->prefix('client')
         ->group(function() {
+            Route::get('{client}/get-balance', 'getBalance')->name('client.get-balance');
             Route::get('{client}/{loan_no}/ledger', 'ledgerLoan')->name('client.ledger.loan');
             Route::get('{client}/loan-history', 'loanHistory')->name('client.loan-history');
             Route::get('{client}/ledger', 'ledgerPrincipal')->name('client.ledger.principal');
             Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
             Route::get('{client}/loan-history-details', 'loanHistoryDetails')->name('client.loan-history-details');
+            Route::get('{client}/partial-ledger', 'partialLedger')->name('client.partial-ledger');
     });
 
     Route::post('user/{user}/permission',[UserController::class,'updatePermission'])->name('user.update-permission');
@@ -121,11 +124,13 @@ Route::middleware('auth')->group(function(){
             Route::post('decline/{loan}','declineLoan')->name('loan.decline-loan');;
             Route::post('request-approve/{loan}','requestApproveLoan')->name('loan.request-approval');;
             Route::post('get-reloan-deduction','getReloanDeduction')->name('loan.get-reloan-deduction');;
+            Route::get('{id}/print', 'printReceipt')->name('loan.print');
     });
     Route::controller(SavingsController::class)
         ->prefix('savings')
         ->group(function() {
             Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
+            Route::get('{id}/print', 'printReceipt')->name('savings.print');
     });
     Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);
@@ -160,6 +165,7 @@ Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'dest
 Route::get('/check-encashments/{id}/receipt', [CheckEncashmentController::class, 'printReceipt'])->name('check-encashments.receipt');
 
 
+
 Route::prefix('service-fees')->group(function() {
     Route::get('/', [ServiceChargeController::class, 'index'])->name('service-fees.index');
     Route::post('/', [ServiceChargeController::class, 'store'])->name('service-fees.store');
@@ -167,6 +173,8 @@ Route::prefix('service-fees')->group(function() {
     Route::put('/{id}', [ServiceChargeController::class, 'update'])->name('service-fees.update');
     Route::delete('/{id}', [ServiceChargeController::class, 'destroy'])->name('service-fees.destroy');
 });
+
+include_once(__DIR__ . '/ajax.php');
 
 
 });

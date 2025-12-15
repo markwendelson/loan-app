@@ -16,7 +16,7 @@ class RoleController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $roles = Role::all();
+            $roles = Role::where('name', '!=', 'super_admin')->get();
             $totalRecords = $roles->count();
 
             return response()->json([
@@ -53,6 +53,8 @@ class RoleController extends Controller
             $role->guard_name = 'web';
             $role->save();
 
+            $role->syncPermissions($request->input('permissions', []));
+
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062) {
                 return response()->json([
@@ -78,6 +80,7 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
+        $role = Role::with('permissions')->where('id', $role->id)->first();
         if($role) {
             return response()->json($role);
         }
@@ -100,8 +103,14 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+        $request->validate([
+            'name' => 'required|unique:roles,name,' . $role->id,
+        ]);
+
         $role->name = $request->name;
         $role->save();
+
+        $role->syncPermissions($request->input('permissions', []));
 
         return response()->json([
             'status' => 'success',

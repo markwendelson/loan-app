@@ -53,6 +53,7 @@
                             <th class="text-center" width="120">No.</th>
                             <th class="text-leftr" width="150">Loan Type</th>
                             <th>Description</th>
+                            <th class="text-center" width="180">Intrest Rate (%)</th>
                             <th class="text-center" width="180">Status</th>
                             <th class="text-center" width="150"><i class="fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
                         </tr>
@@ -70,6 +71,8 @@
 @push('js')
 <script>
     $(document).ready(function () {
+        const canEdit = {{ auth()->user()->can('edit-loan-type') ? 1 : 0 }};
+        const canDelete = {{ auth()->user()->can('delete-loan-type') ? 1 : 0 }};
 
         const table = $('#tblLoanType').DataTable({
             ordering: false,
@@ -84,6 +87,7 @@
                 { data: 'id', name: 'id' },
                 { data: 'name', name: 'name' },
                 { data: 'description', name: 'description' },
+                { data: 'interest_rate', name: 'interest_rate' },
                 { data: 'status', name: 'status', render: function(data, type, row) {
                     if (data == 1) {
                         return '<span class="badge badge-success">Active</span>';
@@ -95,10 +99,14 @@
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
-                        return `
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
-                            `;
+                        let buttons = '';
+                        if (canEdit) {
+                            buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
+                        }
+                        if (canDelete) {
+                            buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
+                        }
+                        return buttons;
                     }
                 }
             ],
@@ -180,6 +188,7 @@
                 $("#modalLoanType [name='id']").val(data.id);
                 $("#modalLoanType [name='name']").val(data.name);
                 $("#modalLoanType [name='description']").val(data.description);
+                $("#modalLoanType [name='interest_rate']").val(data.interest_rate);
                 $("#modalLoanType [name='status']").val(data.status);
                 showModal('modalLoanType')
 

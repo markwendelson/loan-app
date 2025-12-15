@@ -20,6 +20,7 @@
 @endpush
 
 <div class="card">
+    <div class="card-header">Documents</div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered table-hover" id="documents_table">
@@ -45,9 +46,16 @@
                             'Auto Debit'
                         ];
                     @endphp
-                    @if(isset($client->documents))
-                        @foreach($client->documents as $doc)
-                            <tr>
+                    {{-- Show documents for specific loan when editing, empty when creating --}}
+                    @if(isset($loan) && isset($loan->borrower->documents))
+                        @php
+                            // Filter documents by this loan's ID
+                            $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
+                                return $doc->loan_id == $loan->id;
+                            });
+                        @endphp
+                        @foreach($loanDocuments as $doc)
+                            <tr data-id="{{ $doc->id }}">
                                 <td>
                                     <select name="client_documents[doc_type][]" class="form-select">
                                         <option value="">Select Document</option>
@@ -76,7 +84,7 @@
                                     placeholder="Remarks..."
                                     value="{{ $doc->remarks }}"
                                 ></td>
-                                <td><button type="button" class="btn btn-danger btn-sm btn-remove">Remove</button></td>
+                                <td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove">Remove</button></td>
                             </tr>
                         @endforeach
                     @endif
@@ -104,33 +112,44 @@ $(document).ready(function () {
         "Auto Debit"
     ];
 
-    function generateDocTypeOptions() {
+    function generateDocTypeOptions(index) {
         return `
-            <select name="client_documents[doc_type][]" class="form-select">
+            <select name="client_documents[${index}][doc_type]" class="form-select">
                 <option value="">Select Document</option>
                 ${docTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
             </select>
         `;
     }
 
-    function updateRowIndices() {
-        $('#documents_table tbody tr').each(function (index) {
-            const rowIndex = index + 1;
-            $(this).find('select').attr('name', `doc_type_${rowIndex}`);
-            $(this).find('input[type="file"]').attr('name', `file_upload_${rowIndex}`);
-            $(this).find('input[type="text"]').attr('name', `file_upload_remarks_${rowIndex}`);
-        });
-    }
-
     $('#addFileRow').on('click', function () {
-        const rowCount = $('#documents_table tbody tr').length + 1;
+        const index = $('#documents_table tbody tr').length;
 
         const newRow = `
             <tr>
-                <td>${generateDocTypeOptions()}</td>
-                <td><input type="file" name="client_documents[file_upload][]" class="form-control"></td>
-                <td><input type="text" name="client_documents[file_upload_remarks][]" class="form-control" placeholder="Remarks..."></td>
-                <td><button type="button" class="btn btn-danger btn-sm btn-remove">Remove</button></td>
+                <td>${generateDocTypeOptions(index)}</td>
+
+                <td>
+                    <input
+                        type="file"
+                        name="client_documents[${index}][file_upload]"
+                        class="form-control"
+                    >
+                </td>
+
+                <td>
+                    <input
+                        type="text"
+                        name="client_documents[${index}][file_upload_remarks]"
+                        class="form-control"
+                        placeholder="Remarks..."
+                    >
+                </td>
+
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm btn-remove">
+                        Remove
+                    </button>
+                </td>
             </tr>
         `;
 
@@ -139,8 +158,8 @@ $(document).ready(function () {
 
     $('#documents_table').on('click', '.btn-remove', function () {
         $(this).closest('tr').remove();
-        updateRowIndices();
     });
+
 });
 </script>
 
