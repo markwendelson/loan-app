@@ -50,13 +50,25 @@
         </div>
 
         <!-- Less: Service Fee -->
-        <div class="spaced">
+         <div class="spaced">
+            <div class="bold">Less:</div>
+            <div class="label" style="margin-left:10px;">
+                <span>Service Fee:</span>
+                @if($walkin->no_service_charge)
+                    <span>0.00 (No Service Charge)</span>
+                @else
+                    <span>{{ number_format($walkin->charge, 2) }}</span>
+                @endif
+            </div>
+        </div>
+        
+        <!-- <div class="spaced">
             <div class="bold">Less:</div>
             <div class="label" style="margin-left:10px;">
                 <span>Service Fee:</span>
                 <span>{{ number_format($walkin->charge, 2) }}</span>
             </div>
-        </div>
+        </div> -->
 
         <!-- Net Proceeds -->
         <div class="spaced label net-proceeds">

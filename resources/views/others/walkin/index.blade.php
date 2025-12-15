@@ -117,14 +117,36 @@ function resetForm() {
     document.getElementById('date').value = new Date().toISOString().split('T')[0];
     document.getElementById('charge').value = '';
     document.getElementById('net_proceeds').value = '';
+
+        // Reset checkbox + hidden value
+    const noChargeCheckbox = document.getElementById('no_service_charge');
+    const noChargeValue = document.getElementById('no_service_charge_value');
+    noChargeCheckbox.checked = false;
+    noChargeCheckbox.disabled = false;
+    noChargeValue.value = 0;
 }
 
 // Auto-calculate charge & net proceeds
 document.getElementById('amount_withdrawn').addEventListener('input', function() {
     const amount = parseFloat(this.value) || 0;
-    let charge = amount <= 3000 ? amount*0.035 : amount <= 5000 ? amount*0.03 : amount*0.02;
-    document.getElementById('charge').value = charge.toFixed(2);
-    document.getElementById('net_proceeds').value = (amount - charge).toFixed(2);
+    const noChargeCheckbox = document.getElementById('no_service_charge');
+    const chargeField = document.getElementById('charge');
+    const netField = document.getElementById('net_proceeds');
+
+    if (noChargeCheckbox.checked) {
+        chargeField.value = '0.00';
+        netField.value = amount.toFixed(2);
+    } else {
+        // Use your existing logic or DB percentage
+        let charge = amount <= 3000 ? amount*0.035 : amount <= 5000 ? amount*0.03 : amount*0.02;
+        chargeField.value = charge.toFixed(2);
+        netField.value = (amount - charge).toFixed(2);
+    }
+    // const amount = parseFloat(this.value) || 0;
+    //  const noChargeCheckbox = document.getElementById('no_service_charge');
+    // let charge = amount <= 3000 ? amount*0.035 : amount <= 5000 ? amount*0.03 : amount*0.02;
+    // document.getElementById('charge').value = charge.toFixed(2);
+    // document.getElementById('net_proceeds').value = (amount - charge).toFixed(2);
 });
 
 // Edit
@@ -142,6 +164,15 @@ document.addEventListener('click', async e => {
         document.getElementById('amount_withdrawn').value = data.amount_withdrawn;
         document.getElementById('charge').value = data.charge;
         document.getElementById('net_proceeds').value = data.net_proceeds;
+
+      // Set checkbox & hidden field
+        const noChargeCheckbox = document.getElementById('no_service_charge');
+        const noChargeValue = document.getElementById('no_service_charge_value');
+        noChargeCheckbox.checked = data.no_service_charge == 1;
+        noChargeValue.value = data.no_service_charge == 1 ? 1 : 0;
+
+        // Disable charge if no service charge
+        document.getElementById('charge').disabled = noChargeCheckbox.checked ? true : false;
 
         document.getElementById('walkinModalLabel').textContent = 'Edit Walk-in';
         modal.show();
@@ -170,40 +201,24 @@ document.getElementById('walkinForm').addEventListener('submit', async e => {
             'X-CSRF-TOKEN': csrfToken
         },
         body: JSON.stringify(data)
-    });
+});
 
   // First, parse the JSON
-const result = await response.json();
+    const result = await response.json();
 
-// Then, if successful, do modal hide, open receipt, reload table
-if(response.ok){
-    modal.hide();
-    resetForm();
-        window.open(result.print_url, '_blank'); //  open in new tab
-     location.reload();
+    // Then, if successful, do modal hide, open receipt, reload table
+    if(response.ok){
+        modal.hide();
+        resetForm();
+            window.open(result.print_url, '_blank'); //  open in new tab
+         location.reload();
 
+    
+    } else {
+        alert(result.message || "Failed to save");
+        console.error(result);
+    }
    
-} else {
-    alert(result.message || "Failed to save");
-    console.error(result);
-}
-    // e.preventDefault();
-    // const form = e.target;
-    // const data = Object.fromEntries(new FormData(form));
-    // const id = data.id;
-    // const url = id ? `/walkin/${id}` : '/walkin';
-    // const method = id ? 'PUT' : 'POST';
-    // const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    // await fetch(url, {
-    //     method,
-    //     headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN': csrfToken },
-    //     body: JSON.stringify(data)
-    // });
-
-    // resetForm();
-    // modal.hide();
-    // location.reload(); // reload table to reflect changes
 });
 
 // Delete

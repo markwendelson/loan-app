@@ -25,6 +25,7 @@ use Spatie\Permission\Models\Permission;
 // ----- Others
 use App\Http\Controllers\WalkinController;
 use App\Http\Controllers\CheckController;
+use App\Http\Controllers\ServiceChargeController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -159,7 +160,13 @@ Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'dest
 Route::get('/check-encashments/{id}/receipt', [CheckEncashmentController::class, 'printReceipt'])->name('check-encashments.receipt');
 
 
-
+Route::prefix('service-fees')->group(function() {
+    Route::get('/', [ServiceChargeController::class, 'index'])->name('service-fees.index');
+    Route::post('/', [ServiceChargeController::class, 'store'])->name('service-fees.store');
+    Route::get('/{id}', [ServiceChargeController::class, 'show'])->name('service-fees.show');
+    Route::put('/{id}', [ServiceChargeController::class, 'update'])->name('service-fees.update');
+    Route::delete('/{id}', [ServiceChargeController::class, 'destroy'])->name('service-fees.destroy');
+});
 
 
 });

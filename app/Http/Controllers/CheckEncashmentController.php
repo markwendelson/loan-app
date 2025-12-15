@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\CheckEncashment;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,16 @@ class CheckEncashmentController extends Controller
     public function index()
     {
          $checks = CheckEncashment::all();
-         return view('others.check-encashments.index', compact('checks'));
+
+        // Get all active percentages for 'check'
+         $serviceCharges = DB::table('service_charges')
+             ->where('is_active', 1)
+             ->where('fee_type', 'check')
+             ->get(); 
+
+        // dd($serviceCharges);
+         return view('others.check-encashments.index', compact('checks', 'serviceCharges'));
+        //  return view('others.check-encashments.index', compact('checks'));
     }
 
 

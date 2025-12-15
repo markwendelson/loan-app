@@ -120,6 +120,7 @@
         <li><a href="{{route('notary-fee-schedule.index')}}">Notary Fees</a></li>
         <li><a href="{{route('loan-type.index')}}">Loan Types</a></li>
         <li><a href="{{route('loan-product.index')}}">Loan Products</a></li>
+        <li><a href="{{ route('service-fees.index') }}">Service Fees (Others)</a></li>
         {{-- <li><a href="/charge">Charges</a></li> --}}
         {{-- <li><a href="#">Repayment Methods</a></li> --}}
     </ul>

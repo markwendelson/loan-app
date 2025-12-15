@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Walkin;
 
@@ -10,8 +11,18 @@ class WalkinController extends Controller
  
     public function index()
     {
-        $walkins = Walkin::orderBy('date', 'desc')->get();
-        return view('others.walkin.index', compact('walkins'));
+        $serviceCharge = DB::table('service_charges')
+        ->where('is_active', 1)
+        ->where('fee_type', 'walkin')   
+        ->orderByDesc('id')             
+        ->value('percentage') ?? 0;
+
+         // Fetch existing walkins
+         $walkins = Walkin::orderBy('date', 'desc')->get();
+        //  dd($serviceCharge);
+
+             // 'date', 'desc')->get();
+        return view('others.walkin.index', compact('walkins', 'serviceCharge'));
     }
 
     public function store(Request $request)
@@ -24,7 +35,14 @@ class WalkinController extends Controller
             'amount_withdrawn' => 'required|numeric',
             'charge' => 'nullable|numeric',
             'net_proceeds' => 'required|numeric',
+            'no_service_charge' => 'nullable|boolean',
         ]);
+
+    if ($request->no_service_charge) {
+        $validated['charge'] = 0;
+        $validated['net_proceeds'] = $validated['amount_withdrawn'];
+
+    }
 
         $walkin = Walkin::create($validated);
 
@@ -32,7 +50,7 @@ class WalkinController extends Controller
             'data' => $walkin,
             'print_url' => route('walkin.receipt', $walkin->id),
         ], 201);
-        // return response()->json($walkin, 201);
+   
     }
 
     public function show($id)
@@ -56,7 +74,10 @@ class WalkinController extends Controller
         'amount_withdrawn' => $walkin->amount_withdrawn,
         'charge' => $walkin->charge,
         'net_proceeds' => $walkin->net_proceeds,
+        'no_service_charge' => $walkin->no_service_charge,
     ]);
+
+
     }
 
 
@@ -72,24 +93,6 @@ class WalkinController extends Controller
              : $branchName . ' Branch';
 
          return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
-
-    //     $walkin = Walkin::findOrFail($id);
-
-    //     // Get authenticated user
-    //      $user = auth()->user();
-        
-    //      // Get branch name
-    //      $branchName = $user->branch ? $user->branch->name : 'Unknown';
-
-    //      // Custom title rules
-    //     if (strcasecmp($branchName, 'Guiuan') === 0) {
-    //          $branchTitle = 'Head Office';
-    //      } else {
-    //          $branchTitle = $branchName . ' Branch';
-    //      }
-
-    // return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
-        // return view('others.walkin.receipt', compact('walkin'));
     }
 
    
@@ -108,11 +111,21 @@ class WalkinController extends Controller
             'amount_withdrawn' => 'required|numeric',
             'charge' => 'nullable|numeric',
             'net_proceeds' => 'required|numeric',
+            'no_service_charge' => 'nullable|in:0,1',
         ]);
+
+        if ($request->no_service_charge) {
+            $validated['charge'] = 0;
+            $validated['net_proceeds'] = $validated['amount_withdrawn'];
+        }
 
         $walkin->update($validated);
 
-        return response()->json($walkin);
+        return response()->json([
+            'data' => $walkin,
+            'print_url' => route('walkin.receipt', $walkin->id),
+        ]);
+
     }
 
 
