@@ -5,12 +5,6 @@
     <title>Check-Encashment Receipt</title>
     <style>
 
-        .net-proceeds {
-            background-color: #e6e6e6; /* lighter grey highlight */
-            padding: 6px 8px;
-            font-size: 14px;
-            border-radius: 4px;
-        }
         body {
             width: 80mm;
             font-family: monospace;
@@ -61,13 +55,24 @@
         </div>
 
         <!-- Less: Service Fee -->
-        <div class="spaced">
+         <div class="spaced">
+            <div class="bold">Less:</div>
+            <div class="label" style="margin-left:10px;">
+                <span>Service Fee:</span>
+                @if($check->no_service_charge)
+                    <span>0.00 (No Service Charge)</span>
+                @else
+                    <span>{{ number_format($check->charge, 2) }}</span>
+                @endif
+            </div>
+        </div>
+        <!-- <div class="spaced">
             <div class="bold">Less:</div>
             <div class="label" style="margin-left:10px;">
                 <span>Service Fee:</span>
                 <span>{{ number_format($check->charge, 2) }}</span>
             </div>
-        </div>
+        </div> -->
 
         <!-- Net Proceeds -->
         <div class="spaced label net-proceeds">

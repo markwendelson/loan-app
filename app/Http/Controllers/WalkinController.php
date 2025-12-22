@@ -114,11 +114,10 @@ class WalkinController extends Controller
             'no_service_charge' => 'nullable|in:0,1',
         ]);
 
-        if ($request->no_service_charge) {
+        if ($request->boolean('no_service_charge')) {
             $validated['charge'] = 0;
             $validated['net_proceeds'] = $validated['amount_withdrawn'];
         }
-
         $walkin->update($validated);
 
         return response()->json([

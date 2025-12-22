@@ -1,0 +1,85 @@
+/* =========================
+   DESKTOP: horizontal scroll
+   ========================= */
+.desktop-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* =========================
+   DESKTOP ACTION BUTTONS
+   ========================= */
+.action-buttons {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+/* Ensure Actions column never collapses */
+.actions-cell {
+    min-width: 170px;
+    width: 170px;
+    white-space: nowrap;
+}
+
+.table-fixed {
+    table-layout: fixed;
+}
+
+.action-buttons .btn {
+    white-space: nowrap;
+}
+
+/* =========================
+   MOBILE: card layout
+   ========================= */
+@media (max-width: 768px) {
+
+    table thead {
+        display: none;
+    }
+
+    table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: .5rem;
+        padding: .5rem;
+        background: #fff;
+    }
+
+    table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .5rem;
+        border: none;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #555;
+    }
+
+    table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    /* 🔥 FIX: Actions column */
+    table tbody td[data-label="Actions"] {
+        display: block;
+    }
+
+    table tbody td[data-label="Actions"]::before {
+        display: block;
+        margin-bottom: .5rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: .5rem;
+    }
+}

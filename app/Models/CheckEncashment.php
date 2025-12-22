@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +28,7 @@ class CheckEncashment extends Model
         'id_type',          
         'id_number',        
         'id_picture_path', 
+        'no_service_charge',
     ];
 
     // Casts for automatic type conversion
@@ -35,6 +37,7 @@ class CheckEncashment extends Model
         'checkAmount'   => 'decimal:2',
         'charge'        => 'decimal:2',
         'net_proceeds'  => 'decimal:2',
+        'no_service_charge' => 'boolean',
     ];
 
      // Accessor for full customer name

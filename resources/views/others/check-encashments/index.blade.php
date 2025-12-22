@@ -152,21 +152,10 @@ checkAmountInput.addEventListener('mouseup', function(e){
     });
 });
 
+  window.serviceCharges = @json($serviceCharges);
+
 // Automatically calculate charge and net proceeds on checkAmount input
-document.getElementById('checkAmount').addEventListener('input', function() {
-    let amount = parseFloat(unformatNumber(this.value)) || 0;
-    let charge = 0;
 
-    if (amount <= 3000) charge = amount * 0.035;
-    else if (amount <= 5000) charge = amount * 0.03;
-    else charge = amount * 0.02;
-
-    charge = Math.round(charge * 100) / 100;
-    const netProceeds = Math.round((amount - charge) * 100) / 100;
-
-    document.getElementById('charge').value = formatNumberWithCommas(charge);
-    document.getElementById('netProceeds').value = formatNumberWithCommas(netProceeds);
-});
 
 
 
@@ -194,6 +183,14 @@ function editCheck(id) {
 
         $('#idType').val(data.id_type);
         $('#idNumber').val(data.id_number);
+
+        // ✅ APPLY no_service_charge
+        const noService = data.no_service_charge == 1 || data.no_service_charge === true;
+        $('#noServiceCharge').prop('checked', noService);
+        $('#charge').prop('readonly', noService);
+
+        // 🔁 Recalculate to ensure consistency
+        calculateCharges();
 
           // Populate Last Name, First Name, Middle Initial
         $('#lastName').val(data.last_name ? data.last_name : '');
@@ -237,57 +234,135 @@ document.getElementById('btnPrint').addEventListener('click', () => {
 /* ===========================
    SAVE CHECK (CREATE/UPDATE)
    =========================== */
-$('#checkForm').submit(function(e){
+   document.getElementById('checkForm').addEventListener('submit', async e => {
     e.preventDefault();
 
-    let formData = new FormData();
-    let id = $('#checkId').val();
+     // Normalize numeric inputs BEFORE FormData
+    const checkAmountEl = document.getElementById('checkAmount');
+    const chargeEl = document.getElementById('charge');
+    const netProceedsEl = document.getElementById('netProceeds');
 
-    formData.append('transDate', $('#transDate').val());
-     formData.append('last_name', $('#lastName').val());
-      formData.append('first_name', $('#firstName').val());
-       formData.append('middle_name', $('#middleName').val());
-    formData.append('checkNo', $('#checkNo').val());
-    formData.append('bankName', $('#bankName').val());
-    formData.append('checkAmount', unformatNumber($('#checkAmount').val()));
-    formData.append('charge', unformatNumber($('#charge').val()));
-    formData.append('net_proceeds', unformatNumber($('#netProceeds').val()));
-    // formData.append('checkAmount', $('#checkAmount').val());
-    // formData.append('charge', $('#charge').val());
-    // formData.append('net_proceeds', $('#netProceeds').val());
-    formData.append('id_type', $('#idType').val());       // corrected
-    formData.append('id_number', $('#idNumber').val());   // corrected
+    checkAmountEl.value = unformatNumber(checkAmountEl.value);
+    chargeEl.value = unformatNumber(chargeEl.value);
+    netProceedsEl.value = unformatNumber(netProceedsEl.value);
 
-    // IMPORTANT: file upload
-    if ($('#idPicture')[0].files.length > 0) {            // corrected
-        formData.append('id_picture', $('#idPicture')[0].files[0]);
-    }
 
-    formData.append('_token', '{{ csrf_token() }}');
+    const noServiceCheckbox = document.getElementById('noServiceCharge');
 
-    let method = id ? 'POST' : 'POST';
-    let url = id ? '/check-encashments/' + id : '/check-encashments';
+// Force boolean-compatible values
+if (noServiceCheckbox.checked) {
+    noServiceCheckbox.value = 1;
+} else {
+    // Ensure it's still submitted
+    noServiceCheckbox.checked = true;
+    noServiceCheckbox.value = 0;
+}
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const id = document.getElementById('checkId').value;
+    const url = id ? `/check-encashments/${id}` : '/check-encashments';
 
     if (id) {
         formData.append('_method', 'PUT');
     }
 
-    $.ajax({
-        url: url,
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(data){
-            location.reload();
-        },
-        error: function(err){
-            console.log(err);
-            alert('Error saving check');
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content')
+            },
+            body: formData
+        });
+
+        const contentType = response.headers.get('content-type');
+
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text);
+            alert('Server error occurred');
+            return;
         }
-    });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            alert(result.message || 'Failed to save check');
+            console.error(result);
+            return;
+        }
+
+        $('#checkModal').modal('hide');
+
+        if (result.print_url) {
+            window.open(result.print_url, '_blank');
+        }
+
+        location.reload();
+
+    } catch (err) {
+        console.error(err);
+        alert('Unexpected error while saving check');
+    }
 });
 
+// $('#checkForm').submit(function(e){
+//     e.preventDefault();
+
+//     let formData = new FormData();
+//     let id = $('#checkId').val();
+
+//     formData.append('transDate', $('#transDate').val());
+//     formData.append('last_name', $('#lastName').val());
+//     formData.append('first_name', $('#firstName').val());
+//     formData.append('middle_name', $('#middleName').val());
+//     formData.append('checkNo', $('#checkNo').val());
+//     formData.append('bankName', $('#bankName').val());
+//     formData.append('checkAmount', unformatNumber($('#checkAmount').val()));
+//     formData.append('charge', unformatNumber($('#charge').val()));
+//     formData.append('net_proceeds', unformatNumber($('#netProceeds').val()));  
+//     formData.append('id_type', $('#idType').val());       // corrected
+//     formData.append('id_number', $('#idNumber').val());   // corrected
+
+//     formData.append(
+//         'no_service_charge',
+//         $('#noServiceCharge').is(':checked') ? 1 : 0
+//     );
+
+//     // IMPORTANT: file upload
+//     if ($('#idPicture')[0].files.length > 0) {            // corrected
+//         formData.append('id_picture', $('#idPicture')[0].files[0]);
+//     }
+
+//     formData.append('_token', '{{ csrf_token() }}');
+
+//     let method = id ? 'POST' : 'POST';
+//     let url = id ? '/check-encashments/' + id : '/check-encashments';
+
+//     if (id) {
+//         formData.append('_method', 'PUT');
+//     }
+
+//     $.ajax({
+//         url: url,
+//         type: 'POST',
+//         data: formData,
+//         processData: false,
+//         contentType: false,
+//         success: function(data){
+//             location.reload();
+//         },
+//         error: function(err){
+//             console.log(err);
+//             alert('Error saving check');
+//         }
+//     });
+// });
 
 
 /* ===========================
@@ -311,5 +386,85 @@ function deleteCheck(id) {
         });
     }
 }
+
+
+function getTierPercentage(amount) {
+    if (amount <= 3000) return 3.5;
+    if (amount <= 5000) return 3.0;
+    return 2.0;
+}
+
+function getServiceChargePercentage(amount) {
+
+    // controller already filtered is_active + fee_type
+    // Default if DB is missing something
+    const DEFAULT_RATE = 3;
+
+    if (!Array.isArray(window.serviceCharges) || window.serviceCharges.length === 0) {
+        return DEFAULT_RATE;
+    }
+
+    // Normalize DB values
+    const rates = window.serviceCharges.map(p => parseFloat(p.percentage));
+
+    if (amount > 5000) {
+        return rates.includes(2) ? 2 : DEFAULT_RATE;
+    }
+
+    if (amount >= 3001 && amount <= 5000) {
+        return rates.includes(3) ? 3 : DEFAULT_RATE;
+    }
+
+    if (amount >= 1 && amount <= 3000) {
+        return rates.includes(3.5) ? 3.5 : DEFAULT_RATE;
+    }
+
+    return DEFAULT_RATE;
+}
+
+function calculateCharges() {
+    const amount = parseFloat(unformatNumber($('#checkAmount').val())) || 0;
+    const noCharge = $('#noServiceCharge').is(':checked');
+
+    if (amount <= 0) {
+        $('#charge').val('');
+        $('#netProceeds').val('');
+        return;
+    }
+
+    // override
+    if (noCharge) {
+        $('#charge').val(formatNumberWithCommas(0));
+        $('#netProceeds').val(formatNumberWithCommas(amount));
+        return;
+    }
+
+    const percentage = getServiceChargePercentage(amount);
+
+    let charge = amount * (percentage / 100);
+    charge = Math.round(charge * 100) / 100;
+
+    const net = Math.round((amount - charge) * 100) / 100;
+
+    $('#charge').val(formatNumberWithCommas(charge));
+    $('#netProceeds').val(formatNumberWithCommas(net));
+}
+
+
+$(document).ready(function () {
+
+    $('#noServiceCharge').on('change', function () {
+    $('#charge').prop('readonly', this.checked);
+    });
+
+    $('#checkAmount').on('input', calculateCharges);
+    $('#noServiceCharge').on('change', calculateCharges);
+
+    // recalc when modal opens (important for Edit)
+    $('#checkModal').on('shown.bs.modal', function () {
+        calculateCharges();
+    });
+
+});
 </script>
 @endsection
