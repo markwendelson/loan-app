@@ -305,7 +305,7 @@ class ClientController extends Controller
                             ->get()
                             ->map(function ($comaker) {
                                 $client_loan = Loan::where('id', $comaker->pivot->loan_id)->first();
-                                $comaker->loan_balance = getLoanBalance($client_loan);
+                                $comaker->loan_balance = $client_loan == null ? 'Loan ID not specified' : getLoanBalance($client_loan);
                                 return $comaker;
                             });
 
