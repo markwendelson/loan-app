@@ -7,6 +7,7 @@ use App\Models\CountryCode;
 use App\Models\JobTitle;
 use App\Models\Province;
 use App\Models\Client;
+use App\Models\ClientMembershipFee;
 use App\Models\Loan;
 use App\Models\Savings;
 use Illuminate\Support\Facades\DB;
@@ -132,5 +133,17 @@ if(!function_exists('getSpecialLoanBalance')) {
         $special_loan_balance = $total_special_loan_principal - $total_special_loan_payment;
 
         return $special_loan_balance;
+    }
+}
+
+if(!function_exists('getMembershipFeeBalance')) {
+    function getMembershipFeeBalance(Loan $loan)
+    {
+        $membership_fee = $loan->loanCharges->membership_fee; // Target Fee
+        $membership_fee_initial_payment = $loan->membership_fee; // Initial Payment
+        $payment = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->sum('membership_fee');
+        $balance = $membership_fee - ($membership_fee_initial_payment + $payment);
+
+        return number_format($balance, 2);
     }
 }

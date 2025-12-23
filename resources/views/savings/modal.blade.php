@@ -26,7 +26,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" id="mode_of_payment_container">
                                 <div class="form-group">
                                     <label class="form-label" for="mode_of_payment">Mode of Payment</label>
                                     @php
@@ -129,19 +129,29 @@
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-md-6 d-block form-group">
-                                    <label class="form-label" for="principal">Principal</label>
-                                    <input type="number" class="form-control form-control-sm" name="principal" min="0" readonly/>
-                                    <input type="checkbox" name="is_early_settlement" id="is_early_settlement" class="form-check-input" />
-                                    <label for="is_early_settlement"><small>Early Settlement</small></label>
-                                    <div class="special-loan-group">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label class="form-label" for="principal">Principal</label>
+                                        <input type="number" class="form-control form-control-sm" name="principal" min="0" readonly/>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label class="form-label" for="membership_fee">Membership Fee</label>
+                                        <input type="number" class="form-control form-control-sm" name="membership_fee" min="0" readonly/>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="is_early_settlement" id="is_early_settlement" class="form-check-input" />
+                                        <label class="form-check-label" for="is_early_settlement"><small>Early Settlement</small></label>
+                                    </div>
+                                    <div class="special-loan-group form-check">
                                         <input type="checkbox" name="include_special_loan_balance" id="include_special_loan_balance" class="form-check-input" />
-                                        <label for="include_special_loan_balance"><small>Include Special Loan Balance</small></label>
+                                        <label class="form-check-label" for="include_special_loan_balance"><small>Include Special Loan Balance</small></label>
                                     </div>
                                 </div>
-                                <div class="col-md-6 form-group">
-                                    <label class="form-label" for="due_change">Change</label>
-                                    <input type="number" class="form-control form-control-sm" name="due_change" readonly min="0"/>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="due_change">Change</label>
+                                        <input type="number" class="form-control form-control-sm" name="due_change" readonly min="0"/>
+                                    </div>
                                 </div>
                             </div>
                         </div>

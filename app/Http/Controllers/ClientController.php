@@ -300,7 +300,16 @@ class ClientController extends Controller
             'special_date_granted' => $special_loan->approved_date ?? '',
         ];
 
-        return view('client.ledger', compact('client', 'loan','principal_loan','special_loan'));
+        $loan_is_co_maker = $client->isCoMakerFor()
+                            ->with('details')
+                            ->get()
+                            ->map(function ($comaker) {
+                                $client_loan = Loan::where('id', $comaker->pivot->loan_id)->first();
+                                $comaker->loan_balance = getLoanBalance($client_loan);
+                                return $comaker;
+                            });
+
+        return view('client.ledger', compact('client', 'loan','principal_loan','special_loan','loan_is_co_maker'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)

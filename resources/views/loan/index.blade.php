@@ -71,7 +71,7 @@
         const canView = {{ auth()->user()->can('view-loan') ? 1 : 0 }};
         const canEdit = {{ auth()->user()->can('edit-loan') ? 1 : 0 }};
         const canDelete = {{ auth()->user()->can('delete-loan') ? 1 : 0 }};
-        
+
         const table = $('#tblLoan').DataTable({
             ordering: false,
             processing: true,
@@ -106,7 +106,8 @@
                         let buttons = '';
 
                         if (canView) {
-                            buttons += `<button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button> `;
+                            buttons += `<button class="btn btn-primary btn-xs btnView" data-id="${row.id}" title="View Loan"><i class="fa fa-eye"></i></button> `;
+                            buttons += `<button class="btn btn-primary btn-xs btnPrintReceipt" data-id="${row.id}" title="Print Receipt"><i class="fa fa-print"></i></button> `;
                         }
 
                         if (row.status != 1 && row.status != 5) {
@@ -190,6 +191,11 @@
         $("#tblLoan").on("click", ".btnView", function(){
             let id = $(this).attr("data-id");
             window.location.href = `/loan/${id}`
+        })
+
+        $("#tblLoan").on("click", ".btnPrintReceipt", function(){
+            let id = $(this).attr("data-id");
+            window.open('/loan/' + id + '/print', '_blank'); 
         })
 
     });

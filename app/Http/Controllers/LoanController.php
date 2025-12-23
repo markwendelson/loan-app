@@ -6,7 +6,6 @@ use App\Enums\LoanStatus;
 use App\Http\Requests\LoanRequest;
 use App\Models\Client;
 use App\Models\ClientDocument;
-use App\Models\ClientMembershipFee;
 use App\Models\InsuranceFeeSchedule;
 use App\Models\Loan;
 use App\Models\LoanCharge;
@@ -167,6 +166,8 @@ class LoanController extends Controller
                     'service_fee' => $data['service_fee'],
                     'insurance_fee' => $data['insurance_fee'],
                     'notary_fee' => $data['notary_fee'],
+                    'membership_fee' => $data['membership_fee'],
+                    'membership_fee_paid' => $data['membership_fee_paid'],
                 ]);
 
                 $insurance = InsuranceFeeSchedule::where('min_amount','<=',$data['applied_amount'])
@@ -178,21 +179,6 @@ class LoanController extends Controller
                     'insurance_annual_fee' => $insurance->annual_fee,
                     'monthly_amortization' => $data['monthly_amortization']
                 ]);
-
-                // Membership Fee
-                $membership_fee = $data['membership_fee'];
-                if($membership_fee > 0) {
-                    ClientMembershipFee::updateOrCreate(
-                        [
-                            'client_id' => $data['borrower_id'],
-                            'reference_model' => Loan::class,
-                            'reference_id' => $loan->id,
-                        ],
-                        [
-                            'amount_paid' => $membership_fee,
-                        ]
-                    );
-                }
 
                 // Save Documents
                 if (isset($data['client_documents']) && is_array($data['client_documents'])) {
@@ -306,24 +292,11 @@ class LoanController extends Controller
                 $loan->loanCharges->service_fee = $request->service_fee;
                 $loan->loanCharges->insurance_fee = $request->insurance_fee;
                 $loan->loanCharges->notary_fee = $request->notary_fee;
+                $loan->loanCharges->membership_fee = config('settings.membership_fee');
+                $loan->loanCharges->membership_fee_paid = $request->membership_fee;
 
                 $loan->loanCharges->save();
                 $loan->save();
-
-                // Membership Fee
-                $membership_fee = $request->membership_fee;
-                if($membership_fee > 0) {
-                    ClientMembershipFee::updateOrCreate(
-                        [
-                            'client_id' => $request->borrower_id,
-                            'reference_model' => Loan::class,
-                            'reference_id' => $loan->id,
-                        ],
-                        [
-                            'amount_paid' => $membership_fee,
-                        ]
-                    );
-                }
 
                 // Sync Co-makers
                 $borrower = Client::findOrFail($request->borrower_id);
@@ -416,6 +389,7 @@ class LoanController extends Controller
     public function destroy(Loan $loan)
     {
         DB::table('loan_charges')->where('loan_id',$loan->id)->delete();
+        DB::table('client_co_makers')->where('loan_id',$loan->id)->delete();
         $loan->delete();
 
         return response()->json([

@@ -240,6 +240,28 @@
 
         </script>
 
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function (e) {
+                    const hash = e.target.getAttribute('href');
+                    history.replaceState(null, null, hash);
+                });
+            });
+
+            const hash = window.location.hash;
+
+            if (hash) {
+                const tab = document.querySelector(`a[href="${hash}"]`);
+                if (tab) {
+                    new bootstrap.Tab(tab).show();
+                }
+            }
+
+        });
+        </script>
+
         @yield('scripts')
     </body>
 </html>

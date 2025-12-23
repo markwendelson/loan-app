@@ -48,22 +48,22 @@
         </div>
     </div>
 
-    @isset($principal_loan)
+    
         <div class="container-fluid">
             <div class="row project-cards">
             <div class="col-md-12 project-list">
                 <div class="card">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                     <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
                         <li class="nav-item"><a class="nav-link active" id="principal-loan-tab" data-bs-toggle="tab" href="#principal-loan" role="tab" aria-controls="principal-loan" aria-selected="false"><i data-feather="info"></i>Principal Loan</a></li>
                         @isset($special_loan)
                         <li class="nav-item"><a class="nav-link" id="special-loan-tab" data-bs-toggle="tab" href="#special-loan" role="tab" aria-controls="special-loan" aria-selected="false"><i data-feather="star"></i>Special Loan</a></li>
                         @endisset
+                        <li class="nav-item"><a class="nav-link" id="incentives-pension-tab" data-bs-toggle="tab" href="#incentives-pension" role="tab" aria-controls="incentives-pension" aria-selected="false"><i data-feather="star"></i>Incentives/Pension</a></li>
+                        <li class="nav-item"><a class="nav-link" id="membership-tab" data-bs-toggle="tab" href="#membership" role="tab" aria-controls="membership" aria-selected="false"><i data-feather="star"></i>Membership</a></li>
+                        <li class="nav-item"><a class="nav-link" id="client-as-comaker-tab" data-bs-toggle="tab" href="#client-as-comaker" role="tab" aria-controls="client-as-comaker" aria-selected="false"><i data-feather="star"></i>Client as Co-Maker</a></li>
                     </ul>
-                    </div>
-                    <div class="col-md-6">
-                    <div class="form-group mb-0 me-0"></div><a class="btn btn-primary" href="#"> <i data-feather="users"> </i>Co-Maker</a>
                     </div>
                 </div>
                 </div>
@@ -74,6 +74,7 @@
                     <input type="hidden" name="client_id" id="client_id" value="{{$client->id}}"/>
                     <div class="tab-content" id="top-tabContent">
                     <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
+                        @isset($principal_loan)
                         <div class="card">
                             <div class="card-header">
                                 <div class="row">
@@ -137,6 +138,9 @@
                                 </div>
                             </div>
                         </div>
+                        @else
+                            <div class="card card-body">No active loan.</div>
+                        @endisset
                     </div>
                     @isset($special_loan)
                     <div class="tab-pane fade" id="special-loan" role="tabpanel" aria-labelledby="special-loan-tab">
@@ -196,15 +200,38 @@
                         </div>
                     </div>
                     @endisset
+                    <div class="tab-pane fade" id="incentives-pension" role="tabpanel" aria-labelledby="incentives-pension-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                Incentives/Pension
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <!-- Incentives/Pension Ledger Table Here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="membership" role="tabpanel" aria-labelledby="membership-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                Membership
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <!-- Incentives/Pension Ledger Table Here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="client-as-comaker" role="tabpanel" aria-labelledby="client-as-comaker-tab">
+                        @include('client.co-maker-list')
                     </div>
                 </div>
                 </div>
             </div>
             </div>
         </div>
-    @else
-        <div class="card card-body">No active loan.</div>
-    @endisset
 @endsection
 
 @push('js')

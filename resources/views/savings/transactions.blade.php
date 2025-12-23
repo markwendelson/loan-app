@@ -149,7 +149,17 @@
         $('.btn-new').on('click', function() {
             showModal('modalTransaction')
             $('.withdraw').hide();
+            $("#modalTransaction #mode_of_payment_container").hide();
         })
+
+        $("#modalTransaction #transaction_type").change(function(){
+            let type=$(this).val();
+            if(type=="withdraw"){
+                $("#modalTransaction #mode_of_payment_container").show();
+            }else{
+                $("#modalTransaction #mode_of_payment_container").hide();
+            }
+        });
 
         $("#modalTransaction .btnSubmit").click(function (e) {
             e.preventDefault();

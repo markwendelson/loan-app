@@ -297,6 +297,8 @@ class SavingsController extends Controller
             $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
         }
 
+        $membership_fee_balance = getMembershipFeeBalance($loan);
+
         if($loan->is_special) {
             return response()->json([
                 'interest' => number_format(0,2),
@@ -308,7 +310,8 @@ class SavingsController extends Controller
                 'insurance_annual_fee' => number_format(0,2),
                 'principal_balance' => number_format($principal_balance,2),
                 'special_loan_balance' => '0',
-                'early_settlement_amount' => number_format($principal_balance,2)
+                'early_settlement_amount' => number_format($principal_balance,2),
+                'membership_fee_balance' => number_format($membership_fee_balance,2),
             ]);
         } else {
             return response()->json([
@@ -321,7 +324,8 @@ class SavingsController extends Controller
                 'insurance_annual_fee' => $insurance_annual_fee,
                 'principal_balance' => number_format($principal_balance,2),
                 'special_loan_balance' => number_format($special_loan_balance,2),
-                'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2)
+                'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2),
+                'membership_fee_balance' => number_format($membership_fee_balance,2),
             ]);
         }
 
