@@ -21,10 +21,12 @@ class Walkin extends Model
         'amount_withdrawn',
         'charge',
         'net_proceeds',
+        'no_service_charge',
     ];
 
      // Cast 'date' field to a Carbon instance
     protected $casts = [
         'date' => 'date',
+        'no_service_charge' => 'boolean',
     ];
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\CheckEncashment;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,16 @@ class CheckEncashmentController extends Controller
     public function index()
     {
          $checks = CheckEncashment::all();
-         return view('others.check-encashments.index', compact('checks'));
+
+        // Get all active percentages for 'check'
+         $serviceCharges = DB::table('service_charges')
+             ->where('is_active', 1)
+             ->where('fee_type', 'check')
+             ->get(); 
+
+        // dd($serviceCharges);
+         return view('others.check-encashments.index', compact('checks', 'serviceCharges'));
+        //  return view('others.check-encashments.index', compact('checks'));
     }
 
 
@@ -29,6 +39,7 @@ class CheckEncashmentController extends Controller
             'bankName'        => 'required|string|max:100',
             'checkAmount'     => 'required|numeric',
             'charge'          => 'nullable|numeric',
+            'no_service_charge' => 'nullable|boolean',
             'net_proceeds'    => 'required|numeric',
             'id_type'         => 'nullable|string|max:50',
             'id_number'       => 'nullable|string|max:50',
@@ -44,9 +55,19 @@ class CheckEncashmentController extends Controller
                 ->store('id_pictures', 'public'); 
         }
 
+   if ($request->boolean('no_service_charge')) {
+        $validated['charge'] = 0;
+        $validated['net_proceeds'] = $request->input('checkAmount');
+    }
+
+
         $check = CheckEncashment::create($validated);
 
-        return response()->json($check, 201);
+      return response()->json([
+            'data' => $check,
+            'print_url' => route('check-encashments.receipt', $check->id),
+        ], 201);
+        // return response()->json($check, 201);
     }
 
   
@@ -83,30 +104,28 @@ public function show($id)
     'id_type' => $check->id_type,
     'id_number' => $check->id_number,
     'id_picture_path' => $check->id_picture_path,
+    'no_service_charge' => $check->no_service_charge,
 ]);
 }
 
 
 
-    public function printReceipt($id)
-    {
-        $check = CheckEncashment::findOrFail($id);
-
-        // Get authenticated user
-         $user = auth()->user();
-        
-         // Get branch name
-         $branchName = $user->branch ? $user->branch->name : 'Unknown';
-
-         // Custom title rules
-        if (strcasecmp($branchName, 'Guiuan') === 0) {
-             $branchTitle = 'Head Office';
-         } else {
-             $branchTitle = $branchName . ' Branch';
-         }
-
-    return view('others.check-encashments.receipt', compact('check', 'branchTitle'));
-    }
+public function printReceipt($id)
+{
+    $check = CheckEncashment::findOrFail($id);
+    // Get authenticated user
+     $user = auth()->user();
+    
+     // Get branch name
+     $branchName = $user->branch ? $user->branch->name : 'Unknown';
+     // Custom title rules
+    if (strcasecmp($branchName, 'Guiuan') === 0) {
+         $branchTitle = 'Head Office';
+     } else {
+         $branchTitle = $branchName . ' Branch';
+     }
+return view('others.check-encashments.receipt', compact('check', 'branchTitle'));
+}
 
   
 public function update(Request $request, $id)
@@ -117,6 +136,8 @@ public function update(Request $request, $id)
         return response()->json(['message' => 'Record not found'], 404);
     }
 
+    // dd($request->all());
+
     $validated = $request->validate([
         'transDate'       => 'sometimes|date',
         'checkNo'         => 'sometimes|string|max:50',
@@ -126,11 +147,20 @@ public function update(Request $request, $id)
         'bankName'        => 'sometimes|string|max:100',
         'checkAmount'     => 'sometimes|numeric',
         'charge'          => 'nullable|numeric',
+        'no_service_charge' => 'nullable|boolean',
         'net_proceeds'    => 'sometimes|numeric',
         'id_type'         => 'nullable|string|max:50',
         'id_number'       => 'nullable|string|max:50',
         'id_picture'      => 'nullable|image|max:5120', // <-- file input
     ]);
+
+
+    
+
+    if ($request->boolean('no_service_charge')) {
+        $validated['charge'] = 0;
+        $validated['net_proceeds'] = $request->input('checkAmount');
+    }
 
     // Handle file upload
     if ($request->hasFile('id_picture')) {
@@ -145,7 +175,11 @@ public function update(Request $request, $id)
 
     $check->update($validated);
 
-    return response()->json($check);
+    return response()->json([
+       'data' => $check,
+       'print_url' => route('check-encashments.receipt', $check->id),
+   ]);
+    // return response()->json($check);
 }
 
     
