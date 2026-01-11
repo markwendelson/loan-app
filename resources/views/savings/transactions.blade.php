@@ -38,10 +38,15 @@
     </div>
 
     <!-- button container -->
-    <div class="card">
+   <div class="card">
         <div class="card-body">
-            <h3><span>{{$client->details->fullname}}</span></h3>
-            <h3><span>{{$client->details->present_full_address}}</h3>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h1 style="font-size: 3.5rem;">{{$client->details->fullname}}</h1>
+                    <h3>{{$client->details->present_full_address}}</h3>
+                </div>
+                <a href="{{route('client.ledger.principal', $client->id)}}" class="btn btn-sm btn-primary">Ledger</a>
+            </div>
         </div>
     </div>
 

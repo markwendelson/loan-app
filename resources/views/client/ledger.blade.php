@@ -43,8 +43,13 @@
     <!-- button container -->
     <div class="card">
         <div class="card-body">
-            <h3><span>{{$client->details->fullname}}</span></h3>
-            <h3><span>{{$client->details->present_full_address}}</h3>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h1 style="font-size: 3.5rem;">{{$client->details->fullname}}</h1>
+                    <h3>{{$client->details->present_full_address}}</h3>
+                </div>
+                <a href="{{route('savings.transactions', $client->id)}}" class="btn btn-sm btn-primary">Savings</a>
+            </div>
         </div>
     </div>
 
@@ -101,7 +106,7 @@
                                                 <th class="text-center" width="150" colspan="6">LOAN</th>
                                                 <th class="text-center" width="80"></th>
                                                 <th class="text-center" width="150" colspan="7">PAYMENT</th>
-                                                <th class="text-center" width="80" colspan="2" rowspan="2"></th>
+                                                <th class="text-center" width="80" colspan="3" rowspan="2"></th>
                                             </tr>
                                             <tr>
                                                 <th rowspan="3">Principal</th>
@@ -126,6 +131,7 @@
                                                 <th rowspan="2">Change</th>
                                                 <th rowspan="2">Balance</th>
                                                 <th rowspan="2">Remarks</th>
+                                                <th rowspan="2">Signature</th>
                                             </tr>
                                             <tr>
                                                 <th>Amount</th>
@@ -271,6 +277,7 @@
                 { data: 'change', name: 'change' },
                 { data: 'balance', name: 'balance' },
                 { data: 'remarks', name: 'remarks' },
+                { data: 'signature', name: 'signature' },
             ],
             columnDefs: [
                 // { className: "text-center", targets: [4,5] },
