@@ -41,17 +41,13 @@
             <span>Client:</span>
           <span>{{ $savings->client->details->fullname ?? 'N/A' }}</span>
         </div>
+        <br>
 
         <div class="label">
             <span>Transaction:</span>
             <span>{{ ucfirst($savings->transaction_type) }}</span>
         </div>
 
-        <div class="label">
-            <span>Amount:</span>
-            <span class="bold">{{ number_format($savings->amount, 2) }}</span>
-        </div>
-        
         @if($savings->mode_of_payment)
         <div class="label">
             <span>Mode:</span>
@@ -59,6 +55,42 @@
         </div>
         @endif
 
+        <br>
+
+        @if($savings->transaction_type == 'deposit')
+        <div class="label">
+            <span>Amount:</span>
+            <span class="bold">{{ number_format($savings->amount, 2) }}</span>
+        </div>
+        @endif
+        
+        @if($savings->transaction_type == 'withdraw')
+        <div class="label">
+            <span>Interest:</span>
+            <span class="bold">{{ number_format($savings->interest, 2) }}</span>
+        </div>
+        <div class="label">
+            <span>Insurance:</span>
+            <span class="bold">{{ number_format($savings->insurance, 2) }}</span>
+        </div>
+        <div class="label">
+            <span>Principal:</span>
+            <span class="bold">{{ number_format($savings->principal, 2) }}</span>
+        </div>
+        <div class="label">
+            <span>Membership Fee:</span>
+            <span class="bold">{{ number_format($savings->membership_fee, 2) }}</span>
+        </div>
+        <div class="label">
+            <span>Total:</span>
+            <span class="bold">{{ number_format($savings->amount, 2) }}</span>
+        </div>
+        <div class="label">
+            <span>Due Change:</span>
+            <span class="bold">{{ number_format($savings->due_change, 2) }}</span>
+        </div>
+        @endif
+        
         @if($savings->description)
         <div class="spaced">
             <span>Description:</span><br>
