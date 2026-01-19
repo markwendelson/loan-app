@@ -131,6 +131,11 @@
             </a>
         </li>
         @endcan
+        <li>
+            <a href="{{ route('expenses.index') }}">
+                <i class="fa fa-money-check-alt me-2"></i> Expenses
+            </a>
+        </li>
     </ul>
 </li>
 

@@ -104,16 +104,16 @@
                     render: function(data, type, row) {
                         let buttons = '';
                         if (canViewLedger) {
-                            buttons += `<button class="btn btn-primary btn-xs btnLedger" data-id="${row.id}"><i class="fa fa-table"></i></button> `;
+                            buttons += `<button class="btn btn-primary btn-xs btnLedger" title="Ledger" data-id="${row.id}"><i class="fa fa-table"></i></button> `;
                         }
                         if (canViewClient) {
-                            buttons += `<button class="btn btn-primary btn-xs btnHistory" data-id="${row.id}"><i class="fa fa-list"></i></button> `;
+                            buttons += `<button class="btn btn-primary btn-xs btnHistory" title="Loan History" data-id="${row.id}"><i class="fa fa-list"></i></button> `;
                         }
                         if (canEdit) {
-                            buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
+                            buttons += `<button class="btn btn-primary btn-xs btnEdit" title="Edit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
                         }
                         if (canDelete) {
-                            buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
+                            buttons += `<button class="btn btn-danger btn-xs" title="Delete" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
                         }
                         return buttons;
                     }

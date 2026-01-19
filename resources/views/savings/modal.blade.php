@@ -136,7 +136,7 @@
                                     </div>
                                     <div class="form-group mb-2">
                                         <label class="form-label" for="membership_fee">Membership Fee</label>
-                                        <input type="number" class="form-control form-control-sm" name="membership_fee" min="0" readonly/>
+                                        <input type="number" class="form-control form-control-sm" name="membership_fee" min="0"/>
                                     </div>
                                     <div class="form-check">
                                         <input type="checkbox" name="is_early_settlement" id="is_early_settlement" class="form-check-input" />

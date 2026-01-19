@@ -364,6 +364,7 @@
             $("#modalTransaction [name='principal']").data('early-settlement-amount',parseFloat(feesResponse.early_settlement_amount.replace(/,/g, '')));
             $("#modalTransaction [name='principal']").data('special-loan-balance',parseFloat(feesResponse.special_loan_balance.replace(/,/g, '')));
             $("#modalTransaction [name='principal']").data('monthly-amortization',parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
+            $("#modalTransaction [name='membership_fee']").val(parseFloat(feesResponse.membership_fee_balance.replace(/,/g, '')));
             $("[name='insurance_month']").val(moment(feesResponse.interest_end_date).format('M'));
             $("[name='insurance_year']").val(moment(feesResponse.interest_end_date).format('Y'));
             const picker = $('input[name="interest_period"]').data('daterangepicker');
@@ -497,6 +498,7 @@
             var amount = parseFloat($("#modalTransaction [name='amount']").val())
             var interest = parseFloat($("#modalTransaction [name='interest']").val())
             var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
+            var membership_fee = parseFloat($("#modalTransaction [name='membership_fee']").val())
             var $principal = $("#modalTransaction [name='principal']")
             var principal_amount = parseFloat($("#modalTransaction [name='principal']").val())
             let selectedOption = $("[name='loan_id']").find(':selected');
@@ -506,6 +508,7 @@
             if (isNaN(amount)) amount = 0;
             if (isNaN(interest)) interest = 0;
             if (isNaN(insurance)) insurance = 0;
+            if (isNaN(membership_fee)) membership_fee = 0;
 
             var principal = 0;
             if ($("[name='is_early_settlement']").prop('checked')) {
@@ -518,12 +521,12 @@
                 if(loan_type==='' || loan_type===undefined) return;
 
                 if (loan_type === 'open-term' || loan_type === 'loan-with-term') {
-                    principal = principal_amount;
+                    principal = principal_amount - membership_fee;
                 } else if( loan_type === 'special-loan') {
-                    principal = $principal.data('principal-balance');
+                    principal = $principal.data('principal-balance') - membership_fee;
                 } else {
                     $principal.val('');
-                    principal = amount - interest - insurance;
+                    principal = amount - interest - insurance - membership_fee;
                 }
 
                 if(principal<0) {
@@ -536,7 +539,7 @@
 
 
             var change;
-            change = amount - (interest + insurance + principal);
+            change = amount - (interest + insurance + principal + membership_fee);
 
             console.log('amount:'+amount)
             console.log('interest:'+interest)

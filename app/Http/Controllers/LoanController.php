@@ -27,14 +27,14 @@ class LoanController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
-                        ->whereNotNull('borrower_id')
-                        ->orderByDesc('loan_date')
-                        ->orderByDesc('loan_no')
-                        ->get();
+            $loans = Loan::with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
+                ->whereNotNull('borrower_id')
+                ->orderByDesc('loan_date')
+                ->orderByDesc('loan_no')
+                ->get();
 
             $totalRecords = $loans->count();
 
@@ -54,12 +54,12 @@ class LoanController extends Controller
      */
     public function create(Request $request)
     {
-        $previous_loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->loan_no_reference)->first();
+        $previous_loan = Loan::with('borrower.details', 'payments', 'loanCharges')->where('loan_no', $request->loan_no_reference)->first();
         $reloan = $request->reloan;
-        $reloan_deduction='';
-        $principal_loan_balance='';
-        $special_loan_balance='';
-        if($previous_loan && $reloan) {
+        $reloan_deduction = '';
+        $principal_loan_balance = '';
+        $special_loan_balance = '';
+        if ($previous_loan && $reloan) {
             $reloan_date = date('Y-m-d');
             $amt = $this->calculateReloanDeduction($previous_loan, $reloan_date);
             $reloan_deduction = $amt['reloan_deduction'];
@@ -67,19 +67,19 @@ class LoanController extends Controller
             $special_loan_balance = $amt['special_loan_balance'];
         }
 
-        if($previous_loan) {
-            $clients = Client::where('id',$previous_loan->borrower_id)->get();
+        if ($previous_loan) {
+            $clients = Client::where('id', $previous_loan->borrower_id)->get();
         } else {
             $clients = Client::active()->get();
         }
         $additional_loan = $request->additional_loan;
-        if($previous_loan && $additional_loan) {
+        if ($previous_loan && $additional_loan) {
             $loan_products = LoanProduct::where('id', $previous_loan->loan_product_id)->get();
         } else {
             $loan_products = LoanProduct::active()->get();
         }
 
-        return view('loan.create', compact('loan_products', 'clients','reloan_deduction','previous_loan','principal_loan_balance','special_loan_balance'));
+        return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance'));
     }
 
     /**
@@ -89,11 +89,11 @@ class LoanController extends Controller
     {
         $data = $request->all();
 
-        if(!empty($data['is_reloan']) && filter_var($data['is_reloan'], FILTER_VALIDATE_BOOLEAN)) {
+        if (!empty($data['is_reloan']) && filter_var($data['is_reloan'], FILTER_VALIDATE_BOOLEAN)) {
             return $this->processReloan($data);
         }
 
-        if(!empty($data['is_additional_loan']) && filter_var($data['is_additional_loan'], FILTER_VALIDATE_BOOLEAN)) {
+        if (!empty($data['is_additional_loan']) && filter_var($data['is_additional_loan'], FILTER_VALIDATE_BOOLEAN)) {
             return $this->processAdditionalLoan($data);
         }
 
@@ -109,7 +109,7 @@ class LoanController extends Controller
                     ->where('is_special', 0)
                     ->first();
 
-                if (!in_array($principal_loan->loan_product_id,$loan_product->prerequisite->pluck('id')->toArray())) {
+                if (!in_array($principal_loan->loan_product_id, $loan_product->prerequisite->pluck('id')->toArray())) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Required prerequisite loan is missing.',
@@ -136,18 +136,22 @@ class LoanController extends Controller
                 $data['is_special'] = 0;
 
                 $alreadyHasLoan = Loan::where('borrower_id', $data['borrower_id'])
-                                        ->whereIn('status', [
-                                            LoanStatus::APPROVE,
-                                            LoanStatus::REQUEST_APPROVE,
-                                            LoanStatus::PENDING
-                                        ])
-                                        ->first();
+                    ->whereIn('status', [
+                        LoanStatus::APPROVE,
+                        LoanStatus::REQUEST_APPROVE,
+                        LoanStatus::PENDING
+                    ])
+                    ->first();
 
-                if($alreadyHasLoan) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Client already has a pending or approved loan']
-                        , 400);
+                if ($alreadyHasLoan) {
+                    return response()->json(
+                        [
+                            'status' => 'error',
+                            'message' => 'Client already has a pending or approved loan'
+                        ]
+                        ,
+                        400
+                    );
                 }
 
             }
@@ -166,12 +170,12 @@ class LoanController extends Controller
                     'service_fee' => $data['service_fee'],
                     'insurance_fee' => $data['insurance_fee'],
                     'notary_fee' => $data['notary_fee'],
-                    'membership_fee' => $data['membership_fee'],
-                    'membership_fee_paid' => $data['membership_fee_paid'],
+                    'membership_fee' => config('settings.membership_fee'),
+                    'membership_fee_paid' => $data['membership_fee'],
                 ]);
 
-                $insurance = InsuranceFeeSchedule::where('min_amount','<=',$data['applied_amount'])
-                                ->where('max_amount','>=',$data['applied_amount'])->first();
+                $insurance = InsuranceFeeSchedule::where('min_amount', '<=', $data['applied_amount'])
+                    ->where('max_amount', '>=', $data['applied_amount'])->first();
 
                 LoanFee::create([
                     'loan_id' => $loan->id,
@@ -194,11 +198,11 @@ class LoanController extends Controller
                         $path = $doc['file_upload']->store('client_uploads', 'public');
 
                         ClientDocument::create([
-                            'client_id'      => $data['borrower_id'],
-                            'loan_id'        => $loan->id,
-                            'document_type'  => $doc['doc_type'],
-                            'file_path'      => $path,
-                            'remarks'        => $doc['file_upload_remarks'] ?? '',
+                            'client_id' => $data['borrower_id'],
+                            'loan_id' => $loan->id,
+                            'document_type' => $doc['doc_type'],
+                            'file_path' => $path,
+                            'remarks' => $doc['file_upload_remarks'] ?? '',
                         ]);
                     }
                 }
@@ -230,11 +234,11 @@ class LoanController extends Controller
      */
     public function show(Loan $loan)
     {
-        if($loan) {
+        if ($loan) {
             $clients = Client::all();
             $loan_products = LoanProduct::active()->get();
 
-            return view('loan.show', compact('loan','clients','loan_products'));
+            return view('loan.show', compact('loan', 'clients', 'loan_products'));
         }
         return response()->json([
             'status' => 'error',
@@ -247,13 +251,13 @@ class LoanController extends Controller
      */
     public function edit(Loan $loan)
     {
-        if($loan->status == LoanStatus::APPROVE->value)
+        if ($loan->status == LoanStatus::APPROVE->value)
             abort(404);
 
         $clients = Client::all();
         $loan_products = LoanProduct::active()->get();
 
-        return view('loan.edit', compact('loan','clients','loan_products'));
+        return view('loan.edit', compact('loan', 'clients', 'loan_products'));
     }
 
     /**
@@ -300,9 +304,9 @@ class LoanController extends Controller
 
                 // Sync Co-makers
                 $borrower = Client::findOrFail($request->borrower_id);
-                
+
                 $newCoMakers = $request->client_comaker ?? [];
-                
+
                 // Get existing co-makers for this specific loan
                 $currentCoMakers = DB::table('client_co_makers')
                     ->where('client_id', $borrower->id)
@@ -312,7 +316,7 @@ class LoanController extends Controller
 
                 // Determine what to remove (in current but not in new request)
                 $toRemove = array_diff($currentCoMakers, $newCoMakers);
-                
+
                 // Determine what to add (in new request but not in current)
                 $toAdd = array_diff($newCoMakers, $currentCoMakers);
 
@@ -334,10 +338,10 @@ class LoanController extends Controller
 
                 // Sync Documents (Delete removed ones)
                 $existingDocIds = $request->existing_document_ids ?? [];
-                
+
                 // Get current documents for this loan
                 $currentDocuments = ClientDocument::where('loan_id', $loan->id)->get();
-                
+
                 foreach ($currentDocuments as $doc) {
                     if (!in_array($doc->id, $existingDocIds)) {
                         // Optimally delete file from storage here: Storage::disk('public')->delete($doc->file_path);
@@ -359,11 +363,11 @@ class LoanController extends Controller
                         $path = $doc['file_upload']->store('client_uploads', 'public');
 
                         ClientDocument::create([
-                            'client_id'      => $request->borrower_id,
-                            'loan_id'        => $loan->id,
-                            'document_type'  => $doc['doc_type'],
-                            'file_path'      => $path,
-                            'remarks'        => $doc['file_upload_remarks'] ?? '',
+                            'client_id' => $request->borrower_id,
+                            'loan_id' => $loan->id,
+                            'document_type' => $doc['doc_type'],
+                            'file_path' => $path,
+                            'remarks' => $doc['file_upload_remarks'] ?? '',
                         ]);
                     }
                 }
@@ -388,8 +392,8 @@ class LoanController extends Controller
      */
     public function destroy(Loan $loan)
     {
-        DB::table('loan_charges')->where('loan_id',$loan->id)->delete();
-        DB::table('client_co_makers')->where('loan_id',$loan->id)->delete();
+        DB::table('loan_charges')->where('loan_id', $loan->id)->delete();
+        DB::table('client_co_makers')->where('loan_id', $loan->id)->delete();
         $loan->delete();
 
         return response()->json([
@@ -400,13 +404,13 @@ class LoanController extends Controller
 
     public function pending(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::pending()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
-                        ->orderByDesc('loan_date')
-                        ->orderByDesc('loan_no')
-                        ->get();
+            $loans = Loan::pending()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
+                ->orderByDesc('loan_date')
+                ->orderByDesc('loan_no')
+                ->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -422,23 +426,23 @@ class LoanController extends Controller
 
     public function awaitingDisbursement(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::approved()->with('loanProduct','loanProduct.loanType','borrower.details','loanCharges')->filter($search)
-                    ->whereNull('disbursed_date')
-                    ->orderByDesc('loan_date')
-                        ->orderByDesc('loan_no')
-                        ->get();
+            $loans = Loan::approved()->with('loanProduct', 'loanProduct.loanType', 'borrower.details', 'loanCharges')->filter($search)
+                ->whereNull('disbursed_date')
+                ->orderByDesc('loan_date')
+                ->orderByDesc('loan_no')
+                ->get();
 
-            $loans->map(function($loan){
+            $loans->map(function ($loan) {
                 $loan->net_proceeds = $loan->principal - (
                     ($loan->loanCharges->advance_interest ?? 0) +
                     ($loan->loanCharges->service_fee ?? 0) +
                     ($loan->loanCharges->insurance_fee ?? 0) +
                     ($loan->loanCharges->notary_fee ?? 0) +
-                    ($loan->loanCharges->reloan_deduction ?? 0) + 
-                    ($loan->membership_fee ?? 0)
+                    ($loan->loanCharges->reloan_deduction ?? 0) +
+                    ($loan->loanCharges->membership_fee_paid ?? 0)
                 );
                 return $loan;
             });
@@ -458,13 +462,13 @@ class LoanController extends Controller
 
     public function declined(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::declined()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
-                        ->orderByDesc('loan_date')
-                        ->orderByDesc('loan_no')
-                        ->get();
+            $loans = Loan::declined()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
+                ->orderByDesc('loan_date')
+                ->orderByDesc('loan_no')
+                ->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -480,13 +484,13 @@ class LoanController extends Controller
 
     public function withdrawn(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::withdrawn()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)
-                        ->orderByDesc('loan_date')
-                        ->orderByDesc('loan_no')
-                        ->get();
+            $loans = Loan::withdrawn()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
+                ->orderByDesc('loan_date')
+                ->orderByDesc('loan_no')
+                ->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -502,10 +506,10 @@ class LoanController extends Controller
 
     public function closed(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::closed()->with('loanProduct','loanProduct.loanType','borrower.details')->filter($search)->get();
+            $loans = Loan::closed()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)->get();
             $totalRecords = $loans->count();
 
             return response()->json([
@@ -521,7 +525,7 @@ class LoanController extends Controller
 
     public function withdrawnLoan(Loan $loan)
     {
-        if($loan) {
+        if ($loan) {
             $loan->status = LoanStatus::WITHDRAWN;
             $loan->save();
 
@@ -538,14 +542,14 @@ class LoanController extends Controller
 
     public function approveLoan(Loan $loan)
     {
-        if($loan) {
+        if ($loan) {
             $loan->status = LoanStatus::APPROVE;
             $loan->approved_date = date('Y-m-d H:i:s');
             $loan->approved_by = auth()->user()->id;
             $loan->save();
 
             // close previous loan if is_reloan
-            if($loan->is_reloan) {
+            if ($loan->is_reloan) {
                 $this->closeLoan($loan->reference_loan_no, $loan->approved_date, $loan->loan_no);
             }
 
@@ -562,7 +566,7 @@ class LoanController extends Controller
 
     public function declineLoan(Loan $loan)
     {
-        if($loan) {
+        if ($loan) {
             $loan->status = LoanStatus::DECLINE;
             $loan->declined_date = date('Y-m-d H:i:s');
             $loan->declined_by = auth()->user()->id;
@@ -581,7 +585,7 @@ class LoanController extends Controller
 
     public function requestApproveLoan(Loan $loan)
     {
-        if($loan) {
+        if ($loan) {
             $loan->status = LoanStatus::REQUEST_APPROVE;
             $loan->save();
 
@@ -598,7 +602,7 @@ class LoanController extends Controller
 
     public function disburse(Loan $loan, Request $request)
     {
-        if($loan) {
+        if ($loan) {
             $loan->disbursed_date = $request->disbursed_date;
             $loan->disbursed_notes = $request->notes;
             $loan->mode_of_payment = $request->mode_of_payment;
@@ -618,17 +622,17 @@ class LoanController extends Controller
 
     public function printReceipt($id)
     {
-        $loan = Loan::with('borrower.details','loanCharges')->findOrFail($id);
-        
+        $loan = Loan::with('borrower.details', 'loanCharges')->findOrFail($id);
+
         // Calculate Net Proceeds
         $net_proceeds = $loan->principal - (
             ($loan->loanCharges->advance_interest ?? 0) +
             ($loan->loanCharges->service_fee ?? 0) +
             ($loan->loanCharges->insurance_fee ?? 0) +
             ($loan->loanCharges->notary_fee ?? 0) +
-            ($loan->loanCharges->reloan_deduction ?? 0) + 
-            ($loan->loanCharges->special_loan_balance ?? 0) + 
-            ($loan->membership_fee ?? 0)
+            ($loan->loanCharges->reloan_deduction ?? 0) +
+            ($loan->loanCharges->special_loan_balance ?? 0) +
+            ($loan->loanCharges->membership_fee_paid ?? 0)
         );
 
         // Get branch name
@@ -655,7 +659,7 @@ class LoanController extends Controller
                     ->where('is_special', 0)
                     ->first();
 
-                if (!in_array($principal_loan->loan_product_id,$loan_product->prerequisite->pluck('id')->toArray())) {
+                if (!in_array($principal_loan->loan_product_id, $loan_product->prerequisite->pluck('id')->toArray())) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Required prerequisite loan is missing.',
@@ -665,7 +669,7 @@ class LoanController extends Controller
 
             DB::transaction(function () use ($data) {
 
-                $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $data['reference_loan_no'])->first();
+                $previous_loan = Loan::with('payments', 'loanCharges')->where('loan_no', $data['reference_loan_no'])->first();
                 // $previous_loan->closed_date = $data['loan_date'];
                 // $previous_loan->status = LoanStatus::CLOSED;
                 // $previous_loan->save();
@@ -687,9 +691,9 @@ class LoanController extends Controller
                 $special_loan_balance = 0;
 
                 $reloan_date = $data['loan_date'];
-                Log::info('last_payment_date:'.$last_payment_date);
-                Log::info('reloan_date:'.$reloan_date);
-                if($reloan_date == $last_payment_date) { # no interest due
+                Log::info('last_payment_date:' . $last_payment_date);
+                Log::info('reloan_date:' . $reloan_date);
+                if ($reloan_date == $last_payment_date) { # no interest due
                     $reloan_deduction = $principal_balance - $advance_interest;
                     $rebate = -$advance_interest;
                 } else { # calculate interest
@@ -697,25 +701,25 @@ class LoanController extends Controller
 
                     $start = Carbon::parse($last_payment_date)->addDay();
                     $end = Carbon::parse($reloan_date);
-                    $number_of_days = (int)$start->diffInDays($end);
+                    $number_of_days = (int) $start->diffInDays($end);
                     Log::info($start);
                     Log::info($number_of_days);
 
                     $interest_rate = $previous_loan->interest_rate / 100;
-                    $interest = ($interest_rate/30) * $number_of_days * $principal_balance;
+                    $interest = ($interest_rate / 30) * $number_of_days * $principal_balance;
                     $unpaid_interest = round($interest);
 
                     $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest);
                     $rebate = $unpaid_interest - $advance_interest;
                 }
 
-                Log::info('principal_balance: '.$principal_balance);
-                Log::info('advance_interest: '.$advance_interest);
-                Log::info('unpaid_interest: '.$unpaid_interest);
-                Log::info('interest(rebate): '.$rebate);
-                Log::info('reloan_deduction: '.$reloan_deduction);
+                Log::info('principal_balance: ' . $principal_balance);
+                Log::info('advance_interest: ' . $advance_interest);
+                Log::info('unpaid_interest: ' . $unpaid_interest);
+                Log::info('interest(rebate): ' . $rebate);
+                Log::info('reloan_deduction: ' . $reloan_deduction);
 
-                if($data['include_special_loan_balance']) {
+                if ($data['include_special_loan_balance']) {
                     $special_loan_balance = $data['special_loan_balance'];
                     // create saving for payment
                     Savings::create([
@@ -735,12 +739,12 @@ class LoanController extends Controller
                         $loan_principal_payments = $payments->sum('principal');
                         $earyl_settlement_amount = $loan_principal_balance - $loan_principal_payments;
 
-                        Log::info('principal:'.$loan->final_principal);
-                        Log::info('payment:'.$payments->sum('principal'));
-                        Log::info('earyl_settlement_amount'.$earyl_settlement_amount);
+                        Log::info('principal:' . $loan->final_principal);
+                        Log::info('payment:' . $payments->sum('principal'));
+                        Log::info('earyl_settlement_amount' . $earyl_settlement_amount);
                         Log::info('----------------------------------------------------------');
 
-                        if($loan->is_special) {
+                        if ($loan->is_special) {
                             Savings::create([
                                 'transaction_date' => $data['loan_date'],
                                 'transaction_type' => 'withdraw',
@@ -751,7 +755,7 @@ class LoanController extends Controller
                                 'principal' => $earyl_settlement_amount,
                             ]);
                         } else {
-                            $principal_amount =  $reloan_deduction - $special_loan_balance;
+                            $principal_amount = $reloan_deduction - $special_loan_balance;
 
                             Savings::create([
                                 'transaction_date' => $data['loan_date'],
@@ -798,8 +802,8 @@ class LoanController extends Controller
                     'reloan_deduction' => $reloan_deduction,
                 ]);
 
-                $insurance = InsuranceFeeSchedule::where('min_amount','<=',$data['applied_amount'])
-                                ->where('max_amount','>=',$data['applied_amount'])->first();
+                $insurance = InsuranceFeeSchedule::where('min_amount', '<=', $data['applied_amount'])
+                    ->where('max_amount', '>=', $data['applied_amount'])->first();
 
                 LoanFee::create([
                     'loan_id' => $loan->id,
@@ -836,7 +840,7 @@ class LoanController extends Controller
 
             DB::transaction(function () use ($data) {
 
-                $previous_loan = Loan::with('payments','loanCharges')->where('loan_no', $data['reference_loan_no'])->first();
+                $previous_loan = Loan::with('payments', 'loanCharges')->where('loan_no', $data['reference_loan_no'])->first();
 
                 $previous_loan_principal = $previous_loan->principal;
                 $payments = $previous_loan?->payments->where('transaction_type', 'withdraw');
@@ -885,8 +889,8 @@ class LoanController extends Controller
 
     public function getReloanDeduction(Request $request)
     {
-        if($request->ajax()) {
-            $loan = Loan::with('borrower.details','payments','loanCharges')->where('loan_no', $request->reference_loan_no)->first();
+        if ($request->ajax()) {
+            $loan = Loan::with('borrower.details', 'payments', 'loanCharges')->where('loan_no', $request->reference_loan_no)->first();
             $reloan_date = $request->reloan_date;
             $amount = $this->calculateReloanDeduction($loan, $reloan_date);
             $reloan_deduction = $amount['reloan_deduction'];
@@ -908,17 +912,17 @@ class LoanController extends Controller
         $last_payment_date = $payments?->sortByDesc('transaction_date')->value('transaction_date');
         $total_loan_payment = $payments->sum('principal');
         Log::info('calculate reloan deduction');
-        Log::info('previous_loan_principal:'.$previous_loan_principal);
-        Log::info('total_loan_payment:'.$total_loan_payment);
+        Log::info('previous_loan_principal:' . $previous_loan_principal);
+        Log::info('total_loan_payment:' . $total_loan_payment);
         $principal_balance = $previous_loan_principal - $total_loan_payment;
-        Log::info('principal_balance:'.$principal_balance);
-        $advance_interest = (float)$previous_loan?->final_advance_interest;
+        Log::info('principal_balance:' . $principal_balance);
+        $advance_interest = (float) $previous_loan?->final_advance_interest;
         $reloan_deduction = 0;
         $unpaid_interest = 0;
 
         $end = Carbon::parse($reloan_date);
         $previous_loan_date = Carbon::parse($previous_loan->loan_date);
-        $number_of_months = abs((int)$previous_loan_date->diffInMonths($end)) + 1;
+        $number_of_months = abs((int) $previous_loan_date->diffInMonths($end)) + 1;
         Log::info(Str::slug($previous_loan->loanProduct->loanType->name));
 
         $unpaid_insurance = $number_of_months >= 12 ? $previous_loan->final_insurance_monthly * ($number_of_months - 12) : 0;
@@ -949,8 +953,8 @@ class LoanController extends Controller
                 $number_of_days = abs((int) $start->diffInDays($end)) + 1;
             }
 
-            Log::info('start:'.$start);
-            Log::info('end:'.$end);
+            Log::info('start:' . $start);
+            Log::info('end:' . $end);
             Log::info($number_of_days);
 
             $interest_rate = $previous_loan->interest_rate / 100;
@@ -959,28 +963,28 @@ class LoanController extends Controller
 
             if (Str::slug($previous_loan->loanProduct->loanType->name) == 'open-term' || Str::slug($previous_loan->loanProduct->loanType->name) == 'auto-debit') {
                 $reloan_deduction = $principal_balance - ($advance_interest - $unpaid_interest) + $unpaid_insurance + $special_loan_balance;
-                Log::info($reloan_deduction .'='. $principal_balance .'-('. $advance_interest .'-'. $unpaid_interest .') + '. $unpaid_insurance .'+'. $special_loan_balance);
+                Log::info($reloan_deduction . '=' . $principal_balance . '-(' . $advance_interest . '-' . $unpaid_interest . ') + ' . $unpaid_insurance . '+' . $special_loan_balance);
             } else {
                 $reloan_deduction = $principal_balance + $unpaid_insurance + $special_loan_balance;
-                Log::info($reloan_deduction .'='. $principal_balance .'+'. $unpaid_insurance .'+'. $special_loan_balance);
+                Log::info($reloan_deduction . '=' . $principal_balance . '+' . $unpaid_insurance . '+' . $special_loan_balance);
             }
         }
 
 
 
-        Log::info('principal_balance: '.$principal_balance);
-        Log::info('principal_balance: '.$principal_balance);
-        Log::info('total_loan_payment: '.$total_loan_payment);
-        Log::info('advance_interest: '.$advance_interest);
-        Log::info('unpaid_interest: '.$unpaid_interest);
-        Log::info('unpaid_insurance: '.$unpaid_insurance);
-        Log::info('special_loan_balance: '.$special_loan_balance);
-        Log::info('reloan_deduction: '.$reloan_deduction);
+        Log::info('principal_balance: ' . $principal_balance);
+        Log::info('principal_balance: ' . $principal_balance);
+        Log::info('total_loan_payment: ' . $total_loan_payment);
+        Log::info('advance_interest: ' . $advance_interest);
+        Log::info('unpaid_interest: ' . $unpaid_interest);
+        Log::info('unpaid_insurance: ' . $unpaid_insurance);
+        Log::info('special_loan_balance: ' . $special_loan_balance);
+        Log::info('reloan_deduction: ' . $reloan_deduction);
 
         return [
-            'reloan_deduction' => number_format($reloan_deduction,2),
-            'principal_loan_balance' => number_format($reloan_deduction - $special_loan_balance,2),
-            'special_loan_balance' => number_format($special_loan_balance,2)
+            'reloan_deduction' => number_format($reloan_deduction, 2),
+            'principal_loan_balance' => number_format($reloan_deduction - $special_loan_balance, 2),
+            'special_loan_balance' => number_format($special_loan_balance, 2)
         ];
     }
 
@@ -992,7 +996,7 @@ class LoanController extends Controller
         $previous_loan->save();
 
         // reference loans related to previous loan
-        Loan::where('reference_loan_no',$reference_loan)
+        Loan::where('reference_loan_no', $reference_loan)
             ->where('loan_no', '!=', $current_loan_no)
             ->update([
                 'status' => LoanStatus::CLOSED,

@@ -124,7 +124,7 @@
                         <li>Insurance Fee <span class="insurance_fee">{{number_format($loan->loanCharges->insurance_fee,2)}}</span></li>
                         @endif
                         <li>Notary Fee <span class="notary_fee">{{number_format($loan->loanCharges->notary_fee,2)}}</span></li>
-                        <li>Membership Fee <span class="membership_fee">{{number_format($loan->membership_fee,2)}}</span></li>
+                        <li>Membership Fee <span class="membership_fee">{{number_format($loan->loanCharges->membership_fee_paid,2)}}</span></li>
                         @if($loan->is_reloan)
                         <li>Special Loan Balance <span class="reloan_deduction">{{number_format($loan->loanCharges->special_loan_balance,2)}}</span></li>
                         <li>Reloan Deduction <span class="reloan_deduction">{{number_format($loan->loanCharges->reloan_deduction,2)}}</span></li>
@@ -136,7 +136,7 @@
                         $service_fee = $loan->loanCharges->service_fee ?? 0;
                         $insurance_fee = $loan->loanCharges->insurance_fee ?? 0;
                         $notary_fee = $loan->loanCharges->notary_fee ?? 0;
-                        $membership_fee = $loan->membership_fee ?? 0;
+                        $membership_fee = $loan->loanCharges->membership_fee_paid ?? 0;
                         $reloan_deduction = $loan->loanCharges->reloan_deduction ?? 0;
                         $special_loan_balance = $loan->loanCharges->special_loan_balance ?? 0;
                         $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance + $membership_fee;
@@ -306,7 +306,9 @@
 
             var reloan_deduction = parseFloat($('.reloan_deduction').text().replace(/,/g, '')) || 0;
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction);
+            var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
+
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee);
 
             var net_proceeds = principal - total_deductions;
 

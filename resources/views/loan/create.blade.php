@@ -164,7 +164,7 @@
                                     <input type="checkbox" class="form-check-input over-ride" name="override_membership_fee" id="override_membership_fee">
                                     <label for="override_membership_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{config('settings.membership_fee')}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{number_format(config('settings.membership_fee'),2)}}">
                             </div>
                         </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
@@ -240,7 +240,7 @@
         $(".special-description").hide().removeAttr("required");
 
         var is_additional_loan = urlParams.get('additional_loan')
-        if(is_additional_loan) {
+        // if(is_additional_loan) {
             loan_type = $("[name='loan_product_id']").find('option:selected').data('loan-type');
 
             interest_rate = $("[name='loan_product_id']").find('option:selected').data('interest-rate');
@@ -257,8 +257,8 @@
                  $(".special-description").hide().removeAttr("required");
             }
 
-            calculateLoan();
-        }
+            // calculateLoan();
+        // }
         // jQuery Combined Decimal Input Handler
         $(document).on('input', '.decimal-only', function () {
         let val = this.value;

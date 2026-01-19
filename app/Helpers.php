@@ -13,8 +13,9 @@ use App\Models\Savings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-if(!function_exists('getProvinces')) {
-    function getProvinces() {
+if (!function_exists('getProvinces')) {
+    function getProvinces()
+    {
 
         $result = Province::active()->get();
 
@@ -22,8 +23,9 @@ if(!function_exists('getProvinces')) {
     }
 }
 
-if(!function_exists('getBranches')) {
-    function getBranches() {
+if (!function_exists('getBranches')) {
+    function getBranches()
+    {
 
         $result = Branch::active()->get();
 
@@ -31,8 +33,9 @@ if(!function_exists('getBranches')) {
     }
 }
 
-if(!function_exists('getJobTitles')) {
-    function getJobTitles() {
+if (!function_exists('getJobTitles')) {
+    function getJobTitles()
+    {
 
         $result = JobTitle::active()->get();
 
@@ -40,8 +43,9 @@ if(!function_exists('getJobTitles')) {
     }
 }
 
-if(!function_exists('getNationalities')) {
-    function getNationalities() {
+if (!function_exists('getNationalities')) {
+    function getNationalities()
+    {
 
         $result = CountryCode::active()->orderBy('nationality')->get();
 
@@ -49,8 +53,9 @@ if(!function_exists('getNationalities')) {
     }
 }
 
-if(!function_exists('getBanks')) {
-    function getBanks() {
+if (!function_exists('getBanks')) {
+    function getBanks()
+    {
 
         $result = Bank::active()->orderBy('bank_code')->get();
 
@@ -58,45 +63,46 @@ if(!function_exists('getBanks')) {
     }
 }
 
-if(!function_exists('month_names')) {
+if (!function_exists('month_names')) {
     function month_names()
     {
-        return collect(range(1, 12))->mapWithKeys(fn($i) =>
+        return collect(range(1, 12))->mapWithKeys(
+            fn($i) =>
             [$i => \Carbon\Carbon::create()->month($i)->translatedFormat('F')]
         )->toArray();
     }
 }
 
-if(!function_exists('getClientBalance')) {
+if (!function_exists('getClientBalance')) {
     function getClientBalance(Client $client)
     {
         $deposit = $client->savings
-                ->where('transaction_type', 'deposit')->sum('amount');
+            ->where('transaction_type', 'deposit')->sum('amount');
         $withdraw = $client->savings
-                ->where('transaction_type', 'withdraw')->sum('amount');
+            ->where('transaction_type', 'withdraw')->sum('amount');
         $balance = $deposit - $withdraw;
 
-        return number_format($balance,2);
+        return number_format($balance, 2);
     }
 }
 
-if(!function_exists('getLoanBalance')) {
+if (!function_exists('getLoanBalance')) {
     function getLoanBalance(Loan $loan)
     {
         $principal = $loan->final_principal;
-        $payment = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->sum('principal');
+        $payment = Savings::where('loan_id', $loan->id)->where('transaction_type', 'withdraw')->sum('principal');
         $balance = $principal - $payment;
 
-        Log::info('loan_id:'.$loan->id);
-        Log::info('principal:'.$principal);
-        Log::info('payment:'.$payment);
-        Log::info('balance:'.$balance);
+        Log::info('loan_id:' . $loan->id);
+        Log::info('principal:' . $principal);
+        Log::info('payment:' . $payment);
+        Log::info('balance:' . $balance);
         return $balance;
     }
 }
 
 
-if(!function_exists('markLoanAsClosed')) {
+if (!function_exists('markLoanAsClosed')) {
     function markLoanAsClosed(Loan $loan, $closed_date)
     {
         $loan->status = LoanStatus::CLOSED;
@@ -108,15 +114,15 @@ if(!function_exists('markLoanAsClosed')) {
             'is_additional_loan' => 1,
             'reference_loan_no' => $loan->loan_no,
         ])->update([
-            'status' => LoanStatus::CLOSED,
-            'closed_date' => $closed_date,
-        ]);
+                    'status' => LoanStatus::CLOSED,
+                    'closed_date' => $closed_date,
+                ]);
         Log::info(DB::getQueryLog());
     }
 }
 
 
-if(!function_exists('getSpecialLoanBalance')) {
+if (!function_exists('getSpecialLoanBalance')) {
     function getSpecialLoanBalance(int $borrower_id)
     {
         $special_loans = Loan::specialLoan($borrower_id)->get();
@@ -136,14 +142,14 @@ if(!function_exists('getSpecialLoanBalance')) {
     }
 }
 
-if(!function_exists('getMembershipFeeBalance')) {
+if (!function_exists('getMembershipFeeBalance')) {
     function getMembershipFeeBalance(Loan $loan)
     {
         $membership_fee = $loan->loanCharges->membership_fee; // Target Fee
-        $membership_fee_initial_payment = $loan->membership_fee; // Initial Payment
-        $payment = Savings::where('loan_id',$loan->id)->where('transaction_type','withdraw')->sum('membership_fee');
+        $membership_fee_initial_payment = $loan->loanCharges->membership_fee_paid; // Initial Payment
+        $payment = Savings::where('loan_id', $loan->id)->where('transaction_type', 'withdraw')->sum('membership_fee');
         $balance = $membership_fee - ($membership_fee_initial_payment + $payment);
 
-        return number_format($balance, 2);
+        return number_format($balance ?? 0, 2);
     }
 }

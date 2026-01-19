@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Loan Receipt</title>
     <style>
-
         .net-proceeds {
-            background-color: #e6e6e6; /* lighter grey highlight */
+            background-color: #e6e6e6;
+            /* lighter grey highlight */
             padding: 6px 8px;
             font-size: 14px;
             border-radius: 4px;
         }
+
         body {
             width: 80mm;
             font-family: monospace;
@@ -19,19 +21,48 @@
             margin: 0;
             padding: 0;
         }
-        .receipt { padding: 5px; }
-        .center { text-align: center; }
-        .bold { font-weight: bold; }
-        .spaced { margin-top: 10px; }
-        .label { display: flex; justify-content: space-between; }
-        .net-proceeds { background-color: #f0f0f0; padding: 3px 5px; font-size: 14px; }
-        hr { border: none; border-top: 1px dashed #000; margin: 5px 0; }
+
+        .receipt {
+            padding: 5px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .spaced {
+            margin-top: 10px;
+        }
+
+        .label {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .net-proceeds {
+            background-color: #f0f0f0;
+            padding: 3px 5px;
+            font-size: 14px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px dashed #000;
+            margin: 5px 0;
+        }
 
         @media print {
-            body { width: 80mm; }
+            body {
+                width: 80mm;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="receipt">
 
@@ -47,7 +78,7 @@
 
         <div class="label">
             <span>Borrower:</span>
-          <span>{{ $loan->borrower->details->fullname ?? 'N/A' }}</span>
+            <span>{{ $loan->borrower->details->fullname ?? 'N/A' }}</span>
         </div>
 
         <div class="label">
@@ -63,7 +94,7 @@
         <!-- Less: Deductions -->
         <div class="spaced">
             <div class="bold">Less:</div>
-            
+
             <div class="label" style="margin-left:10px;">
                 <span>Adv. Interest:</span>
                 <span>{{ number_format($loan->loanCharges->advance_interest ?? 0, 2) }}</span>
@@ -84,11 +115,11 @@
                 <span>{{ number_format($loan->loanCharges->notary_fee ?? 0, 2) }}</span>
             </div>
 
-            @if(($loan->membership_fee ?? 0) > 0)
-            <div class="label" style="margin-left:10px;">
-                <span>Membership Fee:</span>
-                <span>{{ number_format($loan->membership_fee, 2) }}</span>
-            </div>
+            @if(($loan->loanCharges->membership_fee ?? 0) > 0)
+                <div class="label" style="margin-left:10px;">
+                    <span>Membership Fee:</span>
+                    <span>{{ number_format($loan->loanCharges->membership_fee_paid, 2) }}</span>
+                </div>
             @endif
 
             @if($loan->is_reloan)
@@ -97,10 +128,10 @@
                     <span>{{ number_format($loan->loanCharges->reloan_deduction ?? 0, 2) }}</span>
                 </div>
                 @if(($loan->loanCharges->special_loan_balance ?? 0) > 0)
-                <div class="label" style="margin-left:10px;">
-                    <span>Special Bal.:</span>
-                    <span>{{ number_format($loan->loanCharges->special_loan_balance, 2) }}</span>
-                </div>
+                    <div class="label" style="margin-left:10px;">
+                        <span>Special Bal.:</span>
+                        <span>{{ number_format($loan->loanCharges->special_loan_balance, 2) }}</span>
+                    </div>
                 @endif
             @endif
 
@@ -115,19 +146,20 @@
         <hr>
         <p class="center">Received the above amount.</p>
         <br>
-        
+
         <div class="center" style="border-top: 1px solid #000; width: 80%; margin: 20px auto 0 auto; padding-top: 5px;">
             Signature over Printed Name
         </div>
     </div>
 
     <script>
-        window.onload = function() {
+        window.onload = function () {
             window.print();
         }
-        window.onafterprint = function() {
+        window.onafterprint = function () {
             window.close();
         }
     </script>
 </body>
+
 </html>

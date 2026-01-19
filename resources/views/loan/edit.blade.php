@@ -118,16 +118,6 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="advance_interest" id="advance_interest">
                             </div>
                         </li>
-                        <li class="mt-3 mb-3" id="membership">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label for="membership_fee">Membership Fee</label>
-                                <div class="ms-auto gap-3">
-                                    <input type="checkbox" class="form-check-input over-ride" name="override_membership_fee" id="override_membership_fee">
-                                    <label for="override_membership_fee" class="form-label text-muted">override?</label>
-                                </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{ number_format($loan->membership_fee,2) }}">
-                            </div>
-                        </li>
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
                                 <label for="service_fee">Service Fee</label>
@@ -156,6 +146,16 @@
                                     <label for="override_notary_fee" class="form-label text-muted">override?</label>
                                 </div>
                                 <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3" id="membership">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="membership_fee">Membership Fee</label>
+                                <div class="ms-auto gap-3">
+                                    <input type="checkbox" class="form-check-input over-ride" name="override_membership_fee" id="override_membership_fee">
+                                    <label for="override_membership_fee" class="form-label text-muted">override?</label>
+                                </div>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{ number_format($loan->loanCharges->membership_fee_paid,2) }}">
                             </div>
                         </li>
                         @if($loan->is_reloan)

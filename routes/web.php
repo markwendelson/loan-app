@@ -32,7 +32,7 @@ Route::get('/', function () {
 });
 
 
-Route::get('/logout', function() {
+Route::get('/logout', function () {
     Auth::logout();
 
     return redirect('/login');
@@ -40,9 +40,10 @@ Route::get('/logout', function() {
 
 Auth::routes();
 
-Route::middleware('auth')->group(function(){
+Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
+    Route::get('/dashboard/metric', [HomeController::class, 'getMetric'])->name('dashboard.metric');
 
     Route::post('cities/get-cities', [CityController::class, 'getCitiesHtmlOptions']);
 
@@ -93,7 +94,7 @@ Route::middleware('auth')->group(function(){
 
     Route::controller(ClientController::class)
         ->prefix('client')
-        ->group(function() {
+        ->group(function () {
             Route::get('{client}/get-balance', 'getBalance')->name('client.get-balance');
             Route::get('{client}/{loan_no}/ledger', 'ledgerLoan')->name('client.ledger.loan');
             Route::get('{client}/loan-history', 'loanHistory')->name('client.loan-history');
@@ -101,9 +102,9 @@ Route::middleware('auth')->group(function(){
             Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
             Route::get('{client}/loan-history-details', 'loanHistoryDetails')->name('client.loan-history-details');
             Route::get('{client}/partial-ledger', 'partialLedger')->name('client.partial-ledger');
-    });
+        });
 
-    Route::post('user/{user}/permission',[UserController::class,'updatePermission'])->name('user.update-permission');
+    Route::post('user/{user}/permission', [UserController::class, 'updatePermission'])->name('user.update-permission');
 
     Route::resource('user', UserController::class);
     Route::resource('role', RoleController::class);
@@ -112,69 +113,70 @@ Route::middleware('auth')->group(function(){
     Route::resource('notary-fee-schedule', NotaryFeeScheduleController::class);
     Route::controller(LoanController::class)
         ->prefix('loan')
-        ->group(function() {
+        ->group(function () {
             Route::get('pending', 'pending')->name('loan.pending');
             Route::get('awaiting-disbursement', 'awaitingDisbursement')->name('loan.awaiting-disbursement');
             Route::get('declined', 'declined')->name('loan.declined');
             Route::get('withdrawn', 'withdrawn')->name('loan.withdrawn');
             Route::get('closed', 'closed')->name('loan.closed');
             Route::post('disburse/{loan}', 'disburse')->name('loan.disburse');
-            Route::post('withdrawn/{loan}','withdrawnLoan')->name('loan.withdrawn-loan');;
-            Route::post('approve/{loan}','approveLoan')->name('loan.approve-loan');;
-            Route::post('decline/{loan}','declineLoan')->name('loan.decline-loan');;
-            Route::post('request-approve/{loan}','requestApproveLoan')->name('loan.request-approval');;
-            Route::post('get-reloan-deduction','getReloanDeduction')->name('loan.get-reloan-deduction');;
+            Route::post('withdrawn/{loan}', 'withdrawnLoan')->name('loan.withdrawn-loan');
+            Route::post('approve/{loan}', 'approveLoan')->name('loan.approve-loan');
+            Route::post('decline/{loan}', 'declineLoan')->name('loan.decline-loan');
+            Route::post('request-approve/{loan}', 'requestApproveLoan')->name('loan.request-approval');
+            Route::post('get-reloan-deduction', 'getReloanDeduction')->name('loan.get-reloan-deduction');
             Route::get('{id}/print', 'printReceipt')->name('loan.print');
-    });
+        });
     Route::controller(SavingsController::class)
         ->prefix('savings')
-        ->group(function() {
+        ->group(function () {
             Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
             Route::get('{id}/print', 'printReceipt')->name('savings.print');
-    });
+        });
     Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
+    Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
 
 
 
-// Others (Group: requires auth)
+    // Others (Group: requires auth)
 // Walk-in Index page (web view)
-Route::get('walkin', [WalkinController::class, 'index'])->name('walkin.index');
+    Route::get('walkin', [WalkinController::class, 'index'])->name('walkin.index');
 
-// CRUD endpoints (AJAX / fetch)
-Route::post('walkin', [WalkinController::class, 'store'])->name('walkin.store');
-Route::get('walkin/{id}', [WalkinController::class, 'show'])->name('walkin.show');
-Route::put('walkin/{id}', [WalkinController::class, 'update'])->name('walkin.update');
-Route::delete('walkin/{id}', [WalkinController::class, 'destroy'])->name('walkin.destroy');
+    // CRUD endpoints (AJAX / fetch)
+    Route::post('walkin', [WalkinController::class, 'store'])->name('walkin.store');
+    Route::get('walkin/{id}', [WalkinController::class, 'show'])->name('walkin.show');
+    Route::put('walkin/{id}', [WalkinController::class, 'update'])->name('walkin.update');
+    Route::delete('walkin/{id}', [WalkinController::class, 'destroy'])->name('walkin.destroy');
 
-Route::get('/walkin/{id}/receipt', [WalkinController::class, 'printReceipt'])->name('walkin.receipt');
-
-
-// Check Encashments Index
-Route::get('check-encashments', [CheckEncashmentController::class, 'index'])->name('check-encashments.index');
-
-// CRUD endpoints
-Route::post('check-encashments', [CheckEncashmentController::class, 'store'])->name('check-encashments.store');
-Route::get('check-encashments/{id}', [CheckEncashmentController::class, 'show'])->name('check-encashments.show');
-Route::put('check-encashments/{id}', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');
-Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'destroy'])->name('check-encashments.destroy');
-
-Route::get('/check-encashments/{id}/receipt', [CheckEncashmentController::class, 'printReceipt'])->name('check-encashments.receipt');
+    Route::get('/walkin/{id}/receipt', [WalkinController::class, 'printReceipt'])->name('walkin.receipt');
 
 
+    // Check Encashments Index
+    Route::get('check-encashments', [CheckEncashmentController::class, 'index'])->name('check-encashments.index');
 
-Route::prefix('service-fees')->group(function() {
-    Route::get('/', [ServiceChargeController::class, 'index'])->name('service-fees.index');
-    Route::post('/', [ServiceChargeController::class, 'store'])->name('service-fees.store');
-    Route::get('/{id}', [ServiceChargeController::class, 'show'])->name('service-fees.show');
-    Route::put('/{id}', [ServiceChargeController::class, 'update'])->name('service-fees.update');
-    Route::delete('/{id}', [ServiceChargeController::class, 'destroy'])->name('service-fees.destroy');
-});
+    // CRUD endpoints
+    Route::post('check-encashments', [CheckEncashmentController::class, 'store'])->name('check-encashments.store');
+    Route::get('check-encashments/{id}', [CheckEncashmentController::class, 'show'])->name('check-encashments.show');
+    Route::put('check-encashments/{id}', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');
+    Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'destroy'])->name('check-encashments.destroy');
 
-include_once(__DIR__ . '/ajax.php');
+    Route::get('/check-encashments/{id}/receipt', [CheckEncashmentController::class, 'printReceipt'])->name('check-encashments.receipt');
+
+
+
+    Route::prefix('service-fees')->group(function () {
+        Route::get('/', [ServiceChargeController::class, 'index'])->name('service-fees.index');
+        Route::post('/', [ServiceChargeController::class, 'store'])->name('service-fees.store');
+        Route::get('/{id}', [ServiceChargeController::class, 'show'])->name('service-fees.show');
+        Route::put('/{id}', [ServiceChargeController::class, 'update'])->name('service-fees.update');
+        Route::delete('/{id}', [ServiceChargeController::class, 'destroy'])->name('service-fees.destroy');
+    });
+
+    include_once(__DIR__ . '/ajax.php');
 
 
 });
