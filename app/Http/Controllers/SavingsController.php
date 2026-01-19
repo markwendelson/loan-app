@@ -22,7 +22,14 @@ class SavingsController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $savings = Client::with('details','savings')->filter($search)->get();
+            if (!auth()->user()->hasRole('admin|superadmin')) {
+                $savings = Client::where('branch_id', auth()->user()->branch_id)
+                    ->with('details','savings')
+                    ->filter($search)
+                    ->get();
+            } else {
+                $savings = Client::with('details','savings')->filter($search)->get();
+            }
             $totalRecords = $savings->count();
 
             $data = $savings->map(function($saving) {

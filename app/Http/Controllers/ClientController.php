@@ -40,7 +40,14 @@ class ClientController extends Controller
             $search = $request->search['value'];
 
             // $clients = Client::whereHas('coMakers')->with('details')->get();
-            $clients = Client::filter($search)->with('details')->get();
+            if (!auth()->user()->hasRole('admin|superadmin')) {
+                $clients = Client::where('branch_id', auth()->user()->branch_id)
+                    ->filter($search)
+                    ->with('details')
+                    ->get();
+            } else {
+                $clients = Client::filter($search)->with('details')->get();
+            }
 
             // $mappedClients = $clients->map(function($client) {
             //     $client->fullname = trim(collect([$client->firstname, $client->middlename, $client->lastname, ])->filter()->implode(' '));

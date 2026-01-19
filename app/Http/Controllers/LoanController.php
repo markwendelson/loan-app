@@ -32,6 +32,12 @@ class LoanController extends Controller
 
             $loans = Loan::with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
                 ->whereNotNull('borrower_id')
+                ->when(!auth()->user()->hasRole('admin|superadmin'), function ($query) {
+                    // Apply filter only if the user is not an admin or superadmin
+                    $query->whereHas('borrower', function ($query) {
+                        $query->where('branch_id', auth()->user()->branch_id);
+                    });
+                })
                 ->orderByDesc('loan_date')
                 ->orderByDesc('loan_no')
                 ->get();
