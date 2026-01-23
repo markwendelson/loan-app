@@ -107,7 +107,7 @@
                         <img class="b-r-10" src="{{ isset($profileImageUrl) && $profileImageUrl ? $profileImageUrl : url('/assets/images/dashboard/profile.png') }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 10px;">
                         <div class="media-body d-xxl-block d-none box-col-none">
                             <div class="d-flex align-items-center gap-2"> <span>{{ Auth::user()->name }}</span><i class="middle fa fa-angle-down"> </i></div>
-                            <p class="mb-0 font-roboto">Admin</p>
+                            <p class="mb-0 font-roboto">{{ Auth::user()->roles()->first()->name }}</p>
                         </div>
                     </div>
                     <ul class="profile-dropdown onhover-show-div">
