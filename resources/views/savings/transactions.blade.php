@@ -54,7 +54,9 @@
         <div class="card-body">
             <div class="d-flex justify-content-between">
                 <h2 id="client_balance">Balance: {{$client->balance}}</h2>
+                @canany(['deposit-transactions','withdraw-transactions'])
                 <button class="btn btn-primary float-end btn-new"><i class="fa fa-plus"></i> New Transaction</button>
+                @endcan
             </div>
         </div>
     </div>
@@ -92,6 +94,7 @@
 
 <script>
     $(document).ready(function () {
+        const canDelete = {{ auth()->user()->can('delete-savings-transaction') ? 1 : 0 }};
 
         var client_id = $("#client_id").val();
 
@@ -138,9 +141,16 @@
                     render: function(data, type, row) {
                         if (row.deleted_at) return ``;
 
+                        let button = '';
+
+                        if (canDelete) {
+                            button += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
+                        }
+                            
+
                         return `
                                 <button class="btn btn-dark btn-xs" onclick="window.open('/savings/${row.id}/print', '_blank')"><i class="fa fa-print"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
+                                ${button}
                             `;
                     }
                 }

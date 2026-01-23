@@ -21,8 +21,12 @@
                                 <div class="form-group">
                                     <label class="form-label" for="transaction_type">Transaction Type</label>
                                     <select name="transaction_type" id="transaction_type" class="form-control form-control-sm">
+                                        @can('deposit-transactions')
                                         <option value="deposit">deposit</option>
+                                        @endcan
+                                        @can('withdraw-transactions')
                                         <option value="withdraw">withdraw</option>
+                                        @endcan
                                     </select>
                                 </div>
                             </div>
