@@ -22,7 +22,7 @@
 
                     <div class="col-12">
                         <label class="w-100" for="branch">Branch</label>
-                        <select class="form-select form-select-sm" name="client_details[branch_id]">
+                        <select class="form-select form-select-sm" name="branch_id">
                             <option value="" selected hidden disabled>-- Select --</option>
                             @foreach($branches as $key => $val)
                                 <option value="{{$val['id']}}">{{$val['name']}}</option>

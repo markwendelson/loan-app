@@ -71,11 +71,13 @@ class UserController extends Controller
             $user = new User;
             $user->name = $request->name;
             $user->email = $request->email;
+            $user->branch_id = $request->branch_id;
             $user->password = bcrypt('password');
             $user->save();
 
             $role = Role::findById($request->role_id);
             $user->assignRole($role);
+            $user->syncPermissions($role->permissions);
 
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062) {
