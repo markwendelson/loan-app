@@ -21,6 +21,7 @@
                                 <div class="form-group">
                                     <label class="form-label" for="transaction_type">Transaction Type</label>
                                     <select name="transaction_type" id="transaction_type" class="form-control form-control-sm">
+                                        <option value="">-select-</option>
                                         @can('deposit-transactions')
                                         <option value="deposit">deposit</option>
                                         @endcan
@@ -43,13 +44,13 @@
                                     </select>
                                 </div>
                             </div>
-                        <div class="col-6">
+                        <div class="col-6 deposit-withdraw">
                             <div class="form-group">
                                 <label class="form-label" for="amount">Amount</label>
                                 <input type="number" class="form-control form-control-sm" name="amount" placeholder="Amount" required min="0" autocomplete="off"/>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-6 deposit-withdraw">
                             <div class="form-group">
                                 <label class="form-label" for="classifications">Classifications</label>
                                 <select class="form-control form-control-sm" name="classifications" id="classifications">
@@ -63,7 +64,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 deposit-withdraw">
                             <div class="form-group">
                                 <label class="form-label" for="description">Description</label>
                                 <input class="form-control form-control-sm" type="text" name="description" id="description" placeholder="Description"/>

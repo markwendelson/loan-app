@@ -165,14 +165,20 @@
             showModal('modalTransaction')
             $('.withdraw').hide();
             $("#modalTransaction #mode_of_payment_container").hide();
+            $("#modalTransaction .deposit-withdraw").hide();
         })
 
         $("#modalTransaction #transaction_type").change(function(){
             let type=$(this).val();
-            if(type=="withdraw"){
+            if (type=="withdraw"){
                 $("#modalTransaction #mode_of_payment_container").show();
-            }else{
+                $("#modalTransaction .deposit-withdraw").show();
+            } else if (type=="deposit"){
                 $("#modalTransaction #mode_of_payment_container").hide();
+                $("#modalTransaction .deposit-withdraw").show();
+            } else {
+                $("#modalTransaction #mode_of_payment_container").hide();
+                $("#modalTransaction .deposit-withdraw").hide();
             }
         });
 
