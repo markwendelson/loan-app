@@ -54,7 +54,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between">
                 <h2 id="client_balance">Balance: {{$client->balance}}</h2>
-                @canany(['deposit-transactions','withdraw-transactions'])
+                @canany(['deposit-transactions','withdraw-transactions','cash-transactions'])
                 <button class="btn btn-primary float-end btn-new"><i class="fa fa-plus"></i> New Transaction</button>
                 @endcan
             </div>
@@ -75,6 +75,7 @@
                             <th class="text-center" width="150">Amount</th>
                             <th class="text-center" width="150">Notes</th>
                             <th class="text-center" width="150">Transaction Type</th>
+                            <th class="text-center" width="150">Mode of Payment</th>
                             <th class="text-center" width="150">Classifications</th>
                             <th class="text-center" width="150"><i class="fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
                         </tr>
@@ -134,6 +135,7 @@
                         return `${typeBadge}`;
                     }
                 },
+                { data: 'mop_trans_code', name: 'mop_trans_code' },
                 { data: 'classifications', name: 'classifications' },
                 {
                     data: null,
@@ -146,7 +148,7 @@
                         if (canDelete) {
                             button += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
                         }
-                            
+
 
                         return `
                                 <button class="btn btn-dark btn-xs" onclick="window.open('/savings/${row.id}/print', '_blank')"><i class="fa fa-print"></i></button>
@@ -156,7 +158,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [6] },
+                { className: "text-center", targets: [7] },
                 { className: "text-end", targets: [2] },
             ]
         });
@@ -173,7 +175,7 @@
             if (type=="withdraw"){
                 $("#modalTransaction #mode_of_payment_container").show();
                 $("#modalTransaction .deposit-withdraw").show();
-            } else if (type=="deposit"){
+            } else if (type=="deposit" || type=="cash"){
                 $("#modalTransaction #mode_of_payment_container").hide();
                 $("#modalTransaction .deposit-withdraw").show();
             } else {
@@ -328,6 +330,10 @@
         });
 
         $("[name='include_special_loan_balance']").on('change', function () {
+            calculateChange()
+        });
+
+        $("[name='membership_fee']").on('change', function () {
             calculateChange()
         });
 
@@ -503,6 +509,15 @@
                 picker.updateView();
                 picker.updateCalendars();
                 getData();
+            }
+        })
+
+        $('#modalTransaction #mode_of_payment').on('change', function() {
+            var _val = $(this).val()
+            if(_val == 'palawan' || _val == 'bank_transfer' || _val == 'atm_withdrawal') {
+                $('#modalTransaction #mop_transfer_container').show()
+            } else {
+                $('#modalTransaction #mop_transfer_container').hide()
             }
         })
 

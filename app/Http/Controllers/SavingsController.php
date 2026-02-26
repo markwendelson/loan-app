@@ -262,6 +262,7 @@ class SavingsController extends Controller
 
             $data = $transactions->map(function($saving) {
                 $saving['amount'] = number_format($saving['amount'],2);
+                $saving['mop_trans_code'] = '<span>'.str_replace("_"," ",$saving->mode_of_payment).'</span><br><span>'.$saving->transaction_code.'</span>';
                 return $saving;
             });
 
@@ -504,7 +505,7 @@ class SavingsController extends Controller
     public function printReceipt($id)
     {
         $savings = Savings::with('client.details','client.branch')->findOrFail($id);
-        
+
         // Get branch name from client's branch
         $branchName = $savings->client->branch ? $savings->client->branch->name : 'Unknown';
 

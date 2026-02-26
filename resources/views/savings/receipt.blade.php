@@ -50,8 +50,15 @@
 
         @if($savings->mode_of_payment)
         <div class="label">
-            <span>Mode:</span>
+            <span>Mode of Payment:</span>
             <span>{{ config('settings.mode_of_payment.'.$savings->mode_of_payment, $savings->mode_of_payment) }}</span>
+        </div>
+        @endif
+
+        @if($savings->transaction_code)
+        <div class="label">
+            <span>Code:</span>
+            <span>{{ $savings->transaction_code }}</span>
         </div>
         @endif
 
@@ -63,7 +70,7 @@
             <span class="bold">{{ number_format($savings->amount, 2) }}</span>
         </div>
         @endif
-        
+
         @if($savings->transaction_type == 'withdraw')
         <div class="label">
             <span>Interest:</span>
@@ -90,7 +97,7 @@
             <span class="bold">{{ number_format($savings->due_change, 2) }}</span>
         </div>
         @endif
-        
+
         @if($savings->description)
         <div class="spaced">
             <span>Description:</span><br>
@@ -101,7 +108,7 @@
         <hr>
         <p class="center">Transaction Successful</p>
         <br>
-        
+
         <div class="center" style="border-top: 1px solid #000; width: 80%; margin: 20px auto 0 auto; padding-top: 5px;">
             Signature over Printed Name
         </div>

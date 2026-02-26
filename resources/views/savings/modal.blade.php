@@ -28,26 +28,31 @@
                                         @can('withdraw-transactions')
                                         <option value="withdraw">payment transaction</option>
                                         @endcan
+                                        @can('cash-transactions')
+                                        <option value="deposit">cash</option>
+                                        @endcan
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6" id="mode_of_payment_container">
-                                <div class="form-group">
-                                    <label class="form-label" for="mode_of_payment">Mode of Payment</label>
-                                    @php
-                                        $modes = config('settings.mode_of_payment');
-                                    @endphp
-                                    <select name="mode_of_payment" id="mode_of_payment" class="form-control form-control-sm">
-                                        @foreach($modes as $key => $mode)
-                                            <option value="{{ $key }}">{{ $mode }}</option>
-                                        @endforeach
-                                    </select>
+                            <div class="row">
+                                <div class="col-md-6" id="mode_of_payment_container">
+                                    <div class="form-group">
+                                        <label class="form-label" for="mode_of_payment">Mode of Payment</label>
+                                        @php
+                                            $modes = config('settings.mode_of_payment');
+                                        @endphp
+                                        <select name="mode_of_payment" id="mode_of_payment" class="form-control form-control-sm">
+                                            @foreach($modes as $key => $mode)
+                                                <option value="{{ $key }}">{{ $mode }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6" id="mop_transfer_container" style="display: none;">
-                                <div class="form-group">
-                                    <label class="form-label" for="transaction_code">Transaction Code</label>
-                                    <input type="text" class="form-control form-control-sm" name="transaction_code" id="transaction_code" placeholder="Transaction Code"/>
+                                <div class="col-md-6" id="mop_transfer_container" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="form-label" for="transaction_code">Transaction Code</label>
+                                        <input type="text" class="form-control form-control-sm" name="transaction_code" id="transaction_code" placeholder="Transaction Code"/>
+                                    </div>
                                 </div>
                             </div>
                         <div class="col-6 deposit-withdraw">

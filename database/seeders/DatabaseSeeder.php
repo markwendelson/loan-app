@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         // User role seeder
         $super_admin = User::firstOrCreate([
             'name' => 'I am Super Admin',
-            'username' => 'super@example.com',
+            // 'username' => 'super@example.com',
             'email' => 'super@example.com',
             'password' => bcrypt('password')
         ]);
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
 
         $admin = User::firstOrCreate([
             'name' => 'I am Admin',
-            'username' => 'admin@example.com',
+            // 'username' => 'admin@example.com',
             'email' => 'admin@example.com',
             'password' => bcrypt('password')
         ]);
@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
 
         $user = User::firstOrCreate([
             'name' => 'I am User',
-            'username' => 'user@example.com',
+            // 'username' => 'user@example.com',
             'email' => 'user@example.com',
             'password' => bcrypt('password')
         ]);
