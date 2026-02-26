@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\HealthCheckController;
+
+Route::get('/health-check', HealthCheckController::class);
+
 // use App\Http\Controllers\WalkinController;
 
 // Route::get('/walkin', [WalkinController::class, 'index'])->name('api.walkin.index');

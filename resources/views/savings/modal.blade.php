@@ -23,10 +23,10 @@
                                     <select name="transaction_type" id="transaction_type" class="form-control form-control-sm">
                                         <option value="">-select-</option>
                                         @can('deposit-transactions')
-                                        <option value="deposit">deposit</option>
+                                        <option value="deposit">amount withdrawn</option>
                                         @endcan
                                         @can('withdraw-transactions')
-                                        <option value="withdraw">withdraw</option>
+                                        <option value="withdraw">payment transaction</option>
                                         @endcan
                                     </select>
                                 </div>
@@ -42,6 +42,12 @@
                                             <option value="{{ $key }}">{{ $mode }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="mop_transfer_container" style="display: none;">
+                                <div class="form-group">
+                                    <label class="form-label" for="transaction_code">Transaction Code</label>
+                                    <input type="text" class="form-control form-control-sm" name="transaction_code" id="transaction_code" placeholder="Transaction Code"/>
                                 </div>
                             </div>
                         <div class="col-6 deposit-withdraw">
@@ -61,6 +67,11 @@
                                     <option value="D">D</option>
                                     <option value="F">F</option>
                                     <option value="S">S</option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Receivable">Receivable</option>
+                                    <option value="Pension">Pension</option>
+                                    <option value="Allotment">Allotment</option>
+                                    <option value="Cash">Cash</option>
                                 </select>
                             </div>
                         </div>

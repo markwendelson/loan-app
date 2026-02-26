@@ -14,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register failover manager as singleton
+        $this->app->singleton(\App\Services\DatabaseFailoverManager::class);
+        $this->app->singleton(\App\Services\WriteQueueService::class);
     }
 
     /**
@@ -27,5 +29,16 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Savings::observe(PaymentObserver::class);
+
+        // Set up database failover
+        if (config('database.failover_enabled', true)) {
+            $failoverManager = app(\App\Services\DatabaseFailoverManager::class);
+            $activeConnection = $failoverManager->getActiveConnection();
+            config(['database.default' => $activeConnection]);
+
+            // Share failover status with all views
+            view()->share('isReadOnlyMode', $failoverManager->isUsingLocalDatabase());
+            view()->share('pendingOperations', app(\App\Services\WriteQueueService::class)->getPendingCount());
+        }
     }
 }
