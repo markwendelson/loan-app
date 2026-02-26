@@ -552,12 +552,12 @@
                 if(loan_type==='' || loan_type===undefined) return;
 
                 if (loan_type === 'open-term' || loan_type === 'loan-with-term') {
-                    principal = principal_amount - membership_fee;
+                    principal = principal_amount;
                 } else if( loan_type === 'special-loan') {
-                    principal = $principal.data('principal-balance') - membership_fee;
+                    principal = $principal.data('principal-balance');
                 } else {
                     $principal.val('');
-                    principal = amount - interest - insurance - membership_fee;
+                    principal = amount - interest - insurance;
                 }
 
                 if(principal<0) {
