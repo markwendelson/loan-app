@@ -66,12 +66,6 @@
                                 <label class="form-label" for="classifications">Classifications</label>
                                 <select class="form-control form-control-sm" name="classifications" id="classifications">
                                     <option value="">-select-</option>
-                                    <option value="1Q">1st Quincena</option>
-                                    <option value="2Q">2nd Quincena</option>
-                                    <option value="P">P</option>
-                                    <option value="D">D</option>
-                                    <option value="F">F</option>
-                                    <option value="S">S</option>
                                     <option value="Salary">Salary</option>
                                     <option value="Receivable">Receivable</option>
                                     <option value="Pension">Pension</option>
