@@ -42,6 +42,7 @@ return [
             ['name' => 'deposit-transactions','label' => 'Deposit Transactions'],
             ['name' => 'withdraw-transactions','label' => 'Withdraw Transactions'],
             ['name' => 'cash-transactions','label' => 'Cash Transactions'],
+            ['name' => 'bank-transfer-transactions','label' => 'Bank Transfer Transactions'],
             ['name' => 'edit-savings-transaction','label' => 'Edit Savings Transaction'],
             ['name' => 'delete-savings-transaction','label' => 'Delete Savings Transaction'],
         ]
