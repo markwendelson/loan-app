@@ -47,7 +47,7 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id = "tblJobs">
+                <table class="table dataTable table-bordered table-hover" id = "tblJobs">
                     <thead class = "bg-default">
                         <tr>
                             <th class = "text-center" width = "120">No.</th>
@@ -58,7 +58,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @include('job.index_data');
+                        @include('job.index_data')
                     </tbody>
                 </table>
             </div>
@@ -73,6 +73,7 @@
 @push('js')
 <script>
     $(document).ready(function () {
+        const table = $('#tblJobs').DataTable();
         $("#tblJobs").on("click", ".btnEdit", function(){
 
         let jobId = $(this).attr("data-id");

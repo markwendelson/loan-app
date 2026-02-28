@@ -39,10 +39,14 @@ class LoanController extends Controller
                     });
                 })
                 ->orderByDesc('loan_date')
-                ->orderByDesc('loan_no')
-                ->get();
+                ->orderByDesc('loan_no');
 
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $loans->count();
+            $loans = $loans->skip($start)
+            ->take($length)
+            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
@@ -411,13 +415,19 @@ class LoanController extends Controller
     public function pending(Request $request)
     {
         if ($request->ajax()) {
-            $search = $request->search['value'];
+            $search = isset($request->search['value']) ? $request->search['value'] : null;
 
             $loans = Loan::pending()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
                 ->orderByDesc('loan_date')
                 ->orderByDesc('loan_no')
                 ->get();
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $loans->count();
+            $loans = $loans->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
@@ -438,8 +448,15 @@ class LoanController extends Controller
             $loans = Loan::approved()->with('loanProduct', 'loanProduct.loanType', 'borrower.details', 'loanCharges')->filter($search)
                 ->whereNull('disbursed_date')
                 ->orderByDesc('loan_date')
-                ->orderByDesc('loan_no')
-                ->get();
+                ->orderByDesc('loan_no');
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
+            $totalRecords = $loans->count();
+            $loans = $loans->skip($start)
+                            ->take($length)
+                            ->get();
+
 
             $loans->map(function ($loan) {
                 $loan->net_proceeds = $loan->principal - (
@@ -453,7 +470,6 @@ class LoanController extends Controller
                 return $loan;
             });
 
-            $totalRecords = $loans->count();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
@@ -473,9 +489,14 @@ class LoanController extends Controller
 
             $loans = Loan::declined()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
                 ->orderByDesc('loan_date')
-                ->orderByDesc('loan_no')
-                ->get();
+                ->orderByDesc('loan_no');
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $loans->count();
+            $loans = $loans->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
@@ -495,9 +516,14 @@ class LoanController extends Controller
 
             $loans = Loan::withdrawn()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
                 ->orderByDesc('loan_date')
-                ->orderByDesc('loan_no')
-                ->get();
+                ->orderByDesc('loan_no');
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $loans->count();
+            $loans = $loans->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
@@ -515,8 +541,14 @@ class LoanController extends Controller
         if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::closed()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)->get();
+            $loans = Loan::closed()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search);
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $loans->count();
+            $loans = $loans->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number

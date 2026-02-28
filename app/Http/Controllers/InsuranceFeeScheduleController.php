@@ -16,8 +16,14 @@ class InsuranceFeeScheduleController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $insurance_fee_schedules = InsuranceFeeSchedule::filter($search)->get();
+            $insurance_fee_schedules = InsuranceFeeSchedule::filter($search);
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $insurance_fee_schedules->count();
+            $insurance_fee_schedules = $insurance_fee_schedules->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number

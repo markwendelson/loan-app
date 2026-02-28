@@ -23,14 +23,17 @@ class Loan extends Model implements Auditable
 
     public function scopePending($query)
     {
+        if(auth()->user()->can('approve-secondary-approval')) {
+            return $query->where('status', LoanStatus::REQUEST_APPROVE);
+        }
         return $query->where('status', LoanStatus::PENDING);
     }
 
     public function scopeApproved($query)
     {
         // if(auth()->user()->can('approve-loan-request-approval')) {
-            return $query->where('status', LoanStatus::APPROVE)
-                            ->orWhere('status', LoanStatus::REQUEST_APPROVE);
+            return $query->where('status', LoanStatus::APPROVE);
+                            // ->orWhere('status', LoanStatus::REQUEST_APPROVE);
         // }
 
         // return $query->where('status', LoanStatus::APPROVE);

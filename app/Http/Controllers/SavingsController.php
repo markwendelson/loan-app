@@ -25,12 +25,16 @@ class SavingsController extends Controller
             if (!auth()->user()->hasRole('admin|superadmin')) {
                 $savings = Client::where('branch_id', auth()->user()->branch_id)
                     ->with('details','savings')
-                    ->filter($search)
-                    ->get();
+                    ->filter($search);
             } else {
-                $savings = Client::with('details','savings')->filter($search)->get();
+                $savings = Client::with('details','savings')->filter($search);
             }
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $savings->count();
+            $savings = $savings->skip($start)
+            ->take($length)
+            ->get();
 
             $data = $savings->map(function($saving) {
                 $balance = $saving->savings

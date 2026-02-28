@@ -43,10 +43,9 @@ class ClientController extends Controller
             if (!auth()->user()->hasRole('admin|superadmin')) {
                 $clients = Client::where('branch_id', auth()->user()->branch_id)
                     ->filter($search)
-                    ->with('details')
-                    ->get();
+                    ->with('details');
             } else {
-                $clients = Client::filter($search)->with('details')->get();
+                $clients = Client::filter($search)->with('details');
             }
 
             // $mappedClients = $clients->map(function($client) {
@@ -55,7 +54,12 @@ class ClientController extends Controller
             //     return $client;
             // });
 
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $clients->count();
+            $clients = $clients->skip($start)
+            ->take($length)
+            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number

@@ -16,8 +16,14 @@ class LoanTypeController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loanTypes = LoanType::filter($search)->get();
+            $loanTypes = LoanType::filter($search);
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $loanTypes->count();
+            $loanTypes = $loanTypes->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number

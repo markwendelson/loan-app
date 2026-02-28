@@ -16,8 +16,14 @@ class NotaryFeeScheduleController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $notary_fee_schedules = NotaryFeeSchedule::filter($search)->get();
+            $notary_fee_schedules = NotaryFeeSchedule::filter($search);
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $notary_fee_schedules->count();
+            $notary_fee_schedules = $notary_fee_schedules->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number

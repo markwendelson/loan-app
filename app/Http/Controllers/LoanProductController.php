@@ -17,8 +17,13 @@ class LoanProductController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $loanProducts = LoanProduct::with('loanType')->filter($search)->get();
+            $loanProducts = LoanProduct::with('loanType')->filter($search);
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
             $totalRecords = $loanProducts->count();
+            $loanProducts = $loanProducts->skip($start)
+                            ->take($length)
+                            ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number

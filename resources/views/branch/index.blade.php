@@ -78,7 +78,7 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-striped table-hover table-bordered">
+            <table class="table table-striped table-hover table-bordered" id="tblBranch">
                 <thead class="custom-header">
                     <tr>
                         <th>#</th>
@@ -227,6 +227,10 @@
 @push('js')
 
 <script>
+    $(document).ready(function () {
+        const table = $('#tblBranch').DataTable();
+    })
+
     function openAddModal() {
         // Reset the form fields
         document.getElementById('addForm').reset();

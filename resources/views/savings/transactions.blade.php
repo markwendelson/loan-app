@@ -495,6 +495,7 @@
             } else {
                 $("#modalTransaction [name='insurance']").val('');
             }
+            calculateChange()
         })
 
 
@@ -512,13 +513,30 @@
             }
         })
 
+        $('#modalTransaction #transaction_type').on('change', function() {
+            var _val = $(this).find('option:selected').text()
+            if(_val == 'Amount Withdrawn' || _val == 'Bank Transfer' || _val == 'Cash') {
+                $('#modalTransaction #mop_transfer_container').show()
+                $('#modalTransaction #mop_transfer_select_container').hide()
+            } else {
+                $('#modalTransaction #mop_transfer_container').hide()
+                $('#modalTransaction #mode_of_payment').trigger('change')
+            }
+        })
+
         $('#modalTransaction #mode_of_payment').on('change', function() {
             var _val = $(this).val()
             if(_val == 'palawan' || _val == 'bank_transfer' || _val == 'atm_withdrawal') {
-                $('#modalTransaction #mop_transfer_container').show()
+                $('#modalTransaction #mop_transfer_select_container').show()
             } else {
-                $('#modalTransaction #mop_transfer_container').hide()
+                $('#modalTransaction #mop_transfer_select_container').hide()
             }
+            getMerchantSlip();
+        })
+
+        $('#modalTransaction select[name="transaction_code_select"]').on('change', function() {
+            var amount = $(this).find('option:selected').data('amount')
+            $("#modalTransaction [name='amount']").val(amount)
         })
 
     });
@@ -557,7 +575,8 @@
                     principal = $principal.data('principal-balance');
                 } else {
                     $principal.val('');
-                    principal = amount - interest - insurance;
+                    x_amount = amount  - membership_fee;
+                    principal = x_amount - interest - insurance;
                 }
 
                 if(principal<0) {
@@ -623,6 +642,28 @@
                 url: `{{ route('client.get-balance',':client_id') }}`.replace(':client_id',client_id)
             })
     }
+
+    function getMerchantSlip()
+    {
+        var client_id = $("#client_id").val();
+        var mode_of_payment = $("#mode_of_payment").val();
+        $.ajax({
+            type: 'GET',
+            data: {client_id:client_id,mode_of_payment:mode_of_payment},
+            url: `{{ route('ajax.get-merchant-slip') }}`,
+            success: function(response) {
+                let select = $('#modalTransaction [name="transaction_code_select"]');
+                select.empty();
+
+                select.append('<option value="">-select-</option>');
+
+                $.each(response, function(index, value) {
+                    select.append('<option value="'+value.transaction_code+'" data-amount="'+value.amount+'">'+value.transaction_code+'</option>');
+                });
+            }
+        })
+    }
+
 
 </script>
 @endpush
