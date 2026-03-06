@@ -296,14 +296,14 @@
             let selected = $(this).val();
             if(selected == 'withdraw'){
                 $('.withdraw').show();
-                getBalance().then(function(balanceResponse) {
-                    var balance = parseFloat(balanceResponse.balance.replace(/,/g, ''));
-                    $("[name='amount']").val(balance)
-                }).catch(function(error) {
-                    console.error("Failed to fetch balance:", error);
-                });
+                // getBalance().then(function(balanceResponse) {
+                //     var balance = parseFloat(balanceResponse.balance.replace(/,/g, ''));
+                //     $("[name='amount']").val(balance)
+                // }).catch(function(error) {
+                //     console.error("Failed to fetch balance:", error);
+                // });
 
-                calculateChange();
+                // calculateChange();
             }else{
                 $('.withdraw').hide();
             }
