@@ -526,7 +526,7 @@
 
         $('#modalTransaction #mode_of_payment').on('change', function() {
             var _val = $(this).val()
-            if(_val == 'palawan' || _val == 'bank_transfer' || _val == 'atm_withdrawal') {
+            if(_val == 'palawan' || _val == 'bank_transfer' || _val == 'atm_withdrawal' || _val == 'cash') {
                 $('#modalTransaction #mop_transfer_select_container').show()
             } else {
                 $('#modalTransaction #mop_transfer_select_container').hide()
