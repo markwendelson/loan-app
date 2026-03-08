@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Incentives;
 use App\Models\Savings;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -59,5 +61,50 @@ class AjaxController extends Controller
 
         return $data;
 
+    }
+
+    public function clientIncentives(Request $request, Client $client)
+    {
+        $incentives = DB::table('incentives')->where('client_id', $client->id);
+
+        $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
+            $totalRecords = $incentives->count();
+            $incentives = $incentives->skip($start)
+            ->take($length)
+            ->get();
+
+        return response()->json([
+            'draw' => intval($request->draw), // Keep track of the request number
+            'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
+            'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
+            'data' => $incentives  // The paginated and formatted data
+        ]);
+    }
+
+    public function addClientIncentives(Request $request, Client $client)
+    {
+        try {
+            $data = $request->all();
+
+            Incentives::create($data);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Incentives added successfully',
+            ]);
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Duplicate entry'
+                ], 409);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.' . $e->getMessage()
+            ], 500);
+        }
     }
 }

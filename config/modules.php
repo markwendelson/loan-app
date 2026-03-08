@@ -63,6 +63,14 @@ return [
             ['name' => 'delete-check-encashment','label' => 'Delete Check Encashment'],
         ]
     ],
+    'incentives' => [
+        'permissions' => [
+            ['name' => 'view-incentives','label' => 'View Incentives'],
+            ['name' => 'create-incentives','label' => 'Create Incentives'],
+            ['name' => 'edit-incentives','label' => 'Edit Incentives'],
+            ['name' => 'delete-incentives','label' => 'Delete Incentives'],
+        ]
+    ],
     'libraries' => [
         'permissions' => [
             ['name' => 'view-branch','label' => 'View Branch'],

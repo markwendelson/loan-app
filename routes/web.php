@@ -25,6 +25,7 @@ use Spatie\Permission\Models\Permission;
 // ----- Others
 use App\Http\Controllers\WalkinController;
 use App\Http\Controllers\CheckController;
+use App\Http\Controllers\IncentiveController;
 use App\Http\Controllers\ServiceChargeController;
 
 Route::get('/', function () {
@@ -174,6 +175,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [ServiceChargeController::class, 'show'])->name('service-fees.show');
         Route::put('/{id}', [ServiceChargeController::class, 'update'])->name('service-fees.update');
         Route::delete('/{id}', [ServiceChargeController::class, 'destroy'])->name('service-fees.destroy');
+    });
+
+
+    Route::prefix('incentives')->group(function () {
+        Route::get('/{id}', [IncentiveController::class, 'show'])->name('incentives.show');
+        Route::put('/{id}', [IncentiveController::class, 'update'])->name('incentives.update');
+        Route::delete('{id}', [IncentiveController::class, 'destroy'])->name('incentives.destroy');
     });
 
     include_once(__DIR__ . '/ajax.php');

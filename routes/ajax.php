@@ -5,3 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/ajax/clients', [AjaxController::class, 'getClients'])->name('ajax.get-clients');
 Route::get('/ajax/merchant-slip', [AjaxController::class, 'getAvailableMerchantSlipNo'])->name('ajax.get-merchant-slip');
+
+Route::get('/ajax/client/{client}/incentives', [AjaxController::class, 'clientIncentives'])->name('client.incentives');
+Route::post('/ajax/client/{client}/incentives', [AjaxController::class, 'addClientIncentives'])->name('client.add-incentives');
