@@ -526,12 +526,13 @@
     })
 
     $('#modalTransaction #transaction_type').on('change', function () {
-        var _val = $(this).find('option:selected').text()
-        if (_val == 'Amount Withdrawn' || _val == 'Bank Transfer' || _val == 'Cash') {
+        var _val = $(this).find('option:selected').val()
+        if (_val == 'deposit') {
             $('#modalTransaction #mop_transfer_container').show()
             $('#modalTransaction #mop_transfer_select_container').hide()
         } else {
             $('#modalTransaction #mop_transfer_container').hide()
+            $('#modalTransaction #mop_transfer_select_container').show()
             $('#modalTransaction #mode_of_payment').trigger('change')
         }
     })
@@ -539,12 +540,12 @@
     let choicesTransactionCode;
 
     $('#modalTransaction #mode_of_payment').on('change', function () {
-        var _val = $(this).val()
-        if (_val == 'palawan' || _val == 'bank_transfer' || _val == 'atm_withdrawal' || _val == 'cash') {
-            $('#modalTransaction #mop_transfer_select_container').show()
-        } else {
-            $('#modalTransaction #mop_transfer_select_container').hide()
-        }
+        // var _val = $(this).val()
+        // if (_val == 'palawan' || _val == 'bank_transfer' || _val == 'atm_withdrawal' || _val == 'cash') {
+        //     $('#modalTransaction #mop_transfer_select_container').show()
+        // } else {
+        //     $('#modalTransaction #mop_transfer_select_container').hide()
+        // }
 
         const elementChoices = document.querySelector('#modalTransaction [name="transaction_code_select[]"]');
 
@@ -553,13 +554,15 @@
             choicesTransactionCode.destroy();
         }
 
-        if (_val == 'palawan') {
-            choicesTransactionCode = new Choices(elementChoices, {
-                removeItemButton: true,
-                duplicateItemsAllowed: false,
-                addChoices: true,
-            });
-        } else {
+        // if (_val == 'palawan') {
+        //     choicesTransactionCode = new Choices(elementChoices, {
+        //         removeItemButton: true,
+        //         duplicateItemsAllowed: false,
+        //         addChoices: true,
+        //     });
+        //     // clear existing options
+        //     choicesTransactionCode.clearStore();
+        // } else {
             choicesTransactionCode = new Choices(elementChoices, {
                 removeItemButton: true,
                 duplicateItemsAllowed: false,
@@ -598,7 +601,7 @@
 
             elementChoices.addEventListener('addItem', calculateTotal);
             elementChoices.addEventListener('removeItem', calculateTotal);
-        }
+        // }
 
 
     })
@@ -617,7 +620,6 @@
             selectedItems.forEach(item => {
                 if (item.customProperties && item.customProperties.amount) {
                     total += parseFloat(item.customProperties.amount);
-                    console.log(total)
                 }
             });
         } else if (selectedItems && selectedItems.customProperties) {
@@ -678,7 +680,11 @@
 
 
         var change;
-        change = amount - (interest + insurance + principal + membership_fee);
+        if ($("[name='exclude_interest']").prop('checked')) {
+            change = amount - (insurance + principal + membership_fee);
+        } else {
+            change = amount - (interest + insurance + principal + membership_fee);
+        }
 
         console.log('amount:' + amount)
         console.log('interest:' + interest)
@@ -730,6 +736,10 @@
             url: `{{ route('client.get-balance',':client_id') }}`.replace(':client_id', client_id)
         })
     }
+
+    $("[name='exclude_interest']").on('change', function () {
+        calculateChange()
+    });
 
 
 

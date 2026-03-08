@@ -28,11 +28,14 @@
                                         @can('withdraw-transactions')
                                         <option value="withdraw">Payment Transaction</option>
                                         @endcan
-                                        @can('cash-transactions')
+                                        @can('deposit-transactions')
                                         <option value="deposit" data-mop="cash">Cash</option>
                                         @endcan
-                                        @can('bank-transfer-transactions')
+                                        @can('deposit-transactions')
                                         <option value="deposit" data-mop="bank_transfer">Bank Transfer</option>
+                                        @endcan
+                                        @can('deposit-transactions')
+                                        <option value="deposit" data-mop="palawan">Palawan</option>
                                         @endcan
                                     </select>
                                 </div>
@@ -113,6 +116,8 @@
                                 <div class="col-md-8 form-group">
                                     <label class="form-label" for="interest_period" class="form-label">Interest Period</label>
                                     <input type="text" name="interest_period" id="interest_period" class="form-control form-control-sm"/>
+                                    <input type="checkbox" name="exclude_interest" id="exclude_interest" class="form-check-input" />
+                                    <label class="form-check-label" for="exclude_interest"><small>Exclude Interest</small></label>
                                 </div>
 
                                 {{-- <div class="col-md-4 form-group">
