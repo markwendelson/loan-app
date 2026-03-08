@@ -43,18 +43,19 @@ class AjaxController extends Controller
 
     public function getAvailableMerchantSlipNo(Request $request)
     {
-        $data = $data = Savings::where('client_id', $request->client_id)
-        ->where('mode_of_payment', $request->mode_of_payment)
-        ->where('transaction_type', 'deposit')
-        ->whereNotExists(function ($query) use ($request) {
-            $query->select(DB::raw(1))
-                  ->from('savings as s2')
-                  ->whereColumn('s2.transaction_code', 'savings.transaction_code')
-                  ->where('s2.client_id', $request->client_id)
-                  ->where('s2.transaction_type', 'withdraw')
-                  ->whereNull('s2.deleted_at');
-        })
-        ->get(['transaction_code','amount']);
+        $withdrawnCodes = Savings::where('client_id', $request->client_id)
+                                    ->where('mode_of_payment', $request->mode_of_payment)
+                                    ->where('transaction_type', 'withdraw')
+                                    ->whereNull('deleted_at')
+                                    ->pluck('transaction_code')
+                                    ->flatMap(fn($codes) => explode(',', $codes))
+                                    ->toArray();
+
+        $data = Savings::where('client_id', $request->client_id)
+                        ->where('mode_of_payment', $request->mode_of_payment)
+                        ->where('transaction_type', 'deposit')
+                        ->whereNotIn('transaction_code', $withdrawnCodes)
+                        ->get(['transaction_code','amount']);
 
         return $data;
 

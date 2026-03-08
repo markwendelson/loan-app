@@ -23,16 +23,16 @@
                                     <select name="transaction_type" id="transaction_type" class="form-control form-control-sm">
                                         <option value="">-select-</option>
                                         @can('deposit-transactions')
-                                        <option value="deposit">Amount Withdrawn</option>
+                                        <option value="deposit" data-mop="atm_withdrawal">Amount Withdrawn</option>
                                         @endcan
                                         @can('withdraw-transactions')
                                         <option value="withdraw">Payment Transaction</option>
                                         @endcan
                                         @can('cash-transactions')
-                                        <option value="deposit">Cash</option>
+                                        <option value="deposit" data-mop="cash">Cash</option>
                                         @endcan
                                         @can('bank-transfer-transactions')
-                                        <option value="deposit">Bank Transfer</option>
+                                        <option value="deposit" data-mop="bank_transfer">Bank Transfer</option>
                                         @endcan
                                     </select>
                                 </div>
@@ -57,12 +57,10 @@
                                         <input type="text" class="form-control form-control-sm" name="transaction_code" id="transaction_code" placeholder="Transaction Code"/>
                                     </div>
                                 </div>
-                                <div class="col-md-6" id="mop_transfer_select_container" style="display: none;">
+                                <div class="col-md-12" id="mop_transfer_select_container" style="display: none;">
                                     <div class="form-group">
                                         <label class="form-label" for="transaction_code">Transaction Code</label>
-                                        <select name="transaction_code_select" id="transaction_code" class="form-control form-control-sm">
-                                            <option value="">-select-</option>
-                                        </select>
+                                        <select name="transaction_code_select[]" id="transaction_code" class="form-control" multiple></select>
                                     </div>
                                 </div>
                             </div>

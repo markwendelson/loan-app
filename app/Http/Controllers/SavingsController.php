@@ -83,6 +83,9 @@ class SavingsController extends Controller
         $client = Client::findOrFail($request->client_id);
 
         if($request->transaction_type == 'withdraw') {
+            $request->merge([
+                'transaction_code' => implode(",",$request->transaction_code_select)
+            ]);
             $str_balance = getClientBalance($client);
             $balance = (float) str_replace(',', '', $str_balance);
 
@@ -90,33 +93,34 @@ class SavingsController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Insufficient Balance',
-                ],500);
+                ], 500);
             }
 
              if(!($request->loan_id)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Select loan',
-                ],500);
+                ], 500);
             }
 
-            if($request->amount < $request->principal) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Insufficient amount.',
-                ],500);
-            }
+            // if($request->amount < $request->principal) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'Insufficient amount.',
+            //     ],500);
+            // }
 
             $interest = $request->interest ?? 0;
             $insurance = $request->insurance ?? 0;
             $principal = $request->principal ?? 0;
-            $total_due = $interest + $insurance + $principal;
+            $membership_fee = $request->membership_fee ?? 0;
+            $total_due = $interest + $insurance + $principal + $membership_fee;
 
             if($request->amount < $total_due) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Insufficient amount.',
-                ],500);
+                ], 500);
             }
         }
 
@@ -131,6 +135,20 @@ class SavingsController extends Controller
 
         if (empty($data['insurance'])) {
             unset($data['insurance_month'], $data['insurance_year']);
+        }
+
+        // check if duplicate
+        $exists = Savings::where([
+            'client_id' => $request->client_id,
+            'transaction_code' => $request->transaction_code,
+            'mode_of_payment' => $request->mode_of_payment,
+        ])->exists();
+
+        if($exists) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Transaction code already exists.',
+            ], 500);
         }
 
         if(!empty($data['is_early_settlement'])) {
@@ -262,15 +280,20 @@ class SavingsController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $transactions = Savings::withTrashed()->filter($search)->where('client_id', $client->id)->orderBy('transaction_date', 'DESC')->orderBy('id','DESC')->get();
+            $transactions = Savings::withTrashed()->filter($search)->where('client_id', $client->id)->orderBy('transaction_date', 'DESC')->orderBy('id','DESC');
+
+            $start = $request->input('start', 0);
+            $length = $request->input('length', 5);
+            $totalRecords = $transactions->count();
+            $transactions = $transactions->skip($start)
+            ->take($length)
+            ->get();
 
             $data = $transactions->map(function($saving) {
                 $saving['amount'] = number_format($saving['amount'],2);
                 $saving['mop_trans_code'] = '<span>'.str_replace("_"," ",$saving->mode_of_payment).'</span><br><span>'.$saving->transaction_code.'</span>';
                 return $saving;
             });
-
-            $totalRecords = $transactions->count();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
