@@ -461,7 +461,7 @@
                     },
                     success: function(response) {
                         showToast.success(response.message)
-                        $('#tblClient').DataTable().ajax.reload();
+                        $('#tblIncentives').DataTable().ajax.reload();
                     }
                 });
 
