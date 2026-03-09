@@ -540,6 +540,10 @@
     let choicesTransactionCode;
 
     $('#modalTransaction #mode_of_payment').on('change', function () {
+        //show loading screen
+        $(".loader-wrapper").fadeIn("slow", function () {
+            $(this).show();
+        });
         // var _val = $(this).val()
         // if (_val == 'palawan' || _val == 'bank_transfer' || _val == 'atm_withdrawal' || _val == 'cash') {
         //     $('#modalTransaction #mop_transfer_select_container').show()
@@ -589,6 +593,10 @@
 
                 // set new choices
                 choicesTransactionCode.setChoices(options, 'value', 'label', true);
+                //hide loading screen
+                $(".loader-wrapper").fadeOut("slow", function () {
+                    $(this).hide();
+                });
             }
         });
 
