@@ -548,62 +548,52 @@
         // }
 
         const elementChoices = document.querySelector('#modalTransaction [name="transaction_code_select[]"]');
-        elementChoices.disabled = true;
+
         // Destroy previous instance if it exists
         if (choicesTransactionCode) {
             choicesTransactionCode.destroy();
         }
 
-        // if (_val == 'palawan') {
-        //     choicesTransactionCode = new Choices(elementChoices, {
-        //         removeItemButton: true,
-        //         duplicateItemsAllowed: false,
-        //         addChoices: true,
-        //     });
-        //     // clear existing options
-        //     choicesTransactionCode.clearStore();
-        // } else {
-            choicesTransactionCode = new Choices(elementChoices, {
-                removeItemButton: true,
-                duplicateItemsAllowed: false,
-            });
+        choicesTransactionCode = new Choices(elementChoices, {
+            removeItemButton: true,
+            duplicateItemsAllowed: false,
+        });
 
-            var client_id = $("#client_id").val();
-            var mode_of_payment = $("#mode_of_payment").val();
+        choicesTransactionCode.clearStore();
 
-            $.ajax({
-                type: 'GET',
-                data: { client_id: client_id, mode_of_payment: mode_of_payment },
-                url: `{{ route('ajax.get-merchant-slip') }}`,
-                success: function (response) {
 
-                    // clear existing options
-                    choicesTransactionCode.clearStore();
-                    $("#modalTransaction [name='amount']").val(0);
+        var client_id = $("#client_id").val();
+        var mode_of_payment = $("#mode_of_payment").val();
 
-                    // prepare choices data
-                    let options = [];
+        $.ajax({
+            type: 'GET',
+            data: { client_id: client_id, mode_of_payment: mode_of_payment },
+            url: `{{ route('ajax.get-merchant-slip') }}`,
+            success: function (response) {
 
-                    $.each(response, function (index, value) {
-                        options.push({
-                            value: value.transaction_code,
-                            label: value.transaction_code,
-                            customProperties: {
-                                amount: value.amount
-                            }
-                        });
+                // clear existing options
+                $("#modalTransaction [name='amount']").val(0);
+
+                // prepare choices data
+                let options = [];
+
+                $.each(response, function (index, value) {
+                    options.push({
+                        value: value.transaction_code,
+                        label: value.transaction_code,
+                        customProperties: {
+                            amount: value.amount
+                        }
                     });
+                });
 
-                    // set new choices
-                    choicesTransactionCode.setChoices(options, 'value', 'label', true);
-                }
-            });
+                // set new choices
+                choicesTransactionCode.setChoices(options, 'value', 'label', true);
+            }
+        });
 
-            elementChoices.addEventListener('addItem', calculateTotal);
-            elementChoices.addEventListener('removeItem', calculateTotal);
-            elementChoices.disabled = false;
-        // }
-
+        elementChoices.addEventListener('addItem', calculateTotal);
+        elementChoices.addEventListener('removeItem', calculateTotal);
 
     })
 
