@@ -548,7 +548,7 @@
         // }
 
         const elementChoices = document.querySelector('#modalTransaction [name="transaction_code_select[]"]');
-
+        elementChoices.disabled = true;
         // Destroy previous instance if it exists
         if (choicesTransactionCode) {
             choicesTransactionCode.destroy();
@@ -601,6 +601,7 @@
 
             elementChoices.addEventListener('addItem', calculateTotal);
             elementChoices.addEventListener('removeItem', calculateTotal);
+            elementChoices.disabled = false;
         // }
 
 
