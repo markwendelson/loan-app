@@ -85,7 +85,9 @@ class SavingsController extends Controller
         if($request->transaction_type == 'withdraw') {
             $request->merge([
                 'transaction_code' => implode(",",$request->transaction_code_select),
-                'interest' => $request->exclude_interest ? $request->interest : 0,
+                'interest' => $request->exclude_interest ? 0 : $request->interest,
+                'interest_start_date' => $request->exclude_interest ? null : $request->interest_start_date,
+                'interest_end_date' => $request->exclude_interest ? null : $request->interest_end_date,
             ]);
             $str_balance = getClientBalance($client);
             $balance = (float) str_replace(',', '', $str_balance);
@@ -143,6 +145,7 @@ class SavingsController extends Controller
             'client_id' => $request->client_id,
             'transaction_code' => $request->transaction_code,
             'mode_of_payment' => $request->mode_of_payment,
+            'transaction_type' => $request->transaction_type
         ])->exists();
 
         if($exists) {

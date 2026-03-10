@@ -204,15 +204,19 @@
                 $(this).show();
             });
 
-            let mop = $("[name='transaction_type']").find('option:selected').data('mop');
             let formData = $("#frmTransactionModal").serializeArray();
             formData.push({ name: 'client_id', value: client_id });
-            formData = formData.map(field => {
-                if (field.name === 'mode_of_payment') {
-                    return { name: 'mode_of_payment', value: mop };
-                }
-                return field;
-            });
+
+            transaction_type = $("[name='transaction_type']").find('option:selected').val();
+            if(transaction_type == 'deposit') {
+                let mop = $("[name='transaction_type']").find('option:selected').data('mop');
+                formData = formData.map(field => {
+                    if (field.name === 'mode_of_payment') {
+                        return { name: 'mode_of_payment', value: mop };
+                    }
+                    return field;
+                });
+            }
 
             const picker = $('input[name="interest_period"]').data('daterangepicker');
             if (picker) {
