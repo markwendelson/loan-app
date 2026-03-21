@@ -406,8 +406,10 @@
         $("[name='insurance_month']").val(moment(feesResponse.interest_end_date).format('M'));
         $("[name='insurance_year']").val(moment(feesResponse.interest_end_date).format('Y'));
         const picker = $('input[name="interest_period"]').data('daterangepicker');
+        const datenow = moment().format('YYYY-MM-DD');
         if (picker) {
             picker.minDate = moment(feesResponse.interest_start_date);
+            picker.maxDate = datenow;
             picker.setStartDate(feesResponse.interest_start_date)
             picker.setEndDate(feesResponse.interest_end_date)
             picker.updateView();    // visually update the calendar
