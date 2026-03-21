@@ -644,6 +644,7 @@ class LoanController extends Controller
             $loan->disbursed_date = $request->disbursed_date;
             $loan->disbursed_notes = $request->notes;
             $loan->mode_of_payment = $request->mode_of_payment;
+            $loan->disbursement_reference = $request->transaction_code;
             $loan->disbursed_by = auth()->user()->id;
             $loan->save();
 
