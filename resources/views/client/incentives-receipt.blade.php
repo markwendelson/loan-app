@@ -78,7 +78,7 @@
 
         <div class="label">
             <span>Borrower:</span>
-            <span>{{ $incentives->client->details->fullname ?? 'N/A' }}</span>
+            <span>{{ $incentives->borrower->details->fullname ?? 'N/A' }}</span>
         </div>
 
         <div class="label">
