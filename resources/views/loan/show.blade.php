@@ -125,6 +125,7 @@
                         @endif
                         <li>Notary Fee <span class="notary_fee">{{number_format($loan->loanCharges->notary_fee,2)}}</span></li>
                         <li>Membership Fee <span class="membership_fee">{{number_format($loan->loanCharges->membership_fee_paid,2)}}</span></li>
+                        <li>Principal Advance <span class="principal_advance">{{number_format($loan->loanCharges->principal_advance,2)}}</span></li>
                         @if($loan->is_reloan)
                         <li>Special Loan Balance <span class="reloan_deduction">{{number_format($loan->loanCharges->special_loan_balance,2)}}</span></li>
                         <li>Reloan Deduction <span class="reloan_deduction">{{number_format($loan->loanCharges->reloan_deduction,2)}}</span></li>
@@ -137,9 +138,10 @@
                         $insurance_fee = $loan->loanCharges->insurance_fee ?? 0;
                         $notary_fee = $loan->loanCharges->notary_fee ?? 0;
                         $membership_fee = $loan->loanCharges->membership_fee_paid ?? 0;
+                        $principal_advance = $loan->loanCharges->principal_advance ?? 0;
                         $reloan_deduction = $loan->loanCharges->reloan_deduction ?? 0;
                         $special_loan_balance = $loan->loanCharges->special_loan_balance ?? 0;
-                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance + $membership_fee;
+                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance + $membership_fee + $principal_advance;
                         $net_proceeds = $principal - $total_deductions;
                     @endphp
                     <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds">{{ number_format($net_proceeds,2) }}</span></li>
@@ -166,7 +168,7 @@
     <div class="col-12"> {{-- Use a column to wrap content --}}
         @if($loan->status == App\Enums\LoanStatus::PENDING->value)
         <!-- Used flexbox for alignment -->
-        <div class="d-flex justify-content-end gap-2"> 
+        <div class="d-flex justify-content-end gap-2">
             @can('edit-loan')
             <a href="{{route('loan.edit',$loan->id)}}" class="btn btn-sm btn-primary btn-edit-loan"><i class="fa fa-pencil"></i> Edit</a>
             @endcan
@@ -185,7 +187,7 @@
         </div>
         @endif
         @if($loan->status == App\Enums\LoanStatus::REQUEST_APPROVE->value)
-        <div class="d-flex justify-content-end gap-2"> 
+        <div class="d-flex justify-content-end gap-2">
             @can('approve-secondary-approval')
             <button type="button" class="btn btn-sm btn-success" onclick="approveLoan({{$loan->id}})"><i class="fa fa-check"></i> Approve</button>
             @endcan
@@ -307,8 +309,9 @@
             var reloan_deduction = parseFloat($('.reloan_deduction').text().replace(/,/g, '')) || 0;
 
             var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
+            var principal_advance = parseFloat($('#principal_advance').val().replace(/,/g, '')) || 0;
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee);
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee) + Math.floor(principal_advance);
 
             var net_proceeds = principal - total_deductions;
 
@@ -446,10 +449,10 @@
 
     function hideElementsOnLoad() {
         $('.comaker-search-section').hide();
-        
+
         $('#client_comaker thead tr th:last-child').remove();
         $('#client_comaker tbody tr td:last-child').remove();
-        
+
         $('#documents_table thead tr th:last-child').remove();
         $('#documents_table tbody tr td:last-child').remove();
         $('#addFileRow').hide();

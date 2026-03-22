@@ -158,6 +158,12 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{ number_format($loan->loanCharges->membership_fee_paid,2) }}">
                             </div>
                         </li>
+                        <li class="mt-3 mb-3" id="principal_advance">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="principal_advance">Principal Advance</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="principal_advance" id="principal_advance" value="{{ number_format($loan->loanCharges->principal_advance,2) }}">
+                            </div>
+                        </li>
                         @if($loan->is_reloan)
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between">
@@ -442,9 +448,9 @@
             formData.append('monthly_amortization', $('#monthly_amortization').val().replace(/,/g, ''));
             formData.append('net_proceeds', $('#net_proceeds').val().replace(/,/g, ''));
             formData.append('membership_fee', $('#membership_fee').val().replace(/,/g, ''));
-            
+
             // Needed for PUT method with FormData in Laravel
-            formData.append('_method', 'PUT'); 
+            formData.append('_method', 'PUT');
 
             // co-makers
             $('#client_comaker tbody tr').each(function() {
@@ -461,11 +467,11 @@
                 const docType = $(this).find('select[name*="[doc_type]"]').val();
                 const fileInput = $(this).find('input[type="file"]')[0];
                 const remarks = $(this).find('input[type="text"][name*="[file_upload_remarks]"]').val();
-                
+
                 // Check if this is an existing file (has data-id)
                 // Note: .data('id') on the TR, not the remove button
                 const existingId = $(this).data('id');
-                
+
                 if (existingId) {
                     formData.append('existing_document_ids[]', existingId);
                 }

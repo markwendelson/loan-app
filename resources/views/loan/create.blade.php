@@ -167,6 +167,12 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{number_format(config('settings.membership_fee'),2)}}">
                             </div>
                         </li>
+                        <li class="mt-3 mb-3" id="principal_advance">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="principal_advance">Principal Advance</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="principal_advance" id="principal_advance">
+                            </div>
+                        </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between align-items-center">
@@ -252,6 +258,8 @@
                 $(".term").show().attr("required", true);
                 $(".special-description").show().attr("required", true);
                 $("#term").val(12)
+            } else if(loan_type == 'mortgage-loan') {
+                $(".special-description").show().attr("required", true);
             } else {
                  $(".term").hide().removeAttr("required");
                  $(".special-description").hide().removeAttr("required");
@@ -552,8 +560,9 @@
             }
 
             var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
+            var principal_advance = parseFloat($('#principal_advance').val().replace(/,/g, '')) || 0;
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee);
+            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee) + Math.floor(principal_advance);
 
             var net_proceeds = principal - total_deductions;
 
@@ -664,6 +673,7 @@
             formData.append('insurance_fee', $('#insurance_fee').length ? $('#insurance_fee').val().replace(/,/g, '') : '0');
             formData.append('notary_fee', $('#notary_fee').val().replace(/,/g, ''));
             formData.append('membership_fee', $('#membership_fee').val().replace(/,/g, ''));
+            formData.append('principal_advance', $('#principal_advance').val().replace(/,/g, ''));
             formData.append('monthly_amortization', $('#monthly_amortization').val().replace(/,/g, ''));
             formData.append('net_proceeds', $('#net_proceeds').val().replace(/,/g, ''));
             formData.append('reference_loan_no', urlParams.get('loan_no_reference') ?? '');

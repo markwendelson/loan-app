@@ -182,6 +182,7 @@ class LoanController extends Controller
                     'notary_fee' => $data['notary_fee'],
                     'membership_fee' => config('settings.membership_fee'),
                     'membership_fee_paid' => $data['membership_fee'],
+                    'principal_advance' => $data['principal_advance'],
                 ]);
 
                 $insurance = InsuranceFeeSchedule::where('min_amount', '<=', $data['applied_amount'])
@@ -291,6 +292,7 @@ class LoanController extends Controller
                     'insurance_fee' => str_replace(',', '', $request->insurance_fee),
                     'notary_fee' => str_replace(',', '', $request->notary_fee),
                     'membership_fee' => str_replace(',', '', $request->membership_fee),
+                    'principal_advance' => str_replace(',', '', $request->principal_advance),
                     // 'loan_no' => Loan::generateLoanNumber($request->loan_date) // Don't regenerate loan no on edit
                 ]);
 
@@ -307,6 +309,7 @@ class LoanController extends Controller
                 $loan->loanCharges->insurance_fee = $request->insurance_fee;
                 $loan->loanCharges->notary_fee = $request->notary_fee;
                 $loan->loanCharges->membership_fee = config('settings.membership_fee');
+                $loan->loanCharges->principal_advance = $request->principal_advance;
                 $loan->loanCharges->membership_fee_paid = $request->membership_fee;
 
                 $loan->loanCharges->save();
@@ -465,7 +468,8 @@ class LoanController extends Controller
                     ($loan->loanCharges->insurance_fee ?? 0) +
                     ($loan->loanCharges->notary_fee ?? 0) +
                     ($loan->loanCharges->reloan_deduction ?? 0) +
-                    ($loan->loanCharges->membership_fee_paid ?? 0)
+                    ($loan->loanCharges->membership_fee_paid ?? 0) +
+                    ($loan->loanCharges->principal_advance ?? 0)
                 );
                 return $loan;
             });
@@ -671,7 +675,8 @@ class LoanController extends Controller
             ($loan->loanCharges->notary_fee ?? 0) +
             ($loan->loanCharges->reloan_deduction ?? 0) +
             ($loan->loanCharges->special_loan_balance ?? 0) +
-            ($loan->loanCharges->membership_fee_paid ?? 0)
+            ($loan->loanCharges->membership_fee_paid ?? 0) +
+            ($loan->loanCharges->principal_advance ?? 0)
         );
 
         // Get branch name

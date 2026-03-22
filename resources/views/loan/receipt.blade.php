@@ -122,6 +122,11 @@
                 </div>
             @endif
 
+            <div class="label" style="margin-left:10px;">
+                <span>Principal Advance:</span>
+                <span>{{ number_format($loan->loanCharges->principal_advance, 2) }}</span>
+            </div>
+
             @if($loan->is_reloan)
                 <div class="label" style="margin-left:10px;">
                     <span>Reloan Ded.:</span>
