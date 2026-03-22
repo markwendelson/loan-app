@@ -116,7 +116,7 @@ class JobTitleController extends Controller
             'status' => 'required',
         ]);
 
-        $jobTitle->name = $request->name;
+        $jobTitle->title = $request->title;
         $jobTitle->description = $request->description;
         $jobTitle->status = $request->status;
         $jobTitle->save();

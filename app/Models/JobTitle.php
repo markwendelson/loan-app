@@ -22,7 +22,7 @@ class JobTitle extends Model  implements Auditable
     {
         if (!empty($search)) {
             $query->where('id', 'LIKE', '%'.$search.'%')
-                ->orWhere('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('title', 'LIKE', '%'.$search.'%')
                 ->orWhere('description', 'LIKE', '%'.$search.'%');
         }
 
