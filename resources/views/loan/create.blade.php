@@ -320,7 +320,7 @@
                 $("#term").val(12)
                 $("#insurance").hide()
                 $("#notary").hide()
-                $(".special-description").hide().removeAttr("required");
+                $(".special-description").show().attr("required", true);
             } else {
                  $(".term").hide().removeAttr("required");
                  $(".special-description").hide().removeAttr("required");
