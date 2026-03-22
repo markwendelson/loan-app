@@ -184,7 +184,7 @@
                 let data = await response.json();
 
                 $("#modalJobTitle [name='id']").val(data.id);
-                $("#modalJobTitle [name='title']").val(data.name);
+                $("#modalJobTitle [name='title']").val(data.title);
                 $("#modalJobTitle [name='description']").val(data.description);
                 $("#modalJobTitle [name='status']").val(data.status);
                 showModal('modalJobTitle')
