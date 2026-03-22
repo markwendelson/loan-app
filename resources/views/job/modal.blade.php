@@ -7,7 +7,7 @@
             </div>
 
             <div class="modal-body">
-                <form id="frmLoanTypeModal" class="row g-3 needs-validation custom-input" novalidate="">
+                <form id="frmJobTitleModal" class="row g-3 needs-validation custom-input" novalidate="">
                     @csrf
                     <input type="hidden" value="" name="id" id="id">
                     <div class="col-12">
