@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\LoanStatus;
 use App\Models\Client;
 use App\Models\ClientDetails;
+use App\Models\ClientDocument;
 use App\Models\Loan;
 use App\Services\ClientRegistrationService;
 use App\Services\ClientUpdateService;
@@ -561,6 +562,8 @@ class ClientController extends Controller
 
         $principal_loan = $loans[0] ?? null;
 
+        $attachments = ClientDocument::where('loan_id', $principal_loan->id)->get();
+
         $loan = [
             'principal_loan_no' => $principal_loan->loan_no ?? '',
             'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
@@ -578,7 +581,7 @@ class ClientController extends Controller
             ]);
         }
 
-        return view('client.ledger-loan', compact('client', 'loan', 'principal_loan'));
+        return view('client.ledger-loan', compact('client', 'loan', 'attachments'));
     }
 
     public function loanHistory(Client $client)

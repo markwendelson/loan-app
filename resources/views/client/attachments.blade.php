@@ -47,14 +47,8 @@
                         ];
                     @endphp
                     {{-- Show documents for specific loan when editing, empty when creating --}}
-                    @if(isset($principal_loan) && isset($principal_loan->borrower->documents))
-                        @php
-                            // Filter documents by this loan's ID
-                            $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
-                                return $doc->loan_id == $loan->id;
-                            });
-                        @endphp
-                        @foreach($loanDocuments as $doc)
+                    @if(isset($attachments))
+                        @foreach($attachments as $doc)
                             <tr data-id="{{ $doc->id }}">
                                 <td>
                                     <select name="client_documents[doc_type][]" class="form-select">
