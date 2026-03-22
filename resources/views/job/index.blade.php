@@ -18,7 +18,7 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-6">
-                    <h4>Job Titles | Manage Job Title</h4>
+                    <h4>Job Title | Manage Job Title</h4>
                 </div>
                 <div class="col-6">
                     <ol class="breadcrumb">
@@ -38,7 +38,7 @@
     <!-- button container -->
     <div class="card">
     <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal()"><i class = "fa fa-plus"></i> New Job Title</button>
+        <button class="btn btn-primary float-end" onclick="showModal('modalJobTitle')"><i class="fa fa-plus"></i> New Job Title</button>
     </div>
     </div>
 
@@ -47,123 +47,180 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table dataTable table-bordered table-hover" id = "tblJobs">
-                    <thead class = "bg-default">
+                <table class="table table-bordered table-hover" id="tblJobTitle">
+                    <thead class="bg-default">
                         <tr>
-                            <th class = "text-center" width = "120">No.</th>
-                            <th class = "text-leftr" width = "150">Job Title</th>
+                            <th class="text-center" width="120">No.</th>
+                            <th class="text-leftr" width="150">Job Title</th>
                             <th>Description</th>
-                            <th class = "text-center" width = "180">Status</th>
-                            <th class = "text-center" width = "150"><i class = "fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
+                            <th class="text-center" width="180">Status</th>
+                            <th class="text-center" width="150"><i class="fa fa-cog"></i></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @include('job.index_data')
-                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <!-- job modal -->
-    @include('job/modal')
+    @include('job.modal')
 
 @endsection
 
 @push('js')
 <script>
     $(document).ready(function () {
-        const table = $('#tblJobs').DataTable();
-        $("#tblJobs").on("click", ".btnEdit", function(){
+        const canEdit = {{ auth()->user()->can('edit-job-title') ? 1 : 0 }};
+        const canDelete = {{ auth()->user()->can('delete-job-title') ? 1 : 0 }};
 
-        let jobId = $(this).attr("data-id");
-
-        $.ajax({
-            type: "post",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-
+        const table = $('#tblJobTitle').DataTable({
+            ordering: false,
+            processing: true,
+            serverSide: true,
+            stateSave: true,
+            searching: true,
+            ajax: {
+                url: "{{ route('job-title.index') }}",
             },
-            url: "{{url('/job-titles/get-jobtitle')}}",
-            data: {
-                id : jobId
-            },
-            dataType: "json",
-            success: function (response) {
-                console.log('response receveid!');
-                if(typeof response !== 'undefined' && response.has_error == 0){
-                    //pass data to modal form
-                    $("#frmJobTitleModal [name='id']").val(response.data.id);
-                    $("#frmJobTitleModal [name='title']").val(response.data.title);
-                    $("#frmJobTitleModal [name='description']").val(response.data.description);
-                    $("#frmJobTitleModal [name='status']").val(response.data.status);
-
-                    showModal();
-                }else{
-                    showAlert(response);
+            columns: [
+                { data: 'id', name: 'id' },
+                { data: 'title', name: 'title' },
+                { data: 'description', name: 'description' },
+                { data: 'status', name: 'status', render: function(data, type, row) {
+                    if (data == 1) {
+                        return '<span class="badge badge-success">Active</span>';
+                    } else {
+                        return '<span class="badge badge-danger">Inactive</span>';
+                    }
+                } },
+                {
+                    data: null,
+                    name: 'actions',
+                    render: function(data, type, row) {
+                        let buttons = '';
+                        if (canEdit) {
+                            buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
+                        }
+                        if (canDelete) {
+                            buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
+                        }
+                        return buttons;
+                    }
                 }
-            }
+            ],
+            columnDefs: [
+                { className: "text-center", targets: [3,4] },
+            ]
         });
-        })
 
         $("#modalJobTitle .btnSubmit").click(function (e) {
-                    e.preventDefault();
+            e.preventDefault();
 
-                    let form = $("#frmJobTitleModal")[0];
+            let form = $("#frmJobTitleModal")[0];
 
-                    if (form.checkValidity()) {
-                        //show loading screen
-                        $(".loader-wrapper").fadeIn("slow", function () {
-                            $(this).show();
+            if (!form.checkValidity()) {
+                form.reportValidity();
+            } else {
+
+                //show loading screen
+                $(".loader-wrapper").fadeIn("slow", function () {
+                    $(this).show();
+                });
+
+                let formData = $("#frmJobTitleModal").serializeArray();
+
+                var id = $("#modalJobTitle [name='id']").val();
+                if(id) {
+                    _method = 'PUT';
+                    _url = `{{route('job-title.update', ':id')}}`.replace(':id',id);
+                } else {
+                    _method = 'POST';
+                    _url = `{{route('job-title.store')}}`;
+                }
+
+
+                $.ajax({
+                    method: _method,
+                    url: _url,
+                    data: formData,
+                    dataType: "json",
+                    success: function (response) {
+                        //hide loading screen
+                        $(".loader-wrapper").fadeOut("slow", function () {
+                            $(this).hide();
                         });
-
-                        let formData = $("#frmJobTitleModal").serializeArray();
-
-                        $.ajax({
-                            type: "post",
-                            url: "{{url('job-titles/submit-form')}}",
-                            data: formData,
-                            dataType: "json",
-                            success: function (response) {
-                                //hide loading screen
-                                $(".loader-wrapper").fadeOut("slow", function () {
-                                    $(this).hide();
-                                });
-
-                                if(typeof response !== 'undefined' && response.has_error == 0){
-                                    showAlert(response);
-
-                                    if(typeof response.html !== 'undefined' && response.html){
-                                        $("#tblJobs tbody").html(response.html);
-                                    }
-                                    hideModal();
-                                }else{
-                                    showAlert(response);
-                                }
-                            }
+                        if(response.status == 'success'){
+                            hideModal('modalJobTitle');
+                            showToast.success(response.message)
+                            table.ajax.reload();
+                        }else{
+                            showToast.error(response.message)
+                        }
+                    },
+                    error: function (response) {
+                        //hide loading screen
+                        $(".loader-wrapper").fadeOut("slow", function () {
+                            $(this).hide();
                         });
-                    } else {
-                        form.reportValidity();
+                        showToast.error(response.responseJSON.message)
                     }
                 });
+            }
+        });
+
+        $("#tblJobTitle").on("click", ".btnEdit", function(){
+            let id = $(this).attr("data-id");
+            getJobTitle(id)
+        })
+
+        async function getJobTitle(id) {
+            try {
+                let response = await fetch(`/job-title/${id}`, {
+                    method: "GET",
+                });
+
+                if (!response.ok) throw new Error("Network response was not ok");
+
+                let data = await response.json();
+
+                $("#modalJobTitle [name='id']").val(data.id);
+                $("#modalJobTitle [name='title']").val(data.name);
+                $("#modalJobTitle [name='description']").val(data.description);
+                $("#modalJobTitle [name='status']").val(data.status);
+                showModal('modalJobTitle')
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
     });
 
+    function deleteData(id) {
+        swal({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then((result) => {
+            if (result) {
 
-    function showModal(){
-        $("#modalJobTitle").modal("show");
+                $.ajax({
+                    url: '/job-title/' + id,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        showToast.success(response.message)
+                        $('#tblJobTitle').DataTable().ajax.reload();
+                    }
+                });
+
+            }
+        })
     }
 
-    function hideModal(){
-        clearFormInputs();
-        $("#modalJobTitle").modal("hide");
-    }
+    </script>
 
-    function clearFormInputs() {
-        $("#modalJobTitle [name='id']").val("");
-        $("#modalJobTitle [name='title']").val("");
-        $("#modalJobTitle [name='description']").val("");
-        $("#modalJobTitle [name='status']").val("");
-    }
-
-</script>
 @endpush
