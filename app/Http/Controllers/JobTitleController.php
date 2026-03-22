@@ -122,8 +122,9 @@ class JobTitleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(JobTitle $jobTitle)
+    public function destroy(int $id)
     {
+        $jobTitle = JobTitle::find($id);
         $jobTitle->delete();
 
         return response()->json([
