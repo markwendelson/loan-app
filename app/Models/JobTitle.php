@@ -18,4 +18,15 @@ class JobTitle extends Model  implements Auditable
         return $query->where('status', 1);
     }
 
+    public function scopeFilter($query, $search)
+    {
+        if (!empty($search)) {
+            $query->where('id', 'LIKE', '%'.$search.'%')
+                ->orWhere('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('description', 'LIKE', '%'.$search.'%');
+        }
+
+        return $query;
+    }
+
 }
