@@ -560,7 +560,11 @@
             }
 
             var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
-            var principal_advance = parseFloat($('#principal_advance').val().replace(/,/g, '')) || 0;
+            var rawValue = $('#principal_advance').val();
+            var principal_advance = 0;
+            if (rawValue) {
+                principal_advance = parseFloat(rawValue.toString().replace(/,/g, '')) || 0;
+            }
 
             var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee) + Math.floor(principal_advance);
 
