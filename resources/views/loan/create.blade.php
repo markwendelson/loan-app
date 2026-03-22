@@ -167,7 +167,7 @@
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{number_format(config('settings.membership_fee'),2)}}">
                             </div>
                         </li>
-                        <li class="mt-3 mb-3" id="principal_advance">
+                        <li class="mt-3 mb-3" id="principal_advance_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance">
