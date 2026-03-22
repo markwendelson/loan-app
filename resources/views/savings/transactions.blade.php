@@ -752,7 +752,12 @@
         calculateChange()
     });
 
-
+    $("[name='interest']").on('change', function () {
+        var interest = parseFloat($("#modalTransaction [name='interest']").val())
+        var data_interest = parseFloat($("#modalTransaction [name='interest']").data('interest'))
+        var deficit = interest - data_interest;
+        $("#modalTransaction [name='interest_deficit']").val(deficit)
+    });
 
 </script>
 @endpush
