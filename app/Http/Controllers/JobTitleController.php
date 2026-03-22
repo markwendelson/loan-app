@@ -76,11 +76,14 @@ class JobTitleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(JobTitle $jobTitle)
+    public function show(int $id)
     {
+        $jobTitle = JobTitle::find($id);
+
         if($jobTitle) {
             return response()->json($jobTitle);
         }
+
         return response()->json([
             'status' => 'error',
             'message' => 'Job Title not found'
