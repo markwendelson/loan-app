@@ -578,7 +578,7 @@ class ClientController extends Controller
             ]);
         }
 
-        return view('client.ledger-loan', compact('client', 'loan'));
+        return view('client.ledger-loan', compact('client', 'loan', 'principal_loan'));
     }
 
     public function loanHistory(Client $client)

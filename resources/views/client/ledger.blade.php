@@ -250,7 +250,7 @@
                     @include('client.co-maker-list')
                 </div>
                 <div class="tab-pane fade" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
-                    @include('client.documents')
+                    @include('client.attachments')
                 </div>
             </div>
             </div>
