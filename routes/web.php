@@ -71,7 +71,10 @@ Route::middleware('auth')->group(function () {
     Route::post('departments/submit-form', [DepartmentController::class, 'submitDepartment']);
 
     //-----JobTitle
-    Route::get('job-titles', [JobTitleController::class, 'index'])->name('jobTitle.index');
+    Route::get('job-titles', [JobTitleController::class, 'index'])->name('job-title.index');
+    Route::post('job-titles', [JobTitleController::class, 'store'])->name('job-title.store');
+    Route::put('job-titles/{id}', [JobTitleController::class, 'update'])->name('job-title.update');
+    Route::delete('job-titles/{id}', [JobTitleController::class, 'destroy'])->name('job-title.destroy');
 
     //-----Insurance Fee Schedule
     // Route::get('insurance-fee', [InsuranceFeeController::class, 'index'])->name('insurance_fee.index');
