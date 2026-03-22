@@ -42,6 +42,8 @@
                             'Appointment Letter/COE',
                             'Promisory Note',
                             'Affidavit',
+                            'Affidavit of CO-MAKER',
+                            'Affidavit of UNDERTAKING',
                             'SRA',
                             'Auto Debit'
                         ];
@@ -108,6 +110,8 @@ $(document).ready(function () {
         "Appointment Letter/COE",
         "Promisory Note",
         "Affidavit",
+        'Affidavit of CO-MAKER',
+        'Affidavit of UNDERTAKING',
         "SRA",
         "Auto Debit"
     ];
