@@ -70,6 +70,8 @@
 @push('js')
 <script>
     $(document).ready(function () {
+        const canView = {{ auth()->user()->can('view-loan') ? 1 : 0 }};
+
         const table = $('#tblLoan').DataTable({
             ordering: false,
             processing: true,
@@ -91,11 +93,15 @@
                     data: null,
                     name: 'actions',
                     render: function(data, type, row) {
-                        // Use row.net_proceeds which is now available from the backend
+                        let buttons = '';
                         let amount = row.net_proceeds ? parseFloat(row.net_proceeds).toFixed(2) : '0.00';
-                        return `
-                                <button class="btn btn-primary btn-xs btn-cash-out" data-id="${row.id}" data-amount="${amount}"><i class="fa fa-money"></i></button>
-                            `;
+
+                        if (canView) {
+                            buttons += `<button class="btn btn-primary btn-xs btnView" data-id="${row.id}" title="View Loan"><i class="fa fa-eye"></i></button> `;
+                            buttons += `<button class="btn btn-primary btn-xs btn-cash-out" data-id="${row.id}" data-amount="${amount}"><i class="fa fa-money"></i></button> `;
+                        }
+
+                        return buttons;
                     }
                 },
                 { data: 'net_proceeds', name: 'net_proceeds', visible: false },
@@ -138,10 +144,10 @@
                             hideModal('modalDisbursement');
                             showToast.success(response.message)
                             table.ajax.reload();
-                            
+
                             // Trigger print preview (open loan details/voucher in new tab)
                             // Assuming /loan/{id} is the printable view or voucher
-                            window.open('/loan/' + id + '/print', '_blank'); 
+                            window.open('/loan/' + id + '/print', '_blank');
                         }else{
                             showToast.error(response.message)
                         }
@@ -160,10 +166,10 @@
         $("#tblLoan").on("click", ".btn-cash-out", function(){
             let id = $(this).attr("data-id");
             let amount = $(this).attr("data-amount"); // get amount
-            
+
             $("#modalDisbursement [name='id']").val(id);
             $("#modalDisbursement [name='amount']").val(amount); // set amount
-            
+
             showModal('modalDisbursement')
         })
 

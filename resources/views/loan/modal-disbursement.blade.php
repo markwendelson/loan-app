@@ -22,7 +22,10 @@
                             @endphp
                         <select name="mode_of_payment" id="mode_of_payment" class="form-select form-select-sm">
                             @foreach($modes as $key => $mode)
+                                @if($key == 'atm_withdrawal')
+                                @else
                                 <option value="{{ $key }}">{{ $mode }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>

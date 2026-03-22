@@ -143,11 +143,11 @@
                             $("#client_present_city").append("<option value='' selected hidden disabled>-- Select --</option>")
                             $("#client_present_city").append(response.html);
                         }
-    
+
                     }
                 });
             }
-            
+
 
             var permanent_province =$("[name='client_details[permanent_province]']").val();
             var permanent_city_id = `{{$client->details->permanent_city_id}}`;
@@ -160,11 +160,11 @@
                             $("#client_permanent_city").append("<option value='' selected hidden disabled>-- Select --</option>")
                             $("#client_permanent_city").append(response.html);
                         }
-    
+
                     }
                 });
             }
-            
+
 
             console.log({{$client->details->present_city_id}})
         })

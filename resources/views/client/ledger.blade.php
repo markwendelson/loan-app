@@ -67,6 +67,7 @@
                     <li class="nav-item"><a class="nav-link" id="incentives-pension-tab" data-bs-toggle="tab" href="#incentives-pension" role="tab" aria-controls="incentives-pension" aria-selected="false"><i data-feather="star"></i>Incentives/Pension</a></li>
                     <li class="nav-item"><a class="nav-link" id="membership-tab" data-bs-toggle="tab" href="#membership" role="tab" aria-controls="membership" aria-selected="false"><i data-feather="star"></i>Membership</a></li>
                     <li class="nav-item"><a class="nav-link" id="client-as-comaker-tab" data-bs-toggle="tab" href="#client-as-comaker" role="tab" aria-controls="client-as-comaker" aria-selected="false"><i data-feather="star"></i>Client as Co-Maker</a></li>
+                    <li class="nav-item"><a class="nav-link" id="attachments-tab" data-bs-toggle="tab" href="#attachments" role="tab" aria-controls="attachments" aria-selected="false"><i data-feather="star"></i>Attachments</a></li>
                 </ul>
                 </div>
             </div>
@@ -247,6 +248,9 @@
                 </div>
                 <div class="tab-pane fade" id="client-as-comaker" role="tabpanel" aria-labelledby="client-as-comaker-tab">
                     @include('client.co-maker-list')
+                </div>
+                <div class="tab-pane fade" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
+                    @include('client.documents')
                 </div>
             </div>
             </div>
