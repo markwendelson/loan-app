@@ -99,6 +99,6 @@ class IncentiveController extends Controller
             $branchTitle = $branchName . ' Branch';
         }
 
-        return view('client.incentives-receipt', compact('loan', 'branchTitle', 'net_proceeds'));
+        return view('client.incentives-receipt', compact('incentives', 'branchTitle'));
     }
 }

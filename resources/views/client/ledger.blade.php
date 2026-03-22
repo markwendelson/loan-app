@@ -367,6 +367,9 @@
                         if (canDelete) {
                             buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
                         }
+
+                        buttons += `<button class="btn btn-primary btn-xs btnPrintReceipt" data-id="${row.id}" title="Print Receipt"><i class="fa fa-print"></i></button> `;
+
                         return buttons;
                     }
                 },
@@ -431,6 +434,11 @@
                 });
             }
         });
+
+        $("#tblIncentives").on("click", ".btnPrintReceipt", function(){
+            let id = $(this).attr("data-id");
+            window.open('/incentives/' + id + '/print', '_blank');
+        })
 
     });
 
