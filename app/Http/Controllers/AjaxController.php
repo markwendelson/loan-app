@@ -82,7 +82,7 @@ class AjaxController extends Controller
         ]);
     }
 
-    public function addClientIncentives(Request $request, Client $client)
+    public function addClientIncentives(Request $request)
     {
         try {
             $data = $request->all();

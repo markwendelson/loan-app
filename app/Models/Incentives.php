@@ -11,5 +11,8 @@ class Incentives extends Model implements Auditable
 
     protected $fillable = ['client_id','transaction_date', 'description', 'amount'];
 
-
+    public function Borrower()
+    {
+        return $this->belongsTo(Client::class,'client_id','id');
+    }
 }

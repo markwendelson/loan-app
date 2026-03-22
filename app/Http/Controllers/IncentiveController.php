@@ -84,4 +84,21 @@ class IncentiveController extends Controller
             'message' => 'Incentives deleted successfully',
         ]);
     }
+
+    public function printReceipt($id)
+    {
+        $incentives = Incentives::with('borrower.details')->findOrFail($id);
+
+        // Get branch name
+        $branchName = $incentives->borrower->branch ? $incentives->borrower->branch->name : 'Unknown';
+
+        // Custom title rules
+        if (strcasecmp($branchName, 'Guiuan') === 0) {
+            $branchTitle = 'Head Office';
+        } else {
+            $branchTitle = $branchName . ' Branch';
+        }
+
+        return view('client.incentives-receipt', compact('loan', 'branchTitle', 'net_proceeds'));
+    }
 }

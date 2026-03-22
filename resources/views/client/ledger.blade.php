@@ -416,6 +416,7 @@
                             hideModal('modalIncentives');
                             showToast.success(response.message)
                             incentives.ajax.reload();
+                            window.open('/incentives/' + id + '/print', '_blank');
                         }else{
                             showToast.error(response.message)
                         }

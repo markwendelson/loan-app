@@ -182,6 +182,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [IncentiveController::class, 'show'])->name('incentives.show');
         Route::put('/{id}', [IncentiveController::class, 'update'])->name('incentives.update');
         Route::delete('{id}', [IncentiveController::class, 'destroy'])->name('incentives.destroy');
+        Route::get('{id}/print', [IncentiveController::class, 'printReceipt'])->name('incentives.print');
     });
 
     include_once(__DIR__ . '/ajax.php');
