@@ -9,7 +9,7 @@ use App\Http\Controllers\DepartmentController;
 // use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InsuranceFeeScheduleController;
-use App\Http\Controllers\JobController;
+use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LoanProductController;
 use App\Http\Controllers\LoanTypeController;
@@ -71,9 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::post('departments/submit-form', [DepartmentController::class, 'submitDepartment']);
 
     //-----JobTitle
-    Route::get('job-titles', [JobController::class, 'index'])->name('jobTitle.index');
-    Route::post('job-titles/get-jobtitle', [JobController::class, 'getJobInfo']);
-    Route::post('job-titles/submit-form', [JobController::class, 'submitJob']);
+    Route::get('job-titles', [JobTitleController::class, 'index'])->name('jobTitle.index');
 
     //-----Insurance Fee Schedule
     // Route::get('insurance-fee', [InsuranceFeeController::class, 'index'])->name('insurance_fee.index');
