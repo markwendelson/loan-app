@@ -304,6 +304,8 @@ class ClientController extends Controller
         $principal_loan = $loans[0] ?? null;
         $special_loan = $loans[1] ?? null;
 
+        $attachments = ClientDocument::where('loan_id', $principal_loan->id)->get();
+
         $loan = [
             'principal_loan_no' => $principal_loan->loan_no ?? '',
             'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
@@ -323,7 +325,7 @@ class ClientController extends Controller
                 return $comaker;
             });
 
-        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker'));
+        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'attachments'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)
@@ -562,8 +564,6 @@ class ClientController extends Controller
 
         $principal_loan = $loans[0] ?? null;
 
-        $attachments = ClientDocument::where('loan_id', $principal_loan->id)->get();
-
         $loan = [
             'principal_loan_no' => $principal_loan->loan_no ?? '',
             'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
@@ -581,7 +581,7 @@ class ClientController extends Controller
             ]);
         }
 
-        return view('client.ledger-loan', compact('client', 'loan', 'attachments'));
+        return view('client.ledger-loan', compact('client', 'loan'));
     }
 
     public function loanHistory(Client $client)
