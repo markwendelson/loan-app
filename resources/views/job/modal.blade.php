@@ -1,5 +1,5 @@
 
-<div class="modal fade" id="modalLoanType" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="modalJobTitle" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
@@ -11,18 +11,13 @@
                     @csrf
                     <input type="hidden" value="" name="id" id="id">
                     <div class="col-12">
-                        <label class="w-100" for="name">Name</label>
-                        <input type="text" class="form-control form-control-sm" name="name" placeholder="Name" required />
+                        <label class="w-100" for="title">Title</label>
+                        <input type="text" class="form-control form-control-sm" name="title" placeholder="Title" required />
                     </div>
 
                     <div class="col-12">
                         <label class="w-100" for="description">Description</label>
                         <input type="text" class="form-control form-control-sm" name="description" placeholder="Description" required />
-                    </div>
-
-                    <div class="col-12">
-                        <label class="w-100" for="interest_rate">Interest Rate</label>
-                        <input type="number" class="form-control form-control-sm" name="interest_rate" placeholder="Interest Rate" required min="1"/>
                     </div>
 
                     <div class="col-12">
@@ -40,7 +35,7 @@
 
             <div class="modal-footer gap-1">
                 <button type="button" class="btn btn-primary btnSubmit w-100"><i class="fa fa-save"></i> Submit</button>
-                <button type="button" class="btn btn-light w-100" onclick="hideModal('modalLoanType')"><i class="fa fa-close"></i> Cancel</button>
+                <button type="button" class="btn btn-light w-100" onclick="hideModal('modalJobTitle')"><i class="fa fa-close"></i> Cancel</button>
             </div>
         </div>
     </div>

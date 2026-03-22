@@ -175,7 +175,7 @@
 
         async function getJobTitle(id) {
             try {
-                let response = await fetch(`/job-title/${id}`, {
+                let response = await fetch(`/job-titles/${id}`, {
                     method: "GET",
                 });
 
@@ -206,7 +206,7 @@
             if (result) {
 
                 $.ajax({
-                    url: '/job-title/' + id,
+                    url: '/job-titles/' + id,
                     type: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
