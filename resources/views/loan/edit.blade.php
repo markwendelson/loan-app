@@ -161,7 +161,7 @@
                         <li class="mt-3 mb-3" id="principal_advance">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="principal_advance" id="principal_advance" value="{{ number_format($loan->loanCharges->principal_advance,2) }}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" value="{{ number_format($loan->loanCharges->principal_advance,2) }}">
                             </div>
                         </li>
                         @if($loan->is_reloan)

@@ -170,7 +170,7 @@
                         <li class="mt-3 mb-3" id="principal_advance">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="principal_advance" id="principal_advance">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance">
                             </div>
                         </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
