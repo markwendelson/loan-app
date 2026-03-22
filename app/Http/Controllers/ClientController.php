@@ -303,9 +303,16 @@ class ClientController extends Controller
 
         $principal_loan = $loans[0] ?? null;
         $special_loan = $loans[1] ?? null;
+        $principal_attachments = null;
+        $special_attachments = null;
 
-        $principal_attachments = ClientDocument::where('loan_id', $principal_loan->id)->get();
-        $special_attachments = ClientDocument::where('loan_id', $special_loan->id)->get();
+        if($principal_loan) {
+            $principal_attachments = ClientDocument::where('loan_id', $principal_loan->id)->get();
+        }
+
+        if($special_attachments) {
+            $special_attachments = ClientDocument::where('loan_id', $special_loan->id)->get();
+        }
 
         $loan = [
             'principal_loan_no' => $principal_loan->loan_no ?? '',

@@ -87,11 +87,12 @@ class AjaxController extends Controller
         try {
             $data = $request->all();
 
-            Incentives::create($data);
+            $incentives = Incentives::create($data);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Incentives added successfully',
+                'id' => $incentives->id
             ]);
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062) {
