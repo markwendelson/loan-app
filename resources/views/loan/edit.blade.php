@@ -280,7 +280,7 @@
             calculateLoan();
         })
 
-        $("[name='principal'],[name='interest_rate']").on('change', function() {
+        $("[name='principal'],[name='interest_rate'],[name='principal_advance']").on('change', function() {
             calculateLoan();
         })
 
