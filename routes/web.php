@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
     //-----JobTitle
     Route::get('job-titles', [JobTitleController::class, 'index'])->name('job-title.index');
     Route::post('job-titles', [JobTitleController::class, 'store'])->name('job-title.store');
+    Route::get('job-titles/{id}', [JobTitleController::class, 'show'])->name('job-title.show');
     Route::put('job-titles/{id}', [JobTitleController::class, 'update'])->name('job-title.update');
     Route::delete('job-titles/{id}', [JobTitleController::class, 'destroy'])->name('job-title.destroy');
 
