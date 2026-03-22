@@ -49,6 +49,12 @@ class JobTitleController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'status' => 'required',
+        ]);
+
         $data = $request->all();
 
         try {
@@ -105,7 +111,7 @@ class JobTitleController extends Controller
     public function update(Request $request, JobTitle $jobTitle)
     {
         $request->validate([
-            'name' => 'required|string',
+            'title' => 'required|string',
             'description' => 'required|string',
             'status' => 'required',
         ]);
