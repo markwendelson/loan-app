@@ -111,13 +111,17 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="form-label" for="interest">Interest</label>
-                                    <input type="number" class="form-control form-control-sm" name="interest" min="0" readonly/>
+                                    <input type="number" class="form-control form-control-sm" name="interest" min="0"/>
                                 </div>
-                                <div class="col-md-8 form-group">
+                                <div class="col-md-5 form-group">
                                     <label class="form-label" for="interest_period" class="form-label">Interest Period</label>
                                     <input type="text" name="interest_period" id="interest_period" class="form-control form-control-sm"/>
                                     <input type="checkbox" name="exclude_interest" id="exclude_interest" class="form-check-input" />
                                     <label class="form-check-label" for="exclude_interest"><small>Exclude Interest</small></label>
+                                </div>
+                                <div class="col-md-3 form-group">
+                                    <label class="form-label" for="interest">Interest Deficit</label>
+                                    <input type="number" class="form-control form-control-sm" name="interest_deficit" min="0" readonly/>
                                 </div>
 
                                 {{-- <div class="col-md-4 form-group">

@@ -392,6 +392,7 @@
         var monthly_amortization = parseFloat(feesResponse.monthly_amortization.replace(/,/g, ''))
         var interest = parseFloat(feesResponse.interest.replace(/,/g, ''))
         $("#modalTransaction [name='interest']").val(parseFloat(feesResponse.interest.replace(/,/g, '')));
+        $("#modalTransaction [name='interest']").data('interest',parseFloat(feesResponse.interest.replace(/,/g, '')));
 
         if (feesResponse.insurance_monthly_fee !== 0) {
             $("#modalTransaction [name='insurance']").val(parseFloat(feesResponse.insurance_monthly_fee.replace(/,/g, '')));
@@ -642,6 +643,7 @@
 
         var amount = parseFloat($("#modalTransaction [name='amount']").val())
         var interest = parseFloat($("#modalTransaction [name='interest']").val())
+        var data_interest = parseFloat($("#modalTransaction [name='interest']").data('interest'))
         var insurance = parseFloat($("#modalTransaction [name='insurance']").val())
         var membership_fee = parseFloat($("#modalTransaction [name='membership_fee']").val())
         var $principal = $("#modalTransaction [name='principal']")
@@ -652,8 +654,12 @@
         if (isNaN(principal_amount)) principal_amount = 0;
         if (isNaN(amount)) amount = 0;
         if (isNaN(interest)) interest = 0;
+        if (isNaN(data_interest)) data_interest = 0;
         if (isNaN(insurance)) insurance = 0;
         if (isNaN(membership_fee)) membership_fee = 0;
+
+        var deficit = interest - data_interest;
+        $("#modalTransaction [name='interest_deficit']").val(deficit)
 
         var principal = 0;
         if ($("[name='is_early_settlement']").prop('checked')) {
