@@ -18,7 +18,7 @@
                         <th class="text-center" width="150" colspan="6">LOAN</th>
                         <th class="text-center" width="80"></th>
                         <th class="text-center" width="150" colspan="7">PAYMENT</th>
-                        <th class="text-center" width="80" colspan="2" rowspan="2"></th>
+                        <th class="text-center" width="80" colspan="3" rowspan="2"></th>
                     </tr>
                     <tr>
                         <th rowspan="3">Principal</th>
@@ -43,6 +43,7 @@
                         <th rowspan="2">Change</th>
                         <th rowspan="2">Balance</th>
                         <th rowspan="2">Remarks</th>
+                        <th rowspan="2">Deficit</th>
                     </tr>
                     <tr>
                         <th>Amount</th>

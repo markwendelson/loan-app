@@ -221,6 +221,7 @@
                     { data: 'change', name: 'change' },
                     { data: 'balance', name: 'balance' },
                     { data: 'remarks', name: 'remarks' },
+                    { data: 'interest_deficit', name: 'interest_deficit' },
                 ],
                 columnDefs: [
                     // { className: "text-center", targets: [4,5] },
