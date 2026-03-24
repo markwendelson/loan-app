@@ -131,6 +131,7 @@
                                             <th rowspan="2">Change</th>
                                             <th rowspan="2">Balance</th>
                                             <th rowspan="2">Remarks</th>
+                                            <th rowspan="2">Deficit</th>
                                             <th rowspan="2">Signature</th>
                                         </tr>
                                         <tr>
@@ -198,6 +199,8 @@
                                             <th>Change</th>
                                             <th>Balance</th>
                                             <th>Remarks</th>
+                                            <th>Deficit</th>
+                                            <th>Signature</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -302,6 +305,7 @@
                 { data: 'change', name: 'change' },
                 { data: 'balance', name: 'balance' },
                 { data: 'remarks', name: 'remarks' },
+                { data: 'interest_deficit', name: 'Deficit' },
                 { data: 'signature', name: 'signature' },
             ],
             columnDefs: [
@@ -337,6 +341,8 @@
                 { data: 'change', name: 'change' },
                 { data: 'balance', name: 'balance' },
                 { data: 'remarks', name: 'remarks' },
+                { data: 'interest_deficit', name: 'Deficit' },
+                { data: 'signature', name: 'signature' },
             ],
             columnDefs: [
                 // { className: "text-center", targets: [4,5] },

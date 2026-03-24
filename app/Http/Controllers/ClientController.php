@@ -222,6 +222,7 @@ class ClientController extends Controller
                     'change' => null,
                     'balance' => null, // to be filled after sorting
                     'remarks' => null,
+                    'interest_deficit' => null,
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
                 ]
@@ -264,6 +265,7 @@ class ClientController extends Controller
                     'remarks' => "{$payment->mode_of_payment} - <a href='" . route('savings.print', $payment->id) . "' target='_blank'>{$payment->transaction_no}</a>",
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
+                    'interest_deficit' => number_format($payment->interest_deficit, 2),
                 ];
             }
             return collect($rows);
@@ -385,6 +387,7 @@ class ClientController extends Controller
                     'remarks' => null,
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
+                    'interest_deficit' => null,
                 ]
             ];
 
@@ -419,6 +422,7 @@ class ClientController extends Controller
                     'remarks' => null,
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
+                    'interest_deficit' => number_format($payment->interest_deficit, 2),
                 ];
             }
 
@@ -507,6 +511,7 @@ class ClientController extends Controller
                     'remarks' => null,
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
+                    'interest_deficit' => null,
                 ]
             ];
 
@@ -543,6 +548,7 @@ class ClientController extends Controller
                     'remarks' => null,
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal, // subtract from balance
+                    'interest_deficit' => number_format($payment->interest_deficit),
                 ];
             }
 
