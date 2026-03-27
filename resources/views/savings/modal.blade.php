@@ -103,6 +103,7 @@
                                                 data-loan-product-id="{{$loan->loan_product_id}}"
                                                 data-principal="{{$loan->principal}}"
                                                 data-interest-rate="{{$loan->interest_rate}}"
+                                                data-interest-deficit="{{$previous_interest_deficit}}"
                                                 data-term="{{$loan->loan_duration}}"
                                                 data-loan-type="{{Str::slug($loan->loanProduct->loanType->name)}}"
                                             >{{$loan->is_special ? 'Special Loan | '.$loan->description .' | ' .$loan->loan_no : 'Principal Loan | '.$loan->loan_no}}</option>

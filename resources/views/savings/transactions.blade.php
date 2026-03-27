@@ -403,6 +403,7 @@
         $("#modalTransaction [name='principal']").data('early-settlement-amount', parseFloat(feesResponse.early_settlement_amount.replace(/,/g, '')));
         $("#modalTransaction [name='principal']").data('special-loan-balance', parseFloat(feesResponse.special_loan_balance.replace(/,/g, '')));
         $("#modalTransaction [name='principal']").data('monthly-amortization', parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
+        $("#modalTransaction [name='principal']").data('previous-interest-deficit', parseFloat(feesResponse.previous_interest_deficit.replace(/,/g, '')));
         $("#modalTransaction [name='membership_fee']").val(parseFloat(feesResponse.membership_fee_balance.replace(/,/g, '')));
         $("[name='insurance_month']").val(moment(feesResponse.interest_end_date).format('M'));
         $("[name='insurance_year']").val(moment(feesResponse.interest_end_date).format('Y'));
@@ -410,7 +411,7 @@
         const datenow = moment().format('YYYY-MM-DD');
         if (picker) {
             picker.minDate = moment(feesResponse.interest_start_date);
-            picker.maxDate = datenow;
+            picker.maxDate = moment(datenow);
             picker.setStartDate(feesResponse.interest_start_date)
             picker.setEndDate(feesResponse.interest_end_date)
             picker.updateView();    // visually update the calendar

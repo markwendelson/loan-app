@@ -337,6 +337,7 @@ class SavingsController extends Controller
         }
 
         $membership_fee_balance = getMembershipFeeBalance($loan);
+        $savings = Savings::where('loan_id',$loan->id)->orderBy('interest_end_date', 'DESC')->limit(1)->first();
 
         if($loan->is_special) {
             return response()->json([
@@ -351,6 +352,7 @@ class SavingsController extends Controller
                 'special_loan_balance' => '0',
                 'early_settlement_amount' => number_format($principal_balance,2),
                 'membership_fee_balance' => $membership_fee_balance,
+                'previous_interest_deficit' => $savings->interest_deficit,
             ]);
         } else {
             return response()->json([
@@ -365,6 +367,7 @@ class SavingsController extends Controller
                 'special_loan_balance' => number_format($special_loan_balance,2),
                 'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2),
                 'membership_fee_balance' => $membership_fee_balance,
+                'previous_interest_deficit' => $savings->interest_deficit,
             ]);
         }
 
