@@ -353,7 +353,7 @@ class SavingsController extends Controller
                 'early_settlement_amount' => number_format($principal_balance,2),
                 'membership_fee_balance' => $membership_fee_balance,
                 'previous_interest_deficit' => $savings->interest_deficit,
-                'current_interest' => $interest,
+                'current_interest' => number_format(0,2),
             ]);
         } else {
             return response()->json([
@@ -369,7 +369,7 @@ class SavingsController extends Controller
                 'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2),
                 'membership_fee_balance' => $membership_fee_balance,
                 'previous_interest_deficit' => $savings->interest_deficit,
-                'current_interest' => $interest,
+                'current_interest' => number_format($interest,2),
             ]);
         }
 
