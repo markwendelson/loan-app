@@ -315,6 +315,7 @@ class SavingsController extends Controller
     public function getFees(Request $request)
     {
         $loan = Loan::findOrFail($request->id);
+        $savings = Savings::where('loan_id',$loan->id)->orderBy('interest_end_date', 'DESC')->limit(1)->first();
 
         // adb - open term
         $principal_balance = $this->getPrincipalBalance($loan);
@@ -331,13 +332,12 @@ class SavingsController extends Controller
             $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
             $interest_rate = $loan->interest_rate / 100;
             $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
-            $rounded_interest = round($interest);
+            $rounded_interest = round($interest + ($savings->interest_deficit ?? 0));
             $insurance_monthly_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0;
             $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
         }
 
         $membership_fee_balance = getMembershipFeeBalance($loan);
-        $savings = Savings::where('loan_id',$loan->id)->orderBy('interest_end_date', 'DESC')->limit(1)->first();
 
         if($loan->is_special) {
             return response()->json([

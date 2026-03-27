@@ -112,6 +112,7 @@
                                 <div class="col-md-3 form-group">
                                     <label class="form-label" for="interest">Interest</label>
                                     <input type="number" class="form-control form-control-sm" name="interest" min="0"/>
+                                    <span id="interest_and_interest_deficit" class="text-xs"></span>
                                 </div>
                                 <div class="col-md-5 form-group">
                                     <label class="form-label" for="interest_period" class="form-label">Interest Period</label>
