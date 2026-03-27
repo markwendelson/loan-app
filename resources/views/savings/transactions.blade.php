@@ -404,6 +404,7 @@
         $("#modalTransaction [name='principal']").data('special-loan-balance', parseFloat(feesResponse.special_loan_balance.replace(/,/g, '')));
         $("#modalTransaction [name='principal']").data('monthly-amortization', parseFloat(feesResponse.monthly_amortization.replace(/,/g, '')));
         $("#modalTransaction [name='principal']").data('previous-interest-deficit', parseFloat(feesResponse.previous_interest_deficit.replace(/,/g, '')));
+        $("#modalTransaction [name='principal']").data('current-interest', parseFloat(feesResponse.current_interest.replace(/,/g, '')));
         $("#modalTransaction [name='membership_fee']").val(parseFloat(feesResponse.membership_fee_balance.replace(/,/g, '')));
         $("[name='insurance_month']").val(moment(feesResponse.interest_end_date).format('M'));
         $("[name='insurance_year']").val(moment(feesResponse.interest_end_date).format('Y'));
