@@ -260,7 +260,7 @@ class ClientController extends Controller
                         ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
                         : null,
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => number_format($change, 2),
+                    'change' => number_format($change, 2) .' - '. $payment->change_mop .'|'. $payment->change_transaction_code,
                     'balance' => null, // to be computed
                     'remarks' => "{$payment->mode_of_payment} - <a href='" . route('savings.print', $payment->id) . "' target='_blank'>{$payment->transaction_no}</a>",
                     'order_date' => Carbon::parse($payment->transaction_date),
