@@ -422,8 +422,7 @@ class LoanController extends Controller
 
             $loans = Loan::pending()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
                 ->orderByDesc('loan_date')
-                ->orderByDesc('loan_no')
-                ->get();
+                ->orderByDesc('loan_no');
 
             $start = $request->input('start', 0);
             $length = $request->input('length', 5);
