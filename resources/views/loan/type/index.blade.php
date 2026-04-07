@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Manage Loan Type @endsection
+
 @push('css')
 <style>
     .bg-default {
@@ -37,9 +39,9 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalLoanType')"><i class="fa fa-plus"></i> New Loan Type</button>
-    </div>
+        <div class="card-body">
+            <button class="btn btn-primary float-end" onclick="showModal('modalLoanType')"><i class="fa fa-plus"></i> New Loan Type</button>
+        </div>
     </div>
 
 
@@ -111,7 +113,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [3,4] },
+                { className: "text-center", targets: [0,3,4,5] },
             ]
         });
 

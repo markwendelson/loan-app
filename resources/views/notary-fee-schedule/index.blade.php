@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Manage Notary Fee Schedule
+
 @push('css')
 <style>
     .bg-default {
@@ -37,9 +39,9 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalNotaryFeeSchedule')"><i class="fa fa-plus"></i> New Notary Fee Schedule</button>
-    </div>
+        <div class="card-body">
+            <button class="btn btn-primary float-end" onclick="showModal('modalNotaryFeeSchedule')"><i class="fa fa-plus"></i> New Notary Fee Schedule</button>
+        </div>
     </div>
 
 
@@ -113,7 +115,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [5,6] },
+                { className: "text-center", targets: [0,5,6] },
             ]
         });
 

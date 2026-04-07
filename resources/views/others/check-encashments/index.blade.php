@@ -1,8 +1,10 @@
 @extends('layouts.app')
 
+@section('title') Check Encashments @endsection
+
 @section('content')
-<div class="container">
-     <!-- Header + Add button card -->
+
+    <!-- Header + Add button card -->
     <div class="card mb-3">
         <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h4 class="mb-0">Check Encashments</h4>
@@ -58,14 +60,14 @@
                             <td>{{ $check->customer_name }}</td>
                             <td>{{ $check->checkNo }}</td>
                             <td>{{ $check->bankName }}</td>
-                            <td>{{ number_format($check->checkAmount, 2) }}</td>
-                            <td>{{ number_format($check->charge, 2) }}</td>
-                            <td>{{ number_format($check->net_proceeds, 2) }}</td>
+                            <td class="text-end">{{ number_format($check->checkAmount, 2) }}</td>
+                            <td class="text-end">{{ number_format($check->charge, 2) }}</td>
+                            <td class="text-end">{{ number_format($check->net_proceeds, 2) }}</td>
 
                             <td class="d-none">{{ $check->id_type }}</td>
                             <td class="d-none">{{ $check->id_number }}</td>
                             <td>
-                                @if($check->id_picture_path)
+                                @if($check->id_picture_path && file_exists(public_path('storage/' . $check->id_picture_path)))
                                     <a href="{{ asset('storage/' . $check->id_picture_path) }}" target="_blank">
                                         <img src="{{ asset('storage/' . $check->id_picture_path) }}" width="50" class="img-thumbnail">
                                     </a>
@@ -74,9 +76,9 @@
                                 @endif
                             </td>
 
-                            <td class="d-flex flex-column flex-md-row gap-1">
-                                <button class="btn btn-sm btn-warning" onclick="editCheck({{ $check->id }})">Edit</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteCheck({{ $check->id }})">Delete</button>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-warning" onclick="editCheck({{ $check->id }})"><i class="fa fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCheck({{ $check->id }})"><i class="fa fa-trash"></i></button>
                             </td>
                         </tr>
                         @endforeach
@@ -84,7 +86,6 @@
                 </table>
             </div>
         </div>
-    </div>
 
 {{-- Include modal --}}
 @include('others.check-encashments.modal')

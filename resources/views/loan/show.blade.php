@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') View Loan @endsection
+
 @push('css')
 <style>
     ul > li > span {
@@ -14,7 +16,8 @@
         <div class="row">
             <div class="col-6">
                 <h4>Loan | View Loan</h4>
-                <h4>{{$loan->loan_no}}
+                <div class="d-flex justify-content-start gap-1">
+                    <h4 class="mb-0">{{ $loan->loan_no }}</h4>
                     @if($loan->status == \App\Enums\LoanStatus::APPROVE->value)
                         <span class="badge badge-sm badge-success">Approved</span>
                     @elseif($loan->status == \App\Enums\LoanStatus::DECLINE->value)
@@ -26,7 +29,7 @@
                     @else
                         <span class="badge badge-sm badge-primary">Pending</span>
                     @endif
-                </h4>
+                </div>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">

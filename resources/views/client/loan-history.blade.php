@@ -1,28 +1,30 @@
 @extends('layouts.app')
 
+@section("title") Client Loan History @endsection
+
 @push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
 
-     table > thead {
-        text-align: center;
-        vertical-align:middle !important;
-     }
+        table > thead {
+            text-align: center;
+            vertical-align:middle !important;
+        }
 
-    .list-group-item:hover {
-        cursor: pointer;
-    }
+        .list-group-item:hover {
+            cursor: pointer;
+        }
 
-    ul > li > span {
-        float: right;
-    }
- </style>
+        ul > li > span {
+            float: right;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -79,12 +81,16 @@
                             $textStyle = $loan->status === 5 ? 'text-muted' : '';
                         @endphp
                         <li class="list-group-item d-flex justify-content-between align-items-start list-group-item-action {{$textStyle}}" data-id="{{$loan->id}}" data-loan_no="{{$loan->loan_no}}">
-                            <div class="ms-2 me-auto">
-                                <div>{{$loan->loanProduct->name}}</div>
-                                <div class="fw-bold">{{$loan->loan_no}}</div>
-                                <div>{{$loan->loan_date}}</div>
+                            <div class="ms-2 me-auto d-flex justify-content-between align-items-center w-100">
+                                <div class="d-flex flex-column">
+                                    <span>{{$loan->loanProduct->name}}</span>
+                                    <span class="fw-bold">{{$loan->loan_no}}</span>
+                                    <span>{{$loan->loan_date}}</span>
+                                </div>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="badge {{$badge}} rounded-pill">{{$loanStatus->name}}</span>
+                                </div>
                             </div>
-                            <span class="badge {{$badge}} rounded-pill">{{$loanStatus->name}}</span>
                         </li>
                         @endforeach
                     </ul>

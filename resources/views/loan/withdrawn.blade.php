@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
+@section('title') Loan Withdrawn @endsection
+
 @push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -18,7 +20,7 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-6">
-                    <h4>Loan | Withrawn</h4>
+                    <h4>Loan | Withdrawn</h4>
                 </div>
                 <div class="col-6">
                     <ol class="breadcrumb">

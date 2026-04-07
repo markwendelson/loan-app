@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Manage Insurance Fee Schedule @endsection
+
 @push('css')
 <style>
     .bg-default {
@@ -37,9 +39,9 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalInsuranceFeeSchedule')"><i class="fa fa-plus"></i> New Insurance Fee Schedule</button>
-    </div>
+        <div class="card-body">
+            <button class="btn btn-primary float-end" onclick="showModal('modalInsuranceFeeSchedule')"><i class="fa fa-plus"></i> New Insurance Fee Schedule</button>
+        </div>
     </div>
 
 

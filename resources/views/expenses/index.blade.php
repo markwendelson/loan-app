@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
+@section('title') Expenses @endsection
+
 @push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -42,44 +44,42 @@
         </div>
     </div>
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped" id="expenseTable">
-                                <thead>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="expenseTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Created By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($expenses as $expense)
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Category</th>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th>Created By</th>
-                                        <th>Actions</th>
+                                        <td>{{ \Carbon\Carbon::parse($expense->expense_date)->format('M d, Y') }}</td>
+                                        <td>{{ $expense->category->name ?? 'N/A' }}</td>
+                                        <td>{{ $expense->description }}</td>
+                                        <td>{{ number_format($expense->amount, 2) }}</td>
+                                        <td>{{ $expense->creator->name ?? 'System' }}</td>
+                                        <td class="actions-cell">
+                                            <div class="action-buttons">
+                                                <button class="btn btn-sm btn-warning editBtn"
+                                                    data-id="{{ $expense->id }}"><i class="fa fa-pencil"></i></button>
+                                                <button class="btn btn-sm btn-danger deleteBtn"
+                                                    data-id="{{ $expense->id }}"><i class="fa fa-trash"></i></button>
+                                            </div>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($expenses as $expense)
-                                        <tr>
-                                            <td>{{ \Carbon\Carbon::parse($expense->expense_date)->format('M d, Y') }}</td>
-                                            <td>{{ $expense->category->name ?? 'N/A' }}</td>
-                                            <td>{{ $expense->description }}</td>
-                                            <td>{{ number_format($expense->amount, 2) }}</td>
-                                            <td>{{ $expense->creator->name ?? 'System' }}</td>
-                                            <td class="actions-cell">
-                                                <div class="action-buttons">
-                                                    <button class="btn btn-sm btn-warning editBtn"
-                                                        data-id="{{ $expense->id }}"><i class="fa fa-pencil"></i></button>
-                                                    <button class="btn btn-sm btn-danger deleteBtn"
-                                                        data-id="{{ $expense->id }}"><i class="fa fa-trash"></i></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
