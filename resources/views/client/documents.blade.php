@@ -34,19 +34,19 @@
                 </thead>
                 <tbody>
                     @php
-                        $docTypes = [
-                            'Valid ID',
-                            'Payslip',
-                            'Cedula',
-                            'Bank Statement',
-                            'Appointment Letter/COE',
-                            'Promisory Note',
-                            'Affidavit',
-                            'Affidavit of CO-MAKER',
-                            'Affidavit of UNDERTAKING',
-                            'SRA',
-                            'Auto Debit'
-                        ];
+                        // $docTypes = [
+                        //     'Valid ID',
+                        //     'Payslip',
+                        //     'Cedula',
+                        //     'Bank Statement',
+                        //     'Appointment Letter/COE',
+                        //     'Promisory Note',
+                        //     'Affidavit',
+                        //     'Affidavit of CO-MAKER',
+                        //     'Affidavit of UNDERTAKING',
+                        //     'SRA',
+                        //     'Auto Debit'
+                        // ];
                     @endphp
                     {{-- Show documents for specific loan when editing, empty when creating --}}
                     @if(isset($loan) && isset($loan->borrower->documents))
@@ -59,7 +59,8 @@
                         @foreach($loanDocuments as $doc)
                             <tr data-id="{{ $doc->id }}">
                                 <td>
-                                    <select name="client_documents[doc_type][]" class="form-select">
+                                    {{ $doc->document_type_name ?? ''; }}
+                                    {{-- <select name="client_documents[doc_type][]" class="form-select">
                                         <option value="">Select Document</option>
                                         @foreach($docTypes as $type)
                                             <option value="{{ $type }}"
@@ -68,7 +69,8 @@
                                                 {{ $type }}
                                             </option>
                                         @endforeach
-                                </select></td>
+                                    </select> --}}
+                                </td>
                                 <td>
                                     @if(!empty($doc->file_path))
                                             <a
@@ -79,21 +81,22 @@
                                             </a>
                                     @endif
                                 </td>
-                                <td><input
-                                    type="text"
-                                    name="client_documents[file_upload_remarks][]"
-                                    class="form-control"
-                                    placeholder="Remarks..."
-                                    value="{{ $doc->remarks }}"
-                                ></td>
+                                <td>
+                                    {{ $doc->remarks ?? ''; }}
+                                    {{-- <input type="text"
+                                        name="client_documents[file_upload_remarks][]"
+                                        class="form-control"
+                                        placeholder="Remarks..."
+                                        value="{{ $doc->remarks }}"
+                                    > --}}
+                                </td>
                                 <td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove">Remove</button></td>
                             </tr>
                         @endforeach
                     @endif
                 </tbody>
-                </table>
-                <button type="button" id="addFileRow" class="btn btn-primary mt-2">Add File</button>
-
+            </table>
+            <button type="button" id="addFileRow" class="btn btn-primary mt-2">Add File</button>
         </div>
 
     </div>
@@ -102,6 +105,10 @@
 @push('js')
 <script>
 $(document).ready(function () {
+    let documentTypesJson = <?=$documentTypesJson ?? '[]';?>;
+    console.log(documentTypesJson);
+
+
     const docTypes = [
         "Valid ID",
         "Payslip",
@@ -117,10 +124,24 @@ $(document).ready(function () {
     ];
 
     function generateDocTypeOptions(index) {
+        let options = '';
+
+        if(documentTypesJson.length > 0){
+            for(let i = 0; i < documentTypesJson.length; i++) {
+                options += `<option value="${documentTypesJson[i].id}">${documentTypesJson[i].type_name}</option>`;
+            }
+        }
+        // return `
+        //     <select name="client_documents[${index}][doc_type]" class="form-select">
+        //         <option value="">Select Document</option>
+        //         ${docTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+        //     </select>
+        // `;
+
         return `
             <select name="client_documents[${index}][doc_type]" class="form-select">
                 <option value="">Select Document</option>
-                ${docTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                ${options}
             </select>
         `;
     }

@@ -82,11 +82,11 @@
                 @endif
                 <div class="form-group pricipal">
                     <label for="principal">Principal</label>
-                    <input type="number" class="form-control form-control-sm" name="principal" id="principal" value="{{$loan->principal}}" readonly/>
+                    <input type="text" class="form-control form-control-sm" name="principal" id="principal" value="{{ number_format($loan->principal,2)}}" readonly/>
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="text" class="form-control form-control-sm" name="term" id="term" value="{{$loan->loan_duration}}" readonly/>
+                    <input type="number" class="form-control form-control-sm" name="term" id="term" value="{{ (int) $loan->loan_duration}}" readonly/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>

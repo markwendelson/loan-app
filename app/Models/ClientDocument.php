@@ -9,7 +9,7 @@ class ClientDocument extends Model
     protected $fillable = [
         'client_id',
         'loan_id',
-        'document_type',
+        'document_type_id',
         'file_path',
         'remarks',
     ];
