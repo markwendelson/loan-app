@@ -106,6 +106,12 @@
         @endif
 
         <hr>
+        <div class="label">
+            <span>Principal Balance:</span>
+            <span class="bold">{{ number_format($savings->principal_balance, 2) }}</span>
+        </div>
+        <br>
+        <hr>
         <p class="center">Transaction Successful</p>
         <br>
 
