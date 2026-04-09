@@ -16,6 +16,16 @@
         border: 1px solid #dee2e6; /* or whatever border color you use */
         padding: 8px;
     }
+
+    /* Add smooth transition on hover */
+    .attachment-items {
+        transition: transform 0.3s ease;
+    }
+
+    /* Hover effect for attachment item */
+    .attachment-items:hover {
+        transform: translateY(-5px); /* Moves the attachment item up slightly */
+    }
 </style>
 @endpush
 
@@ -34,7 +44,7 @@
                             <div class="d-flex flex-column">
                                 <span>
                                     @if($val->file_path)
-                                        <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="text-wrap">{{ $val->file_path }}</a>
+                                        <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="text-wrap">{{ basename($val->file_path) }}</a>
                                     @endif
                                 </span>
                                 <span>{{ $val->document_type_name ?? ''; }}</span>
@@ -67,11 +77,10 @@
                                 <!-- File Icon -->
                                 <img src="{{ url('/assets/images/file.png') }}" width="40" height="40" class="rounded">
                                 <div class="d-flex flex-column">
-                                    <span>
-                                        @if($val->file_path)
-                                            <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="text-wrap">{{ $val->file_path }}</a>
-                                        @endif
-                                    </span>
+                                    @if($val->file_path)
+                                        <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="text-wrap">{{ basename($val->file_path) }}</a>
+                                    @endif
+
                                     <span>{{ $val->document_type_name ?? ''; }}</span>
                                 </div>
                             </div>

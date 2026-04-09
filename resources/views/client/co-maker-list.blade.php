@@ -13,43 +13,34 @@
     }
 </style>
 @endpush
+
 <div class="card">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="table-responsive">
-                    <table class="table table-hover table-bordered" id="client_comaker">
-                        <thead>
-                            <tr>
-                                <th class="text-left" width="150">Name</th>
-                                <th class="text-left" width="150">Address</th>
-                                <th class="text-left" width="80">Balance</th>
-                                <th class="text-center co-maker-action-btn-header" width="80"><i class="fa fa-cog"></i></th>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover" id="client_comaker">
+                <thead>
+                    <tr>
+                        <th class="text-start" width="150">Name</th>
+                        <th class="text-start" width="150">Address</th>
+                        <th class="text-center" width="80">Balance</th>
+                        <th class="text-center co-maker-action-btn-header" width="80"><i class="fa fa-cog"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- Show co-makers for specific loan when editing, empty when creating --}}
+                    @if(isset($loan_is_co_maker) && $loan_is_co_maker)
+                        @foreach($loan_is_co_maker as $comaker)
+                            <tr data-id="{{$comaker->id}}">
+                                <td>{{$comaker->details->fullname}}</td>
+                                <td>{{$comaker->details->present_full_address}}</td>
+                                <td class="text-end">{{ number_format($comaker->loan_balance, 2) }}</td>
+                                <td class="text-center co-maker-action-btn-col">
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {{-- Show co-makers for specific loan when editing, empty when creating --}}
-                            @foreach($loan_is_co_maker as $comaker)
-                                <tr data-id="{{$comaker->id}}">
-                                    <td>{{$comaker->details->fullname}}</td>
-                                    <td>{{$comaker->details->present_full_address}}</td>
-                                    <td class="text-end">{{ $comaker->loan_balance }}</td>
-                                    <td class="text-center co-maker-action-btn-col">
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-
-@push('js')
-<script>
-    $(document).ready(function() {
-        
-    })
-</script>
-@endpush

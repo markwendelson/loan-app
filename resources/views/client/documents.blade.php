@@ -16,88 +16,49 @@
         border: 1px solid #dee2e6; /* or whatever border color you use */
         padding: 8px;
     }
+
+     /* Add smooth transition on hover */
+    .attachment-items {
+        transition: transform 0.3s ease;
+    }
+
+    /* Hover effect for attachment item */
+    .attachment-items:hover {
+        transform: translateY(-5px); /* Moves the attachment item up slightly */
+    }
 </style>
 @endpush
 
 <div class="card">
-    <div class="card-header">Documents</div>
     <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover" id="documents_table">
-                <thead>
-                    <tr>
-                    <th>Document Type</th>
-                    <th>File</th>
-                    <th>Remarks</th>
-                    <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        // $docTypes = [
-                        //     'Valid ID',
-                        //     'Payslip',
-                        //     'Cedula',
-                        //     'Bank Statement',
-                        //     'Appointment Letter/COE',
-                        //     'Promisory Note',
-                        //     'Affidavit',
-                        //     'Affidavit of CO-MAKER',
-                        //     'Affidavit of UNDERTAKING',
-                        //     'SRA',
-                        //     'Auto Debit'
-                        // ];
-                    @endphp
-                    {{-- Show documents for specific loan when editing, empty when creating --}}
-                    @if(isset($loan) && isset($loan->borrower->documents))
-                        @php
-                            // Filter documents by this loan's ID
-                            $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
-                                return $doc->loan_id == $loan->id;
-                            });
-                        @endphp
-                        @foreach($loanDocuments as $doc)
-                            <tr data-id="{{ $doc->id }}">
-                                <td>
-                                    {{ $doc->document_type_name ?? ''; }}
-                                    {{-- <select name="client_documents[doc_type][]" class="form-select">
-                                        <option value="">Select Document</option>
-                                        @foreach($docTypes as $type)
-                                            <option value="{{ $type }}"
-                                                @if($doc->document_type === $type) selected @endif
-                                            >
-                                                {{ $type }}
-                                            </option>
-                                        @endforeach
-                                    </select> --}}
-                                </td>
-                                <td>
-                                    @if(!empty($doc->file_path))
-                                            <a
-                                                href="{{ Storage::url($doc->file_path) }}"
-                                                target="_blank"
-                                            >
-                                                View current file
-                                            </a>
-                                    @endif
-                                </td>
-                                <td>
-                                    {{ $doc->remarks ?? ''; }}
-                                    {{-- <input type="text"
-                                        name="client_documents[file_upload_remarks][]"
-                                        class="form-control"
-                                        placeholder="Remarks..."
-                                        value="{{ $doc->remarks }}"
-                                    > --}}
-                                </td>
-                                <td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove">Remove</button></td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-            <button type="button" id="addFileRow" class="btn btn-primary mt-2">Add File</button>
-        </div>
+        <h4 class="card-title mb-4">Documents</h4>
+        
+        @if(isset($loan) && isset($loan->borrower->documents))
+            @foreach($loan->borrower->documents as $val) 
+                <div class="border p-3 rounded attachment-items mb-2">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <!-- File Info Section -->
+                        <div class="d-flex justify-content-start align-items-center gap-2 flex-column flex-sm-row">
+                            <!-- File Icon -->
+                            <img src="{{ url('/assets/images/file.png') }}" width="40" height="40" class="rounded">
+                            <div class="d-flex flex-column">
+                                @if($val->file_path)
+                                    <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="text-wrap"><div class="text-wrap">{{ basename($val->file_path) }}</div></a>
+                                @endif
+                                <span>{{ $val->document_type_name ?? ''; }}</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center mt-2 mt-sm-0">
+                            <!-- download url -->
+                            <a class="btn btn-outline-primary btn-xs" href="{{ Storage::url($val->file_path) }}" download="{{ basename($val->file_path) }}"><i class="fa fa-download"></i></a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @endif
+
+        <button type="button" id="addFileRow" class="btn btn-primary mt-2">Add File</button>
 
     </div>
 </div>
@@ -108,21 +69,6 @@ $(document).ready(function () {
     let documentTypesJson = <?=$documentTypesJson ?? '[]';?>;
     console.log(documentTypesJson);
 
-
-    const docTypes = [
-        "Valid ID",
-        "Payslip",
-        "Cedula",
-        "Bank Statement",
-        "Appointment Letter/COE",
-        "Promisory Note",
-        "Affidavit",
-        'Affidavit of CO-MAKER',
-        'Affidavit of UNDERTAKING',
-        "SRA",
-        "Auto Debit"
-    ];
-
     function generateDocTypeOptions(index) {
         let options = '';
 
@@ -131,12 +77,6 @@ $(document).ready(function () {
                 options += `<option value="${documentTypesJson[i].id}">${documentTypesJson[i].type_name}</option>`;
             }
         }
-        // return `
-        //     <select name="client_documents[${index}][doc_type]" class="form-select">
-        //         <option value="">Select Document</option>
-        //         ${docTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
-        //     </select>
-        // `;
 
         return `
             <select name="client_documents[${index}][doc_type]" class="form-select">
