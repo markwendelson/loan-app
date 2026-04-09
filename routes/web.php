@@ -27,6 +27,7 @@ use App\Http\Controllers\WalkinController;
 use App\Http\Controllers\CheckController;
 use App\Http\Controllers\IncentiveController;
 use App\Http\Controllers\ServiceChargeController;
+use App\Http\Controllers\DocumentTypeController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -186,6 +187,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [IncentiveController::class, 'update'])->name('incentives.update');
         Route::delete('{id}', [IncentiveController::class, 'destroy'])->name('incentives.destroy');
         Route::get('{id}/print', [IncentiveController::class, 'printReceipt'])->name('incentives.print');
+    });
+    
+    Route::prefix('document-type')->group(function () {
+        Route::get('/', [DocumentTypeController::class, 'index'])->name('document-type.index');
     });
 
     include_once(__DIR__ . '/ajax.php');

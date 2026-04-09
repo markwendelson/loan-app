@@ -1,4 +1,7 @@
 @extends('layouts.app')
+
+@section('title') User Update @endsection
+
 @push('css')
     <style>
         .nav-link:hover {

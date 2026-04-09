@@ -24,7 +24,7 @@
             transition: opacity 0.5s ease, background-color 0.5s ease; /* Adjust duration as needed */
         }
 
-    /* Trigger opacity to 1 when the success message is shown */
+        /* Trigger opacity to 1 when the success message is shown */
         #success-message.show {
             opacity: 1;
         }

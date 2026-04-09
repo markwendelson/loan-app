@@ -16,6 +16,11 @@ class DocumentType extends Model
         'updated_at'
     ];
 
+    public static function getAll()
+    {
+        return self::query();
+    }
+
     public static function getAllActive()
     {
         return self::where('status', 1)->get();
