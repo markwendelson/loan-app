@@ -3,15 +3,15 @@
 @section('title') Manage Insurance Fee Schedule @endsection
 
 @push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -88,17 +88,26 @@
             },
             columns: [
                 { data: 'id', name: 'id' },
-                { data: 'min_amount', name: 'min_amount' },
-                { data: 'max_amount', name: 'max_amount' },
-                { data: 'monthly_fee', name: 'monthly_fee' },
-                { data: 'annual_fee', name: 'annual_fee' },
+                // { data: 'min_amount', name: 'min_amount' },
+                { data: 'min_amount', name: 'min_amount', render : function(data) {
+                    return Number(data).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                }},
+                { data: 'max_amount', name: 'max_amount', render : function(data){
+                    return Number(data).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                }},
+                { data: 'monthly_fee', name: 'monthly_fee', render : function(data){
+                    return Number(data).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                }},
+                { data: 'annual_fee', name: 'annual_fee', render : function(data){
+                    return Number(data).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                }},
                 { data: 'status', name: 'status', render: function(data, type, row) {
                     if (data == 1) {
                         return '<span class="badge badge-success">Active</span>';
                     } else {
                         return '<span class="badge badge-danger">Inactive</span>';
                     }
-                } },
+                }},
                 {
                     data: null,
                     name: 'actions',
@@ -115,7 +124,8 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [5,6] },
+                { className: "text-center", targets: [0,5,6] },
+                { className: "text-end", targets: [1,2,3,4] },
             ]
         });
 

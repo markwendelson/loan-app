@@ -153,9 +153,9 @@
         @can('view-branch')
         <li><a href="/branches">Branch</a></li>
         @endcan
-        {{-- @can('view-document-types') --}}
+        @can('view-document-type')
         <li><a href="{{ route('document-type.index') }}">Document Types</a></li>
-        {{-- @endcan --}}
+        @endcan
         <!-- <li><a href="/departments">Department</a></li> -->
         @can('view-job-title')
         <li><a href="/job-titles">Job Title</a></li>

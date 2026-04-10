@@ -191,6 +191,8 @@ Route::middleware('auth')->group(function () {
     
     Route::prefix('document-type')->group(function () {
         Route::get('/', [DocumentTypeController::class, 'index'])->name('document-type.index');
+        Route::post('store', [DocumentTypeController::class, 'store'])->name('document-type.add');
+        Route::put('update',[DocumentTypeController::class, 'update'])->name('document-type.update');
     });
 
     include_once(__DIR__ . '/ajax.php');
