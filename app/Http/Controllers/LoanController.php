@@ -6,6 +6,7 @@ use App\Enums\LoanStatus;
 use App\Http\Requests\LoanRequest;
 use App\Models\Client;
 use App\Models\ClientDocument;
+use App\Models\DocumentType;
 use App\Models\InsuranceFeeSchedule;
 use App\Models\Loan;
 use App\Models\LoanCharge;
@@ -91,7 +92,12 @@ class LoanController extends Controller
             $loan_products = LoanProduct::active()->get();
         }
 
-        return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance'));
+        //get all active document types
+        $documentTypes = DocumentType::getAllActive()->toArray();
+        $documentTypesJson = json_encode($documentTypes);
+
+
+        return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance', 'documentTypes', 'documentTypesJson'));
     }
 
     /**

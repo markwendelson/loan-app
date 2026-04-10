@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Manage Savings @endsection
+
 @push('css')
 <style>
     .bg-default {

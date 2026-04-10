@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Dashboard @endsection
+
 @section('content')
 
     @if (isset($notifications) && $notifications->isNotEmpty())

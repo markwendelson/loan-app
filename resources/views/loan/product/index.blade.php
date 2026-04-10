@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Manage Loan Product @endsection
+
 @push('css')
 <style>
     .bg-default {
@@ -64,9 +66,9 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <button class="btn btn-primary float-end btn-new"><i class = "fa fa-plus"></i> New Loan Product</button>
-    </div>
+        <div class="card-body">
+            <button class="btn btn-primary float-end btn-new"><i class = "fa fa-plus"></i> New Loan Product</button>
+        </div>
     </div>
 
 
@@ -138,7 +140,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [3,4] },
+                { className: "text-center", targets: [0,3,4,5] },
             ]
         });
 

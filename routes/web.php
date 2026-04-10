@@ -27,6 +27,7 @@ use App\Http\Controllers\WalkinController;
 use App\Http\Controllers\CheckController;
 use App\Http\Controllers\IncentiveController;
 use App\Http\Controllers\ServiceChargeController;
+use App\Http\Controllers\DocumentTypeController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -97,7 +98,8 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(ClientController::class)
         ->prefix('client')
-        ->group(function () {
+        ->group(function () { 
+            Route::get('registration', 'create')->name("client.registration");
             Route::get('{client}/get-balance', 'getBalance')->name('client.get-balance');
             Route::get('{client}/{loan_no}/ledger', 'ledgerLoan')->name('client.ledger.loan');
             Route::get('{client}/loan-history', 'loanHistory')->name('client.loan-history');
@@ -187,6 +189,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [IncentiveController::class, 'update'])->name('incentives.update');
         Route::delete('{id}', [IncentiveController::class, 'destroy'])->name('incentives.destroy');
         Route::get('{id}/print', [IncentiveController::class, 'printReceipt'])->name('incentives.print');
+    });
+    
+    Route::prefix('document-type')->group(function () {
+        Route::get('/', [DocumentTypeController::class, 'index'])->name('document-type.index');
+        Route::post('store', [DocumentTypeController::class, 'store'])->name('document-type.add');
+        Route::put('update',[DocumentTypeController::class, 'update'])->name('document-type.update');
     });
 
     include_once(__DIR__ . '/ajax.php');

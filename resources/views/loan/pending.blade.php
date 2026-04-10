@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
+@section('title') Loan Pending Approvals @endsection
+
 @push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
+    </style>
 @endpush
 
 @section('content')

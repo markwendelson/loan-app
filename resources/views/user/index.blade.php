@@ -1,15 +1,18 @@
 @extends('layouts.app')
 
+@section("title") Manage User @endsection
+
+
 @push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -51,7 +54,7 @@
                     <thead class="bg-default">
                         <tr>
                             <th class="text-center" width="120">Id</th>
-                            <th class="text-center" width="150">Name</th>
+                            <th class="text-center" width="150">Name <div class="badge p-2 badge-success">HEllo world</div></th>
                             <th class="text-center" width="150">Email</th>
                             <th class="text-center" width="150">Role</th>
                             <th class="text-center" width="180">Status</th>
@@ -110,7 +113,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [3,4] },
+                { className: "text-center", targets: [3,4,5] },
             ]
         });
 

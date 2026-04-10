@@ -8,7 +8,7 @@ use App\Models\Walkin;
 
 class WalkinController extends Controller
 {
- 
+
     public function index()
     {
         $serviceCharge = DB::table('service_charges')
@@ -18,7 +18,7 @@ class WalkinController extends Controller
         ->value('percentage') ?? 0;
 
          // Fetch existing walkins
-         $walkins = Walkin::orderBy('date', 'desc')->get();
+        $walkins = Walkin::orderBy('date', 'desc')->get();
         //  dd($serviceCharge);
 
              // 'date', 'desc')->get();

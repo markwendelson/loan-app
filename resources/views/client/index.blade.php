@@ -1,15 +1,17 @@
 @extends('layouts.app')
 
+@section("title") Manage Client @endsection
+
 @push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -37,9 +39,9 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <a href="{{route('client.create')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
-    </div>
+        <div class="card-body">
+            <a href="{{route('client.registration')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
+        </div>
     </div>
 
 
