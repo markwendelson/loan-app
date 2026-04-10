@@ -69,7 +69,10 @@ return [
         0 => 'Inactive',
         1 => 'Active'
     ],
-
+    'status_badge' => [
+        0 => 'badge badge-danger text-white',
+        1 => 'badge badge-success text-white'
+    ],
     'nationality_value' => [
         1 => 'Filipino',
         2 => 'American',

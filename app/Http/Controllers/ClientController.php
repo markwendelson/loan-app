@@ -6,7 +6,9 @@ use App\Enums\LoanStatus;
 use App\Models\Client;
 use App\Models\ClientDetails;
 use App\Models\ClientDocument;
+use App\Models\DocumentType;
 use App\Models\Loan;
+
 use App\Services\ClientRegistrationService;
 use App\Services\ClientUpdateService;
 use Carbon\Carbon;
@@ -309,11 +311,17 @@ class ClientController extends Controller
         $special_attachments = null;
 
         if($principal_loan) {
-            $principal_attachments = ClientDocument::where('loan_id', $principal_loan->id)->get();
+            $principal_attachments = ClientDocument::where('loan_id', $principal_loan->id)
+                ->leftJoin('document_types', 'document_types.id', '=', 'client_documents.document_type_id')
+                ->select('client_documents.*', 'document_types.type_name as document_type_name')
+                ->get();
         }
 
         if($special_attachments) {
-            $special_attachments = ClientDocument::where('loan_id', $special_loan->id)->get();
+            $special_attachments = ClientDocument::where('loan_id', $special_loan->id)
+                ->leftJoin('document_types', 'document_types.id', '=', 'client_documents.document_type_id')
+                ->select('client_documents.*', 'document_types.type_name as document_type_name')
+                ->get();
         }
 
         $loan = [

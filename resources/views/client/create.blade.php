@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section("title") Client Registration @endsection
+
 @push('css')
 <style>
     .nav-link:hover {

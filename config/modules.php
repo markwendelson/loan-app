@@ -111,6 +111,10 @@ return [
             ['name' => 'delete-permission','label' => 'Delete Permission'],
             ['name' => 'create-permission','label' => 'Create Permission'],
             ['name' => 'assign-permission','label' => 'Assign Permission'],
+            ['name' => 'view-document-type','label' => 'View Document Types'],
+            ['name' => 'create-document-type','label' => 'Create Document Types'],
+            ['name' => 'edit-document-type','label' => 'Edit Document Types'],
+
         ]
     ],
 ];

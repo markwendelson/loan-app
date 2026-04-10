@@ -1,20 +1,22 @@
 @extends('layouts.app')
 
-@push('css')
-<style>
-    .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
+@section('title') Client | Manage Ledger @endsection
 
-     table > thead {
-        text-align: center;
-        vertical-align:middle !important;
-     }
- </style>
+@push('css')
+    <style>
+        .bg-default {
+            background-color: #1f807f;
+        }
+        .bg-default th {
+            color: white; /* Set white text for <th> elements */
+            border: 1px solid white;
+        }
+
+        table > thead {
+            text-align: center;
+            vertical-align:middle !important;
+        }
+    </style>
 @endpush
 
 @section('content')

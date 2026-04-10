@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Walk-in Clients @endsection
+
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/walkin.css') }}">
 @endpush
@@ -7,10 +9,9 @@
 @section('content')
 
 
-<div class="container">
     <h4 class="mb-3 mt-4">Walk-in Clients</h4>
 
-<!-- Search + Buttons Card -->
+    <!-- Search + Buttons Card -->
     <div class="card mb-3">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -30,86 +31,87 @@
     <div class="card d-none d-md-block">
         <div class="card-body">
             <div class="table-responsive">
-                 <table class="table table-bordered table-fixed" id="walkinTable">
-                <thead class="table-light">
-                    <tr>
-                        <th>
-                            <input type="checkbox" id="selectAll">
-                        </th>
-                        <th>Date</th>
-                        <th>Last Name</th>
-                        <th>First Name</th>
-                        <th>M.I</th>
-                        <th>Amount Withdrawn</th>
-                        <th>Charge</th>
-                        <th>Net Proceeds</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($walkins as $w)
-                    <tr>
-                        <td><input type="checkbox"></td>
-                        <td>{{ $w->date->format('M-d-Y') }}</td>
-                        <td>{{ $w->last_name }}</td>
-                        <td>{{ $w->first_name }}</td>
-                        <td>{{ $w->middle_initial }}</td>
-                        <td>{{ number_format($w->amount_withdrawn,2) }}</td>
-                        <td>{{ number_format($w->charge,2) }}</td>
-                        <td>{{ number_format($w->net_proceeds,2) }}</td>
-                        <td class="actions-cell">
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-warning editBtn">Edit</button>
-                                <button class="btn btn-sm btn-danger deleteBtn">Delete</button>
-                            </div>
-                        </td>
-                            <!-- <button class="btn btn-sm btn-warning editBtn">Edit</button> -->
-                            <!-- <button class="btn btn-sm btn-danger deleteBtn">Delete</button> -->
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                <table class="table table-bordered table-fixed" id="walkinTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center">
+                                <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>Date</th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>M.I</th>
+                            <th>Amount Withdrawn</th>
+                            <th>Charge</th>
+                            <th>Net Proceeds</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($walkins as $w)
+                        <tr>
+                            <td class="text-center"><input type="checkbox"></td>
+                            <td>{{ $w->date->format('M-d-Y') }}</td>
+                            <td>{{ $w->last_name }}</td>
+                            <td>{{ $w->first_name }}</td>
+                            <td class="text-center">{{ $w->middle_initial }}</td>
+                            <td class="text-end">{{ number_format($w->amount_withdrawn,2) }}</td>
+                            <td class="text-end">{{ number_format($w->charge,2) }}</td>
+                            <td class="text-end">{{ number_format($w->net_proceeds,2) }}</td>
+                            <td class="actions-cell text-center">
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-warning editBtn"><i class="fa fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger deleteBtn"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </td>
+                                <!-- <button class="btn btn-sm btn-warning editBtn">Edit</button> -->
+                                <!-- <button class="btn btn-sm btn-danger deleteBtn">Delete</button> -->
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-<div class="d-md-none">
-    @foreach($walkins as $w)
-    <div class="card mb-2">
-        <div class="card-body">
+    <div class="d-md-none">
+        @foreach($walkins as $w)
+        <div class="card mb-2">
+            <div class="card-body">
 
-            <div class="fw-semibold">
-                {{ $w->date->format('M-d-Y') }}
+                <div class="fw-semibold">
+                    {{ $w->date->format('M-d-Y') }}
+                </div>
+
+                <div class="text-muted">
+                    {{ $w->last_name }}, {{ $w->first_name }} {{ $w->middle_initial }}
+                </div>
+
+                <div class="mt-2">
+                    <strong>Amount:</strong>
+                    {{ number_format($w->amount_withdrawn,2) }}
+                </div>
+
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-sm btn-warning editBtn w-50"
+                            data-id="{{ $w->id }}">
+                        Edit
+                    </button>
+
+                    <button class="btn btn-sm btn-danger deleteBtn w-50"
+                            data-id="{{ $w->id }}">
+                        Delete
+                    </button>
+                    <!-- <button class="btn btn-sm btn-warning editBtn w-50">Edit</button>
+                    <button class="btn btn-sm btn-danger deleteBtn w-50">Delete</button> -->
+                </div>
+
             </div>
-
-            <div class="text-muted">
-                {{ $w->last_name }}, {{ $w->first_name }} {{ $w->middle_initial }}
-            </div>
-
-            <div class="mt-2">
-                <strong>Amount:</strong>
-                {{ number_format($w->amount_withdrawn,2) }}
-            </div>
-
-            <div class="mt-3 d-flex gap-2">
-                <button class="btn btn-sm btn-warning editBtn w-50"
-                        data-id="{{ $w->id }}">
-                    Edit
-                </button>
-
-                <button class="btn btn-sm btn-danger deleteBtn w-50"
-                        data-id="{{ $w->id }}">
-                    Delete
-                </button>
-                <!-- <button class="btn btn-sm btn-warning editBtn w-50">Edit</button>
-                <button class="btn btn-sm btn-danger deleteBtn w-50">Delete</button> -->
-            </div>
-
         </div>
+        @endforeach
     </div>
-    @endforeach
-</div>
+
 
 
 {{-- Include Walk-in Modal --}}

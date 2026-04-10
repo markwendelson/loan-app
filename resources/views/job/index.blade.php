@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Manage Job Title @endsection
+
 @push('css')
 <style>
     .bg-default {
@@ -109,7 +111,7 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [3,4] },
+                { className: "text-center", targets: [0,3,4] },
             ]
         });
 

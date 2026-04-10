@@ -39,7 +39,7 @@
 
         <div class="label">
             <span>Client:</span>
-          <span>{{ $savings->client->details->fullname ?? 'N/A' }}</span>
+            <span>{{ $savings->client->details->fullname ?? 'N/A' }}</span>
         </div>
         <br>
 

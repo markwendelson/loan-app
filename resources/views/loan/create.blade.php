@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title')New Loan @endsection
+
 @push('css')
 <style>
     ul > li > span {

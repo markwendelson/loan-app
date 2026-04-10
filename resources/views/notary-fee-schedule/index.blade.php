@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title') Manage Notary Fee Schedule
+
 @push('css')
 <style>
     .bg-default {
@@ -37,9 +39,9 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <button class="btn btn-primary float-end" onclick="showModal('modalNotaryFeeSchedule')"><i class="fa fa-plus"></i> New Notary Fee Schedule</button>
-    </div>
+        <div class="card-body">
+            <button class="btn btn-primary float-end" onclick="showModal('modalNotaryFeeSchedule')"><i class="fa fa-plus"></i> New Notary Fee Schedule</button>
+        </div>
     </div>
 
 
@@ -86,10 +88,16 @@
             },
             columns: [
                 { data: 'id', name: 'id' },
-                { data: 'min_amount', name: 'min_amount' },
-                { data: 'max_amount', name: 'max_amount' },
+                { data: 'min_amount', name: 'min_amount', render : function(data) {
+                    return Number(data).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                } },
+                { data: 'max_amount', name: 'max_amount', render:function(data){
+                    return Number(data).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                } },
                 { data: 'type', name: 'type' },
-                { data: 'fee', name: 'fee' },
+                { data: 'fee', name: 'fee', render : function(data){
+                    return Number(data).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                } },
                 { data: 'status', name: 'status', render: function(data, type, row) {
                     if (data == 1) {
                         return '<span class="badge badge-success">Active</span>';
@@ -113,7 +121,8 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [5,6] },
+                { className: "text-center", targets: [0,3,5,6] },
+                { className: "text-end", targets: [1,2,4] },
             ]
         });
 
