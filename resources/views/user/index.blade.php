@@ -54,7 +54,7 @@
                     <thead class="bg-default">
                         <tr>
                             <th class="text-center" width="120">Id</th>
-                            <th class="text-center" width="150">Name <div class="badge p-2 badge-success">HEllo world</div></th>
+                            <th class="text-center" width="150">Name</th>
                             <th class="text-center" width="150">Email</th>
                             <th class="text-center" width="150">Role</th>
                             <th class="text-center" width="180">Status</th>
