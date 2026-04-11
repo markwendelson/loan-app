@@ -13,7 +13,7 @@ class Savings extends Model implements Auditable
 
     protected $fillable = ['transaction_date','client_id','loan_id','description','notes','amount','transaction_type','classifications',
                             'interest','interest_start_date','interest_end_date','insurance','insurance_month','insurance_year','principal','due_change','mode_of_payment','membership_fee','transaction_code','change_mop','change_transaction_code',
-                            'interest_deficit'
+                            'interest_deficit', 'principal_balance'
                             ];
 
     public function scopeFilter($query, $search)
