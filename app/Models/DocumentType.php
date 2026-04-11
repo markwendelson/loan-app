@@ -18,7 +18,7 @@ class DocumentType extends Model
 
     public static function getAll()
     {
-        return self::query();
+        return self::paginate(10);
     }
 
     public static function getAllActive()
@@ -26,5 +26,10 @@ class DocumentType extends Model
         return self::where('status', 1)->get();
     }
 
+    //relation ship
+    public function clientDocument() 
+    {
+        return $this->belongsTo(ClientDocument::class, 'id','document_type_id');
+    }
 
 }

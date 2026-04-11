@@ -13,4 +13,9 @@ class ClientDocument extends Model
         'file_path',
         'remarks',
     ];
+
+    public function documentType() 
+    {
+        return $this->hasOne(DocumentType::class, 'id', 'document_type_id');
+    }
 }

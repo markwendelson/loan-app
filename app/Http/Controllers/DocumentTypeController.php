@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 //models
 use App\Models\DocumentType;
@@ -13,7 +14,7 @@ class DocumentTypeController extends Controller
     
     public function index()
     {
-        $documentTypes = DocumentType::getAll()->paginate(10);
+        $documentTypes = DocumentType::getAll();
 
         return view('document-type.index', compact(
             'documentTypes'
