@@ -666,6 +666,7 @@
             let formData = new FormData();
 
             // basic fields
+            formData.append('loan_type', loan_type);
             formData.append('loan_date', $('#loan_date').val());
             formData.append('borrower_id', $('#borrower_id').val());
             formData.append('loan_product_id', $('#loan_product_id').val());
