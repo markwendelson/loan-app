@@ -162,6 +162,15 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
+        $exists = Loan::where('borrower_id', $client->id)->first();
+
+        if($exists) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Client have existing transactions',
+            ]);
+        }
+
         $client->delete();
 
         return response()->json([
