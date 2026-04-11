@@ -83,8 +83,12 @@
                 { data: 'loan_product.name', name: 'loan_product' },
                 { data: 'borrower.details.fullname', name: 'name' },
                 { data: 'status', name: 'status', render: function(data, type, row) {
-                    if (data == 1) {
-                        return '<span class="badge badge-success">Approved</span>';
+                    if (row.status == 1) {
+                        if(row.loan_withdraw_requests){
+                            return '<span class="badge badge-primary">Pending</span><span class="badge badge-danger">Withdraw Request</span>';
+                        } else {
+                            return '<span class="badge badge-success">Approved</span>';
+                        }
                     } else {
                         return '<span class="badge badge-primary">Pending</span>';
                     }

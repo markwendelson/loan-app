@@ -71,6 +71,7 @@
         const canView = {{ auth()->user()->can('view-loan') ? 1 : 0 }};
         const canEdit = {{ auth()->user()->can('edit-loan') ? 1 : 0 }};
         const canDelete = {{ auth()->user()->can('delete-loan') ? 1 : 0 }};
+        const canRequestLoanCancellation = {{ auth()->user()->can('request-loan-cancellation') ? 1 : 0 }};
 
         const table = $('#tblLoan').DataTable({
             ordering: false,
@@ -118,6 +119,16 @@
                                 buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
                             }
                         }
+
+                        if (canRequestLoanCancellation) {
+                            console.log(row.status)
+                            if(row.status == 0 || row.status == 3 || row.status == 4) {
+                                buttons += `<button class="btn btn-warning btn-xs" disabled title="Withdraw Loan"><i class="fa fa-undo"></i></button> `;
+                            } else {
+                                buttons += `<button class="btn btn-warning btn-xs btnWithdraw" data-id="${row.id}" title="Withdraw Loan"><i class="fa fa-undo"></i></button> `;
+                            }
+                        }
+
 
                         return buttons;
                     }
@@ -195,7 +206,37 @@
 
         $("#tblLoan").on("click", ".btnPrintReceipt", function(){
             let id = $(this).attr("data-id");
-            window.open('/loan/' + id + '/print', '_blank'); 
+            window.open('/loan/' + id + '/print', '_blank');
+        })
+
+        $("#tblLoan").on("click", ".btnWithdraw", function(){
+            let id = $(this).attr("data-id");
+            swal({
+                title: 'Are you sure?',
+                text: "Withdraw Loan",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((result) => {
+                if (result) {
+
+                    $.ajax({
+                        url: '/loan/' + id + '/request-loan-withdraw',
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            if(response.status == 'success'){
+                                showToast.success(response.message)
+                            }else{
+                                showToast.error(response.message)
+                            }
+                        }
+                    });
+
+                }
+            })
         })
 
     });

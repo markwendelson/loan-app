@@ -117,6 +117,7 @@ Route::middleware('auth')->group(function () {
     Route::controller(LoanController::class)
         ->prefix('loan')
         ->group(function () {
+            Route::post('{id}/request-loan-withdraw', 'requestLoanWithraw')->name('loan.reques-withdraw');
             Route::get('pending', 'pending')->name('loan.pending');
             Route::get('awaiting-disbursement', 'awaitingDisbursement')->name('loan.awaiting-disbursement');
             Route::get('declined', 'declined')->name('loan.declined');
