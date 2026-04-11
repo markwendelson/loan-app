@@ -33,7 +33,7 @@
                             <tr data-id="{{$comaker->id}}">
                                 <td>{{$comaker->details->fullname}}</td>
                                 <td>{{$comaker->details->present_full_address}}</td>
-                                <td class="text-end">{{ number_format($comaker->loan_balance, 2) }}</td>
+                                <td class="text-end">{{ $comaker->loan_balance }}</td>
                                 <td class="text-center co-maker-action-btn-col">
                                 </td>
                             </tr>
