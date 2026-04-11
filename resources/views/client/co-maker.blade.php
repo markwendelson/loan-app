@@ -1,11 +1,11 @@
 @push('css')
 <style>
-    .table .action-button{
+    /* .table .action-button{
         opacity: 0;
     }
     .table tr:hover .action-button{
         opacity: 1;
-    }
+    } */
 
     #client_comaker {
         border-collapse: collapse;
@@ -21,62 +21,78 @@
     #comaker_table_wrapper {
         display: none;
     }
+
+    .comaker-search-section {
+        position: relative;
+        z-index: 10; /* Optionally adjust the stacking context */
+    }
+
+    .comaker-search-section .table-responsive {
+        position:absolute;
+        right: 0;
+        z-index: 999;
+        max-height: 300px;
+        overflow-y: auto;
+    }
 </style>
 @endpush
 <div class="card">
-    <div class="card-header">Co-Maker</div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-4 comaker-search-section">
-                <div class="col mb-2">
-                    <input type="text" class="form-control" name="comaker_search" id="comaker_search" placeholder="Search co-maker to add"/>
-                </div>
-                <div class="row">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered" id="comaker_table">
-                            <thead>
-                                <tr>
-                                    <th>Client</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <h4 class="card-title">Co-Maker</h4>
+            </div>
+            <div>
+                <div class="comaker-search-section">
+                    <div class="col mb-2">
+                        <input type="text" class="form-control" name="comaker_search" id="comaker_search" placeholder="Search co-maker to add"/>
+                    </div>
+                    <div class="row">
+                        <div class="table-responsive bg-white border p-0 d-none">
+                            <table class="table table-hover" id="comaker_table">
+                                <thead>
+                                    <tr>
+                                        <th>Client</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
-                <div class="table-responsive">
-                    <table class="table table-hover table-bordered" id="client_comaker">
-                        <thead>
-                            <tr>
-                                <th class="text-left" width="150">Name</th>
-                                <th class="text-left" width="150">Address</th>
-                                <th class="text-center co-maker-action-btn-header" width="80"><i class="fa fa-cog"></i></th>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered" id="client_comaker">
+                <thead>
+                    <tr>
+                        <th class="text-left" width="150">Name</th>
+                        <th class="text-left" width="150">Address</th>
+                        <th class="text-center co-maker-action-btn-header" width="10"><i class="fa fa-cog"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- Show co-makers for specific loan when editing, empty when creating --}}
+                    @if(isset($loan) && isset($loan->borrower))
+                        @php
+                            // Filter co-makers by this loan's ID
+                            $loanCoMakers = $loan->borrower->coMakers->filter(function($comaker) use ($loan) {
+                                return $comaker->pivot->loan_id == $loan->id;
+                            });
+                        @endphp
+                        @foreach($loanCoMakers as $comaker)
+                            <tr data-id="{{$comaker->id}}">
+                                <td>{{$comaker->details->fullname}}</td>
+                                <td>{{$comaker->details->present_full_address}}</td>
+                                <td class="text-center co-maker-action-btn-col">
+                                    <button class="register-comaker btn btn-sm btn-danger btn-remove" data-id="{{$comaker->id}}">Remove</button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {{-- Show co-makers for specific loan when editing, empty when creating --}}
-                            @if(isset($loan) && isset($loan->borrower))
-                                @php
-                                    // Filter co-makers by this loan's ID
-                                    $loanCoMakers = $loan->borrower->coMakers->filter(function($comaker) use ($loan) {
-                                        return $comaker->pivot->loan_id == $loan->id;
-                                    });
-                                @endphp
-                                @foreach($loanCoMakers as $comaker)
-                                    <tr data-id="{{$comaker->id}}">
-                                        <td>{{$comaker->details->fullname}}</td>
-                                        <td>{{$comaker->details->present_full_address}}</td>
-                                        <td class="text-center co-maker-action-btn-col">
-                                            <button class="register-comaker btn btn-sm btn-danger btn-remove" data-id="{{$comaker->id}}">Remove</button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -100,6 +116,8 @@
                     // Only load if there's a search value
                     var searchValue = $('#comaker_search').val();
                     if (!searchValue || searchValue.length === 0) {
+                        $(".comaker-search-section .table-responsive").addClass("d-none");
+
                         return false; // Cancel the request
                     }
                     
@@ -107,6 +125,8 @@
                     // Check element exists AND has value
                     if ($borrower.length && $borrower.val()) {
                         d.borrower_id = $borrower.val();
+
+                        $(".comaker-search-section .table-responsive").removeClass("d-none");
                     }
                 }
             },
@@ -163,10 +183,10 @@
                 <tr data-id="${id}">
                     <td><input type="hidden" name="client_comaker[]" value="${id}">${name}</td>
                     <td>${address}</td>
-                    <td>
-                    <button class="register-comaker btn btn-sm btn-danger btn-remove" data-id="${id}">
-                        Remove
-                    </button>
+                    <td class="text-center" width="10">
+                        <button class="register-comaker btn btn-sm btn-danger btn-remove" data-id="${id}">
+                            <i class="fa fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
                 `;

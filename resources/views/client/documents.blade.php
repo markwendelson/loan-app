@@ -31,7 +31,10 @@
 
 <div class="card">
     <div class="card-body">
-        <h4 class="card-title mb-4">Documents</h4>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="card-title">Documents</h4>
+            <button type="button" id="addFileRow" class="btn btn-primary"><i class="fa fa-plus"></i> Add Documents</button>
+        </div>
         
         @if(isset($loan) && isset($loan->borrower->documents))
             @foreach($loan->borrower->documents as $val) 
@@ -56,10 +59,19 @@
                     </div>
                 </div>
             @endforeach
+        @else
+            <table id="documents_table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="">Document Type</th>
+                        <th>File</th>
+                        <th>Remarks</th>
+                        <th class="text-center"><i class="fa fa-cog"></i></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         @endif
-
-        <button type="button" id="addFileRow" class="btn btn-primary mt-2">Add File</button>
-
     </div>
 </div>
 
@@ -79,7 +91,7 @@ $(document).ready(function () {
         }
 
         return `
-            <select name="client_documents[${index}][doc_type]" class="form-select">
+            <select name="client_documents[${index}][document_type_id]" class="form-select">
                 <option value="">Select Document</option>
                 ${options}
             </select>
@@ -112,7 +124,7 @@ $(document).ready(function () {
 
                 <td class="text-center">
                     <button type="button" class="btn btn-danger btn-sm btn-remove">
-                        Remove
+                        <i class="fa fa-trash"></i>
                     </button>
                 </td>
             </tr>

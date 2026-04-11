@@ -312,15 +312,13 @@ class ClientController extends Controller
 
         if($principal_loan) {
             $principal_attachments = ClientDocument::where('loan_id', $principal_loan->id)
-                ->leftJoin('document_types', 'document_types.id', '=', 'client_documents.document_type_id')
-                ->select('client_documents.*', 'document_types.type_name as document_type_name')
+                ->with('documentType')
                 ->get();
         }
 
         if($special_attachments) {
             $special_attachments = ClientDocument::where('loan_id', $special_loan->id)
-                ->leftJoin('document_types', 'document_types.id', '=', 'client_documents.document_type_id')
-                ->select('client_documents.*', 'document_types.type_name as document_type_name')
+                ->with('documentType')
                 ->get();
         }
 
