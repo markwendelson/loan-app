@@ -224,7 +224,7 @@ class SavingsController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Transaction created successfully',
-                'balance' => $remaining_balance
+                'balance' => number_format($remaining_balance,2)
             ]);
         } catch (\Throwable $th) {
             Log::info($th->getMessage());
