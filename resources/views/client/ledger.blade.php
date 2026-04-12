@@ -105,7 +105,7 @@
                                             <th class="text-center" width="80" colspan="3" rowspan="2"></th>
                                             <th class="text-center" width="150" colspan="6">LOAN</th>
                                             <th class="text-center" width="80"></th>
-                                            <th class="text-center" width="150" colspan="7">PAYMENT</th>
+                                            <th class="text-center" width="150" colspan="10">PAYMENT</th>
                                             <th class="text-center" width="80" colspan="4" rowspan="2"></th>
                                         </tr>
                                         <tr>
@@ -113,7 +113,7 @@
                                             <th colspan="4">Deduction</th>
                                             <th rowspan="3">Net Proceed</th>
                                             <th></th>
-                                            <th colspan="7" style="border-right-width:1px;">Applied to</th>
+                                            <th colspan="10" style="border-right-width:1px;">Applied to</th>
                                         </tr>
                                         <tr>
                                             <th rowspan="2">Transaction Date</th>
@@ -128,11 +128,14 @@
                                             <th colspan="2">Interest</th>
                                             <th colspan="2">Insurance</th>
                                             <th rowspan="2">Principal</th>
+                                            <th rowspan="2">Interest Deficit</th>
                                             <th rowspan="2">Change</th>
+                                            <th rowspan="2">Change - Transaction Code</th>
                                             <th rowspan="2">Balance</th>
                                             <th rowspan="2">Remarks</th>
-                                            <th rowspan="2">Deficit</th>
+                                            <th rowspan="2">Attachment</th>
                                             <th rowspan="2">Signature</th>
+                                            <th rowspan="2">Actions</th>
                                         </tr>
                                         <tr>
                                             <th>Amount</th>
@@ -173,7 +176,7 @@
                                             <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             <th class="text-center" width="150" colspan="6">LOAN</th>
                                             <th class="text-center" width="80"></th>
-                                            <th class="text-center" width="150" colspan="5">PAYMENT</th>
+                                            <th class="text-center" width="150" colspan="8">PAYMENT</th>
                                             <th class="text-center" width="80" colspan="4" rowspan="2"></th>
                                         </tr>
                                         <tr>
@@ -182,7 +185,7 @@
                                             <th rowspan="2">Net Proceed</th>
                                             <th></th>
                                             <th></th>
-                                            <th colspan="4" style="border-right-width:1px;">Applied to</th>
+                                            <th colspan="7" style="border-right-width:1px;">Applied to</th>
                                         </tr>
                                         <tr>
                                             <th>Transaction Date</th>
@@ -196,11 +199,14 @@
                                             <th>Interest</th>
                                             <th>Insurance</th>
                                             <th>Principal</th>
+                                            <th>Interest Deficit</th>
                                             <th>Change</th>
+                                            <th>Change - Transaction Code</th>
                                             <th>Balance</th>
                                             <th>Remarks</th>
-                                            <th>Deficit</th>
+                                            <th>Attachment</th>
                                             <th>Signature</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -302,11 +308,52 @@
                 { data: 'payment_insurance', name: 'payment_insurance' },
                 { data: 'payment_insurance_month', name: 'payment_insurance_month' },
                 { data: 'payment_principal', name: 'payment_principal' },
+                { data: 'interest_deficit', name: 'Deficit' },
                 { data: 'change', name: 'change' },
+                { data: 'change_mop', name: 'change_mop', render: function(data,type,row) {
+                        let input = `
+                            <div class="input-group input-group-sm" style="width:200px;">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="change_mop"
+                                    value="${row.transaction_code}"
+                                />
+                                <button class="btn btn-primary btn-update-tx-code" type="button" data-id="${row.payment_id}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        `;
+                        let mop = row.change_mop
+
+                        if (mop == 'Authorized Person') return mop;
+
+                        if (mop == '') return '';
+
+                        return mop + input;
+                    }
+                },
                 { data: 'balance', name: 'balance' },
                 { data: 'remarks', name: 'remarks' },
-                { data: 'interest_deficit', name: 'Deficit' },
+                { data: 'attachment', name: 'attachment', render: function(data, type, row) {
+                        if (!data) return '';
+
+                        return `<a href="${data}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-eye"></i>
+                                </a>`;
+                    }
+                },
                 { data: 'signature', name: 'signature' },
+                { data: 'actions', name: 'actions', render: function(data, type, row) {
+                    return `<button
+                                class="btn btn-sm btn-primary print-btn"
+                                data-id="${row.payment_id ? row.payment_id : row.loan_id}"
+                                data-type="${row.payment_id ? 'savings' : 'loan'}"
+                            >
+                                <i class="fa fa-print"></i>
+                            </button>`;
+                    }
+                },
             ],
             columnDefs: [
                 // { className: "text-center", targets: [4,5] },
@@ -338,11 +385,52 @@
                 { data: 'payment_interest', name: 'payment_interest' },
                 { data: 'payment_insurance', name: 'payment_insurance' },
                 { data: 'payment_principal', name: 'payment_principal' },
+                { data: 'interest_deficit', name: 'interest_deficit' },
                 { data: 'change', name: 'change' },
+                { data: 'change_mop', name: 'change_mop', render: function(data,type,row) {
+                    let input = `
+                            <div class="input-group input-group-sm" style="width:200px;">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="change_mop"
+                                    value="${row.transaction_code}"
+                                />
+                                <button class="btn btn-primary btn-update-tx-code" type="button" data-id="${row.payment_id}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        `;
+                        let mop = row.change_mop
+
+                        if (mop == 'Authorized Person') return mop;
+
+                        if (mop == '') return '';
+
+                        return mop + input;
+                    }
+                },
                 { data: 'balance', name: 'balance' },
                 { data: 'remarks', name: 'remarks' },
-                { data: 'interest_deficit', name: 'Deficit' },
+                { data: 'attachment', name: 'attachment', render: function(data, type, row) {
+                        if (!data) return '';
+
+                        return `<a href="${data}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-eye"></i>
+                                </a>`;
+                    }
+                },
                 { data: 'signature', name: 'signature' },
+                { data: 'actions', name: 'actions', render: function(data, type, row) {
+                    return `<button
+                                class="btn btn-sm btn-primary print-btn"
+                                data-id="${row.payment_id ? row.payment_id : row.loan_id}"
+                                data-type="${row.payment_id ? 'savings' : 'loan'}"
+                            >
+                                <i class="fa fa-print"></i>
+                            </button>`;
+                    }
+                },
             ],
             columnDefs: [
                 // { className: "text-center", targets: [4,5] },
@@ -487,6 +575,46 @@
             }
         })
     }
+
+    $(document).on('click', '.print-btn', function () {
+        let id = $(this).data('id');
+        let type = $(this).data('type');
+
+        let url = type === 'loan'
+            ? `/loan/${id}/print`
+            : `/savings/${id}/print`;
+
+        window.open(url, '_blank');
+    });
+
+
+    $(document).on('click', '.btn-update-tx-code', function () {
+        let id = $(this).data('id');
+        let transaction_code = $(this).siblings('input').val();
+
+        swal({
+            title: 'Are you sure?',
+            text: "Update Change - Transaction Code",
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then((result) => {
+            if (result) {
+                $.ajax({
+                    url: '/savings/' + id + '/change-transaction-code',
+                    type: 'POST',
+                    data: { transaction_code : transaction_code },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        showToast.success(response.message)
+                        $('#tblLedger').DataTable().ajax.reload();
+                    }
+                });
+            }
+        })
+    });
 
     </script>
 

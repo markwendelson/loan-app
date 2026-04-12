@@ -229,14 +229,16 @@ class ClientController extends Controller
                     'payment_insurance_month' => null,
                     'payment_principal' => number_format($reloan_deduction, 2),
                     'change' => null,
+                    'transaction_code' => '',
+                    'change_mop' => '',
                     'balance' => null, // to be filled after sorting
                     'remarks' => null,
+                    'attachment' => null,
                     'interest_deficit' => null,
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
                 ]
             ];
-
 
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
                 $i++;
@@ -269,9 +271,12 @@ class ClientController extends Controller
                         ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
                         : null,
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => number_format($change, 2) .' - '. $payment->change_mop .'|'. $payment->change_transaction_code,
+                    'change' => number_format($change, 2),
+                    'transaction_code' => $payment->transaction_code ?? '',
+                    'change_mop' => ucwords(str_replace("_"," ",$payment->change_mop)),
                     'balance' => null, // to be computed
                     'remarks' => "{$payment->mode_of_payment} - <a href='" . route('savings.print', $payment->id) . "' target='_blank'>{$payment->transaction_no}</a>",
+                    'attachment' => isset($payment->attachments->file_path) ? asset('storage/' . $payment->attachments->file_path) : '',
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                     'interest_deficit' => number_format($payment->interest_deficit, 2),
@@ -392,8 +397,12 @@ class ClientController extends Controller
                     'payment_insurance' => null,
                     'payment_principal' => number_format($reloan_deduction, 2),
                     'change' => null,
+                    'change_mop' => null,
+                    'transaction_code' => '',
+                    'change_mop' => '',
                     'balance' => null, // to be computed
                     'remarks' => null,
+                    'attachment' => null,
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
                     'interest_deficit' => null,
@@ -405,7 +414,7 @@ class ClientController extends Controller
 
             foreach ($loan->payments->where('transaction_type', 'withdraw') as $payment) {
                 $total_payment_principal += $payment->principal;
-                $balance = $loan->principal - $total_payment_principal;
+                // $balance = $loan->principal - $total_payment_principal;
                 $change = $payment->amount - ($payment->interest + $payment->insurance + $payment->principal);
 
                 $rows[] = [
@@ -427,8 +436,12 @@ class ClientController extends Controller
                     'payment_insurance' => number_format($payment->insurance, 2),
                     'payment_principal' => number_format($payment->principal, 2),
                     'change' => number_format($change, 2),
+                    'change_mop' => $payment->change_mop,
+                    'transaction_code' => $payment->transaction_code ?? '',
+                    'change_mop' => ucwords(str_replace("_"," ",$payment->change_mop)),
                     'balance' => null, // to be computed
                     'remarks' => null,
+                    'attachment' => isset($payment->attachments->file_path) ? asset('storage/' . $payment->attachments->file_path) : '',
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                     'interest_deficit' => number_format($payment->interest_deficit, 2),
