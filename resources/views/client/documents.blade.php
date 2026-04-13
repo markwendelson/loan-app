@@ -36,27 +36,27 @@
             <button type="button" id="addFileRow" class="btn btn-primary"><i class="fa fa-plus"></i> Add Documents</button>
         </div>
         
-        @if(isset($loan) && isset($loan->borrower->documents))
+        @if((isset($loan) && isset($loan->borrower->documents)) && (isset($docViewOnly) && $docViewOnly))
             @foreach($loan->borrower->documents as $val) 
                 <div class="border p-3 rounded attachment-items mb-2">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap">
-                        <!-- File Info Section -->
-                        <div class="d-flex justify-content-start align-items-center gap-2 flex-column flex-sm-row">
-                            <!-- File Icon -->
-                            <img src="{{ url('/assets/images/file.png') }}" width="40" height="40" class="rounded">
-                            <div class="d-flex flex-column">
-                                @if($val->file_path)
-                                    <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="text-wrap"><div class="text-wrap">{{ basename($val->file_path) }}</div></a>
-                                @endif
-                                <span>{{ $val->document_type_name ?? ''; }}</span>
+                    <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="d-block">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap">
+                            <!-- File Info Section -->
+                            <div class="d-flex justify-content-start align-items-center gap-2 flex-column flex-sm-row">
+                                <!-- File Icon -->
+                                <img src="{{ url('/assets/images/file.png') }}" width="40" height="40" class="rounded">
+                                <div class="d-flex flex-column">
+                                    <span>{{ $val->document_type_name ?? ''; }}</span>
+                                    <span class="text-secondary">{{ $val->remarks ?? ''; }}</span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center mt-2 mt-sm-0">
+                                <!-- download url (optional, since the entire div is clickable) -->
+                                <a class="btn btn-outline-primary btn-xs" href="{{ Storage::url($val->file_path) }}" download="{{ basename($val->file_path) }}"><i class="fa fa-download"></i></a>
                             </div>
                         </div>
-
-                        <div class="d-flex justify-content-center mt-2 mt-sm-0">
-                            <!-- download url -->
-                            <a class="btn btn-outline-primary btn-xs" href="{{ Storage::url($val->file_path) }}" download="{{ basename($val->file_path) }}"><i class="fa fa-download"></i></a>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             @endforeach
         @else
@@ -66,10 +66,25 @@
                         <th class="">Document Type</th>
                         <th>File</th>
                         <th>Remarks</th>
-                        <th class="text-center"><i class="fa fa-cog"></i></th>
+                        <th class="text-center" width="50"><i class="fa fa-cog"></i></th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    @if(isset($loan) && $loan->borrower->documents)
+                        @foreach($loan->borrower->documents as $key => $val)
+                            <tr>
+                                <td>
+                                    {{ $val->document_type_name }}
+                                </td>
+                                <td><a href="{{ Storage::url($val->file_path) }}" target="_blank">View File</a></td>
+                                <td>{{ $val->remarks ?? ''; }}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
             </table>
         @endif
     </div>
