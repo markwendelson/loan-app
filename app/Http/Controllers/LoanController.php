@@ -226,6 +226,29 @@ class LoanController extends Controller
                     }
                 }
 
+                // Save Documents
+                if (isset($data['client_documents']) && is_array($data['client_documents'])) {
+                    foreach ($data['client_documents'] as $doc) {
+                        if (
+                            empty($doc['doc_type']) ||
+                            empty($doc['file_upload']) ||
+                            !($doc['file_upload'] instanceof \Illuminate\Http\UploadedFile)
+                        ) {
+                            continue;
+                        }
+
+                        $path = $doc['file_upload']->store('client_uploads', 'public');
+
+                        ClientDocument::create([
+                            'client_id' => $data['borrower_id'],
+                            'loan_id' => $loan->id,
+                            'document_type' => $doc['doc_type'],
+                            'file_path' => $path,
+                            'remarks' => $doc['file_upload_remarks'] ?? '',
+                        ]);
+                    }
+                }
+
             });
 
             Session::flash('Loan created successfully');
@@ -285,10 +308,9 @@ class LoanController extends Controller
         $clients = Client::all();
         $loan_products = LoanProduct::active()->get();
 
-        $documentTypes = DocumentType::getAllActive();
-        $documentTypesJson = json_encode($documentTypes);
+        $docTypes = DocumentType::active()->get(['id','type_name','description']);
 
-        return view('loan.edit', compact('loan', 'clients', 'loan_products', 'documentTypes', 'documentTypesJson'));
+        return view('loan.edit', compact('loan', 'clients', 'loan_products','docTypes'));
     }
 
     /**
@@ -379,6 +401,24 @@ class LoanController extends Controller
                     if (!in_array($doc->id, $existingDocIds)) {
                         // Optimally delete file from storage here: Storage::disk('public')->delete($doc->file_path);
                         $doc->delete();
+                    }
+                }
+
+                // Update Existing Documents
+                if ($request->has('updated_documents') && is_array($request->updated_documents)) {
+                    foreach ($request->updated_documents as $doc) {
+                        if (empty($doc['id'])) {
+                            continue;
+                        }
+
+                        $existingDoc = ClientDocument::find($doc['id']);
+
+                        if (!$existingDoc) continue;
+
+                        // Update fields
+                        $existingDoc->document_type_id = $doc['document_type_id'] ?? $existingDoc->document_type_id;
+                        $existingDoc->remarks = $doc['file_upload_remarks'] ?? $existingDoc->remarks;
+                        $existingDoc->save();
                     }
                 }
 
