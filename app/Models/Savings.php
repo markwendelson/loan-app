@@ -11,6 +11,7 @@ class Savings extends Model implements Auditable
 
     use \OwenIt\Auditing\Auditable, SoftDeletes;
 
+    
     protected $fillable = ['transaction_date','client_id','loan_id','description','notes','amount','transaction_type','classifications',
                             'interest','interest_start_date','interest_end_date','insurance','insurance_month','insurance_year','principal','due_change','mode_of_payment','membership_fee','transaction_code','change_mop','change_transaction_code',
                             'interest_deficit', 'principal_balance'
@@ -35,5 +36,10 @@ class Savings extends Model implements Auditable
     public function loan()
     {
         return $this->belongsTo(Loan::class);
+    }
+
+    public function attachments()
+    {
+        return $this->hasOne(Attachment::class, 'transaction_no', 'transaction_no');
     }
 }

@@ -206,24 +206,26 @@
                 $(this).show();
             });
 
-            let formData = $("#frmTransactionModal").serializeArray();
-            formData.push({ name: 'client_id', value: client_id });
+            let form = $('#frmTransactionModal')[0];
+            let formData = new FormData(form);
 
-            transaction_type = $("[name='transaction_type']").find('option:selected').val();
-            if(transaction_type == 'deposit') {
-                let mop = $("[name='transaction_type']").find('option:selected').data('mop');
-                formData = formData.map(field => {
-                    if (field.name === 'mode_of_payment') {
-                        return { name: 'mode_of_payment', value: mop };
-                    }
-                    return field;
-                });
+            // add extra field (equivalent to push)
+            formData.append('client_id', client_id);
+
+            let transaction_type = $("[name='transaction_type']").val();
+
+            if (transaction_type === 'deposit') {
+                let mop = $("[name='transaction_type'] option:selected").data('mop');
+
+                // overwrite instead of map
+                formData.set('mode_of_payment', mop);
             }
 
             const picker = $('input[name="interest_period"]').data('daterangepicker');
+
             if (picker) {
-                formData.push({ name: 'interest_start_date', value: picker.startDate.format('YYYY-MM-DD') });
-                formData.push({ name: 'interest_end_date', value: picker.endDate.format('YYYY-MM-DD') });
+                formData.append('interest_start_date', picker.startDate.format('YYYY-MM-DD'));
+                formData.append('interest_end_date', picker.endDate.format('YYYY-MM-DD'));
             }
 
 
@@ -242,6 +244,8 @@
                 url: _url,
                 data: formData,
                 dataType: "json",
+                processData: false,
+                contentType: false,
                 success: function (response) {
                     //hide loading screen
                     $(".loader-wrapper").fadeOut("slow", function () {
@@ -709,12 +713,15 @@
         if (change < 0 || principal < 0) {
             $('.btnSubmit').attr('disabled', true)
             $("#modalTransaction [name='amount']").addClass('is-invalid')
-            $("[name='due_change']").val('')
+            $("[name='due_change']").val(0)
         } else {
             $('.btnSubmit').attr('disabled', false)
             $("#modalTransaction [name='amount']").removeClass('is-invalid')
             $("[name='due_change']").val(change)
         }
+
+        $('#change_container').toggleClass('d-none', change <= 0);
+
     }
 
     function deleteData(id) {
@@ -762,6 +769,10 @@
         var deficit = interest - data_interest;
         $("#modalTransaction [name='interest_deficit']").val(deficit)
     });
+
+    $("#change_mop").on("change", function() {
+        $('.attachment').toggleClass('d-none', $(this).val() !== 'authorized_person');
+    }).trigger("change");
 
 </script>
 @endpush

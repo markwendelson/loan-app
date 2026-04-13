@@ -165,8 +165,13 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        showToast.success(response.message)
-                        $('#tblClient').DataTable().ajax.reload();
+                        if(response.status == 'success') {
+                            showToast.success(response.message)
+                            $('#tblClient').DataTable().ajax.reload();
+                        }
+                        if(response.status == 'error') {
+                            showToast.error(response.message)
+                        }
                     }
                 });
 

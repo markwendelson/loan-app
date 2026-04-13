@@ -27,7 +27,7 @@ class LoanRequest extends FormRequest
             'loan_date' => 'required|date',
             'applied_amount' => 'required',
             'net_proceeds' => 'numeric|min:0',
-            'client_comaker' => 'required',
+            'client_comaker' => 'required_unless:loan_type,mortgage-loan',
             'client_documents' => 'required',
         ];
     }

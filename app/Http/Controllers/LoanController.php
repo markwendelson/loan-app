@@ -12,10 +12,12 @@ use App\Models\Loan;
 use App\Models\LoanCharge;
 use App\Models\LoanFee;
 use App\Models\LoanProduct;
+use App\Models\LoanWithdrawRequest;
 use App\Models\Savings;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -249,14 +251,22 @@ class LoanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Loan $loan)
+    public function show(int $id)
     {
+        $loan = Loan::with('loanWithdrawRequests')->where('id', $id)->first();
+
         if ($loan) {
             $clients = Client::all();
             $loan_products = LoanProduct::active()->get();
 
-            return view('loan.show', compact('loan', 'clients', 'loan_products'));
+            // check if loan has withdraw request
+            $isForWithdraw = $loan->loanWithdrawRequests()
+                                    ->where('status', 'pending')
+                                    ->exists();;
+
+            return view('loan.show', compact('loan', 'clients', 'loan_products', 'isForWithdraw'));
         }
+
         return response()->json([
             'status' => 'error',
             'message' => 'Loan Product not found'
@@ -426,7 +436,16 @@ class LoanController extends Controller
         if ($request->ajax()) {
             $search = isset($request->search['value']) ? $request->search['value'] : null;
 
-            $loans = Loan::pending()->with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
+            $loans = Loan::with(['loanProduct', 'loanProduct.loanType', 'borrower.details','loanWithdrawRequests'])
+                ->where(function ($query) {
+                    $query->pending()
+                        ->orWhere(function ($q) {
+                            $q->where('status', LoanStatus::APPROVE)
+                                ->whereHas('loanWithdrawRequests', function($q) {
+                                    $q->where('status','pending');
+                                });
+                        });
+                })->filter($search)
                 ->orderByDesc('loan_date')
                 ->orderByDesc('loan_no');
 
@@ -575,6 +594,14 @@ class LoanController extends Controller
         if ($loan) {
             $loan->status = LoanStatus::WITHDRAWN;
             $loan->save();
+
+            LoanWithdrawRequest::where([
+                'loan_id' => $loan->id,
+                'status' => 'pending'
+            ])->update([
+                'status' => 'completed',
+                'updated_by' => Auth::id()
+            ]);
 
             return response()->json([
                 'status' => 'success',
@@ -1051,5 +1078,37 @@ class LoanController extends Controller
                 'status' => LoanStatus::CLOSED,
                 'closed_date' => $closed_date
             ]);
+    }
+
+    public function requestLoanWithraw(int $id)
+    {
+        $loan = Loan::where('id', $id)->first();
+
+        if ($loan) {
+
+            $exists = LoanWithdrawRequest::where('loan_id', $id)
+                ->where('status', 'pending') // optional condition
+                ->exists();
+
+            if ($exists) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Request already exists',
+                ]);
+            }
+
+            LoanWithdrawRequest::create([
+                'loan_id' => $id,
+                'status' => 'pending',
+                'requested_by' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Request submitted successfully',
+            ]);
+        }
+
+
     }
 }

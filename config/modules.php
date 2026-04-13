@@ -33,6 +33,8 @@ return [
             ['name' => 'withdraw-loan','label' => 'Withdraw Loan'],
             ['name' => 'request-secondary-approval','label' => 'Request Secondary Approval'],
             ['name' => 'approve-secondary-approval','label' => 'Approve Request Secondary Approval'],
+            ['name' => 'request-loan-cancellation','label' => 'Request Loan Cancellation'],
+            ['name' => 'manage-loan-cancellation','label' => 'Manage Loan Cancellation'],
         ]
     ],
     'savings' => [

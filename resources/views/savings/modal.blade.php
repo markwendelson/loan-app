@@ -186,25 +186,30 @@
                                         <label class="form-label" for="due_change">Change</label>
                                         <input type="number" class="form-control form-control-sm" name="due_change" readonly min="0"/>
                                     </div>
-                                    <div class="col" id="change_container">
+                                    <div class="col d-none" id="change_container">
                                         <div class="form-group">
-                                            <label class="form-label" for="mode_of_change">Change - Mode of Payment</label>
+                                            <label class="form-label" for="change_mop">Change - Mode of Payment</label>
                                             @php
                                                 $modes = config('settings.mode_of_payment');
                                             @endphp
-                                            <select name="mode_of_change" id="mode_of_change" class="form-control form-control-sm">
+                                            <select name="change_mop" id="change_mop" class="form-control form-control-sm">
                                                 @foreach($modes as $key => $mode)
                                                     @if($key == 'atm_withdrawal')
                                                     @else
                                                     <option value="{{ $key }}">{{ $mode }}</option>
                                                     @endif
                                                 @endforeach
+                                                    <option value="authorized_person">Authorized Person</option>
                                             </select>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="form-label" for="mode_of_change">Change - Transaction Code</label>
-                                            <input type="text" class="form-control" id="change_transaction_code" name="change_transaction_code" maxlength="50"/>
+                                        <div class="form-group attachment d-none">
+                                            <label class="form-label" for="attachment">Attachment</label>
+                                            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,.pdf" />
                                         </div>
+                                        {{-- <div class="form-group">
+                                            <label class="form-label" for="change_mop">Change - Transaction Code</label>
+                                            <input type="text" class="form-control" id="change_transaction_code" name="change_transaction_code" maxlength="50"/>
+                                        </div> --}}
                                     </div>
                                 </div>
                             </div>

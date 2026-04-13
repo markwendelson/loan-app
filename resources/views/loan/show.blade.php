@@ -29,7 +29,11 @@
                     @else
                         <span class="badge badge-sm badge-primary">Pending</span>
                     @endif
-                </div>
+
+                    @if($isForWithdraw)
+                        <span class="badge bg-warning">For Withdraw Loan Application</span>
+                    @endif
+                </h4>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
@@ -197,6 +201,13 @@
             @can('approve-secondary-approval')
             <button type="button" class="btn btn-sm btn-danger" onclick="declineLoan({{$loan->id}})"><i class="fa fa-remove"></i> Decline</button>
             @endcan
+        @endif
+        @if($isForWithdraw)
+        <div class="d-flex justify-content-end gap-2">
+            @can('withdraw-loan')
+                <button type="button" class="btn btn-sm btn-warning" onclick="withdrawnLoan({{$loan->id}})"><i class="fa fa-undo"></i> Withdrawn</button>
+            @endcan
+        </div>
         @endif
     </div>
 </div>

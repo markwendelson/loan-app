@@ -119,6 +119,7 @@ Route::middleware('auth')->group(function () {
     Route::controller(LoanController::class)
         ->prefix('loan')
         ->group(function () {
+            Route::post('{id}/request-loan-withdraw', 'requestLoanWithraw')->name('loan.reques-withdraw');
             Route::get('pending', 'pending')->name('loan.pending');
             Route::get('awaiting-disbursement', 'awaitingDisbursement')->name('loan.awaiting-disbursement');
             Route::get('declined', 'declined')->name('loan.declined');
@@ -137,6 +138,7 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
             Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
             Route::get('{id}/print', 'printReceipt')->name('savings.print');
+            Route::post('{id}/change-transaction-code', 'updateTransactionCode')->name('savings.update-transaction-code');
         });
     Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);

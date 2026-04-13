@@ -170,9 +170,14 @@
             let amount = $(this).attr("data-amount"); // get amount
 
             $("#modalDisbursement [name='id']").val(id);
-            $("#modalDisbursement [name='amount']").val(amount); // set amount
+            $("#modalDisbursement [name='amount']").val(currencyFormat(Number(amount))); // set amount
 
             showModal('modalDisbursement')
+        })
+
+        $("#tblLoan").on("click", ".btnView", function(){
+            let id = $(this).attr("data-id");
+            window.location.href = `/loan/${id}`
         })
 
         function cashOutLoan(id) {

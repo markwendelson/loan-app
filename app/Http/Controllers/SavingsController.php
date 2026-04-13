@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LoanStatus;
+use App\Models\Attachment;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\LoanFee;
 use App\Models\Savings;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -75,129 +77,164 @@ class SavingsController extends Controller
 
         $request->validate([
             'amount' => 'required',
+            'attachment' => 'required_if:mode_of_change,authorized_person|file|mimes:jpg,jpeg,png,pdf|max:2048'
             // 'interest_year' => 'required_if:interest,!=,0',
             // 'insurance_year' => 'required_if:insurance,!=,0'
         ]);
+        try {
 
-        // check balance if withdraw
-        $client = Client::findOrFail($request->client_id);
+            DB::beginTransaction();
+            // check balance if withdraw
+            $client = Client::findOrFail($request->client_id);
 
-        if($request->transaction_type == 'withdraw') {
-            $request->merge([
-                'transaction_code' => $request->transaction_code_select == null ? '' : implode(",",$request->transaction_code_select),
-                'interest' => $request->exclude_interest ? 0 : $request->interest,
-                'interest_start_date' => $request->exclude_interest ? null : $request->interest_start_date,
-                'interest_end_date' => $request->exclude_interest ? null : $request->interest_end_date,
+            if($request->transaction_type == 'withdraw') {
+                $request->merge([
+                    'transaction_code' => $request->transaction_code_select == null ? null : implode(",",$request->transaction_code_select),
+                    'interest' => $request->exclude_interest ? 0 : $request->interest,
+                    'interest_start_date' => $request->exclude_interest ? null : $request->interest_start_date,
+                    'interest_end_date' => $request->exclude_interest ? null : $request->interest_end_date,
+                ]);
+                $str_balance = getClientBalance($client);
+                $client_balance = (float) str_replace(',', '', $str_balance);
+
+                if($client_balance<=0 || $request->amount > $client_balance) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Insufficient Balance',
+                    ], 500);
+                }
+
+                 if(!($request->loan_id)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Select loan',
+                    ], 500);
+                }
+
+                // if($request->amount < $request->principal) {
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'Insufficient amount.',
+                //     ],500);
+                // }
+
+                $interest = $request->interest ?? 0;
+                $insurance = $request->insurance ?? 0;
+                $principal = $request->principal ?? 0;
+                $membership_fee = $request->membership_fee ?? 0;
+                $total_due = $interest + $insurance + $principal + $membership_fee;
+                $loan = Loan::where('id',$request->loan_id)->first();
+                $loan_balance = getLoanBalance($loan);
+                $principal_balance = $loan_balance - $principal;
+
+                $request->merge([
+                        'principal_balance' => $principal_balance,
+                    ]
+                );
+
+                if($request->amount < $total_due) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Insufficient amount.',
+                    ], 500);
+                }
+            }
+
+            $data = $request->all();
+
+            // $loan = Loan::where([
+            //     'borrower_id' => $request->client_id,
+            //     'status' => LoanStatus::APPROVE
+            // ])->first();
+
+            // $data['loan_id'] = $loan->id;
+
+            if (empty($data['insurance'])) {
+                unset($data['insurance_month'], $data['insurance_year']);
+            }
+
+            // check if duplicate
+            if($request->transaction_code != null) {
+                $exists = Savings::where([
+                    'client_id' => $request->client_id,
+                    'transaction_code' => $request->transaction_code,
+                    'mode_of_payment' => $request->mode_of_payment,
+                    'transaction_type' => $request->transaction_type
+                ])->exists();
+
+                if($exists) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Transaction code already exists.',
+                    ], 500);
+                }
+            }
+
+
+            if(!empty($data['is_early_settlement'])) {
+                $loans = $client->getApproveLoans();
+
+                foreach ($loans as $loan) {
+                    $payments = $loan?->payments->where('transaction_type', 'withdraw');
+
+                    $principal_balance = $loan->final_principal;
+                    $principal_payments = $payments->sum('principal');
+                    $earyl_settlement_amount = $principal_balance - $principal_payments;
+
+                    $data['amount'] = $earyl_settlement_amount;
+                    $data['principal'] = $earyl_settlement_amount;
+                    $data['loan_id'] = $loan->id;
+
+                    if($loan->is_special) {
+                        $data['interest'] = 0;
+                        $data['insurance'] = 0;
+                    }
+
+                    Log::info('principal'.$loan->final_principal);
+                    Log::info('payment:'.$payments->sum('principal'));
+                    Log::info('earyl_settlement_amount'.$earyl_settlement_amount);
+                    Log::info('----------------------------------------------------------');
+
+                    $savings = Savings::create($data);
+
+                }
+
+            } else {
+                $savings = Savings::create($data);
+            }
+
+            if ($request->hasFile('attachment')) {
+
+                $file = $request->file('attachment');
+                $filename = $file->getClientOriginalName();
+                $folder = 'attachments/' . $savings->transaction_no;
+                $path = $file->storeAs($folder, $filename, 'public');
+
+                Attachment::create([
+                    'transaction_no' => $savings->transaction_no,
+                    'file_name'      => $filename,
+                    'file_path'      => $path,
+                ]);
+            }
+
+            $remaining_balance = $client_balance - $request->amount;
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Transaction created successfully',
+                'balance' => number_format($remaining_balance,2)
             ]);
-            $str_balance = getClientBalance($client);
-            $balance = (float) str_replace(',', '', $str_balance);
-
-            if($balance<=0 || $request->amount > $balance) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Insufficient Balance',
-                ], 500);
-            }
-
-             if(!($request->loan_id)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Select loan',
-                ], 500);
-            }
-
-            // if($request->amount < $request->principal) {
-            //     return response()->json([
-            //         'status' => 'error',
-            //         'message' => 'Insufficient amount.',
-            //     ],500);
-            // }
-
-            $interest = $request->interest ?? 0;
-            $insurance = $request->insurance ?? 0;
-            $principal = $request->principal ?? 0;
-            $membership_fee = $request->membership_fee ?? 0;
-            $total_due = $interest + $insurance + $principal + $membership_fee;
-            $loan = Loan::where('id',$request->loan_id)->first();
-            $balance = getLoanBalance($loan);
-            $principal_balance = $balance - $principal;
-
-            $request->merge([
-                    'principal_balance' => $principal_balance,
-                ]
-            );
-
-            if($request->amount < $total_due) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Insufficient amount.',
-                ], 500);
-            }
-        }
-
-        $data = $request->all();
-
-        // $loan = Loan::where([
-        //     'borrower_id' => $request->client_id,
-        //     'status' => LoanStatus::APPROVE
-        // ])->first();
-
-        // $data['loan_id'] = $loan->id;
-
-        if (empty($data['insurance'])) {
-            unset($data['insurance_month'], $data['insurance_year']);
-        }
-
-        // check if duplicate
-        $exists = Savings::where([
-            'client_id' => $request->client_id,
-            'transaction_code' => $request->transaction_code,
-            'mode_of_payment' => $request->mode_of_payment,
-            'transaction_type' => $request->transaction_type
-        ])->exists();
-
-        if($exists) {
+        } catch (\Throwable $th) {
+            Log::info($th->getMessage());
+            DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Transaction code already exists.',
+                'message' => $th->getMessage(),
             ], 500);
         }
 
-        if(!empty($data['is_early_settlement'])) {
-            $loans = $client->getApproveLoans();
-
-            foreach ($loans as $loan) {
-                $payments = $loan?->payments->where('transaction_type', 'withdraw');
-
-                $principal_balance = $loan->final_principal;
-                $principal_payments = $payments->sum('principal');
-                $earyl_settlement_amount = $principal_balance - $principal_payments;
-
-                $data['amount'] = $earyl_settlement_amount;
-                $data['principal'] = $earyl_settlement_amount;
-                $data['loan_id'] = $loan->id;
-
-                if($loan->is_special) {
-                    $data['interest'] = 0;
-                    $data['insurance'] = 0;
-                }
-
-                Log::info('principal'.$loan->final_principal);
-                Log::info('payment:'.$payments->sum('principal'));
-                Log::info('earyl_settlement_amount'.$earyl_settlement_amount);
-                Log::info('----------------------------------------------------------');
-                Savings::create($data);
-            }
-
-        } else {
-            Savings::create($data);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Transaction created successfully',
-            'balance' => getClientBalance($client)
-        ]);
     }
 
     /**
@@ -561,6 +598,18 @@ class SavingsController extends Controller
         }
 
         return view('savings.receipt', compact('savings', 'branchTitle'));
+    }
+
+    public function updateTransactionCode(Request $request, int $id)
+    {
+        $savings = Savings::where('id', $id)->first();
+        $savings->transaction_code = $request->transaction_code;
+        $savings->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaction code updated successfully',
+        ]);
     }
 
 }

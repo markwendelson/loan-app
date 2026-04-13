@@ -260,6 +260,199 @@
                 </div>
             </div>
         </div>
+        <div class="col-sm-12">
+            <div class="card">
+            <div class="card-body">
+                <input type="hidden" name="client_id" id="client_id" value="{{$client->id}}"/>
+                <div class="tab-content" id="top-tabContent">
+                <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
+                    @isset($principal_loan)
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div>Loan ID: {{$loan['principal_loan_no']}}</div>
+                                    <div>Loan Product: {{$loan['principal_loan_product']}}</div>
+                                    <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
+                                    <div>Remarks: <p></p></div>
+                                </div>
+                                <div class="col-md-4 float-end">
+                                    <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                    {{-- @if(Str::slug($loan['principal_loan_product_type']) == 'open-term') --}}
+                                    <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'additional_loan'=>true])}}" class="btn btn-sm btn-primary mx-auto">Add Loan</a>
+                                    {{-- @endif --}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="tblLedger" style="font-size: smaller;">
+                                    <thead class="bg-default">
+                                        <tr>
+                                            <th class="text-center" width="80" colspan="3" rowspan="2"></th>
+                                            <th class="text-center" width="150" colspan="6">LOAN</th>
+                                            <th class="text-center" width="80"></th>
+                                            <th class="text-center" width="150" colspan="10">PAYMENT</th>
+                                            <th class="text-center" width="80" colspan="4" rowspan="2"></th>
+                                        </tr>
+                                        <tr>
+                                            <th rowspan="3">Principal</th>
+                                            <th colspan="4">Deduction</th>
+                                            <th rowspan="3">Net Proceed</th>
+                                            <th></th>
+                                            <th colspan="10" style="border-right-width:1px;">Applied to</th>
+                                        </tr>
+                                        <tr>
+                                            <th rowspan="2">Transaction Date</th>
+                                            <th rowspan="2">Withdraw Date</th>
+                                            <th rowspan="2">Salary Month</th>
+                                            <th rowspan="2">Interest</th>
+                                            <th rowspan="2">Service Fee</th>
+                                            <th rowspan="2">Insurance Fee</th>
+                                            <th rowspan="2">Others</th>
+                                            <th rowspan="2"></th>
+                                            <th rowspan="2">Transaction Date</th>
+                                            <th colspan="2">Interest</th>
+                                            <th colspan="2">Insurance</th>
+                                            <th rowspan="2">Principal</th>
+                                            <th rowspan="2">Interest Deficit</th>
+                                            <th rowspan="2">Change</th>
+                                            <th rowspan="2">Change - Transaction Code</th>
+                                            <th rowspan="2">Balance</th>
+                                            <th rowspan="2">Remarks</th>
+                                            <th rowspan="2">Attachment</th>
+                                            <th rowspan="2">Signature</th>
+                                            <th rowspan="2">Actions</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Amount</th>
+                                            <th>Month</th>
+                                            <th>Amount</th>
+                                            <th>Month</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @else
+                        <div class="card card-body">No active loan.</div>
+                    @endisset
+                </div>
+                @isset($special_loan)
+                <div class="tab-pane fade" id="special-loan" role="tabpanel" aria-labelledby="special-loan-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div>Loan ID: {{$loan['special_loan_no']}}</div>
+                                    <div>Loan Product: {{$loan['special_loan_product']}}</div>
+                                    <div>Date Loan Granted: {{$loan['special_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['special_date_granted']))}}</div>
+                                    <div>Remarks: <p></p></div>
+                                </div>
+                                <div class="col-md-4 float-end">
+                                    <a href="{{route('loan.create', ['loan_no_reference' => $loan['special_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="tblSpecialLedger" style="font-size: smaller;">
+                                    <thead class="bg-default">
+                                        <tr>
+                                            <th class="text-center" width="80" colspan="2" rowspan="2"></th>
+                                            <th class="text-center" width="150" colspan="6">LOAN</th>
+                                            <th class="text-center" width="80"></th>
+                                            <th class="text-center" width="150" colspan="8">PAYMENT</th>
+                                            <th class="text-center" width="80" colspan="4" rowspan="2"></th>
+                                        </tr>
+                                        <tr>
+                                            <th rowspan="2">Principal</th>
+                                            <th colspan="4">Deduction</th>
+                                            <th rowspan="2">Net Proceed</th>
+                                            <th></th>
+                                            <th></th>
+                                            <th colspan="7" style="border-right-width:1px;">Applied to</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Transaction Date</th>
+                                            <th>Loan Type</th>
+                                            <th>Interest</th>
+                                            <th>Service Fee</th>
+                                            <th>Insurance Fee</th>
+                                            <th>Others</th>
+                                            <th></th>
+                                            <th>Transaction Date</th>
+                                            <th>Interest</th>
+                                            <th>Insurance</th>
+                                            <th>Principal</th>
+                                            <th>Interest Deficit</th>
+                                            <th>Change</th>
+                                            <th>Change - Transaction Code</th>
+                                            <th>Balance</th>
+                                            <th>Remarks</th>
+                                            <th>Attachment</th>
+                                            <th>Signature</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endisset
+                <div class="tab-pane fade" id="incentives-pension" role="tabpanel" aria-labelledby="incentives-pension-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="position-relative">
+                                <span>Incentives/Pension</span>
+                                <a href="javascript:void(0)" class="btn btn-primary position-absolute end-0 top-50 translate-middle-y me-2 btn-new-incentives">
+                                    <i class="fa fa-plus"></i> New Incentives
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <!-- Incentives/Pension Ledger Table Here -->
+                                <table class="table table-bordered table-hover" id="tblIncentives">
+                                    <thead class="bg-default">
+                                        <tr>
+                                            <th class="text-center" width="40">Id</th>
+                                            <th class="text-center" width="80">Transaction Date</th>
+                                            <th class="text-center" width="150">Description</th>
+                                            <th class="text-center" width="80">Amount</th>
+                                            <th class="text-center" width="80">Actions</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="membership" role="tabpanel" aria-labelledby="membership-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            Membership
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <!-- Membership Ledger Table Here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="client-as-comaker" role="tabpanel" aria-labelledby="client-as-comaker-tab">
+                    @include('client.co-maker-list')
+                </div>
+                <div class="tab-pane fade" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
+                    @include('client.attachments')
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
 
     {{-- modal --}}
     @include('client.modal.incentives_modal')
@@ -302,11 +495,52 @@
                 { data: 'payment_insurance', name: 'payment_insurance' },
                 { data: 'payment_insurance_month', name: 'payment_insurance_month' },
                 { data: 'payment_principal', name: 'payment_principal' },
+                { data: 'interest_deficit', name: 'Deficit' },
                 { data: 'change', name: 'change' },
+                { data: 'change_mop', name: 'change_mop', render: function(data,type,row) {
+                        let input = `
+                            <div class="input-group input-group-sm" style="width:200px;">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="change_mop"
+                                    value="${row.transaction_code}"
+                                />
+                                <button class="btn btn-primary btn-update-tx-code" type="button" data-id="${row.payment_id}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        `;
+                        let mop = row.change_mop
+
+                        if (mop == 'Authorized Person') return mop;
+
+                        if (mop == '') return '';
+
+                        return mop + input;
+                    }
+                },
                 { data: 'balance', name: 'balance' },
                 { data: 'remarks', name: 'remarks' },
-                { data: 'interest_deficit', name: 'Deficit' },
+                { data: 'attachment', name: 'attachment', render: function(data, type, row) {
+                        if (!data) return '';
+
+                        return `<a href="${data}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-eye"></i>
+                                </a>`;
+                    }
+                },
                 { data: 'signature', name: 'signature' },
+                { data: 'actions', name: 'actions', render: function(data, type, row) {
+                    return `<button
+                                class="btn btn-sm btn-primary print-btn"
+                                data-id="${row.payment_id ? row.payment_id : row.loan_id}"
+                                data-type="${row.payment_id ? 'savings' : 'loan'}"
+                            >
+                                <i class="fa fa-print"></i>
+                            </button>`;
+                    }
+                },
             ],
             columnDefs: [
                 { className: "text-end", targets: [3,4,5,6,7,8,11,13,15,16,17,19] },
@@ -338,11 +572,52 @@
                 { data: 'payment_interest', name: 'payment_interest' },
                 { data: 'payment_insurance', name: 'payment_insurance' },
                 { data: 'payment_principal', name: 'payment_principal' },
+                { data: 'interest_deficit', name: 'interest_deficit' },
                 { data: 'change', name: 'change' },
+                { data: 'change_mop', name: 'change_mop', render: function(data,type,row) {
+                    let input = `
+                            <div class="input-group input-group-sm" style="width:200px;">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="change_mop"
+                                    value="${row.transaction_code}"
+                                />
+                                <button class="btn btn-primary btn-update-tx-code" type="button" data-id="${row.payment_id}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        `;
+                        let mop = row.change_mop
+
+                        if (mop == 'Authorized Person') return mop;
+
+                        if (mop == '') return '';
+
+                        return mop + input;
+                    }
+                },
                 { data: 'balance', name: 'balance' },
                 { data: 'remarks', name: 'remarks' },
-                { data: 'interest_deficit', name: 'Deficit' },
+                { data: 'attachment', name: 'attachment', render: function(data, type, row) {
+                        if (!data) return '';
+
+                        return `<a href="${data}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fa fa-eye"></i>
+                                </a>`;
+                    }
+                },
                 { data: 'signature', name: 'signature' },
+                { data: 'actions', name: 'actions', render: function(data, type, row) {
+                    return `<button
+                                class="btn btn-sm btn-primary print-btn"
+                                data-id="${row.payment_id ? row.payment_id : row.loan_id}"
+                                data-type="${row.payment_id ? 'savings' : 'loan'}"
+                            >
+                                <i class="fa fa-print"></i>
+                            </button>`;
+                    }
+                },
             ],
             columnDefs: [
                 { className: "text-end", targets: [2,3,4,5,6,7,10,11,12,13,14,16] },
@@ -487,6 +762,46 @@
             }
         })
     }
+
+    $(document).on('click', '.print-btn', function () {
+        let id = $(this).data('id');
+        let type = $(this).data('type');
+
+        let url = type === 'loan'
+            ? `/loan/${id}/print`
+            : `/savings/${id}/print`;
+
+        window.open(url, '_blank');
+    });
+
+
+    $(document).on('click', '.btn-update-tx-code', function () {
+        let id = $(this).data('id');
+        let transaction_code = $(this).siblings('input').val();
+
+        swal({
+            title: 'Are you sure?',
+            text: "Update Change - Transaction Code",
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then((result) => {
+            if (result) {
+                $.ajax({
+                    url: '/savings/' + id + '/change-transaction-code',
+                    type: 'POST',
+                    data: { transaction_code : transaction_code },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        showToast.success(response.message)
+                        $('#tblLedger').DataTable().ajax.reload();
+                    }
+                });
+            }
+        })
+    });
 
     </script>
 

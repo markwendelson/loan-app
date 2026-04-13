@@ -169,4 +169,9 @@ class Loan extends Model implements Auditable
         });
     }
 
+    public function loanWithdrawRequests()
+    {
+        return $this->hasMany(LoanWithdrawRequest::class, 'loan_id');
+    }
+
 }
