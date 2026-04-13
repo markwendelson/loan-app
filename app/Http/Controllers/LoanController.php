@@ -207,7 +207,7 @@ class LoanController extends Controller
                 if (isset($data['client_documents']) && is_array($data['client_documents'])) {
                     foreach ($data['client_documents'] as $doc) {
                         if (
-                            empty($doc['doc_type']) ||
+                            empty($doc['document_type_id']) ||
                             empty($doc['file_upload']) ||
                             !($doc['file_upload'] instanceof \Illuminate\Http\UploadedFile)
                         ) {
@@ -219,7 +219,7 @@ class LoanController extends Controller
                         ClientDocument::create([
                             'client_id' => $data['borrower_id'],
                             'loan_id' => $loan->id,
-                            'document_type' => $doc['doc_type'],
+                            'document_type_id' => $doc['document_type_id'],
                             'file_path' => $path,
                             'remarks' => $doc['file_upload_remarks'] ?? '',
                         ]);
@@ -262,9 +262,10 @@ class LoanController extends Controller
             // check if loan has withdraw request
             $isForWithdraw = $loan->loanWithdrawRequests()
                                     ->where('status', 'pending')
-                                    ->exists();;
+                                    ->exists();
 
-            return view('loan.show', compact('loan', 'clients', 'loan_products', 'isForWithdraw'));
+            $docViewOnly = 1;
+            return view('loan.show', compact('loan', 'clients', 'loan_products', 'isForWithdraw', 'docViewOnly'));
         }
 
         return response()->json([
@@ -284,7 +285,10 @@ class LoanController extends Controller
         $clients = Client::all();
         $loan_products = LoanProduct::active()->get();
 
-        return view('loan.edit', compact('loan', 'clients', 'loan_products'));
+        $documentTypes = DocumentType::getAllActive();
+        $documentTypesJson = json_encode($documentTypes);
+
+        return view('loan.edit', compact('loan', 'clients', 'loan_products', 'documentTypes', 'documentTypesJson'));
     }
 
     /**
@@ -382,7 +386,7 @@ class LoanController extends Controller
                 if ($request->has('client_documents') && is_array($request->client_documents)) {
                     foreach ($request->client_documents as $doc) {
                         if (
-                            empty($doc['doc_type']) ||
+                            empty($doc['document_type_id']) ||
                             empty($doc['file_upload']) ||
                             !($doc['file_upload'] instanceof \Illuminate\Http\UploadedFile)
                         ) {
@@ -394,7 +398,7 @@ class LoanController extends Controller
                         ClientDocument::create([
                             'client_id' => $request->borrower_id,
                             'loan_id' => $loan->id,
-                            'document_type' => $doc['doc_type'],
+                            'document_type_id' => $doc['document_type_id'],
                             'file_path' => $path,
                             'remarks' => $doc['file_upload_remarks'] ?? '',
                         ]);
