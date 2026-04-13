@@ -110,10 +110,12 @@
 
                         if (canView) {
                             buttons += `<button class="btn btn-primary btn-xs btnView" data-id="${row.id}" title="View Loan"><i class="fa fa-eye"></i></button> `;
+
+                            if(row.status != 0 && row.status != 2 && row.status != 3 && row.status != 4 && row.disbursed_date != '')
                             buttons += `<button class="btn btn-primary btn-xs btnPrintReceipt" data-id="${row.id}" title="Print Receipt"><i class="fa fa-print"></i></button> `;
                         }
 
-                        if (row.status != 1 && row.status != 5) {
+                        if (row.status != 1 && row.status != 5 && row.status != 3) {
                             if (canEdit) {
                                 buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
                             }
