@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\DocumentType;
 use App\Models\Incentives;
 use App\Models\Savings;
 use Illuminate\Database\QueryException;
@@ -107,5 +108,12 @@ class AjaxController extends Controller
                 'message' => 'Something went wrong.' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getDocumentTypes()
+    {
+        $document_types = DocumentType::active()->get(['id','type_name','description']);
+
+        return $document_types;
     }
 }

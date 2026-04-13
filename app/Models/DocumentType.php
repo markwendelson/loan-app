@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DocumentType extends Model
 {
-    
+
     protected $table = 'document_types';
     protected $fillable = [
         'type_name',
@@ -27,9 +27,14 @@ class DocumentType extends Model
     }
 
     //relation ship
-    public function clientDocument() 
+    public function clientDocument()
     {
         return $this->belongsTo(ClientDocument::class, 'id','document_type_id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
     }
 
 }

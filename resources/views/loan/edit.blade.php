@@ -471,22 +471,34 @@
 
             // documents (files)
             $('#documents_table tbody tr').each(function(index) {
-                // const docType = $(this).find('select[name="[doc_type]"]').val();
-                // const fileInput = $(this).find('input[type="file"]')[0];
-                // const remarks = $(this).find('input[type="text"][name="[file_upload_remarks]"]').val();
+                const $row = $(this);
 
-                const docType = $(this).find('select[name="client_documents[' + index + '][document_type_id]"]').val(); 
-                const fileInput = $(this).find('input[type="file"]')[0];
-                const remarks = $(this).find('input[name="client_documents[' + index + '][file_upload_remarks]"]').val(); 
-                
-                // Check if this is an existing file (has data-id)
-                // Note: .data('id') on the TR, not the remove button
-                const existingId = $(this).data('id');
+                const docType = $row.find('select[name*="[doc_type]"]').val();
+                const fileInput = $row.find('input[type="file"]')[0];
+                const remarks = $row.find('input[type="text"][name*="[file_upload_remarks]"]').val();
+
+                const existingId = $row.data('id');
+
+                // Get original values
+                const originalDocType = $row.data('original-doc-type');
+                const originalRemarks = $row.data('original-remarks');
 
                 if (existingId) {
+                    // Always send ID
                     formData.append('existing_document_ids[]', existingId);
+
+                    // 🔥 Detect changes
+                    const docTypeChanged = docType != originalDocType;
+                    const remarksChanged = remarks != originalRemarks;
+
+                    if (docTypeChanged || remarksChanged) {
+                        formData.append(`updated_documents[${index}][id]`, existingId);
+                        formData.append(`updated_documents[${index}][document_type_id]`, docType);
+                        formData.append(`updated_documents[${index}][file_upload_remarks]`, remarks || '');
+                    }
                 }
 
+                // Handle new uploads
                 if (docType && fileInput && fileInput.files.length > 0) {
                     formData.append(`client_documents[${index}][document_type_id]`, docType);
                     formData.append(`client_documents[${index}][file_upload]`, fileInput.files[0]);
