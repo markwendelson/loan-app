@@ -8,5 +8,3 @@ Route::get('/ajax/merchant-slip', [AjaxController::class, 'getAvailableMerchantS
 
 Route::get('/ajax/client/{client}/incentives', [AjaxController::class, 'clientIncentives'])->name('client.incentives');
 Route::post('/ajax/client/{client}/incentives', [AjaxController::class, 'addClientIncentives'])->name('client.add-incentives');
-
-Route::get('/ajax/document-types', [AjaxController::class, 'getDocumentTypes'])->name('ajax.get-document-types');

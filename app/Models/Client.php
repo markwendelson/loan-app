@@ -82,7 +82,9 @@ class Client extends Model implements Auditable
 
     public function documents()
     {
-        return $this->hasMany(ClientDocument::class);
+        return $this->hasMany(ClientDocument::class)
+            ->leftJoin('document_types', 'document_types.id', '=', 'client_documents.document_type_id')
+            ->select('client_documents.*', 'document_types.type_name as document_type_name', 'document_types.description');
     }
 
     public function bankAccount()

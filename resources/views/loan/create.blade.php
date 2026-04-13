@@ -700,13 +700,13 @@
 
             // documents (files)
             $('#documents_table tbody tr').each(function(index) {
-                const docType = $(this).find('select[name*="[doc_type]"]').val();
-                const fileInput = $(this).find('input[type="file"]')[0];
-                const remarks = $(this).find('input[type="text"][name*="[file_upload_remarks]"]').val();
-
-                // const docType = $(this).find('select[name="client_documents[' + index + '][document_type_id]"]').val();
+                // const docType = $(this).find('select[name*="[doc_type]"]').val();
                 // const fileInput = $(this).find('input[type="file"]')[0];
-                // const remarks = $(this).find('input[name="client_documents[' + index + '][file_upload_remarks]"]').val();
+                // const remarks = $(this).find('input[type="text"][name*="[file_upload_remarks]"]').val();
+
+                const docType = $(this).find('select[name="client_documents[' + index + '][document_type_id]"]').val(); 
+                const fileInput = $(this).find('input[type="file"]')[0];
+                const remarks = $(this).find('input[name="client_documents[' + index + '][file_upload_remarks]"]').val(); 
 
                 if (docType && fileInput.files.length > 0) {
                     formData.append(`client_documents[${index}][document_type_id]`, docType);
