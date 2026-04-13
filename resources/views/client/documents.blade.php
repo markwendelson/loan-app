@@ -35,9 +35,15 @@
             <h4 class="card-title">Documents</h4>
             <button type="button" id="addFileRow" class="btn btn-primary"><i class="fa fa-plus"></i> Add Documents</button>
         </div>
-        
-        @if((isset($loan) && isset($loan->borrower->documents)) && (isset($docViewOnly) && $docViewOnly))
-            @foreach($loan->borrower->documents as $val) 
+
+        @if(isset($loan) && $loan->borrower->documents && (isset($docViewOnly) && $docViewOnly))
+            @php
+                // Filter documents by this loan's ID
+                $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
+                    return $doc->loan_id == $loan->id;
+                });
+            @endphp
+            @foreach($loanDocuments as $val)
                 <div class="border p-3 rounded attachment-items mb-2">
                     <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="d-block">
                         <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -71,13 +77,46 @@
                 </thead>
                 <tbody>
                     @if(isset($loan) && $loan->borrower->documents)
-                        @foreach($loan->borrower->documents as $key => $val)
-                            <tr>
+                        @php
+                            // Filter documents by this loan's ID
+                            $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
+                                return $doc->loan_id == $loan->id;
+                            });
+                        @endphp
+                        @foreach($loanDocuments as $val)
+                            <tr data-id="{{ $val->id }}"
+                                data-original-doc-type="{{ $val->documentType->id }}"
+                                data-original-remarks="{{ $val->remarks }}"
+                            >
                                 <td>
-                                    {{ $val->document_type_name }}
+                                    <select name="client_documents[doc_type][]" class="form-select">
+                                        <option value="">Select Document</option>
+                                        @foreach($docTypes as $type)
+                                            <option value="{{ $type->id }}"
+                                                @if($val->documentType->type_name === $type->type_name) selected @endif
+                                            >{{ $type->type_name }}</option>
+                                        @endforeach
+                                    </select>
                                 </td>
-                                <td><a href="{{ Storage::url($val->file_path) }}" target="_blank">View File</a></td>
-                                <td>{{ $val->remarks ?? ''; }}</td>
+                                <td>
+                                    @if(!empty($val->file_path))
+                                            <a
+                                                href="{{ Storage::url($val->file_path) }}"
+                                                target="_blank"
+                                            >
+                                                View current file
+                                            </a>
+                                    @endif
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        name="client_documents[file_upload_remarks][]"
+                                        class="form-control"
+                                        placeholder="Remarks..."
+                                        value="{{ $val->remarks }}"
+                                    >
+                                </td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-trash"></i></button>
                                 </td>
@@ -93,22 +132,17 @@
 @push('js')
 <script>
 $(document).ready(function () {
-    let documentTypesJson = <?=$documentTypesJson ?? '[]';?>;
-    console.log(documentTypesJson);
+    let docTypes = [];
+
+    initializeDocumentTypes()
 
     function generateDocTypeOptions(index) {
-        let options = '';
-
-        if(documentTypesJson.length > 0){
-            for(let i = 0; i < documentTypesJson.length; i++) {
-                options += `<option value="${documentTypesJson[i].id}">${documentTypesJson[i].type_name}</option>`;
-            }
-        }
-
         return `
-            <select name="client_documents[${index}][document_type_id]" class="form-select">
+            <select name="client_documents[${index}][doc_type]" class="form-select">
                 <option value="">Select Document</option>
-                ${options}
+                ${docTypes.map(type =>
+                    `<option value="${type.id}">${type.type_name}</option>`
+                ).join('')}
             </select>
         `;
     }
@@ -151,6 +185,21 @@ $(document).ready(function () {
     $('#documents_table').on('click', '.btn-remove', function () {
         $(this).closest('tr').remove();
     });
+
+    function initializeDocumentTypes()
+    {
+        $.ajax({
+            type: "get",
+            url: "{{url('ajax/document-types')}}",
+            dataType: "json",
+            success: function (response) {
+                docTypes = response;
+            },
+            error: function (err) {
+                console.error("Failed to load document types", err);
+            }
+        });
+    }
 
 });
 </script>
