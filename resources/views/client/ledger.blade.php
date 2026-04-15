@@ -3,20 +3,20 @@
 @section('title') Manage Ledger @endsection
 
 @push('css')
-    <style>
-        .bg-default {
-            background-color: #1f807f;
-        }
-        .bg-default th {
-            color: white; /* Set white text for <th> elements */
-            border: 1px solid white;
-        }
+<style>
+    .bg-default {
+         background-color: #1f807f;
+     }
+     .bg-default th {
+         color: white; /* Set white text for <th> elements */
+         border: 1px solid white;
+     }
 
-        table > thead {
-            text-align: center;
-            vertical-align:middle !important;
-        }
-    </style>
+     table > thead {
+        text-align: center;
+        vertical-align:middle !important;
+     }
+ </style>
 @endpush
 
 @section('content')
@@ -45,110 +45,59 @@
     <!-- button container -->
     <div class="card">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between">
                 <div>
-                    <h3 class="card-title mb-0">{{ $client->details->fullname ?? ''; }}</h3>
-                    <span>{{ $client->details->present_full_address ?? ''; }}</span>
+                    <h1 style="font-size: 3.5rem;">{{$client->details->fullname}}</h1>
+                    <h3>{{$client->details->present_full_address}}</h3>
                 </div>
-                <a href="{{route('savings.transactions', $client->id)}}" class="btn btn-sm btn-primary"><i class="fa fa-money"></i> Savings</a>
+                <a href="{{route('savings.transactions', $client->id)}}" class="btn btn-sm btn-primary">Savings</a>
             </div>
         </div>
     </div>
 
+    <div class="container-fluid">
         <div class="row project-cards">
-            <div class="col-md-12 project-list">
-                <div class="card">
-                <div class="row">
-                    <div class="col-md-12">
-                    <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
-                        <li class="nav-item"><a class="nav-link active" id="principal-loan-tab" data-bs-toggle="tab" href="#principal-loan" role="tab" aria-controls="principal-loan" aria-selected="false"><i data-feather="info"></i>Principal Loan</a></li>
-                        @isset($special_loan)
-                        <li class="nav-item"><a class="nav-link" id="special-loan-tab" data-bs-toggle="tab" href="#special-loan" role="tab" aria-controls="special-loan" aria-selected="false"><i data-feather="star"></i>Special Loan</a></li>
-                        @endisset
-                        <li class="nav-item"><a class="nav-link" id="incentives-pension-tab" data-bs-toggle="tab" href="#incentives-pension" role="tab" aria-controls="incentives-pension" aria-selected="false"><i data-feather="star"></i>Incentives/Pension</a></li>
-                        <li class="nav-item"><a class="nav-link" id="membership-tab" data-bs-toggle="tab" href="#membership" role="tab" aria-controls="membership" aria-selected="false"><i data-feather="star"></i>Membership</a></li>
-                        <li class="nav-item"><a class="nav-link" id="client-as-comaker-tab" data-bs-toggle="tab" href="#client-as-comaker" role="tab" aria-controls="client-as-comaker" aria-selected="false"><i data-feather="star"></i>Client as Co-Maker</a></li>
-                        <li class="nav-item"><a class="nav-link" id="attachments-tab" data-bs-toggle="tab" href="#attachments" role="tab" aria-controls="attachments" aria-selected="false"><i data-feather="star"></i>Attachments</a></li>
-                    </ul>
-                    </div>
-                </div>
+        <div class="col-md-12 project-list">
+            <div class="card">
+            <div class="row">
+                <div class="col-md-12">
+                <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" id="principal-loan-tab" data-bs-toggle="tab" href="#principal-loan" role="tab" aria-controls="principal-loan" aria-selected="false"><i data-feather="info"></i>Principal Loan</a></li>
+                    @isset($special_loan)
+                    <li class="nav-item"><a class="nav-link" id="special-loan-tab" data-bs-toggle="tab" href="#special-loan" role="tab" aria-controls="special-loan" aria-selected="false"><i data-feather="star"></i>Special Loan</a></li>
+                    @endisset
+                    <li class="nav-item"><a class="nav-link" id="incentives-pension-tab" data-bs-toggle="tab" href="#incentives-pension" role="tab" aria-controls="incentives-pension" aria-selected="false"><i data-feather="star"></i>Incentives/Pension</a></li>
+                    <li class="nav-item"><a class="nav-link" id="membership-tab" data-bs-toggle="tab" href="#membership" role="tab" aria-controls="membership" aria-selected="false"><i data-feather="star"></i>Membership</a></li>
+                    <li class="nav-item"><a class="nav-link" id="client-as-comaker-tab" data-bs-toggle="tab" href="#client-as-comaker" role="tab" aria-controls="client-as-comaker" aria-selected="false"><i data-feather="star"></i>Client as Co-Maker</a></li>
+                    <li class="nav-item"><a class="nav-link" id="attachments-tab" data-bs-toggle="tab" href="#attachments" role="tab" aria-controls="attachments" aria-selected="false"><i data-feather="star"></i>Attachments</a></li>
+                </ul>
                 </div>
             </div>
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-body">
-                        <input type="hidden" name="client_id" id="client_id" value="{{$client->id}}"/>
-                        <div class="tab-content" id="top-tabContent">
-                        <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
-                            @isset($principal_loan)
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <div>Loan ID: <span class="fw-bold">{{$loan['principal_loan_no']}}</span></div>
-                                            <div>Loan Product: {{$loan['principal_loan_product']}}</div>
-                                            <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
-                                            <div>Remarks: <p></p></div>
-                                        </div>
-                                        <div>
-                                            <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto"><i class="fa fa-refresh"></i> Reloan</a>
-                                            {{-- @if(Str::slug($loan['principal_loan_product_type']) == 'open-term') --}}
-                                            <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'additional_loan'=>true])}}" class="btn btn-sm btn-primary mx-auto"><i class="fa fa-plus"></i> Add Loan</a>
-                                            {{-- @endif --}}
-                                        </div>
-                                    </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="card">
+            <div class="card-body">
+                <input type="hidden" name="client_id" id="client_id" value="{{$client->id}}"/>
+                <div class="tab-content" id="top-tabContent">
+                <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
+                    @isset($principal_loan)
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div>Loan ID: {{$loan['principal_loan_no']}}</div>
+                                    <div>Loan Product: {{$loan['principal_loan_product']}}</div>
+                                    <div>Date Loan Granted: {{$loan['principal_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['principal_date_granted']))}}</div>
+                                    <div>Remarks: <p></p></div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-hover" id="tblLedger" style="font-size: smaller;">
-                                            <thead class="bg-default">
-                                                <tr>
-                                                    <th class="text-center" width="80" colspan="3" rowspan="2"></th>
-                                                    <th class="text-center" width="150" colspan="6">LOAN</th>
-                                                    <th class="text-center" width="80"></th>
-                                                    <th class="text-center" width="150" colspan="7">PAYMENT</th>
-                                                    <th class="text-center" width="80" colspan="4" rowspan="2"></th>
-                                                </tr>
-                                                <tr>
-                                                    <th rowspan="3">Principal</th>
-                                                    <th colspan="4">Deduction</th>
-                                                    <th rowspan="3">Net Proceed</th>
-                                                    <th></th>
-                                                    <th colspan="7" style="border-right-width:1px;">Applied to</th>
-                                                </tr>
-                                                <tr>
-                                                    <th rowspan="2">Transaction Date</th>
-                                                    <th rowspan="2">Withdraw Date</th>
-                                                    <th rowspan="2">Salary Month</th>
-                                                    <th rowspan="2">Interest</th>
-                                                    <th rowspan="2">Service Fee</th>
-                                                    <th rowspan="2">Insurance Fee</th>
-                                                    <th rowspan="2">Others</th>
-                                                    <th rowspan="2"></th>
-                                                    <th rowspan="2">Transaction Date</th>
-                                                    <th colspan="2">Interest</th>
-                                                    <th colspan="2">Insurance</th>
-                                                    <th rowspan="2">Principal</th>
-                                                    <th rowspan="2">Change</th>
-                                                    <th rowspan="2">Balance</th>
-                                                    <th rowspan="2">Remarks</th>
-                                                    <th rowspan="2">Deficit</th>
-                                                    <th rowspan="2">Signature</th>
-                                                </tr>
-                                                <tr>
-                                                    <th>Amount</th>
-                                                    <th>Month</th>
-                                                    <th>Amount</th>
-                                                    <th>Month</th>
-                                                </tr>
-                                            </thead>
-                                        </table>
-                                    </div>
+                                <div class="col-md-4 float-end">
+                                    <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                    {{-- @if(Str::slug($loan['principal_loan_product_type']) == 'open-term') --}}
+                                    <a href="{{route('loan.create', ['loan_no_reference' => $loan['principal_loan_no'], 'additional_loan'=>true])}}" class="btn btn-sm btn-primary mx-auto">Add Loan</a>
+                                    {{-- @endif --}}
                                 </div>
                             </div>
-                            @else
-                                <div class="card card-body">No active loan.</div>
-                            @endisset
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -216,46 +165,8 @@
                                     <div>Date Loan Granted: {{$loan['special_date_granted'] ?? date('l, F j, Y, g:i A',strtotime($loan['special_date_granted']))}}</div>
                                     <div>Remarks: <p></p></div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-hover" id="tblSpecialLedger" style="font-size: smaller;">
-                                            <thead class="bg-default">
-                                                <tr>
-                                                    <th class="text-center" width="80" colspan="2" rowspan="2"></th>
-                                                    <th class="text-center" width="150" colspan="6">LOAN</th>
-                                                    <th class="text-center" width="80"></th>
-                                                    <th class="text-center" width="150" colspan="5">PAYMENT</th>
-                                                    <th class="text-center" width="80" colspan="4" rowspan="2"></th>
-                                                </tr>
-                                                <tr>
-                                                    <th rowspan="2">Principal</th>
-                                                    <th colspan="4">Deduction</th>
-                                                    <th rowspan="2">Net Proceed</th>
-                                                    <th></th>
-                                                    <th></th>
-                                                    <th colspan="4" style="border-right-width:1px;">Applied to</th>
-                                                </tr>
-                                                <tr>
-                                                    <th>Transaction Date</th>
-                                                    <th>Loan Type</th>
-                                                    <th>Interest</th>
-                                                    <th>Service Fee</th>
-                                                    <th>Insurance Fee</th>
-                                                    <th>Others</th>
-                                                    <th></th>
-                                                    <th>Transaction Date</th>
-                                                    <th>Interest</th>
-                                                    <th>Insurance</th>
-                                                    <th>Principal</th>
-                                                    <th>Change</th>
-                                                    <th>Balance</th>
-                                                    <th>Remarks</th>
-                                                    <th>Deficit</th>
-                                                    <th>Signature</th>
-                                                </tr>
-                                            </thead>
-                                        </table>
-                                    </div>
+                                <div class="col-md-4 float-end">
+                                    <a href="{{route('loan.create', ['loan_no_reference' => $loan['special_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
                                 </div>
                             </div>
                         </div>
@@ -316,28 +227,47 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="membership" role="tabpanel" aria-labelledby="membership-tab">
-                            <div class="card">
-                                <div class="card-header">
-                                    Membership
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <!-- Membership Ledger Table Here -->
-                                    </div>
-                                </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <!-- Incentives/Pension Ledger Table Here -->
+                                <table class="table table-bordered table-hover" id="tblIncentives">
+                                    <thead class="bg-default">
+                                        <tr>
+                                            <th class="text-center" width="40">Id</th>
+                                            <th class="text-center" width="80">Transaction Date</th>
+                                            <th class="text-center" width="150">Description</th>
+                                            <th class="text-center" width="80">Amount</th>
+                                            <th class="text-center" width="80">Actions</th>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
-                        </div>
-                        <div class="tab-pane fade" id="client-as-comaker" role="tabpanel" aria-labelledby="client-as-comaker-tab">
-                            @include('client.co-maker-list')
-                        </div>
-                        <div class="tab-pane fade" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
-                            @include('client.attachments')
                         </div>
                     </div>
                 </div>
+                <div class="tab-pane fade" id="membership" role="tabpanel" aria-labelledby="membership-tab">
+                    <div class="card">
+                        <div class="card-header">
+                            Membership
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <!-- Membership Ledger Table Here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="client-as-comaker" role="tabpanel" aria-labelledby="client-as-comaker-tab">
+                    @include('client.co-maker-list')
+                </div>
+                <div class="tab-pane fade" id="attachments" role="tabpanel" aria-labelledby="attachments-tab">
+                    @include('client.attachments')
+                </div>
+            </div>
             </div>
         </div>
+        </div>
+    </div>
 
     {{-- modal --}}
     @include('client.modal.incentives_modal')
@@ -541,7 +471,7 @@
                 },
             ],
             columnDefs: [
-                { className: "text-end", targets: [3] },
+                // { className: "text-center", targets: [4,5] },
             ]
         });
 
