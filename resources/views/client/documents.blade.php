@@ -36,14 +36,15 @@
             <button type="button" id="addFileRow" class="btn btn-primary"><i class="fa fa-plus"></i> Add Documents</button>
         </div>
 
-        @if(isset($loan) && $loan->borrower->documents && (isset($docViewOnly) && $docViewOnly))
-            @php
-                // Filter documents by this loan's ID
-                $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
-                    return $doc->loan_id == $loan->id;
-                });
-            @endphp
-            @foreach($loanDocuments as $val)
+        @php
+            // Filter documents by this loan's ID
+            $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
+                return $doc->loan_id == $loan->id;
+            });
+        @endphp
+        
+        @if((isset($loan) && isset($loan->borrower->documents)) && (isset($docViewOnly) && $docViewOnly))
+            @foreach($loanDocuments as $val) 
                 <div class="border p-3 rounded attachment-items mb-2">
                     <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="d-block">
                         <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -76,18 +77,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if(isset($loan) && $loan->borrower->documents)
-                        @php
-                            // Filter documents by this loan's ID
-                            $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
-                                return $doc->loan_id == $loan->id;
-                            });
-                        @endphp
-                        @foreach($loanDocuments as $val)
-                            <tr data-id="{{ $val->id }}"
-                                data-original-doc-type="{{ $val->documentType->id }}"
-                                data-original-remarks="{{ $val->remarks }}"
-                            >
+                    @if(isset($loanDocuments) && $loanDocuments)
+                        @foreach($loanDocuments as $key => $val)
+                            <tr>
                                 <td>
                                     <select name="client_documents[doc_type][]" class="form-select">
                                         <option value="">Select Document</option>

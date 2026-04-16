@@ -90,12 +90,13 @@
 <li class="sidebar-list">
     <i class="fa fa-thumb-tack"></i>
     <a class="sidebar-link sidebar-title link-nav" href="{{route('savings.index')}}">
+        {{-- <i class="text-white fa fa-money"></i> --}}
         <svg class="stroke-icon">
-            <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
+            <use href="{{url('assets/svg/icon-sprite.svg#doller-return')}}"></use>
         </svg>
-        <svg class="fill-icon">
+        {{-- <svg class="fill-icon">
             <use href="{{url('assets/svg/icon-sprite.svg#fill-home')}}"></use>
-        </svg>
+        </svg> --}}
         <span>Savings</span>
     </a>
 </li>
@@ -139,7 +140,20 @@
     </ul>
 </li>
 
+<li class="sidebar-main-title">
+    <div>
+        <h6 class="">Reports</h6>
+    </div>
+</li>
+<li class="sidebar-list">
 
+    <a class="sidebar-link sidebar-title link-nav" href="{{route('expenses.report')}}">
+        <svg class="stroke-icon">
+            <use href="{{url('assets/svg/icon-sprite.svg#expense')}}"></use>
+        </svg>
+        <span>Expenses</span>
+    </a>
+</li>
 
 <li class="sidebar-main-title">
     <div>

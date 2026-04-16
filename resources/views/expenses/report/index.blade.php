@@ -1,0 +1,133 @@
+@extends('layouts.app')
+
+@section('title') Expenses Report @endsection
+
+@push('css')
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendors/daterange-picker.css') }}">
+    <style>
+        #custom-dropdown-menu {
+            max-height: 500px !important;
+            overflow-y: auto;
+        }
+    </style>
+@endpush
+
+@php
+    //initial date for daterangepicker
+    $dateNow = date('m/d/Y');
+@endphp
+
+@section('content')
+    <div class="container-fluid">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-6">
+                    <h4>Expenses</h4>
+                </div>
+                <div class="col-6">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"> <a href="{{url('')}}">
+                            <svg class="stroke-icon">
+                                <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
+                            </svg></a>
+                        </li>
+                        <li class="breadcrumb-item">Reports</li>
+                        <li class="breadcrumb-item active">Expenses</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <form id="frmFilter">
+            <div class="card">
+                <div class="card-body d-flex justify-content-end align-items-center gap-2">
+                    <input type="text" class="form-control expenseDate" value="{{ $dateNow }} - {{ $dateNow }}" style="width: 250px;">
+
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" >
+                            Select Categories &nbsp; <i class="fa fa-arrow-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" style="width: 300px !important" id="custom-dropdown-menu">
+                            @if(isset($expenseCategories) && $expenseCategories)
+                                <li class="d-flex align-items-center p-1">
+                                    <div class="form-check checkbox checkbox-primary mb-0">
+                                        <input class="form-check-input mainAll" id="mainAll" type="checkbox" checked="" value="">
+                                        <label class="form-check-label mb-1" for="mainAll"><small>All</small></label>
+                                    </div>
+                                </li>
+                                @foreach($expenseCategories as $key => $val)
+                                    <li class="d-flex align-items-center p-1">
+
+                                        <div class="form-check checkbox checkbox-primary mb-0">
+                                            <input class="form-check-input chckAll" id="chck{{ $val->id }}" type="checkbox" checked="" value="{{ $val->id }}">
+                                            <label class="form-check-label mb-1" for="chck{{ $val->id }}"><small>{{ $val->name ?? ''; }}</small></label>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            @endif
+                        </ul>
+                    </div>
+
+                    <button type="button" class="btn btn-primary"><i class="fa fa-repeat"></i>&nbsp; Generate Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="report-container container-fluid">
+        @include('expenses.report.report-data');
+    </div>
+@endsection
+
+@push('js')
+    <script src="{{ url('assets/js/datepicker/date-picker/datepicker.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            //handle all checkbox behaviour
+            $(".mainAll").on("change", function() {
+                if ($(this).is(":checked")) {
+                    $(".chckAll").prop("checked", true);
+                } else {
+                    $(".chckAll").prop("checked", false);
+                }
+            });
+
+            //handle categories checkbox behaviour
+            $(".chckAll").on("change", function() {
+                let total = $(".chckAll").length;
+                let checked = $(".chckAll:checked").length;
+
+                if (checked === total) {
+                    $(".mainAll").prop("checked", true);
+                } else {
+                    $(".mainAll").prop("checked", false);
+                }
+            });
+
+            $('.expenseDate').daterangepicker({
+                opens: 'right',            // Calendar opens to the right
+                autoUpdateInput: false,    // Prevent automatic filling of input
+                locale: {
+                    cancelLabel: 'Cancel',
+                    format: 'MM/DD/YYYY'
+                },
+                singleDatePicker: false,   // Enable range selection
+            });
+
+            // Event triggered when "Apply" is clicked
+            $('.expenseDate').on('apply.daterangepicker', function(ev, picker) {
+                // picker.startDate and picker.endDate are Moment.js objects
+                let start = picker.startDate.format('MM/DD/YYYY');
+                let end = picker.endDate.format('MM/DD/YYYY');
+
+                // Fill the input with the selected range
+                $(this).val(`${start} - ${end}`);
+
+                // Optional: do something with the values
+                console.log('Selected range:', start, 'to', end);
+            });
+        });
+    </script>
+@endpush

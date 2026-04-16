@@ -8,6 +8,7 @@ use App\Http\Controllers\ClientIDsController;
 use App\Http\Controllers\DepartmentController;
 // use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InsuranceFeeScheduleController;
 use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LoanController;
@@ -136,7 +137,7 @@ Route::middleware('auth')->group(function () {
     Route::controller(SavingsController::class)
         ->prefix('savings')
         ->group(function () {
-            Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
+        Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
             Route::get('{id}/print', 'printReceipt')->name('savings.print');
             Route::post('{id}/change-transaction-code', 'updateTransactionCode')->name('savings.update-transaction-code');
         });
@@ -145,7 +146,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
-    Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+    
+    Route::controller(ExpenseController::class)
+        ->prefix('expenses')
+        ->group(function() {
+            Route::get('report', 'expenseReport')->name('expenses.report');
+        });
+    Route::resource('expenses',ExpenseController::class);
 
 
 

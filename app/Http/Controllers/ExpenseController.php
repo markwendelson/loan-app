@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+//models
+use App\Models\ExpenseCategory;
+
 class ExpenseController extends Controller
 {
     public function index()
@@ -64,5 +67,13 @@ class ExpenseController extends Controller
         $expense->delete();
 
         return response()->json(['message' => 'Expense deleted successfully']);
+    }
+
+    public function expenseReport()
+    {
+        $expenseCategories = ExpenseCategory::all();
+
+        return view('expenses/report/index',compact('expenseCategories'));
+
     }
 }
