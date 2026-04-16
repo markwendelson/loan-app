@@ -396,7 +396,7 @@ class SavingsController extends Controller
                 'principal_balance' => number_format($principal_balance,2),
                 'special_loan_balance' => '0',
                 'early_settlement_amount' => number_format($principal_balance,2),
-                'membership_fee_balance' => number_format($membership_fee_balance,2),
+                'membership_fee_balance' => $membership_fee_balance,
                 'previous_interest_deficit' => number_format($savings->interest_deficit,2) ?? 0,
                 'current_interest' => number_format(0,2),
             ]);
@@ -412,8 +412,8 @@ class SavingsController extends Controller
                 'principal_balance' => number_format($principal_balance,2),
                 'special_loan_balance' => number_format($special_loan_balance,2),
                 'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2),
-                'membership_fee_balance' => number_format($membership_fee_balance,2),
-                'previous_interest_deficit' => number_format($savings->interest_deficit,2) ?? 0,
+                'membership_fee_balance' => $membership_fee_balance,
+                'previous_interest_deficit' => number_format($savings->interest_deficit ?? 0,2),
                 'current_interest' => number_format($interest,2),
             ]);
         }
