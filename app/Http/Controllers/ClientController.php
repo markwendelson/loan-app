@@ -203,8 +203,8 @@ class ClientController extends Controller
             $insurance_fee = $loan->loanCharges->insurance_fee;
             $notary_fee = $loan->loanCharges->notary_fee;
             $reloan_deduction = $loan->loanCharges->reloan_deduction;
-
-            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction;
+            $membership_fee = $loan->loanCharges->membership_fee;
+            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $membership_fee;
             $net_proceed = $loan->principal - $loan_charges;
             $i++;
             // Initial loan row
@@ -221,6 +221,7 @@ class ClientController extends Controller
                     'loan_service_fee' => number_format($service_fee, 2),
                     'loan_insurance_fee' => number_format($insurance_fee, 2),
                     'others' => number_format($notary_fee, 2),
+                    'membership_fee' => number_format($membership_fee, 2),
                     'net_proceed' => number_format($net_proceed, 2),
                     'signature' => null,
                     'wdl' => null,
@@ -234,11 +235,13 @@ class ClientController extends Controller
                     'transaction_code' => '',
                     'change_mop' => '',
                     'balance' => null, // to be filled after sorting
-                    'remarks' => null,
+                    'remarks' => ucwords(str_replace("_"," ",$loan->mode_of_payment)) . " <br> <a href='" . route('savings.print', $loan->id) . "' target='_blank'>{$loan->disbursement_reference}</a>",
                     'attachment' => null,
                     'interest_deficit' => null,
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
+                    'mode_of_payment' => ucwords(str_replace("_"," ",$loan->mode_of_payment)),
+                    'disbursement_reference' => $loan->disbursement_reference
                 ]
             ];
 
@@ -260,6 +263,7 @@ class ClientController extends Controller
                     'loan_service_fee' => null,
                     'loan_insurance_fee' => null,
                     'others' => null,
+                    'membership_fee' => null,
                     'net_proceed' => null,
                     'signature' => null,
                     'wdl' => number_format($payment->amount, 2),
@@ -277,11 +281,13 @@ class ClientController extends Controller
                     'transaction_code' => $payment->transaction_code ?? '',
                     'change_mop' => ucwords(str_replace("_"," ",$payment->change_mop)),
                     'balance' => null, // to be computed
-                    'remarks' => "{$payment->mode_of_payment} - <a href='" . route('savings.print', $payment->id) . "' target='_blank'>{$payment->transaction_no}</a>",
+                    'remarks' => ucwords(str_replace("_"," ",$payment->mode_of_payment)) . " - <a href='" . route('savings.print', $payment->id) . "' target='_blank'>{$payment->transaction_no}</a>",
                     'attachment' => isset($payment->attachments->file_path) ? asset('storage/' . $payment->attachments->file_path) : '',
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                     'interest_deficit' => number_format($payment->interest_deficit, 2),
+                    'mode_of_payment' => '',
+                    'disbursement_reference' => ''
                 ];
             }
             return collect($rows);
@@ -358,7 +364,9 @@ class ClientController extends Controller
                 return $comaker;
             });
 
-        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments'));
+        $docTypes = DocumentType::active()->get(['id','type_name','description']);
+
+        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments','docTypes'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)
@@ -381,8 +389,9 @@ class ClientController extends Controller
             $insurance_fee = $loan->loanCharges->insurance_fee;
             $notary_fee = $loan->loanCharges->notary_fee;
             $reloan_deduction = $loan->loanCharges->reloan_deduction;
+            $membership_fee = $loan->loanCharges->membership_fee ?? 0;
 
-            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee;
+            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $membership_fee;
             $net_proceed = $loan->principal - $loan_charges;
             $i++;
             // Initial loan row
@@ -398,6 +407,7 @@ class ClientController extends Controller
                     'loan_service_fee' => number_format($service_fee, 2),
                     'loan_insurance_fee' => number_format($insurance_fee, 2),
                     'others' => number_format($notary_fee, 2),
+                    'membership_fee' => number_format($membership_fee, 2),
                     'net_proceed' => number_format($net_proceed, 2),
                     'signature' => null,
                     'wdl' => null,
@@ -415,6 +425,8 @@ class ClientController extends Controller
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
                     'interest_deficit' => null,
+                    'mode_of_payment' => ucwords(str_replace("_"," ",$loan->mode_of_payment)),
+                    'disbursement_reference' => $loan->disbursement_reference
                 ]
             ];
 
@@ -437,6 +449,7 @@ class ClientController extends Controller
                     'loan_service_fee' => null,
                     'loan_insurance_fee' => null,
                     'others' => null,
+                    'membership_fee' => null,
                     'net_proceed' => null,
                     'signature' => null,
                     'wdl' => number_format($payment->amount, 2),
@@ -454,6 +467,8 @@ class ClientController extends Controller
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
                     'interest_deficit' => number_format($payment->interest_deficit, 2),
+                    'mode_of_payment' => '',
+                    'disbursement_reference' => ''
                 ];
             }
 

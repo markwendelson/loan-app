@@ -99,7 +99,7 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(ClientController::class)
         ->prefix('client')
-        ->group(function () { 
+        ->group(function () {
             Route::get('registration', 'create')->name("client.registration");
             Route::get('{client}/get-balance', 'getBalance')->name('client.get-balance');
             Route::get('{client}/{loan_no}/ledger', 'ledgerLoan')->name('client.ledger.loan');
@@ -133,6 +133,7 @@ Route::middleware('auth')->group(function () {
             Route::post('request-approve/{loan}', 'requestApproveLoan')->name('loan.request-approval');
             Route::post('get-reloan-deduction', 'getReloanDeduction')->name('loan.get-reloan-deduction');
             Route::get('{id}/print', 'printReceipt')->name('loan.print');
+            Route::post('{id}/update-disbursement-reference', 'updateDisbursementReference')->name('loan.update-disbursement-reference');
         });
     Route::controller(SavingsController::class)
         ->prefix('savings')
@@ -197,7 +198,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('{id}', [IncentiveController::class, 'destroy'])->name('incentives.destroy');
         Route::get('{id}/print', [IncentiveController::class, 'printReceipt'])->name('incentives.print');
     });
-    
+
     Route::prefix('document-type')->group(function () {
         Route::get('/', [DocumentTypeController::class, 'index'])->name('document-type.index');
         Route::post('store', [DocumentTypeController::class, 'store'])->name('document-type.add');

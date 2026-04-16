@@ -92,11 +92,6 @@ class LoanController extends Controller
             $loan_products = LoanProduct::active()->get();
         }
 
-        //get all active document types
-        $documentTypes = DocumentType::getAllActive()->toArray();
-        $documentTypesJson = json_encode($documentTypes);
-
-
         return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance', 'documentTypes', 'documentTypesJson'));
     }
 
@@ -178,9 +173,11 @@ class LoanController extends Controller
                 $loan = Loan::create($data);
 
                 $borrower = Client::findOrFail($data['borrower_id']);
-                $borrower->coMakers()->syncWithoutDetaching(
-                    array_fill_keys($data['client_comaker'], ['loan_id' => $loan->id])
-                );
+                if(isset($data['client_comaker'])) {
+                    $borrower->coMakers()->syncWithoutDetaching(
+                        array_fill_keys($data['client_comaker'], ['loan_id' => $loan->id])
+                    );
+                }
 
                 LoanCharge::create([
                     'loan_id' => $loan->id,
@@ -1154,5 +1151,17 @@ class LoanController extends Controller
         }
 
 
+    }
+
+    public function updateDisbursementReference(Request $request, int $id)
+    {
+        $loan = Loan::where('id', $id)->first();
+        $loan->disbursement_reference = $request->transaction_code;
+        $loan->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaction code updated successfully',
+        ]);
     }
 }

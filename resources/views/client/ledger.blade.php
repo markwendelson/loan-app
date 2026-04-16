@@ -107,12 +107,12 @@
                                             <th class="text-center" width="80" colspan="3" rowspan="2"></th>
                                             <th class="text-center" width="150" colspan="6">LOAN</th>
                                             <th class="text-center" width="80"></th>
-                                            <th class="text-center" width="150" colspan="10">PAYMENT</th>
+                                            <th class="text-center" width="150" colspan="11">PAYMENT</th>
                                             <th class="text-center" width="80" colspan="4" rowspan="2"></th>
                                         </tr>
                                         <tr>
                                             <th rowspan="3">Principal</th>
-                                            <th colspan="4">Deduction</th>
+                                            <th colspan="5">Deduction</th>
                                             <th rowspan="3">Net Proceed</th>
                                             <th></th>
                                             <th colspan="10" style="border-right-width:1px;">Applied to</th>
@@ -125,6 +125,7 @@
                                             <th rowspan="2">Service Fee</th>
                                             <th rowspan="2">Insurance Fee</th>
                                             <th rowspan="2">Others</th>
+                                            <th rowspan="2">Membership Fee</th>
                                             <th rowspan="2"></th>
                                             <th rowspan="2">Transaction Date</th>
                                             <th colspan="2">Interest</th>
@@ -183,7 +184,7 @@
                                         </tr>
                                         <tr>
                                             <th rowspan="2">Principal</th>
-                                            <th colspan="4">Deduction</th>
+                                            <th colspan="5">Deduction</th>
                                             <th rowspan="2">Net Proceed</th>
                                             <th></th>
                                             <th></th>
@@ -196,6 +197,7 @@
                                             <th>Service Fee</th>
                                             <th>Insurance Fee</th>
                                             <th>Others</th>
+                                            <th>Membership Fee</th>
                                             <th></th>
                                             <th>Transaction Date</th>
                                             <th>Interest</th>
@@ -302,6 +304,7 @@
                 { data: 'loan_service_fee', name: 'loan_service_fee' },
                 { data: 'loan_insurance_fee', name: 'loan_insurance_fee' },
                 { data: 'others', name: 'others' },
+                { data: 'membership_fee', name: 'membership_fee' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
                 { data: 'payment_date', name: 'payment_date' },
@@ -336,7 +339,29 @@
                     }
                 },
                 { data: 'balance', name: 'balance' },
-                { data: 'remarks', name: 'remarks' },
+                { data: 'remarks', name: 'remarks', render: function(data, type, row) {
+                    let input = `
+                            <div class="input-group input-group-sm" style="width:200px;">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="disbursement_reference"
+                                    value="${row.disbursement_reference}"
+                                />
+                                <button class="btn btn-primary btn-update-disbursement-reference" type="button" data-id="${row.loan_id}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        `;
+                        let mop = row.mode_of_payment
+
+                        if (mop == 'Authorized Person') return mop;
+
+                        if (mop == '') return '';
+
+                        return mop + input;
+                    }
+                },
                 { data: 'attachment', name: 'attachment', render: function(data, type, row) {
                         if (!data) return '';
 
@@ -381,6 +406,7 @@
                 { data: 'loan_service_fee', name: 'loan_service_fee' },
                 { data: 'loan_insurance_fee', name: 'loan_insurance_fee' },
                 { data: 'others', name: 'others' },
+                { data: 'membership_fee', name: 'membership_fee' },
                 { data: 'net_proceed', name: 'net_proceed' },
                 { data: 'signature', name: 'signature' },
                 { data: 'payment_date', name: 'payment_date' },
@@ -413,7 +439,29 @@
                     }
                 },
                 { data: 'balance', name: 'balance' },
-                { data: 'remarks', name: 'remarks' },
+                { data: 'remarks', name: 'remarks', render: function(data, type, row) {
+                    let input = `
+                            <div class="input-group input-group-sm" style="width:200px;">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="disbursement_reference"
+                                    value="${row.disbursement_reference}"
+                                />
+                                <button class="btn btn-primary btn-update-disbursement-reference" type="button" data-id="${row.loan_id}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        `;
+                        let mop = row.mode_of_payment
+
+                        if (mop == 'Authorized Person') return mop;
+
+                        if (mop == '') return '';
+
+                        return mop + input;
+                    }
+                },
                 { data: 'attachment', name: 'attachment', render: function(data, type, row) {
                         if (!data) return '';
 
@@ -604,6 +652,34 @@
             if (result) {
                 $.ajax({
                     url: '/savings/' + id + '/change-transaction-code',
+                    type: 'POST',
+                    data: { transaction_code : transaction_code },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        showToast.success(response.message)
+                        $('#tblLedger').DataTable().ajax.reload();
+                    }
+                });
+            }
+        })
+    });
+
+    $(document).on('click', '.btn-update-disbursement-reference', function () {
+        let id = $(this).data('id');
+        let transaction_code = $(this).siblings('input').val();
+
+        swal({
+            title: 'Are you sure?',
+            text: "Update Disbursement Reference",
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then((result) => {
+            if (result) {
+                $.ajax({
+                    url: '/loan/' + id + '/update-disbursement-reference',
                     type: 'POST',
                     data: { transaction_code : transaction_code },
                     headers: {
