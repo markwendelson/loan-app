@@ -9,6 +9,7 @@ use App\Http\Controllers\DepartmentController;
 // use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\InsuranceFeeScheduleController;
 use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LoanController;
@@ -155,6 +156,15 @@ Route::middleware('auth')->group(function () {
             Route::get('get-data-report', 'getExpenseReport')->name('expense.get-data-report');
         });
     Route::resource('expenses',ExpenseController::class);
+
+    Route::controller(ExpenseCategoryController::class)
+        ->prefix('expense-category')
+        ->group(function(){
+            Route::get('/', 'index')->name('expense-category.index');
+        });
+
+
+    
 
 
 
