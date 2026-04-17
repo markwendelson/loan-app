@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
+
 //models
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
 
 class ExpenseController extends Controller
@@ -74,6 +77,66 @@ class ExpenseController extends Controller
         $expenseCategories = ExpenseCategory::all();
 
         return view('expenses/report/index',compact('expenseCategories'));
+
+    }
+
+    public function getExpenseReport(Request $request) 
+    {
+        //get all data from ajax
+        $filterData = $request->all();
+        $expenseCategory = ExpenseCategory::whereIn('id', $filterData['expense_categories'])->get();
+
+
+
+        $dateValues = [];
+        //strip expense_date
+        if(isset($filterData['expense_date']) && $filterData['expense_date']) {
+            $expenseDateArr = explode('-', $filterData['expense_date']);
+
+            $dateValues['from'] = date('Y-m-d', strtotime(trim($expenseDateArr[0])));
+            $dateValues['to'] = date('Y-m-d', strtotime(trim($expenseDateArr[1])));
+        }
+        //get expenses 
+        $expenses = Expense::select('expenses.expense_date', 
+            'expenses.category_id',
+            DB::raw('SUM(expenses.amount) AS total_amount')
+            )
+            ->whereIn('category_id', $filterData['expense_categories'])
+            ->whereBetween('expenses.expense_date', [
+                $dateValues['from'],
+                $dateValues['to']
+            ])
+            ->groupBy('expenses.expense_date', 'expenses.category_id')
+            ->orderBy('expenses.expense_date', 'ASC')
+            ->get();
+
+        $expenseData = [];
+        if($expenses->isNotEmpty()) {
+            foreach($expenses as $key => $val){
+                $expenseData[$val->expense_date][$val->category_id] = [
+                    'category_id' => $val->category_id,
+                    'amount' => $val->total_amount
+                ];
+            }
+        }
+        // dd($expenseData);
+
+        $htmlView = view('expenses.report.report-data',compact(
+            'expenseCategory',
+            'dateValues',
+            'expenseData'
+        ))->render();
+
+        return response()->json([
+            'html' => $htmlView
+        ]);
+
+        
+        
+
+
+
+
 
     }
 }

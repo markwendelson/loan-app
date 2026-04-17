@@ -9,6 +9,14 @@
             max-height: 500px !important;
             overflow-y: auto;
         }
+
+        .w-300px {
+            width: 300px !important;
+        }
+
+        .th-custom-bg {
+            background-color: #006666 !important;
+        }
     </style>
 @endpush
 
@@ -40,8 +48,8 @@
         
         <form id="frmFilter">
             <div class="card">
-                <div class="card-body d-flex justify-content-end align-items-center gap-2">
-                    <input type="text" class="form-control expenseDate" value="{{ $dateNow }} - {{ $dateNow }}" style="width: 250px;">
+                <div class="card-body d-flex flex-wrap justify-content-end align-items-center gap-2">
+                    <input type="text" class="form-control expenseDate" value="{{ $dateNow }} - {{ $dateNow }}" style="width: 250px;" name="expense_date">
 
                     <div class="dropdown">
                         <button class="btn btn-outline-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" >
@@ -59,7 +67,7 @@
                                     <li class="d-flex align-items-center p-1">
 
                                         <div class="form-check checkbox checkbox-primary mb-0">
-                                            <input class="form-check-input chckAll" id="chck{{ $val->id }}" type="checkbox" checked="" value="{{ $val->id }}">
+                                            <input class="form-check-input chckAll" id="chck{{ $val->id }}" type="checkbox" checked="" value="{{ $val->id }}" name="expense_categories[]">
                                             <label class="form-check-label mb-1" for="chck{{ $val->id }}"><small>{{ $val->name ?? ''; }}</small></label>
                                         </div>
                                     </li>
@@ -68,14 +76,14 @@
                         </ul>
                     </div>
 
-                    <button type="button" class="btn btn-primary"><i class="fa fa-repeat"></i>&nbsp; Generate Report</button>
+                    <button type="button" class="btn btn-primary btnGenerateReport"><i class="fa fa-repeat"></i>&nbsp; Generate Report</button>
                 </div>
             </div>
         </form>
     </div>
 
     <div class="report-container container-fluid">
-        @include('expenses.report.report-data');
+        {{-- @include('expenses.report.report-data'); --}}
     </div>
 @endsection
 
@@ -84,7 +92,6 @@
 
     <script>
         $(document).ready(function() {
-
             //handle all checkbox behaviour
             $(".mainAll").on("change", function() {
                 if ($(this).is(":checked")) {
@@ -107,27 +114,49 @@
             });
 
             $('.expenseDate').daterangepicker({
-                opens: 'right',            // Calendar opens to the right
-                autoUpdateInput: false,    // Prevent automatic filling of input
+                opens: 'right',
+                autoUpdateInput: false,
                 locale: {
                     cancelLabel: 'Cancel',
                     format: 'MM/DD/YYYY'
                 },
-                singleDatePicker: false,   // Enable range selection
+                singleDatePicker: false,
             });
 
             // Event triggered when "Apply" is clicked
             $('.expenseDate').on('apply.daterangepicker', function(ev, picker) {
-                // picker.startDate and picker.endDate are Moment.js objects
                 let start = picker.startDate.format('MM/DD/YYYY');
                 let end = picker.endDate.format('MM/DD/YYYY');
 
-                // Fill the input with the selected range
                 $(this).val(`${start} - ${end}`);
 
-                // Optional: do something with the values
                 console.log('Selected range:', start, 'to', end);
             });
         });
+
+        $(".btnGenerateReport").click(function(e) {
+            let formData = $("#frmFilter").serializeArray();
+
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('expense.get-data-report') }}",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(response.html !== 'undefined' && response.html) {
+                        $('.report-container').html(response.html);
+                    }
+                }
+            });
+
+            return console.log(formData);
+        })
     </script>
 @endpush

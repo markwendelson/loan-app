@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExpenseCategory extends Model
 {
-    protected $fillable = ['name', 'scope'];
+    protected $fillable = ['name', 'abbreviation', 'scope'];
 
     public function expenses()
     {

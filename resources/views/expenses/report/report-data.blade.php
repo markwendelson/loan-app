@@ -1,16 +1,7 @@
 
-@push('css')
-    <style>
-        .w-150px {
-            width: 200px !important;
-        }
-
-        .th-custom-bg {
-            background-color: #006666 !important;
-        }
-    </style>
-@endpush
-
+@php
+    use \Illuminate\Support\Str;
+@endphp
 
 <div class="card">
     <div class="card-body">
@@ -33,7 +24,7 @@
         </div> --}}
 
         <div class="d-flex justify-content-end">
-            <table class="table table-sm table-bordered w-150px border-bottom">
+            <table class="table table-sm table-bordered w-300px border-bottom">
                 <thead>
                     <tr>
                         <th class="text-center">FROM</th>
@@ -42,8 +33,8 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>04/16/2026</td>
-                        <td>04/30/2026</td>
+                        <td>{{ $dateValues['from'] ?? ''; }}</td>
+                        <td>{{ $dateValues['to'] ?? ''; }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -55,153 +46,57 @@
                 <thead>
                     <tr class="th-custom-bg">
                         <th class="text-white">DATE</th>
-                        <th class="text-white">DESCRIPTION</th>
-                        <th class="text-white">AIR & TRANS</th>
-                        <th class="text-white">LOGDING</th>
-                        <th class="text-white">FUEL</th>
-                        <th class="text-white">PHONE</th>
-                        <th class="text-white">MEALS & TIPS</th>
-                        <th class="text-white">ENTMT</th>
-                        <th class="text-white">OTHER</th>
+                        @if(isset($expenseCategory) && $expenseCategory)
+                            @foreach($expenseCategory as $key => $val)
+                            <th class="text-white" title="{{ $val->name }}">{{ strtoupper($val->abbreviation ?? $val->name) }}</th>
+                            @endforeach
+                        @endif
                         <th class="text-white">TOTAL</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>04/16/2026</td>
-                        <td>Flight to NYC</td>
-                        <td>$450.00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$450.00</td>
-                    </tr>
-                    <tr>
-                        <td>04/17/2026</td>
-                        <td>Hotel accommodation</td>
-                        <td></td>
-                        <td>$350.00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$350.00</td>
-                    </tr>
-                    <tr>
-                        <td>04/17/2026</td>
-                        <td>Fuel charges</td>
-                        <td></td>
-                        <td></td>
-                        <td>$75.50</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$75.50</td>
-                    </tr>
-                    <tr>
-                        <td>04/18/2026</td>
-                        <td>Mobile phone bill</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$85.00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$85.00</td>
-                    </tr>
-                    <tr>
-                        <td>04/18/2026</td>
-                        <td>Lunch with client</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$65.25</td>
-                        <td></td>
-                        <td></td>
-                        <td>$65.25</td>
-                    </tr>
-                    <tr>
-                        <td>04/19/2026</td>
-                        <td>Theater show</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$120.00</td>
-                        <td></td>
-                        <td>$120.00</td>
-                    </tr>
-                    <tr>
-                        <td>04/20/2026</td>
-                        <td>Office supplies</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$42.00</td>
-                        <td>$42.00</td>
-                    </tr>
-                    <tr>
-                        <td>04/21/2026</td>
-                        <td>Taxi fare</td>
-                        <td>$95.00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$95.00</td>
-                    </tr>
-                    <tr>
-                        <td>04/22/2026</td>
-                        <td>Dinner expense</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$110.50</td>
-                        <td></td>
-                        <td></td>
-                        <td>$110.50</td>
-                    </tr>
-                    <tr>
-                        <td>04/23/2026</td>
-                        <td>Return flight</td>
-                        <td>$425.00</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>$425.00</td>
-                    </tr>
+                    @php
+                        $overAllTotal = 0;
+                        $colTotals = array_fill(0, count($expenseCategory), 0);
+                    @endphp
+                    @if(isset($expenseData) && $expenseData)
+                        @foreach($expenseData as $key => $val)
+                            <tr>
+                                <td>{{ $key }}</td>
+                                @php $colTotal = 0; @endphp
+                                @if(isset($expenseCategory) && $expenseCategory)
+                                    @foreach($expenseCategory as $key2 => $val2)
+                                        @php
+                                            $amount = (double) ($val[$key2]['amount'] ?? 0);
+                                            $colTotal += $amount;
+                                            $colTotals[$key2] += $amount;
+                                        @endphp
+                                        <td class="text-end">{{ number_format($amount, 2) }}</td>
+                                    @endforeach
+                                    @php
+                                        $overAllTotal += $colTotal;
+                                    @endphp
+                                    <td class="text-end">{{ number_format($colTotal, 2) }}</td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    @endif
                 </tbody>
-                <tfooter >
-                    <tr >
+                <tfoot>
+                    <tr>
                         <td class="border-0"></td>
-                        <td class="border-0"></td>
-                        <td class="border-bottom"></td>
-                        <td class="border-bottom"></td>
-                        <td class="border-bottom"></td>
-                        <td class="border-bottom"></td>
-                        <td class="border-bottom"></td>
-                        <td class="border-bottom"></td>
-                        <td class="border-bottom"></td>
-                        <td class="border-bottom"></td>
+                        @if(isset($expenseCategory) && $expenseCategory)
+                            @foreach($expenseCategory as $key => $val)
+                                <td class="border-bottom bg-light text-end">
+                                    {{ number_format($colTotals[$key], 2) }}
+                                </td>
+                            @endforeach
+                        @endif
+                        <td class="border-bottom bg-light text-end">
+                            {{ number_format($overAllTotal, 2) }}
+                        </td>
                     </tr>
-                </tfooter>
+                </tfoot>
             </table>
         </div>
 

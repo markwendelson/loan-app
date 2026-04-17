@@ -152,6 +152,7 @@ Route::middleware('auth')->group(function () {
         ->prefix('expenses')
         ->group(function() {
             Route::get('report', 'expenseReport')->name('expenses.report');
+            Route::get('get-data-report', 'getExpenseReport')->name('expense.get-data-report');
         });
     Route::resource('expenses',ExpenseController::class);
 
