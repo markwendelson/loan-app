@@ -54,7 +54,7 @@
                         <th class="text-white">TOTAL</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="border-bottom">
                     @php
                         $overAllTotal = 0;
                         $colTotals = array_fill(0, count($expenseCategory), 0);
@@ -82,21 +82,21 @@
                         @endforeach
                     @endif
                 </tbody>
-                <tfoot>
-                    <tr>
+                <tfooter>
+                    <tr class="border-0">
                         <td class="border-0"></td>
                         @if(isset($expenseCategory) && $expenseCategory)
                             @foreach($expenseCategory as $key => $val)
-                                <td class="border-bottom bg-light text-end">
+                                <td class="border bg-light text-end">
                                     {{ number_format($colTotals[$key], 2) }}
                                 </td>
                             @endforeach
                         @endif
-                        <td class="border-bottom bg-light text-end">
+                        <td class="border bg-light text-end">
                             {{ number_format($overAllTotal, 2) }}
                         </td>
                     </tr>
-                </tfoot>
+                </tfooter>
             </table>
         </div>
 
