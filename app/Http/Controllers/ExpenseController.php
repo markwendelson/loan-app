@@ -119,7 +119,6 @@ class ExpenseController extends Controller
                 ];
             }
         }
-        // dd($expenseData);
 
         $htmlView = view('expenses.report.report-data',compact(
             'expenseCategory',
