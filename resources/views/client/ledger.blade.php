@@ -179,7 +179,7 @@
                                             <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             <th class="text-center" width="150" colspan="6">LOAN</th>
                                             <th class="text-center" width="80"></th>
-                                            <th class="text-center" width="150" colspan="8">PAYMENT</th>
+                                            <th class="text-center" width="150" colspan="9">PAYMENT</th>
                                             <th class="text-center" width="80" colspan="4" rowspan="2"></th>
                                         </tr>
                                         <tr>
