@@ -92,7 +92,7 @@ class LoanController extends Controller
             $loan_products = LoanProduct::active()->get();
         }
 
-        return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance', 'documentTypes', 'documentTypesJson'));
+        return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance'));
     }
 
     /**
