@@ -161,6 +161,8 @@ Route::middleware('auth')->group(function () {
         ->prefix('expense-category')
         ->group(function(){
             Route::get('/', 'index')->name('expense-category.index');
+            Route::post('create', 'create')->name('expense-category.create');
+            Route::put('update', 'update')->name('expense-category.update');
         });
 
 

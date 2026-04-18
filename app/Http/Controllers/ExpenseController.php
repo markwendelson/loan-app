@@ -74,17 +74,18 @@ class ExpenseController extends Controller
 
     public function expenseReport()
     {
-        $expenseCategories = ExpenseCategory::all();
+        $expenseCategories = ExpenseCategory::orderBy('expense_categories.name', 'ASC')
+            ->get();
 
         return view('expenses/report/index',compact('expenseCategories'));
-
     }
 
     public function getExpenseReport(Request $request) 
     {
         //get all data from ajax
         $filterData = $request->all();
-        $expenseCategory = ExpenseCategory::whereIn('id', $filterData['expense_categories'])->get();
+        $expenseCategory = ExpenseCategory::whereIn('id', $filterData['expense_categories'])
+            ->get();
 
 
 

@@ -170,7 +170,9 @@
         @can('view-document-type')
         <li><a href="{{ route('document-type.index') }}">Document Types</a></li>
         @endcan
+        @can('view-expense-category')
         <li><a href="{{ route('expense-category.index') }}">Expense Category</a></li>
+        @endcan
 
         <!-- <li><a href="/departments">Department</a></li> -->
         @can('view-job-title')

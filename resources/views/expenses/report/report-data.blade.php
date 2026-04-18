@@ -48,10 +48,10 @@
                         <th class="text-white">DATE</th>
                         @if(isset($expenseCategory) && $expenseCategory)
                             @foreach($expenseCategory as $key => $val)
-                            <th class="text-white" title="{{ $val->name }}">{{ strtoupper($val->abbreviation ?? $val->name) }}</th>
+                            <th class="text-white text-center" title="{{ $val->name }}">{{ strtoupper($val->abbreviation ?? $val->name) }}</th>
                             @endforeach
                         @endif
-                        <th class="text-white">TOTAL</th>
+                        <th class="text-white text-center">TOTAL</th>
                     </tr>
                 </thead>
                 <tbody class="border-bottom">

@@ -116,6 +116,10 @@ return [
             ['name' => 'view-document-type','label' => 'View Document Types'],
             ['name' => 'create-document-type','label' => 'Create Document Types'],
             ['name' => 'edit-document-type','label' => 'Edit Document Types'],
+            ['name' => 'view-expense-category','label' => 'View Expense Category'],
+            ['name' => 'create-expense-category','label' => 'Create Expense Category'],
+            ['name' => 'edit-expense-category','label' => 'Edit Expense Category'],
+
 
         ]
     ],
