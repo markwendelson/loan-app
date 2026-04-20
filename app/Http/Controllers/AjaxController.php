@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\ClientDocument;
 use App\Models\DocumentType;
 use App\Models\Incentives;
 use App\Models\Savings;
@@ -115,5 +116,50 @@ class AjaxController extends Controller
         $document_types = DocumentType::active()->get(['id','type_name','description']);
 
         return $document_types;
+    }
+
+    public function uploadAttachment(Request $request)
+    {
+        try {
+
+            $loan_id = $request->loan_id;
+            $client_id = $request->client_id;
+            $document_type_id = $request->doc_type;
+            $remarks = $request->remarks ?? '';
+
+            if ($request->hasFile('file_upload')) {
+
+                $file = $request->file('file_upload');
+                // $filename = $file->getClientOriginalName();
+                // $folder = 'attachments/' . $loan_no;
+                // $path = $file->storeAs($folder, $filename, 'public');
+                $path = $file->store('client_uploads', 'public');
+
+
+                ClientDocument::create([
+                    'client_id' => $client_id,
+                    'loan_id' => $loan_id,
+                    'document_type_id' => $document_type_id,
+                    'file_path' => $path,
+                    'remarks' => $remarks,
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'File uploaded successfully',
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Nothing to upload',
+                ], 422);
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.' . $th->getMessage()
+            ], 500);
+        }
     }
 }

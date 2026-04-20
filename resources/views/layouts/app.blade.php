@@ -9,7 +9,7 @@
     <meta name="keywords" content="">
     <meta name="author" content="pixelstrap">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <link rel="icon" href="{{url('assets/images/favicon.png')}}" type="image/x-icon">
     <link rel="shortcut icon" href="{{url('assets/images/favicon.png')}}" type="image/x-icon">
     <title>{{config('app.name')}} - @yield("title")</title>
@@ -247,13 +247,45 @@
             });
         }
 
-        @if (session('message'))
+        @if(session('message'))
             showToast.success({!! json_encode(session('message')) !!});
         @endif
 
     </script>
 
     <script>
+
+        // jQuery Combined Decimal Input Handler
+        $(document).on('input', '.decimal-only', function () {
+            let val = this.value;
+
+            // Remove all characters except digits and dot
+            val = val.replace(/[^0-9.]/g, '');
+
+            // Prevent multiple dots
+            const parts = val.split('.');
+            if (parts.length > 2) {
+                val = parts[0] + '.' + parts[1];
+            }
+
+            // Limit to 2 decimal places
+            if (parts[1]) {
+                parts[1] = parts[1].substring(0, 2);
+                val = parts[0] + '.' + parts[1];
+            }
+
+            this.value = val;
+
+        });
+
+        // Optional: prevent typing multiple dots directly
+        $(document).on('keypress', '.decimal-only', function (e) {
+            if (e.which === 46 && $(this).val().includes('.')) {
+                e.preventDefault();
+            }
+        });
+
+
         document.addEventListener('DOMContentLoaded', function () {
 
             document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
@@ -273,6 +305,25 @@
             }
 
         });
+
+        function numberFormat(e, showDecimals = true) {
+            let raw = e.value.replace(/,/g, '');
+
+            let num = Number(raw);
+
+            if (isNaN(num)) {
+                e.value = '';
+                return;
+            }
+
+            let amount = num.toLocaleString('en-PH', {
+                minimumFractionDigits: showDecimals ? 2 : 0,
+                maximumFractionDigits: showDecimals ? 2 : 0
+            });
+
+            e.value = amount;
+        }
+
     </script>
 
     @yield('scripts')

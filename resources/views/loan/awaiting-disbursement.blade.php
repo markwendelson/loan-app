@@ -127,7 +127,8 @@
                     $(this).show();
                 });
 
-                let formData = $("#frmDisbursementModal").serializeArray();
+                let form = $('#frmDisbursementModal')[0];
+                let formData = new FormData(form);
 
                 var id = $("#modalDisbursement [name='id']").val();
                 var _url = `{{route('loan.disburse',':id')}}`.replace(':id',id);
@@ -137,6 +138,8 @@
                     url: _url,
                     data: formData,
                     dataType: "json",
+                    processData: false,
+                    contentType: false,
                     success: function (response) {
                         //hide loading screen
                         $(".loader-wrapper").fadeOut("slow", function () {
@@ -180,31 +183,10 @@
             window.location.href = `/loan/${id}`
         })
 
-        function cashOutLoan(id) {
-            swal({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                buttons: true,
-                dangerMode: true,
-            }).then((result) => {
-                if (result) {
+        $("#mode_of_payment").on("change", function() {
+            $('.attachment').toggleClass('d-none', $(this).val() !== 'authorized_person');
+        }).trigger("change");
 
-                    $.ajax({
-                        url: '/loan/disburse/' + id,
-                        type: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            showToast.success(response.message)
-                            table.ajax.reload()
-                        }
-                    });
-
-                }
-            })
-        }
     });
 
 

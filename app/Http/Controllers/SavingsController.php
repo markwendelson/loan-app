@@ -211,6 +211,7 @@ class SavingsController extends Controller
                 $path = $file->storeAs($folder, $filename, 'public');
 
                 Attachment::create([
+                    'file_reference' => 'savings',
                     'transaction_no' => $savings->transaction_no,
                     'file_name'      => $filename,
                     'file_path'      => $path,

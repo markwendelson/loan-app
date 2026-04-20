@@ -33,7 +33,8 @@
                     @if($isForWithdraw)
                         <span class="badge bg-warning">For Withdraw Loan Application</span>
                     @endif
-                </h4>
+                    </h4>
+                </div>
             </div>
             <div class="col-6">
                 <ol class="breadcrumb">
@@ -86,15 +87,19 @@
                 @endif
                 <div class="form-group pricipal">
                     <label for="principal">Principal</label>
-                    <input type="text" class="form-control form-control-sm" name="principal" id="principal" value="{{ number_format($loan->principal,2)}}" readonly/>
+                    <input type="text" class="form-control form-control-sm text-end" name="principal" id="principal" value="{{ number_format($loan->principal,2)}}" readonly/>
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="number" class="form-control form-control-sm" name="term" id="term" value="{{ (int) $loan->loan_duration}}" readonly/>
+                    <input type="number" class="form-control form-control-sm text-end" name="term" id="term" value="{{ (int) $loan->loan_duration}}" readonly/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>
-                    <input type="number" class="form-control form-control-sm" name="interest_rate" id="interest_rate" value="{{$loan->interest_rate}}" readonly/>
+                    <input type="number" class="form-control form-control-sm text-end" name="interest_rate" id="interest_rate" value="{{$loan->interest_rate}}" readonly/>
+                </div>
+                <div class="form-group interest-advance">
+                    <label for="interest_advance">Interest Advance</label>
+                    <input type="number" class="form-control form-control-sm text-end" name="interest_advance" id="interest_advance" min="0" placeholder="0" value="{{ $loan->loanCharges->interest_advance }}"/>
                 </div>
                 {{-- <div class="form-group">
                     <label for="interest_method">Interest Method</label>
@@ -132,7 +137,9 @@
                         @endif
                         <li>Notary Fee <span class="notary_fee">{{number_format($loan->loanCharges->notary_fee,2)}}</span></li>
                         <li>Membership Fee <span class="membership_fee">{{number_format($loan->loanCharges->membership_fee_paid,2)}}</span></li>
+                        <li>Redeem Charges <span class="membership_fee">{{number_format($loan->loanCharges->redeem_charges,2)}}</span></li>
                         <li>Principal Advance <span class="principal_advance">{{number_format($loan->loanCharges->principal_advance,2)}}</span></li>
+                        <li>Interest Advance Payment<span class="paid_interest_advance">{{number_format($loan->loanCharges->paid_interest_advance,2)}}</span></li>
                         @if($loan->is_reloan)
                         <li>Special Loan Balance <span class="reloan_deduction">{{number_format($loan->loanCharges->special_loan_balance,2)}}</span></li>
                         <li>Reloan Deduction <span class="reloan_deduction">{{number_format($loan->loanCharges->reloan_deduction,2)}}</span></li>
@@ -145,10 +152,12 @@
                         $insurance_fee = $loan->loanCharges->insurance_fee ?? 0;
                         $notary_fee = $loan->loanCharges->notary_fee ?? 0;
                         $membership_fee = $loan->loanCharges->membership_fee_paid ?? 0;
+                        $redeem_charges = $loan->loanCharges->redeem_charges ?? 0;
                         $principal_advance = $loan->loanCharges->principal_advance ?? 0;
+                        $paid_interest_advance = $loan->loanCharges->paid_interest_advance ?? 0;
                         $reloan_deduction = $loan->loanCharges->reloan_deduction ?? 0;
                         $special_loan_balance = $loan->loanCharges->special_loan_balance ?? 0;
-                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance + $membership_fee + $principal_advance;
+                        $total_deductions = $advance_interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $special_loan_balance + $membership_fee + $principal_advance + $paid_interest_advance;
                         $net_proceeds = $principal - $total_deductions;
                     @endphp
                     <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds">{{ number_format($net_proceeds,2) }}</span></li>
