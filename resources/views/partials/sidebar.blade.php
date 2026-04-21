@@ -147,12 +147,14 @@
 </li>
 <li class="sidebar-list">
 
+    @can('view-expense-report')
     <a class="sidebar-link sidebar-title link-nav" href="{{route('expenses.report')}}">
         <svg class="stroke-icon">
             <use href="{{url('assets/svg/icon-sprite.svg#expense')}}"></use>
         </svg>
         <span>Expenses</span>
     </a>
+    @endcan
 </li>
 
 <li class="sidebar-main-title">

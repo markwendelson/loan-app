@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 
 //models
 use App\Models\Expense;
+use App\Models\ExpenseReport;
 use App\Models\ExpenseCategory;
 
 class ExpenseController extends Controller
@@ -74,69 +76,111 @@ class ExpenseController extends Controller
 
     public function expenseReport()
     {
-        $expenseCategories = ExpenseCategory::orderBy('expense_categories.name', 'ASC')
+        if(!auth()->user()->can('view-expense-report')) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $expenseCategories = ExpenseCategory::where('status', 1)->orderBy('expense_categories.name', 'ASC')
             ->get();
-
-        return view('expenses/report/index',compact('expenseCategories'));
+        $expenseReports = ExpenseReport::select('expense_reports.*', 'users.name as user_name')
+            ->orderBy('created_at', 'DESC')
+            ->leftJoin('users', 'users.id', 'expense_reports.user_id')
+            ->paginate(10);
+        return view('expenses/report/index',compact('expenseCategories', 'expenseReports'));
     }
 
-    public function getExpenseReport(Request $request) 
+    public function generateExpenseReport(Request $request) 
     {
-        //get all data from ajax
-        $filterData = $request->all();
-        $expenseCategory = ExpenseCategory::whereIn('id', $filterData['expense_categories'])
-            ->get();
-
-
-
-        $dateValues = [];
-        //strip expense_date
-        if(isset($filterData['expense_date']) && $filterData['expense_date']) {
-            $expenseDateArr = explode('-', $filterData['expense_date']);
-
-            $dateValues['from'] = date('Y-m-d', strtotime(trim($expenseDateArr[0])));
-            $dateValues['to'] = date('Y-m-d', strtotime(trim($expenseDateArr[1])));
-        }
-        //get expenses 
-        $expenses = Expense::select('expenses.expense_date', 
-            'expenses.category_id',
-            DB::raw('SUM(expenses.amount) AS total_amount')
-            )
-            ->whereIn('category_id', $filterData['expense_categories'])
-            ->whereBetween('expenses.expense_date', [
-                $dateValues['from'],
-                $dateValues['to']
-            ])
-            ->groupBy('expenses.expense_date', 'expenses.category_id')
-            ->orderBy('expenses.expense_date', 'ASC')
-            ->get();
-
-        $expenseData = [];
-        if($expenses->isNotEmpty()) {
-            foreach($expenses as $key => $val){
-                $expenseData[$val->expense_date][$val->category_id] = [
-                    'category_id' => $val->category_id,
-                    'amount' => $val->total_amount
-                ];
-            }
-        }
-
-        $htmlView = view('expenses.report.report-data',compact(
-            'expenseCategory',
-            'dateValues',
-            'expenseData'
-        ))->render();
-
-        return response()->json([
-            'html' => $htmlView
+        $inputData = $request->all();
+        
+        $validator = Validator::make($request->all(), [
+            'expense_date' => 'required',
+            'expense_categories' => 'required|array',
         ]);
 
+        if($validator->fails()){
+            $allErrors = implode(',', $validator->errors()->all());
+            $response = [
+                'status' => 'fail',
+                'message' => 'Validation Failed!: ' . $allErrors,
+            ];
+
+            return response()->json($response);
+        }
+
+        try {
+            $dateValues = [];
+            //strip expense_date
+            if(isset($inputData['expense_date']) && $inputData['expense_date']) {
+                $expenseDateArr = explode('-', $inputData['expense_date']);
+
+                $dateValues['from'] = date('Y-m-d', strtotime(trim($expenseDateArr[0])));
+                $dateValues['to'] = date('Y-m-d', strtotime(trim($expenseDateArr[1])));
+            }
+
+            //get expenses 
+            $expenses = Expense::select('expenses.expense_date', 
+                'expenses.category_id',
+                DB::raw('SUM(expenses.amount) AS total_amount')
+                )
+                ->whereIn('category_id', $inputData['expense_categories'])
+                ->whereBetween('expenses.expense_date', [
+                    $dateValues['from'],
+                    $dateValues['to']
+                ])
+                ->groupBy('expenses.expense_date', 'expenses.category_id')
+                ->orderBy('expenses.expense_date', 'ASC')
+                ->get();
+
+            $expenseData = [];
+            $totalAmount = 0;
+            if($expenses->isNotEmpty()) {
+                foreach($expenses as $key => $val){
+                    $totalAmount += (double)$val->total_amount;
+                    $expenseData[$val->expense_date][$val->category_id] = [
+                        'category_id' =>$val->category_id,
+                        'amount' => $val->total_amount
+                    ];
+                }
+            }
+
+            ExpenseReport::create([
+                'user_id' => auth()->id(),
+                'date_from' => $dateValues['from'],
+                'date_to' => $dateValues['to'],
+                'description' => $inputData['description'],
+                'categories_data' => json_encode($inputData['expense_categories']),
+                'amount' => (double)$totalAmount,
+                'data' => json_encode($expenseData),
+                'slug' => \Str::slug('exp' . date('Ymd H:i:s'))
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Expense report generated successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error saving expense report: ' . $e->getMessage()
+            ], 500);
+        }
+
         
-        
+    }
 
+    public function viewExpenseReport($slug)
+    {
+        $expenseReport = ExpenseReport::select('expense_reports.*', 'users.id as user_id', 'users.name as user_name')
+            ->where('slug', $slug)
+            ->leftJoin('users', 'users.id', 'expense_reports.user_id')
+            ->firstOrFail();
+        $expenseCategories = ExpenseCategory::whereIn('id', json_decode($expenseReport->categories_data))->get()->keyBy('id');
 
-
-
+        return view('expenses.report.report-data', compact(
+            'expenseReport',
+            'expenseCategories'
+        ));
 
     }
 }

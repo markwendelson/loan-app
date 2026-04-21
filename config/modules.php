@@ -123,4 +123,11 @@ return [
 
         ]
     ],
+    'Reports' => [
+        'permissions' => [
+            ['name' => 'view-expense-report','label' => 'View Expense Report'],
+            ['name' => 'create-expense-report','label' => 'Create Expense Report'],
+
+        ]
+    ],
 ];
