@@ -82,6 +82,7 @@
                 <div class="tab-content" id="top-tabContent">
                 <div class="tab-pane fade show active" id="principal-loan" role="tabpanel" aria-labelledby="principal-loan-tab">
                     @isset($principal_loan)
+                    <input type="hidden" name="principal_loan_id" id="principal_loan_id" value="{{$loan['principal_loan_id']}}"/>
                     <div class="card">
                         <div class="card-header">
                             <div class="row">
@@ -156,6 +157,7 @@
                     @endisset
                 </div>
                 @isset($special_loan)
+                <input type="hidden" name="special_loan_id" id="special_loan_id" value="{{$loan['special_loan_id']}}"/>
                 <div class="tab-pane fade" id="special-loan" role="tabpanel" aria-labelledby="special-loan-tab">
                     <div class="card">
                         <div class="card-header">
@@ -179,7 +181,7 @@
                                             <th class="text-center" width="80" colspan="2" rowspan="2"></th>
                                             <th class="text-center" width="150" colspan="6">LOAN</th>
                                             <th class="text-center" width="80"></th>
-                                            <th class="text-center" width="150" colspan="8">PAYMENT</th>
+                                            <th class="text-center" width="150" colspan="9">PAYMENT</th>
                                             <th class="text-center" width="80" colspan="4" rowspan="2"></th>
                                         </tr>
                                         <tr>

@@ -43,11 +43,11 @@
                 <input type="hidden" name="loan_id" id="loan_id" value="{{$loan->id}}"/>
                 <div class="form-group">
                     <label for="loan_date">Loan Date</label>
-                    <input type="date" class="form-control" name="loan_date" id="loan_date" value="{{$loan->loan_date}}"/>
+                    <input type="date" class="form-control form-control-sm" name="loan_date" id="loan_date" value="{{$loan->loan_date}}"/>
                 </div>
                 <div class="form-group">
                     <label for="borrower_id">Borrower</label>
-                    <select name="borrower_id" id="borrower_id" class="form-control">
+                    <select name="borrower_id" id="borrower_id" class="form-control form-control-sm">
                         <option value="" disabled>-Select-</option>
                         @foreach ($clients as $client)
                             <option value="{{$client->id}}" {{ $client->id == $loan->borrower_id ? 'selected' : ''}}>{{$client->details->fullname}}</option>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="form-group">
                     <label for="loan_product_id">Loan Product</label>
-                    <select name="loan_product_id" id="loan_product_id" class="form-control">
+                    <select name="loan_product_id" id="loan_product_id" class="form-control form-control-sm">
                         <option value="" disabled selected>-Select-</option>
                         @foreach ($loan_products as $loan_product)
                             <option value="{{$loan_product->id}}" {{ $loan_product->id == $loan->loan_product_id ? 'selected' : '' }} data-loan-type={{Str::slug($loan_product->loanType->name)}} data-interest-rate="{{$loan_product->loanType->interest_rate}}">{{$loan_product->name}}</option>
@@ -65,15 +65,19 @@
                 </div>
                 <div class="form-group">
                     <label for="principal">Principal</label>
-                    <input type="number" class="form-control" name="principal" id="principal" value="{{$loan->principal}}"/>
+                    <input type="text" class="form-control form-control-sm text-end decimal-only" name="principal" id="principal" value="{{number_format($loan->principal,2)}}" min="1" placeholder="0" onblur="numberFormat(this)"/>
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="number" class="form-control" name="term" id="term" value="{{$loan->loan_duration}}"/>
+                    <input type="number" class="form-control form-control-sm text-end" name="term" id="term" step="0.5" value="{{$loan->loan_duration}}"/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>
-                    <input type="number" class="form-control" name="interest_rate" id="interest_rate" value="{{$loan->interest_rate}}"/>
+                    <input type="number" class="form-control form-control-sm text-end" name="interest_rate" id="interest_rate" min="0" value="{{$loan->interest_rate}}"/>
+                </div>
+                <div class="form-group interest-advance">
+                    <label for="interest_advance">Interest Advance</label>
+                    <input type="number" class="form-control form-control-sm text-end" name="interest_advance" id="interest_advance" min="0" placeholder="0" value="{{ $loan->loanCharges->interest_advance }}"/>
                 </div>
                 {{-- <div class="form-group">
                     <label for="interest_method">Interest Method</label>
@@ -102,51 +106,51 @@
             <div class="card-body">
                 <ul>
                     <li>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center">
                             <label>Principal Loan</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end principal" readonly>
+                            <input type="text" class="form-control form-control-sm w-25 text-end principal" readonly placeholder="0.00"/>
                         </div>
                     </li>
                     <li class="mt-3 mb-3">Deductions</li>
                     <ul style="margin-left: 1rem;">
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="advance_interest">Advance Interest</label>
                                 <div class="ms-auto gap-3">
                                     <input type="checkbox" class="form-check-input over-ride" name="override_advance_interest" id="override_advance_interest">
                                     <label for="override_notary_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="advance_interest" id="advance_interest">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="advance_interest" id="advance_interest" placeholder="0.00"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="service_fee">Service Fee</label>
                                 <div class="ms-auto gap-3">
                                     <input type="checkbox" class="form-check-input over-ride" name="override_service_fee" id="override_service_fee">
                                     <label for="override_notary_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="service_fee" id="service_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="service_fee" id="service_fee" placeholder="0.00">
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="insurance">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="insurance_fee">Insurance Fee</label>
                                 <div class="ms-auto gap-3">
                                     <input type="checkbox" class="form-check-input over-ride" name="override_insurance_fee" id="override_insurance_fee">
                                     <label for="override_notary_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="insurance_fee" id="insurance_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="insurance_fee" id="insurance_fee" placeholder="0.00">
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="notary">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="notary_fee">Notary Fee</label>
                                 <div class="ms-auto gap-3">
                                     <input type="checkbox" class="form-check-input over-ride" name="override_notary_fee" id="override_notary_fee">
                                     <label for="override_notary_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="notary_fee" id="notary_fee" placeholder="0.00">
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="membership">
@@ -156,32 +160,44 @@
                                     <input type="checkbox" class="form-check-input over-ride" name="override_membership_fee" id="override_membership_fee">
                                     <label for="override_membership_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{ number_format($loan->loanCharges->membership_fee_paid,2) }}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{ number_format($loan->loanCharges->membership_fee_paid,2) }}" data-membership-fee="{{number_format(config('settings.membership_fee'),2)}}" placeholder="0.00"/>
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3" id="redeem_charges_container">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="redeem_charges">Redeem Charges</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="redeem_charges" id="redeem_charges" value="{{ number_format($loan->loanCharges->redeem_charges,2) }}" placeholder="0.00" onblur="numberFormat(this)"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="principal_advance_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" value="{{ number_format($loan->loanCharges->principal_advance,2) }}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" value="{{ number_format($loan->loanCharges->principal_advance,2) }}" placeholder="0.00"/>
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3" id="paid_interest_advance_container">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="paid_interest_advance">Interest Advance Payment</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="paid_interest_advance" id="paid_interest_advance" placeholder="0.00" readonly value="{{ number_format($loan->loanCharges->paid_interest_advance,2) }}"/>
                             </div>
                         </li>
                         @if($loan->is_reloan)
                         <li class="mt-3 mb-3">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <label for="notary_fee">Reloan Deduction</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$loan->loanCharges->reloan_deduction}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$loan->loanCharges->reloan_deduction}}" placeholder="0.00"/>
                             </div>
                         </li>
                         @endif
                     </ul>
                     <li class="mt-3 mb-3">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center">
                             <label for="net_proceeds">Net Proceeds</label>
                             <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="net_proceeds" id="net_proceeds">
                         </div>
                     </li>
                     <li class="mt-3 mb-3">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center">
                             <label for="monthly_amortization">Monthly Amortization</label>
                             <input type="text" class="form-control form-control-sm w-25 text-end" name="monthly_amortization" id="monthly_amortization">
                         </div>
@@ -281,7 +297,7 @@
             calculateLoan();
         })
 
-        $("[name='principal'],[name='interest_rate'],[name='principal_advance']").on('change', function() {
+        $("[name='principal'],[name='interest_rate'],[name='principal_advance'],[name='interest_advance'],[name='redeem_charges']").on('change', function() {
             calculateLoan();
         })
 
@@ -297,7 +313,7 @@
         });
 
         async function calculateLoan() {
-            var principal = parseFloat($("[name='principal']").val())
+            var principal = parseFloat($("[name='principal']").val().replace(/,/g, ''))
             interest_rate = parseFloat($("[name='interest_rate']").val())
             var term = parseInt($("[name='term']").val())
 
@@ -393,13 +409,30 @@
             }
 
             var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
+            var redeem_charges = parseFloat($('#redeem_charges').val().replace(/,/g, '')) || 0;
+            var interest_advance = parseFloat($('#interest_advance').val().replace(/,/g, '')) || 0;
+            var paid_interest_advance = interest_advance * advance_interest;
+            if(override_membership_fee) {
+                membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0
+            } else {
+                membership_fee = parseFloat($('#membership_fee').data("membership-fee").replace(/,/g, ''));
+            }
+
             var rawValue = $('#principal_advance').val();
             var principal_advance = 0;
             if (rawValue) {
                 principal_advance = parseFloat(rawValue.toString().replace(/,/g, '')) || 0;
             }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee) + Math.floor(principal_advance);
+            var total_deductions = Math.floor(advance_interest)
+                                + Math.ceil(service_fee)
+                                + Math.floor(insurance_fee)
+                                + Math.floor(notary_fee)
+                                + Math.floor(reloan_deduction)
+                                + Math.floor(membership_fee)
+                                + Math.floor(redeem_charges)
+                                + Math.floor(principal_advance)
+                                + Math.floor(paid_interest_advance);
 
             var net_proceeds = principal - total_deductions;
 
@@ -409,8 +442,16 @@
             $('#service_fee').val(currencyFormat(Math.ceil(service_fee)))
             $('#insurance_fee').val(currencyFormat(Math.floor(insurance_fee)))
             $('#notary_fee').val(currencyFormat(Math.floor(notary_fee)))
+            $('#membership_fee').val(currencyFormat(Math.floor(membership_fee)))
+            $('#paid_interest_advance').val(currencyFormat(Math.floor(paid_interest_advance)))
             $('#monthly_amortization').val(currencyFormat(monthly_amortization))
             $('#net_proceeds').val(currencyFormat(Math.floor(net_proceeds)))
+
+            if(net_proceeds > 0) {
+                $('.btn-update-loan').attr('disabled', false)
+            } else {
+                $('.btn-update-loan').attr('disabled', true)
+            }
 
         }
 
@@ -433,6 +474,7 @@
 
 
         $('.btn-update-loan').on('click', function() {
+            $(this).attr("disabled", true);
             updateLoan()
         })
 
@@ -454,7 +496,10 @@
             formData.append('monthly_amortization', $('#monthly_amortization').val().replace(/,/g, ''));
             formData.append('net_proceeds', $('#net_proceeds').val().replace(/,/g, ''));
             formData.append('membership_fee', $('#membership_fee').val().replace(/,/g, ''));
+            formData.append('redeem_charges', $('#redeem_charges').val().replace(/,/g, ''));
             formData.append('principal_advance', $('#principal_advance').val().replace(/,/g, ''));
+            formData.append('interest_advance', $('#interest_advance').val().replace(/,/g, ''));
+            formData.append('paid_interest_advance', $('#paid_interest_advance').val().replace(/,/g, ''));
 
             // Needed for PUT method with FormData in Laravel
             formData.append('_method', 'PUT');

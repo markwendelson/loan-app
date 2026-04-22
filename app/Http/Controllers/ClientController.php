@@ -336,17 +336,19 @@ class ClientController extends Controller
                 ->get();
         }
 
-        if($special_attachments) {
+        if($special_loan) {
             $special_attachments = ClientDocument::where('loan_id', $special_loan->id)
                 ->with('documentType')
                 ->get();
         }
 
         $loan = [
+            'principal_loan_id' => $principal_loan->id ?? '',
             'principal_loan_no' => $principal_loan->loan_no ?? '',
             'principal_loan_product' => $principal_loan->loanProduct->name ?? '',
             'principal_loan_product_type' => $principal_loan->loanProduct->loanType->name ?? '',
             'principal_date_granted' => $principal_loan->approved_date ?? '',
+            'special_loan_id' => $special_loan->id ?? '',
             'special_loan_no' => $special_loan->loan_no ?? '',
             'special_loan_product' => $special_loan->loanProduct->name ?? '',
             'special_date_granted' => $special_loan->approved_date ?? '',

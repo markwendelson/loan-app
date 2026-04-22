@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\LoanStatus;
 use App\Http\Requests\LoanRequest;
+use App\Models\Attachment;
 use App\Models\Client;
 use App\Models\ClientDocument;
 use App\Models\DocumentType;
@@ -92,7 +93,7 @@ class LoanController extends Controller
             $loan_products = LoanProduct::active()->get();
         }
 
-        return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance', 'documentTypes', 'documentTypesJson'));
+        return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance'));
     }
 
     /**
@@ -187,7 +188,10 @@ class LoanController extends Controller
                     'notary_fee' => $data['notary_fee'],
                     'membership_fee' => config('settings.membership_fee'),
                     'membership_fee_paid' => $data['membership_fee'],
+                    'redeem_charges' => $data['redeem_charges'],
                     'principal_advance' => $data['principal_advance'],
+                    'interest_advance' => $data['interest_advance'],
+                    'paid_interest_advance' => $data['paid_interest_advance'],
                 ]);
 
                 $insurance = InsuranceFeeSchedule::where('min_amount', '<=', $data['applied_amount'])
@@ -223,32 +227,9 @@ class LoanController extends Controller
                     }
                 }
 
-                // Save Documents
-                if (isset($data['client_documents']) && is_array($data['client_documents'])) {
-                    foreach ($data['client_documents'] as $doc) {
-                        if (
-                            empty($doc['doc_type']) ||
-                            empty($doc['file_upload']) ||
-                            !($doc['file_upload'] instanceof \Illuminate\Http\UploadedFile)
-                        ) {
-                            continue;
-                        }
-
-                        $path = $doc['file_upload']->store('client_uploads', 'public');
-
-                        ClientDocument::create([
-                            'client_id' => $data['borrower_id'],
-                            'loan_id' => $loan->id,
-                            'document_type' => $doc['doc_type'],
-                            'file_path' => $path,
-                            'remarks' => $doc['file_upload_remarks'] ?? '',
-                        ]);
-                    }
-                }
-
             });
 
-            Session::flash('Loan created successfully');
+            Session::flash('message','Loan created successfully');
             return response()->json([
                 'status' => 'success',
                 'message' => 'Loan created successfully',
@@ -273,25 +254,18 @@ class LoanController extends Controller
      */
     public function show(int $id)
     {
-        $loan = Loan::with('loanWithdrawRequests')->where('id', $id)->first();
+        $loan = Loan::with('loanWithdrawRequests')->where('id', $id)->firstOrFail();
 
-        if ($loan) {
-            $clients = Client::all();
-            $loan_products = LoanProduct::active()->get();
+        $clients = Client::all();
+        $loan_products = LoanProduct::active()->get();
 
-            // check if loan has withdraw request
-            $isForWithdraw = $loan->loanWithdrawRequests()
-                                    ->where('status', 'pending')
-                                    ->exists();
+        // check if loan has withdraw request
+        $isForWithdraw = $loan->loanWithdrawRequests()
+                                ->where('status', 'pending')
+                                ->exists();
 
-            $docViewOnly = 1;
-            return view('loan.show', compact('loan', 'clients', 'loan_products', 'isForWithdraw', 'docViewOnly'));
-        }
-
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Loan Product not found'
-        ], 404);
+        $docTypes = DocumentType::active()->get(['id','type_name','description']);
+        return view('loan.show', compact('loan', 'clients', 'loan_products', 'isForWithdraw', 'docTypes'));
     }
 
     /**
@@ -331,7 +305,10 @@ class LoanController extends Controller
                     'insurance_fee' => str_replace(',', '', $request->insurance_fee),
                     'notary_fee' => str_replace(',', '', $request->notary_fee),
                     'membership_fee' => str_replace(',', '', $request->membership_fee),
+                    'redeem_charges' => str_replace(',', '', $request->redeem_charges),
                     'principal_advance' => str_replace(',', '', $request->principal_advance),
+                    'paid_interest_advance' => str_replace(',', '', $request->paid_interest_advance),
+                    'monthly_amortization' => str_replace(',', '', $request->monthly_amortization),
                     // 'loan_no' => Loan::generateLoanNumber($request->loan_date) // Don't regenerate loan no on edit
                 ]);
 
@@ -348,10 +325,22 @@ class LoanController extends Controller
                 $loan->loanCharges->insurance_fee = $request->insurance_fee;
                 $loan->loanCharges->notary_fee = $request->notary_fee;
                 $loan->loanCharges->membership_fee = config('settings.membership_fee');
+                $loan->loanCharges->redeem_charges = $request->redeem_charges;
                 $loan->loanCharges->principal_advance = $request->principal_advance;
                 $loan->loanCharges->membership_fee_paid = $request->membership_fee;
-
+                $loan->loanCharges->interest_advance = $request->interest_advance;
+                $loan->loanCharges->paid_interest_advance = $request->paid_interest_advance;
                 $loan->loanCharges->save();
+
+                $insurance = InsuranceFeeSchedule::where('min_amount', '<=', $request->applied_amount)
+                    ->where('max_amount', '>=', $request->applied_amount)->first();
+
+
+                $loan->loanFees->insurance_monthly_fee = $insurance->monthly_fee;
+                $loan->loanFees->insurance_annual_fee = $insurance->annual_fee;
+                $loan->loanFees->monthly_amortization = $request->monthly_amortization;
+                $loan->loanFees->save();
+
                 $loan->save();
 
                 // Sync Co-makers
@@ -725,6 +714,21 @@ class LoanController extends Controller
             $loan->disbursed_by = auth()->user()->id;
             $loan->save();
 
+            if ($request->hasFile('attachment')) {
+
+                $file = $request->file('attachment');
+                $filename = $file->getClientOriginalName();
+                $folder = 'attachments/' . $loan->loan_no;
+                $path = $file->storeAs($folder, $filename, 'public');
+
+                Attachment::create([
+                    'file_reference' => 'loans',
+                    'transaction_no' => $loan->loan_no,
+                    'file_name'      => $filename,
+                    'file_path'      => $path,
+                ]);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Loan successfully disbursed.'
@@ -931,7 +935,7 @@ class LoanController extends Controller
 
             });
 
-            Session::flash('Loan created successfully');
+            Session::flash('message','Loan created successfully');
             return response()->json([
                 'status' => 'success',
                 'message' => 'Loan created successfully',
@@ -984,7 +988,7 @@ class LoanController extends Controller
 
             });
 
-            Session::flash('Loan created successfully');
+            Session::flash('message','Loan created successfully');
             return response()->json([
                 'status' => 'success',
                 'message' => 'Loan created successfully',

@@ -73,15 +73,19 @@
                 </div>
                 <div class="form-group">
                     <label for="principal">Principal</label>
-                    <input type="number" class="form-control form-control-sm" name="principal" id="principal"/>
+                    <input type="text" class="form-control form-control-sm decimal-only text-end" name="principal" id="principal" min="1" placeholder="0" onblur="numberFormat(this)"/>
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
-                    <input type="number" class="form-control form-control-sm" name="term" id="term" step="0.5"/>
+                    <input type="number" class="form-control form-control-sm text-end" name="term" id="term" step="0.5"/>
                 </div>
                 <div class="form-group interest-rate">
                     <label for="interest_rate">Interest Rate</label>
-                    <input type="number" class="form-control form-control-sm" name="interest_rate" id="interest_rate"/>
+                    <input type="number" class="form-control form-control-sm text-end" name="interest_rate" id="interest_rate" min="0"/>
+                </div>
+                <div class="form-group interest-advance">
+                    <label for="interest_advance">Interest Advance</label>
+                    <input type="number" class="form-control form-control-sm text-end" name="interest_advance" id="interest_advance" min="0" placeholder="0"/>
                 </div>
                 {{-- <div class="form-group">
                     <label for="interest_method">Interest Method</label>
@@ -112,7 +116,7 @@
                     <li>
                         <div class="d-flex justify-content-between align-items-center">
                             <label>Principal Loan</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end principal" readonly>
+                            <input type="text" class="form-control form-control-sm w-25 text-end principal" readonly placeholder="0.00"/>
                         </div>
                     </li>
                     <li class="mt-3 mb-3">Deductions</li>
@@ -124,7 +128,7 @@
                                     <input type="checkbox" class="form-check-input over-ride" name="override_advance_interest" id="override_advance_interest">
                                     <label for="override_advance_interest" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="advance_interest" id="advance_interest">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="advance_interest" id="advance_interest" placeholder="0.00"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
@@ -134,7 +138,7 @@
                                     <input type="checkbox" class="form-check-input over-ride" name="override_service_fee" id="override_service_fee">
                                     <label for="override_service_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="service_fee" id="service_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="service_fee" id="service_fee" placeholder="0.00"/>
                             </div>
                         </li>
                         @if(!filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN))
@@ -145,7 +149,7 @@
                                     <input type="checkbox" class="form-check-input over-ride" name="override_insurance_fee" id="override_insurance_fee">
                                     <label for="override_insurance_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="insurance_fee" id="insurance_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="insurance_fee" id="insurance_fee" placeholder="0.00"/>
                             </div>
                         </li>
                         @endif
@@ -156,7 +160,7 @@
                                     <input type="checkbox" class="form-check-input over-ride" name="override_notary_fee" id="override_notary_fee">
                                     <label for="override_notary_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="notary_fee" id="notary_fee">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="notary_fee" id="notary_fee" placeholder="0.00"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="membership">
@@ -166,13 +170,25 @@
                                     <input type="checkbox" class="form-check-input over-ride" name="override_membership_fee" id="override_membership_fee">
                                     <label for="override_membership_fee" class="form-label text-muted">override?</label>
                                 </div>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{number_format(config('settings.membership_fee'),2)}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="membership_fee" id="membership_fee" value="{{number_format(config('settings.membership_fee'),2)}}" data-membership-fee="{{number_format(config('settings.membership_fee'),2)}}" placeholder="0.00"/>
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3" id="redeem_charges_container">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="redeem_charges">Redeem Charges</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="redeem_charges" id="redeem_charges" placeholder="0.00" onblur="numberFormat(this)"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="principal_advance_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" placeholder="0.00" onblur="numberFormat(this)"/>
+                            </div>
+                        </li>
+                        <li class="mt-3 mb-3" id="paid_interest_advance_container">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="paid_interest_advance">Interest Advance Payment</label>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="paid_interest_advance" id="paid_interest_advance" placeholder="0.00" readonly/>
                             </div>
                         </li>
                         @if(request()->has('reloan') && request()->has('loan_no_reference'))
@@ -185,13 +201,13 @@
                                 </div>
                                 <input type="hidden" name="principal_loan_balance" id="principal_loan_balance" value="{{ $principal_loan_balance }}">
                                 <input type="hidden" name="total_reloan_deduction" id="total_reloan_deduction" value="{{ $reloan_deduction }}">
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="special_loan_balance" id="special_loan_balance" value="{{ $special_loan_balance }}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" readonly name="special_loan_balance" id="special_loan_balance" value="{{ $special_loan_balance }}" placeholder="0.00"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="notary_fee">Reloan Deduction</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}">
+                                <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="reloan_deduction" id="reloan_deduction" value="{{$reloan_deduction??''}}" placeholder="0.00"/>
                             </div>
                         </li>
                         @endif
@@ -199,13 +215,13 @@
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <label for="net_proceeds">Net Proceeds</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="net_proceeds" id="net_proceeds">
+                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="net_proceeds" id="net_proceeds" placeholder="0.00"/>
                         </div>
                     </li>
                     <li class="mt-3 mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <label for="monthly_amortization">Monthly Amortization</label>
-                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="monthly_amortization" id="monthly_amortization">
+                            <input type="text" class="form-control form-control-sm w-25 text-end" readonly name="monthly_amortization" id="monthly_amortization" placeholder="0.00"/>
                         </div>
                     </li>
                 </ul>
@@ -269,37 +285,7 @@
 
             // calculateLoan();
         // }
-        // jQuery Combined Decimal Input Handler
-        $(document).on('input', '.decimal-only', function () {
-        let val = this.value;
 
-        // Remove all characters except digits and dot
-        val = val.replace(/[^0-9.]/g, '');
-
-        // Prevent multiple dots
-        const parts = val.split('.');
-        if (parts.length > 2) {
-            val = parts[0] + '.' + parts[1];
-        }
-
-        // Limit to 2 decimal places
-        if (parts[1]) {
-            parts[1] = parts[1].substring(0, 2);
-            val = parts[0] + '.' + parts[1];
-        }
-
-        this.value = val;
-
-        calculateLoan();
-
-        });
-
-        // Optional: prevent typing multiple dots directly
-        $(document).on('keypress', '.decimal-only', function (e) {
-        if (e.which === 46 && $(this).val().includes('.')) {
-            e.preventDefault();
-        }
-        });
 
         $("[name='loan_product_id']").on('change', function() {
             loan_type = $(this).find('option:selected').data('loan-type');
@@ -345,7 +331,7 @@
             calculateLoan();
         })
 
-        $("[name='principal'],[name='interest_rate'],[name='principal_advance']").on('change', function() {
+        $("[name='principal'],[name='interest_rate'],[name='principal_advance'],[name='interest_advance'],[name='redeem_charges']").on('change', function() {
             calculateLoan();
         })
 
@@ -362,7 +348,7 @@
 
         async function calculateLoan() {
             $('#btn-add-loan').attr('disabled', true)
-            var principal = parseFloat($("[name='principal']").val())
+            var principal = parseFloat($("[name='principal']").val().replace(/,/g, ''))
             interest_rate = parseFloat($("[name='interest_rate']").val())
             var term = parseFloat($("[name='term']").val())
 
@@ -562,13 +548,30 @@
             }
 
             var membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
+            var redeem_charges = parseFloat($('#redeem_charges').val().replace(/,/g, '')) || 0;
+            var interest_advance = parseFloat($('#interest_advance').val().replace(/,/g, '')) || 0;
+            var paid_interest_advance = interest_advance * advance_interest;
+            if(override_membership_fee) {
+                membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0
+            } else {
+                membership_fee = parseFloat($('#membership_fee').data("membership-fee").replace(/,/g, ''));
+            }
+
             var rawValue = $('#principal_advance').val();
             var principal_advance = 0;
             if (rawValue) {
                 principal_advance = parseFloat(rawValue.toString().replace(/,/g, '')) || 0;
             }
 
-            var total_deductions = Math.floor(advance_interest) + Math.ceil(service_fee) + Math.floor(insurance_fee) + Math.floor(notary_fee) + Math.floor(reloan_deduction) + Math.floor(membership_fee) + Math.floor(principal_advance);
+            var total_deductions = Math.floor(advance_interest)
+                                + Math.ceil(service_fee)
+                                + Math.floor(insurance_fee)
+                                + Math.floor(notary_fee)
+                                + Math.floor(reloan_deduction)
+                                + Math.floor(membership_fee)
+                                + Math.floor(redeem_charges)
+                                + Math.floor(principal_advance)
+                                + Math.floor(paid_interest_advance);
 
             var net_proceeds = principal - total_deductions;
 
@@ -585,6 +588,8 @@
             $('#service_fee').val(currencyFormat(Math.ceil(service_fee)))
             $('#insurance_fee').val(currencyFormat(Math.floor(insurance_fee)))
             $('#notary_fee').val(currencyFormat(Math.floor(notary_fee)))
+            $('#membership_fee').val(currencyFormat(Math.floor(membership_fee)))
+            $('#paid_interest_advance').val(currencyFormat(Math.floor(paid_interest_advance)))
             $('#monthly_amortization').val(currencyFormat(monthly_amortization))
             $('#net_proceeds').val(currencyFormat(Math.floor(net_proceeds)))
 
@@ -680,7 +685,10 @@
             formData.append('insurance_fee', $('#insurance_fee').length ? $('#insurance_fee').val().replace(/,/g, '') : '0');
             formData.append('notary_fee', $('#notary_fee').val().replace(/,/g, ''));
             formData.append('membership_fee', $('#membership_fee').val().replace(/,/g, ''));
+            formData.append('redeem_charges', $('#redeem_charges').val().replace(/,/g, ''));
             formData.append('principal_advance', $('#principal_advance').val().replace(/,/g, ''));
+            formData.append('interest_advance', $('#interest_advance').val().replace(/,/g, ''));
+            formData.append('paid_interest_advance', $('#paid_interest_advance').val().replace(/,/g, ''));
             formData.append('monthly_amortization', $('#monthly_amortization').val().replace(/,/g, ''));
             formData.append('net_proceeds', $('#net_proceeds').val().replace(/,/g, ''));
             formData.append('reference_loan_no', urlParams.get('loan_no_reference') ?? '');

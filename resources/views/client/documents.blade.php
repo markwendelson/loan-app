@@ -81,7 +81,7 @@
                         @foreach($loanDocuments as $key => $val)
                             <tr>
                                 <td>
-                                    <select name="client_documents[doc_type][]" class="form-select">
+                                    <select name="client_documents[doc_type][]" class="form-select" disabled>
                                         <option value="">Select Document</option>
                                         @foreach($docTypes as $type)
                                             <option value="{{ $type->id }}"
@@ -107,6 +107,7 @@
                                         class="form-control"
                                         placeholder="Remarks..."
                                         value="{{ $val->remarks }}"
+                                        readonly
                                     >
                                 </td>
                                 <td class="text-center">

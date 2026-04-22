@@ -15,6 +15,11 @@
                         <input type="date" class="form-control" name="disbursed_date" id="disbursed_date" value="{{ date('Y-m-d') }}"/>
                     </div>
 
+                    <div class="col-12">
+                        <label for="amount">Amount</label>
+                        <input type="text" class="form-control form-control-sm" name="amount" placeholder="0.00" readonly/>
+                    </div>
+
                      <div class="col-12">
                        <label for="mode_of_payment">Mode of Payment</label>
                             @php
@@ -27,17 +32,18 @@
                                 <option value="{{ $key }}">{{ $mode }}</option>
                                 @endif
                             @endforeach
+                            <option value="authorized_person">Authorized Person</option>
                         </select>
+                    </div>
+
+                    <div class="form-group attachment d-none">
+                        <label class="form-label" for="attachment">Attachment</label>
+                        <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,.pdf" />
                     </div>
 
                     <div class="col-12">
                         <label class="w-100" for="transaction_code">Transaction Code</label>
                         <input type="text" class="form-control form-control-sm" name="transaction_code" placeholder="Transaction Code" />
-                    </div>
-
-                    <div class="col-12">
-                        <label for="amount">Amount</label>
-                        <input type="text" class="form-control form-control-sm" name="amount" placeholder="0.00" readonly/>
                     </div>
 
                     <div class="col-12">

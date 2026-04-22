@@ -10,3 +10,7 @@ Route::get('/ajax/client/{client}/incentives', [AjaxController::class, 'clientIn
 Route::post('/ajax/client/{client}/incentives', [AjaxController::class, 'addClientIncentives'])->name('client.add-incentives');
 
 Route::get('/ajax/document-types', [AjaxController::class, 'getDocumentTypes'])->name('ajax.get-document-types');
+
+Route::post('/ajax/attachments/upload', [AjaxController::class, 'uploadAttachment'])->name('ajax.upload-attachment');
+
+// Route::post('/ajax/')
