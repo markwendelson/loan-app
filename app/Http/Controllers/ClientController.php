@@ -61,8 +61,8 @@ class ClientController extends Controller
             $length = $request->input('length', 5);
             $totalRecords = $clients->count();
             $clients = $clients->skip($start)
-            ->take($length)
-            ->get();
+                ->take($length)
+                ->get();
 
             return response()->json([
                 'draw' => intval($request->draw), // Keep track of the request number
@@ -166,7 +166,7 @@ class ClientController extends Controller
     {
         $exists = Loan::where('borrower_id', $client->id)->first();
 
-        if($exists) {
+        if ($exists) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Client have existing transactions',
@@ -235,12 +235,12 @@ class ClientController extends Controller
                     'transaction_code' => '',
                     'change_mop' => '',
                     'balance' => null, // to be filled after sorting
-                    'remarks' => ucwords(str_replace("_"," ",$loan->mode_of_payment)) . " <br> <a href='" . route('savings.print', $loan->id) . "' target='_blank'>{$loan->disbursement_reference}</a>",
+                    'remarks' => ucwords(str_replace("_", " ", $loan->mode_of_payment)) . " <br> <a href='" . route('savings.print', $loan->id) . "' target='_blank'>{$loan->disbursement_reference}</a>",
                     'attachment' => null,
                     'interest_deficit' => null,
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
-                    'mode_of_payment' => ucwords(str_replace("_"," ",$loan->mode_of_payment)),
+                    'mode_of_payment' => ucwords(str_replace("_", " ", $loan->mode_of_payment)),
                     'disbursement_reference' => $loan->disbursement_reference
                 ]
             ];
@@ -279,9 +279,9 @@ class ClientController extends Controller
                     'payment_principal' => number_format($payment->principal, 2),
                     'change' => number_format($change, 2),
                     'transaction_code' => $payment->transaction_code ?? '',
-                    'change_mop' => ucwords(str_replace("_"," ",$payment->change_mop)),
+                    'change_mop' => ucwords(str_replace("_", " ", $payment->change_mop)),
                     'balance' => null, // to be computed
-                    'remarks' => ucwords(str_replace("_"," ",$payment->mode_of_payment)) . " - <a href='" . route('savings.print', $payment->id) . "' target='_blank'>{$payment->transaction_no}</a>",
+                    'remarks' => ucwords(str_replace("_", " ", $payment->mode_of_payment)) . " - <a href='" . route('savings.print', $payment->id) . "' target='_blank'>{$payment->transaction_no}</a>",
                     'attachment' => isset($payment->attachments->file_path) ? asset('storage/' . $payment->attachments->file_path) : '',
                     'order_date' => Carbon::parse($payment->transaction_date),
                     'raw_principal' => -1 * $payment->principal ?? 0, // subtract from balance
@@ -330,13 +330,13 @@ class ClientController extends Controller
         $principal_attachments = null;
         $special_attachments = null;
 
-        if($principal_loan) {
+        if ($principal_loan) {
             $principal_attachments = ClientDocument::where('loan_id', $principal_loan->id)
                 ->with('documentType')
                 ->get();
         }
 
-        if($special_loan) {
+        if ($special_loan) {
             $special_attachments = ClientDocument::where('loan_id', $special_loan->id)
                 ->with('documentType')
                 ->get();
@@ -359,16 +359,16 @@ class ClientController extends Controller
             ->get()
             ->map(function ($comaker) {
                 $client_loan = Loan::where('id', $comaker->pivot->loan_id)->first();
-                if($client_loan) {
+                if ($client_loan) {
                     $loan_balance = getLoanBalance($client_loan);
                 }
-                $comaker->loan_balance = $client_loan == null ? 'Loan ID not specified' : number_format($loan_balance,2);
+                $comaker->loan_balance = $client_loan == null ? 'No active loan.' : number_format($loan_balance, 2);
                 return $comaker;
             });
 
-        $docTypes = DocumentType::active()->get(['id','type_name','description']);
+        $docTypes = DocumentType::active()->get(['id', 'type_name', 'description']);
 
-        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments','docTypes'));
+        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments', 'docTypes'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)
@@ -427,7 +427,7 @@ class ClientController extends Controller
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
                     'interest_deficit' => null,
-                    'mode_of_payment' => ucwords(str_replace("_"," ",$loan->mode_of_payment)),
+                    'mode_of_payment' => ucwords(str_replace("_", " ", $loan->mode_of_payment)),
                     'disbursement_reference' => $loan->disbursement_reference
                 ]
             ];
@@ -462,7 +462,7 @@ class ClientController extends Controller
                     'change' => number_format($change, 2),
                     'change_mop' => $payment->change_mop,
                     'transaction_code' => $payment->transaction_code ?? '',
-                    'change_mop' => ucwords(str_replace("_"," ",$payment->change_mop)),
+                    'change_mop' => ucwords(str_replace("_", " ", $payment->change_mop)),
                     'balance' => null, // to be computed
                     'remarks' => null,
                     'attachment' => isset($payment->attachments->file_path) ? asset('storage/' . $payment->attachments->file_path) : '',

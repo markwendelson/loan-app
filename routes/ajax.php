@@ -13,4 +13,5 @@ Route::get('/ajax/document-types', [AjaxController::class, 'getDocumentTypes'])-
 
 Route::post('/ajax/attachments/upload', [AjaxController::class, 'uploadAttachment'])->name('ajax.upload-attachment');
 
-// Route::post('/ajax/')
+Route::delete('/ajax/co-maker', [AjaxController::class, 'deleteCoMaker'])->name('ajax.delete-co-maker');
+Route::post('/ajax/co-maker', [AjaxController::class, 'registerCoMaker'])->name('ajax.register-co-maker');

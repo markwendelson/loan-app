@@ -83,10 +83,10 @@
                     <label for="interest_rate">Interest Rate</label>
                     <input type="number" class="form-control form-control-sm text-end" name="interest_rate" id="interest_rate" min="0"/>
                 </div>
-                <div class="form-group interest-advance">
+                <!-- <div class="form-group interest-advance">
                     <label for="interest_advance">Interest Advance</label>
                     <input type="number" class="form-control form-control-sm text-end" name="interest_advance" id="interest_advance" min="0" placeholder="0"/>
-                </div>
+                </div> -->
                 {{-- <div class="form-group">
                     <label for="interest_method">Interest Method</label>
                     <select name="interest_method" id="interest_method" class="form-control">
@@ -188,6 +188,7 @@
                         <li class="mt-3 mb-3" id="paid_interest_advance_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="paid_interest_advance">Interest Advance Payment</label>
+                                <input type="number" class="form-control form-control-sm w-25 text-end" name="interest_advance" id="interest_advance" min="0" placeholder="# of Months"/>
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="paid_interest_advance" id="paid_interest_advance" placeholder="0.00" readonly/>
                             </div>
                         </li>

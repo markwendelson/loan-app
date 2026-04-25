@@ -15,7 +15,7 @@ class AjaxController extends Controller
 {
     public function getClients(Request $request)
     {
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $search = $request->search['value'] ?? '';
 
             $query = Client::query()->with('details');
@@ -48,18 +48,18 @@ class AjaxController extends Controller
     public function getAvailableMerchantSlipNo(Request $request)
     {
         $withdrawnCodes = Savings::where('client_id', $request->client_id)
-                                    ->where('mode_of_payment', $request->mode_of_payment)
-                                    ->where('transaction_type', 'withdraw')
-                                    ->whereNull('deleted_at')
-                                    ->pluck('transaction_code')
-                                    ->flatMap(fn($codes) => explode(',', $codes))
-                                    ->toArray();
+            ->where('mode_of_payment', $request->mode_of_payment)
+            ->where('transaction_type', 'withdraw')
+            ->whereNull('deleted_at')
+            ->pluck('transaction_code')
+            ->flatMap(fn($codes) => explode(',', $codes))
+            ->toArray();
 
         $data = Savings::where('client_id', $request->client_id)
-                        ->where('mode_of_payment', $request->mode_of_payment)
-                        ->where('transaction_type', 'deposit')
-                        ->whereNotIn('transaction_code', $withdrawnCodes)
-                        ->get(['transaction_code','amount']);
+            ->where('mode_of_payment', $request->mode_of_payment)
+            ->where('transaction_type', 'deposit')
+            ->whereNotIn('transaction_code', $withdrawnCodes)
+            ->get(['transaction_code', 'amount']);
 
         return $data;
 
@@ -70,9 +70,9 @@ class AjaxController extends Controller
         $incentives = DB::table('incentives')->where('client_id', $client->id);
 
         $start = $request->input('start', 0);
-            $length = $request->input('length', 5);
-            $totalRecords = $incentives->count();
-            $incentives = $incentives->skip($start)
+        $length = $request->input('length', 5);
+        $totalRecords = $incentives->count();
+        $incentives = $incentives->skip($start)
             ->take($length)
             ->get();
 
@@ -113,7 +113,7 @@ class AjaxController extends Controller
 
     public function getDocumentTypes()
     {
-        $document_types = DocumentType::active()->get(['id','type_name','description']);
+        $document_types = DocumentType::active()->get(['id', 'type_name', 'description']);
 
         return $document_types;
     }
@@ -159,6 +159,65 @@ class AjaxController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Something went wrong.' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteCoMaker(Request $request)
+    {
+        try {
+            $deleted = DB::table('client_co_makers')->where([
+                'client_id' => $request->client_id,
+                'co_maker_id' => $request->co_maker_id,
+                'loan_id' => $request->loan_id,
+            ])->delete();
+
+            if ($deleted) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Co-maker removed successfully.',
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Co-maker record not found.',
+            ], 404);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong: ' . $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function registerCoMaker(Request $request)
+    {
+        try {
+            $client_id = $request->borrower_id;
+            $co_maker_id = $request->co_maker_id;
+            $loan_id = $request->loan_id;
+
+            $co_maker_ids = is_array($co_maker_id) ? $co_maker_id : [$co_maker_id];
+
+
+            $borrower = Client::findOrFail($client_id);
+            if ($borrower) {
+                $borrower->coMakers()->syncWithoutDetaching(
+                    array_fill_keys($co_maker_ids, ['loan_id' => $loan_id])
+                );
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Co-maker added successfully.',
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong: ' . $th->getMessage(),
             ], 500);
         }
     }
