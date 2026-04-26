@@ -164,6 +164,8 @@
             </div>
         </div>
     </div>
+
+    @include('loan.report.soa-no-term');
 @endsection
 
 @push('js')
