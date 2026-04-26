@@ -237,10 +237,12 @@
                                 <table class="table table-bordered table-hover" id="tblIncentives">
                                     <thead class="bg-default">
                                         <tr>
-                                            <th class="text-center" width="40">Id</th>
+                                            <!-- <th class="text-center" width="40">Id</th> -->
                                             <th class="text-center" width="80">Transaction Date</th>
                                             <th class="text-center" width="150">Description</th>
                                             <th class="text-center" width="80">Amount</th>
+                                            <th class="text-center" width="80">Mode of Payment</th>
+                                            <th class="text-center" width="120">Transaction Code</th>
                                             <th class="text-center" width="80">Actions</th>
                                         </tr>
                                     </thead>
@@ -281,8 +283,8 @@
 
 <script>
     $(document).ready(function () {
-        const canEdit = {{ auth()->user()->can('edit-incentives') ? 1 : 0 }};
-        const canDelete = {{ auth()->user()->can('delete-incentives') ? 1 : 0 }};
+        const canEditIncentives = {{ auth()->user()->can('edit-incentives') ? 1 : 0 }};
+        const canDeleteIncentives = {{ auth()->user()->can('delete-incentives') ? 1 : 0 }};
 
         var client_id = $("#client_id").val();
 
@@ -501,16 +503,46 @@
                 url: `{{ route('client.incentives',':client') }}`.replace(':client', client_id),
             },
             columns: [
-                { data: 'id', name: 'id' },
+                // { data: 'id', name: 'id' },
                 { data: 'transaction_date', name: 'transaction_date' },
                 { data: 'description', name: 'description' },
-                { data: 'amount', name: 'amount' },
+                { data: 'amount', name: 'amount', render: function(data, type, row) {
+                        return parseFloat(data || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    } 
+                },
+                { data: 'mode_of_payment', name: 'mode_of_payment', render: function(data, type, row) {
+                    if (row.mode_of_payment == 'authorized_person') {
+                        return 'Authorized Person'
+                    }
+                        
+                    return row.mode_of_payment;
+                } 
+                },
+                {
+                    data: 'transaction_code', name: 'transaction_code', render: function(data, type, row) {
+                        let input = `
+                            <div class="input-group input-group-sm" style="width:200px;">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="change_mop"
+                                    value="${row.transaction_code || ""}"
+                                />
+                                <button class="btn btn-primary btn-update-tx-code-incentives" type="button" data-id="${row.id}">
+                                    <i class="fa fa-save"></i>
+                                </button>
+                            </div>
+                        `;
+
+                        return input;
+                    }
+                },
                 { data: 'actions', name: 'actions', render: function(data, type, row) {
                         let buttons = '';
-                        if (canEdit) {
+                        if (canEditIncentives) {
                             buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
                         }
-                        if (canDelete) {
+                        if (canDeleteIncentives) {
                             buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button> `;
                         }
 
@@ -521,18 +553,20 @@
                 },
             ],
             columnDefs: [
-                // { className: "text-center", targets: [4,5] },
+                { className: "text-end", targets: [2] },
             ]
         });
 
         $('.btn-new-incentives').on('click', function() {
             $("#modalIncentives").modal("show");
+            $("#modalIncentives #incentive_id").val("");
+            $("#modalIncentives .btnSubmit").text("Save");
         })
 
         $("#modalIncentives .btnSubmit").click(function (e) {
             e.preventDefault();
 
-            let form = $("#frmIncentivesModal")[0];
+            let form = document.getElementById("frmIncentivesModal");
 
             if (!form.checkValidity()) {
                 form.reportValidity();
@@ -543,16 +577,24 @@
                     $(this).show();
                 });
 
-                let formData = $("#frmIncentivesModal").serializeArray();
+                let formData = new FormData(form);
 
                 var client = $("#modalIncentives [name='client_id']").val();
-                var _url = `{{route('client.add-incentives',':client')}}`.replace(':client',client);
+                var incentive_id = $("#modalIncentives #incentive_id").val();
+                if(incentive_id == "") {
+                    var _url = `{{route('client.add-incentives',':client')}}`.replace(':client',client);
+                } else {
+                    var _url = `{{route('incentives.update',':id')}}`.replace(':id',incentive_id);
+                    formData.append('_method', 'PUT');
+                }
 
                 $.ajax({
                     method: 'POST',
                     url: _url,
                     data: formData,
                     dataType: "json",
+                    processData: false,
+                    contentType: false,
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -586,6 +628,26 @@
             window.open('/incentives/' + id + '/print', '_blank');
         })
 
+        $("#tblIncentives").on("click", ".btnEdit", function(){
+            let id = $(this).attr("data-id");
+
+            $.ajax({
+                url: '/incentives/'+id,
+                type: 'GET',
+                dataType: 'JSON',
+                success: function(response) {
+                    $("#modalIncentives #incentive_id").val(response.data.id);
+                    $("#modalIncentives #transaction_date").val(response.data.transaction_date);
+                    $("#modalIncentives #description").val(response.data.description);
+                    $("#modalIncentives #amount").val(parseFloat(response.data.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    $("#modalIncentives #transaction_code").val(response.data.transaction_code);
+                }
+            })
+
+            $("#modalIncentives").modal("show");
+            $("#modalIncentives .btnSubmit").text("Update");
+        })
+
     });
 
 
@@ -600,6 +662,7 @@
         $("#modalIncentives #transaction_date").val("");
         $("#modalIncentives #description").val("");
         $("#modalIncentives #amount").val("");
+        $("#modalIncentives #transaction_code").val("");
     }
 
     function deleteData(id) {
