@@ -8,6 +8,7 @@
                 <div class="row">
                     <form id="frmIncentivesModal">
                         <input type="hidden" id="client_id" name="client_id" value="{{ $client->id }}" />
+                        <input type="hidden" id="incentive_id" name="incentive_id" />
 
                         <div class="col-12">
                             <label class="w-100">
@@ -38,12 +39,13 @@
                         <div class="col-12">
                             <label class="w-100">
                                 Amount
-                                <input type="number"
+                                <input type="text"
                                     id="amount"
                                     name="amount"
-                                    class="form-control"
+                                    class="form-control decimal-only"
                                     placholder="Amount"
                                     required
+                                    onblur="numberFormat(this)"
                                 >
                             </label>
                         </div>
@@ -58,8 +60,14 @@
                                     @foreach($modes as $key => $mode)
                                         <option value="{{ $key }}">{{ $mode }}</option>
                                     @endforeach
+                                    <option value="authorized_person">Authorized Person</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div class="form-group attachment d-none">
+                            <label class="form-label" for="attachment">Attachment</label>
+                            <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,.pdf" />
                         </div>
 
                         <div class="col-12" id="mop_transfer_container">
@@ -80,3 +88,12 @@
         </div>
     </div>
 </div>
+@push('js')
+<script>
+    $(function() {
+        $("#mode_of_payment").on("change", function() {
+            $('.attachment').toggleClass('d-none', $(this).val() !== 'authorized_person');
+        }).trigger("change");
+    });
+</script>
+@endpush

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attachment;
 use App\Models\Incentives;
 use Illuminate\Http\Request;
 
@@ -34,8 +35,17 @@ class IncentiveController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Incentives $incentives)
+    public function show(int $id)
     {
+        $incentives = Incentives::find($id);
+
+        if(!$incentives) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Incentives not found',
+            ], 404);
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $incentives
@@ -53,7 +63,7 @@ class IncentiveController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Incentives $incentives)
+    public function update(Request $request, int $id)
     {
         $request->validate([
             'transaction_date' => 'required',
@@ -61,22 +71,58 @@ class IncentiveController extends Controller
             'amount' => 'required',
         ]);
 
+        $incentives = Incentives::find($id);
+
+        if(!$incentives) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Incentives not found',
+            ], 404);
+        }
+
         $incentives->transaction_date = $request->transaction_date;
         $incentives->description = $request->description;
-        $incentives->amount = $request->amount;
+        $incentives->transaction_code = $request->transaction_code;
+        $incentives->mode_of_payment = $request->mode_of_payment;
+        $incentives->amount = str_replace(",", "", $request->amount);
         $incentives->save();
+
+        if ($request->hasFile('attachment')) {
+
+            $file = $request->file('attachment');
+            $filename = $file->getClientOriginalName();
+            $folder = 'attachments/' . $incentives->incentive_no;
+            $path = $file->storeAs($folder, $filename, 'public');
+
+            Attachment::create([
+                'file_reference' => 'incentives',
+                'transaction_no' => $incentives->incentive_no,
+                'file_name' => $filename,
+                'file_path' => $path,
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Incentives updated successfully',
+            'id' => $incentives->id
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Incentives $incentives)
+    public function destroy(int $id)
     {
+        $incentives = Incentives::find($id);
+
+        if(!$incentives) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Incentives not found',
+            ], 404);
+        }
+
         $incentives->delete();
 
         return response()->json([

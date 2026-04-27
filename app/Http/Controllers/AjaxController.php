@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attachment;
 use App\Models\Client;
 use App\Models\ClientDocument;
 use App\Models\DocumentType;
@@ -89,7 +90,24 @@ class AjaxController extends Controller
         try {
             $data = $request->all();
 
+            $data['incentive_no'] = Incentives::generateIncentiveNumber($data['transaction_date']);
+
             $incentives = Incentives::create($data);
+
+            if ($request->hasFile('attachment')) {
+
+                $file = $request->file('attachment');
+                $filename = $file->getClientOriginalName();
+                $folder = 'attachments/' . $incentives->incentive_no;
+                $path = $file->storeAs($folder, $filename, 'public');
+
+                Attachment::create([
+                    'file_reference' => 'incentives',
+                    'transaction_no' => $incentives->incentive_no,
+                    'file_name' => $filename,
+                    'file_path' => $path,
+                ]);
+            }
 
             return response()->json([
                 'status' => 'success',
