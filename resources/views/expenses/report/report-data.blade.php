@@ -10,6 +10,7 @@
 
         .w-300px {
             width: 300px !important;
+            max-width: 300px !important;
         }
     </style>
 @endpush
@@ -20,9 +21,16 @@
 
 @php
     $expenseData = json_decode($expenseReport->data, true) ?? [];
+
     $expenseCategories = $expenseCategories->toArray();
 @endphp
 @section('content')
+    <div class="card mt-3">
+        <div class="card-body d-flex justify-content-end">
+            <a class="btn btn-primary bt-sm btnDownloadPDF" href="{{ route('expense-category.download-pdf', $expenseReport->slug) }}" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="report-title d-flex justify-content-between align-items-center">
@@ -140,3 +148,13 @@
         </div>
     </div>
 @endsection
+
+@push('js')
+    <script>
+        $(document).ready(function() {
+            // $(".btnDownloadPDF").click(function(e) {
+            //      alert("testing");
+            // })
+        });
+    </script>
+@endpush

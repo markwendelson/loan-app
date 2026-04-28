@@ -685,10 +685,10 @@
                             <th rowspan="2" class="align-middle font-12">SERVICE FEE</th>
                         </tr>
                         <tr>
-                            <th class="align-middle font-12">INTEREST</th>
-                            <th class="align-middle font-12">PAYMENT PRINCIPAL</th>
-                            <th class="align-middle font-12">INS</th>
-                            <th class="align-middle font-12">SAVINGS</th>
+                            <th class="text-center align-middle font-12">INTEREST</th>
+                            <th class="text-center align-middle font-12">PAYMENT PRINCIPAL</th>
+                            <th class="text-center align-middle font-12">INS</th>
+                            <th class="text-center align-middle font-12">SAVINGS</th>
                         </tr>
                     </thead>
                     <tbody>

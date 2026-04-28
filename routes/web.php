@@ -135,6 +135,7 @@ Route::middleware('auth')->group(function () {
             Route::post('get-reloan-deduction', 'getReloanDeduction')->name('loan.get-reloan-deduction');
             Route::get('{id}/print', 'printReceipt')->name('loan.print');
             Route::post('{id}/update-disbursement-reference', 'updateDisbursementReference')->name('loan.update-disbursement-reference');
+            Route::get('report/download/soa-term', 'downloadSoaTerm')->name('loan.soa-term-pdf'); //mockup route for testing soa term pdf generation
         });
     Route::controller(SavingsController::class)
         ->prefix('savings')
@@ -155,6 +156,7 @@ Route::middleware('auth')->group(function () {
             Route::get('report', 'expenseReport')->name('expenses.report');
             Route::get('report/{slug}', 'viewExpenseReport')->name('expenses.view-report');
             Route::post('create', 'generateExpenseReport')->name('expense.create-report');
+            Route::get('report/download-pdf/{slug}', 'downloadPdf')->name('expense-category.download-pdf');
         });
     Route::resource('expenses',ExpenseController::class);
 

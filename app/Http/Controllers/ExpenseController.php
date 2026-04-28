@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Expense;
 use App\Models\ExpenseReport;
 use App\Models\ExpenseCategory;
+use App\Models\User;
 
 class ExpenseController extends Controller
 {
@@ -74,19 +76,46 @@ class ExpenseController extends Controller
         return response()->json(['message' => 'Expense deleted successfully']);
     }
 
-    public function expenseReport()
+    public function expenseReport(Request $request)
     {
         if(!auth()->user()->can('view-expense-report')) {
             abort(403, 'Unauthorized action.');
         }
+
+        $filterData = $request->all();
         
+        $users = User::where('status', 1)->orderBy('name', 'ASC')->get();
+
         $expenseCategories = ExpenseCategory::where('status', 1)->orderBy('expense_categories.name', 'ASC')
             ->get();
         $expenseReports = ExpenseReport::select('expense_reports.*', 'users.name as user_name')
             ->orderBy('created_at', 'DESC')
-            ->leftJoin('users', 'users.id', 'expense_reports.user_id')
-            ->paginate(10);
-        return view('expenses/report/index',compact('expenseCategories', 'expenseReports'));
+            ->leftJoin('users', 'users.id', '=', 'expense_reports.user_id');
+
+        //filter users
+        if (isset($filterData['users']) && $filterData['users']) {
+            $expenseReports->whereIn('expense_reports.user_id', $filterData['users']);
+        }
+
+        //filter date created
+        if(isset($filterData['date_generated']) && $filterData['date_generated']) {
+            $dateCreatedArr = explode('-', $filterData['date_generated']);
+            $from = date('Y-m-d', strtotime(trim($dateCreatedArr[0])));
+            $to = date('Y-m-d', strtotime(trim($dateCreatedArr[1])));
+
+            $expenseReports->whereBetween('expense_reports.created_at', [$from, $to]);
+        }
+
+        $expenseReports = $expenseReports->paginate(10);
+
+        $expenseReports->appends($filterData);
+            
+        return view('expenses/report/index',compact(
+            'expenseCategories',
+            'expenseReports',
+            'users',
+            'filterData'
+            ));
     }
 
     public function generateExpenseReport(Request $request) 
@@ -182,5 +211,22 @@ class ExpenseController extends Controller
             'expenseCategories'
         ));
 
+    }
+
+    public function downloadPdf($slug)
+    {
+
+        $expenseReport = ExpenseReport::select('expense_reports.*', 'users.id as user_id', 'users.name as user_name')
+            ->where('slug', $slug)
+            ->leftJoin('users', 'users.id', 'expense_reports.user_id')
+            ->firstOrFail();
+        $expenseCategories = ExpenseCategory::whereIn('id', json_decode($expenseReport->categories_data))->get()->keyBy('id');
+
+        $pdf = Pdf::loadView('expenses.report.report-data', compact(
+            'expenseReport',
+            'expenseCategories'
+        ));
+
+        return $pdf->download('expense-report.pdf');
     }
 }
