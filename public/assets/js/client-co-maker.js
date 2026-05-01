@@ -88,7 +88,7 @@ $(function () {
                     <td><input type="hidden" name="client_comaker[]" value="${id}">${name}</td>
                     <td>${address}</td>
                     <td class="text-center" width="10">
-                        <button class="btn btn-sm btn-danger btn-remove" data-id="${id}" data-client-id="${borrowerId}" data-loan-id="${loan_id}">
+                        <button class="btn btn-sm btn-danger btn-remove" data-id="${id}" data-client-id="${borrower_id}" data-loan-id="${loan_id}">
                             <i class="fa fa-trash"></i>
                         </button>
                     </td>
@@ -101,7 +101,7 @@ $(function () {
                     <td>${address}</td>
                     <td></td>
                     <td class="text-center" width="10">
-                        <button class="btn btn-sm btn-danger btn-remove" data-id="${id}" data-client-id="${borrowerId}" data-loan-id="${loan_id}">
+                        <button class="btn btn-sm btn-danger btn-remove" data-id="${id}" data-client-id="${borrower_id}" data-loan-id="${loan_id}">
                             <i class="fa fa-trash"></i>
                         </button>
                         <button class="btn btn-sm btn-success btn-save-co-maker" data-id="${id}">
