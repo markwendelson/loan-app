@@ -55,7 +55,7 @@ class LoanRequest extends FormRequest
             'insurance_fee'     => str_replace(',', '', $this->insurance_fee),
             'notary_fee'        => str_replace(',', '', $this->notary_fee),
             'membership_fee'    => str_replace(',', '', $this->membership_fee),
-            'principal_advance'    => str_replace(',', '', $this->principal_advance),
+            'principal_advance'    => str_replace(',', '', $this->principal_advance) == "" ? 0 : str_replace(',', '', $this->principal_advance),
             'paid_interest_advance'    => str_replace(',', '', $this->paid_interest_advance),
             'loan_no'           => \App\Models\Loan::generateLoanNumber($this->loan_date),
             'is_additional_loan'    => $this->is_additional_loan ?? 0,

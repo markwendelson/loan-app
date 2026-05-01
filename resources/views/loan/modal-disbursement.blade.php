@@ -41,10 +41,10 @@
                         <input type="file" class="form-control" id="attachment" name="attachment" accept="image/*,.pdf" />
                     </div>
 
-                    <div class="col-12">
+                    {{-- <div class="col-12">
                         <label class="w-100" for="transaction_code">Transaction Code</label>
                         <input type="text" class="form-control form-control-sm" name="transaction_code" placeholder="Transaction Code" />
-                    </div>
+                    </div> --}}
 
                     <div class="col-12">
                         <label class="w-100" for="notes">Notes</label>

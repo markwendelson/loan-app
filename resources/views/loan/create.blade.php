@@ -704,7 +704,9 @@
 
             // comakers (array)
             $('input[name="client_comaker[]"]').each(function () {
-                formData.append('client_comaker[]', $(this).val());
+                var rawId = $(this).val();
+                var coMakerId = String(rawId).replace('tmp_', '');
+                formData.append('client_comaker[]', coMakerId);
             });
 
             // documents (files)
