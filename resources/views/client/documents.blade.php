@@ -38,9 +38,11 @@
 
         @php
             // Filter documents by this loan's ID
-            $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
-                return $doc->loan_id == $loan->id;
-            });
+            if(isset($loan) && $loan) {
+                $loanDocuments = $loan->borrower->documents->filter(function($doc) use ($loan) {
+                    return $doc->loan_id == $loan->id;
+                });
+            }
         @endphp
         
         @if((isset($loan) && isset($loan->borrower->documents)) && (isset($docViewOnly) && $docViewOnly))
