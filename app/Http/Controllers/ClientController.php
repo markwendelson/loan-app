@@ -241,7 +241,7 @@ class ClientController extends Controller
                     'order_date' => Carbon::parse($loan->loan_date),
                     'raw_principal' => $loan->principal, // used for recomputing
                     'mode_of_payment' => ucwords(str_replace("_", " ", $loan->mode_of_payment)),
-                    'disbursement_reference' => $loan->disbursement_reference
+                    'disbursement_reference' => $loan->disbursement_reference ?? ''
                 ]
             ];
 
@@ -418,7 +418,6 @@ class ClientController extends Controller
                     'payment_insurance' => null,
                     'payment_principal' => number_format($reloan_deduction, 2),
                     'change' => null,
-                    'change_mop' => null,
                     'transaction_code' => '',
                     'change_mop' => '',
                     'balance' => null, // to be computed
@@ -428,7 +427,7 @@ class ClientController extends Controller
                     'raw_principal' => $loan->principal, // used for recomputing
                     'interest_deficit' => null,
                     'mode_of_payment' => ucwords(str_replace("_", " ", $loan->mode_of_payment)),
-                    'disbursement_reference' => $loan->disbursement_reference
+                    'disbursement_reference' => $loan->disbursement_reference ?? ''
                 ]
             ];
 

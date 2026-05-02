@@ -148,6 +148,11 @@
             <span class="bold">{{ number_format($net_proceeds, 2) }}</span>
         </div>
 
+        <div class="spaced label net-proceeds">
+            <span class="bold">{{ $loan->mode_of_payment }}</span>
+            <span class="bold">{{ $loan->disbursement_reference }}</span>
+        </div>
+
         <hr>
         <p class="center">Received the above amount.</p>
         <br>

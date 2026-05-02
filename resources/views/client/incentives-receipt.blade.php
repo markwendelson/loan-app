@@ -82,6 +82,11 @@
         </div>
 
         <div class="label">
+            <span>Incentive No.:</span>
+            <span>{{ $incentives->incentive_no }}</span>
+        </div>
+
+        <div class="label">
             <span>Description:</span>
             <span>{{ $incentives->description }}</span>
         </div>

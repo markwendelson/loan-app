@@ -126,10 +126,10 @@
 
                         if (canRequestLoanCancellation) {
                             console.log(row.status)
-                            if(row.status == 0 || row.status == 3 || row.status == 4) {
-                                buttons += `<button class="btn btn-warning btn-xs" disabled title="Withdraw Loan"><i class="fa fa-undo"></i></button> `;
-                            } else {
+                            if(row.status == 1) {
                                 buttons += `<button class="btn btn-warning btn-xs btnWithdraw" data-id="${row.id}" title="Withdraw Loan"><i class="fa fa-undo"></i></button> `;
+                            } else {
+                                buttons += `<button class="btn btn-warning btn-xs" disabled title="Withdraw Loan"><i class="fa fa-undo"></i></button> `;
                             }
                         }
 
