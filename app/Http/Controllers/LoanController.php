@@ -16,6 +16,7 @@ use App\Models\LoanProduct;
 use App\Models\LoanWithdrawRequest;
 use App\Models\Savings;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -622,6 +623,12 @@ class LoanController extends Controller
     public function withdrawnLoan(Loan $loan)
     {
         if ($loan) {
+            if(!empty($loan->reference_loan_no) && $loan->is_reloan) {
+                Loan::where('loan_no', $loan->reference_loan_no)->update([
+                        'status' => LoanStatus::APPROVE
+                    ]);
+            }
+
             $loan->status = LoanStatus::WITHDRAWN;
             $loan->save();
 
@@ -1132,7 +1139,7 @@ class LoanController extends Controller
         if ($loan) {
 
             $exists = LoanWithdrawRequest::where('loan_id', $id)
-                ->where('status', 'pending') // optional condition
+                ->whereNot('status', 'cancelled') // optional condition
                 ->exists();
 
             if ($exists) {
@@ -1142,11 +1149,18 @@ class LoanController extends Controller
                 ]);
             }
 
-            LoanWithdrawRequest::create([
-                'loan_id' => $id,
-                'status' => 'pending',
-                'requested_by' => Auth::id(),
-            ]);
+            try {
+                LoanWithdrawRequest::create([
+                    'loan_id' => $id,
+                    'status' => 'pending',
+                    'requested_by' => Auth::id(),
+                ]);
+            } catch (Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Request already exists. ' . $e->getMessage(),
+                ]);
+            }
 
             return response()->json([
                 'status' => 'success',

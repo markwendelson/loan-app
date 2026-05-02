@@ -87,6 +87,8 @@ class SavingsController extends Controller
             // check balance if withdraw
             $client = Client::findOrFail($request->client_id);
 
+            $client_balance = 0;
+
             if($request->transaction_type == 'withdraw') {
                 $request->merge([
                     'transaction_code' => $request->transaction_code_select == null ? null : implode(",",$request->transaction_code_select),
@@ -141,6 +143,9 @@ class SavingsController extends Controller
             }
 
             $data = $request->all();
+            $transaction_date = $data['transaction_date'];
+            $transaction_type = $data['transaction_type'];
+            $data['transaction_no'] = Savings::generateTransactionNumber($transaction_date, $transaction_type);
 
             // $loan = Loan::where([
             //     'borrower_id' => $request->client_id,
