@@ -215,18 +215,17 @@ class ExpenseController extends Controller
 
     public function downloadPdf($slug)
     {
-
         $expenseReport = ExpenseReport::select('expense_reports.*', 'users.id as user_id', 'users.name as user_name')
             ->where('slug', $slug)
             ->leftJoin('users', 'users.id', 'expense_reports.user_id')
             ->firstOrFail();
         $expenseCategories = ExpenseCategory::whereIn('id', json_decode($expenseReport->categories_data))->get()->keyBy('id');
 
-        $pdf = Pdf::loadView('expenses.report.report-data', compact(
+        $pdf = Pdf::loadView('expenses.report.report-data-pdf', compact(
             'expenseReport',
             'expenseCategories'
-        ));
+        ))->setPaper('a4', 'landscape');
 
-        return $pdf->download('expense-report.pdf');
+        return $pdf->download($slug . '.pdf');
     }
 }
