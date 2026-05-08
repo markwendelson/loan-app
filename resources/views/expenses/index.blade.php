@@ -3,6 +3,8 @@
 @section('title') Expenses @endsection
 
 @push('css')
+    <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendors/dropzone.css') }}">
+
     <style>
         .bg-default {
             background-color: #1f807f;
@@ -29,7 +31,8 @@
                                 <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
-                        <li class="breadcrumb-item active">Expenses</li>
+                        <li class="breadcrumb-item active">Others</li>
+                        <li class="breadcrumb-item">Expenses</li>
                     </ol>
                 </div>
             </div>
@@ -37,54 +40,91 @@
     </div>
 
     <div class="card">
-        <div class="card-body float-end">
-            <a href="javascript:void(0)" id="btnAddExpense" data-container="body"
-                                    data-bs-toggle="popover" data-placement="top" title=""
-                                    data-original-title="Add Expense"><i data-feather="plus"></i></a>
+        <div class="card-body d-flex justify-content-end">
+            <button type="button" id="btnAddExpense" class="btn btn-primary"><i class="fa fa-plus"></i> New Expense</button>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped" id="expenseTable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Category</th>
-                                    <th>Description</th>
-                                    <th>Amount</th>
-                                    <th>Created By</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($expenses as $expense)
+    
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header ">
+                <form id="frmFilter" method="GET">
+                    <div class="d-flex justify-content-end gap-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span>Branch</span>
+                            <select class="form-select"
+                                name="branch_id"
+                            >
+                                <option value="">-- All --</option>
+                                @if(isset($branches) && $branches)
+                                    @foreach($branches as $key => $val)
+                                        <option value="{{ $val->id }}">{{ $val->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+
+
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+
+                    </div>
+
+                        
+                </form>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="expenseTable">
+                        <thead>
+                            <tr>
+                                <th class="align-middle">Date</th>
+                                <th class="align-middle">Branch</th>
+                                <th class="align-middle text-center" width="150">Payment Method</th>
+                                <th class="align-middle">Description</th>
+                                <th class="align-middle" width="100">Tax Rate</th>
+                                <th class="align-middle text-center">Tax</th>
+                                <th class="align-middle text-center">Subtotal</th>
+                                <th class="align-middle text-center">Amount</th>
+                                <th class="align-middle">Created By</th>
+                                <th class="text-center align-middle"><i class="fa fa-cog"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($expenses) && $expenses)
+                                @foreach($expenses as $key => $val)
                                     <tr>
-                                        <td>{{ \Carbon\Carbon::parse($expense->expense_date)->format('M d, Y') }}</td>
-                                        <td>{{ $expense->category->name ?? 'N/A' }}</td>
-                                        <td>{{ $expense->description }}</td>
-                                        <td>{{ number_format($expense->amount, 2) }}</td>
-                                        <td>{{ $expense->creator->name ?? 'System' }}</td>
-                                        <td class="actions-cell">
-                                            <div class="action-buttons">
-                                                <button class="btn btn-sm btn-warning editBtn"
-                                                    data-id="{{ $expense->id }}"><i class="fa fa-pencil"></i></button>
-                                                <button class="btn btn-sm btn-danger deleteBtn"
-                                                    data-id="{{ $expense->id }}"><i class="fa fa-trash"></i></button>
-                                            </div>
+                                        <td>{{ $val->expense_date }}</td>
+                                        <td class="{{ isset($val->branch_name) && $val->branch_name ? '' : 'text-center'; }}">{{ $val->branch_name ?? '-' }}</td>
+                                        <td class="text-center">{{ config('constants.payment_methods')[$val->payment_method]}}</td>
+                                        <td>{{ $val->description ?? ''; }}</td>
+                                        <td class="text-center">{{ $val->tax_rate ?? ''; }}</td>
+                                        <td class="{{ isset($val->tax) && $val->tax ? 'text-end' : 'text-center'; }}">{{ $val->tax ?? '-'; }}</td>
+                                        <td class="{{ isset($val->sub_total) && $val->sub_total ? 'text-end' : 'text-center'; }}">{{ $val->sub_total ?? '-'; }}</td>
+                                        <td class="text-end">{{ $val->amount ?? ''; }}</td>
+                                        <td class="{{ (isset($val->user_name) && $val->user_name) && (isset($val->email) && $val->email) ? '' : 'text-center'; }}">{{ ($val->user_name ?? $val->email) ?? '-'; }}</td>
+                                        <td class="text-center">
+                                            <a href="#" ><i class="fa fa-edit fs-5"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                            @else
+                                <tr>
+                                    <td colspan="8" class="text-center">No Items Found!</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- pagination -->
+    <div class="d-flex justify-content-end">
+        {{ $expenses->appends(request()->input())->onEachSide(0)->links('partials.pagination.default') }}
+    </div>
+
 
     {{-- Include Modal --}}
     @include('expenses.modal')
@@ -92,121 +132,254 @@
 @endsection
 
 @push('js')
+    <script src="{{ url('assets/js/dropzone/dropzone.js') }}"></script>
+    <script src="{{ url('assets/js/dropzone/dropzone-script.js') }}"></script>
+
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('expenseModal'));
 
-        $('#expenseTable').DataTable();
+        const categories = @json($categories);
 
-        // Open modal for Add
-        document.getElementById('btnAddExpense').addEventListener('click', () => {
-            resetForm();
-            document.getElementById('expenseModalLabel').textContent = 'Add Expense';
-            modal.show();
-        });
+        $(document).ready(function() {
+            initializeDropzone();
+        })
 
-        // Reset form
-        function resetForm() {
-            const form = document.getElementById('expenseForm');
-            form.reset();
-            document.getElementById('expenseId').value = '';
-            document.getElementById('expense_date').value = new Date().toISOString().split('T')[0];
-        }
+        $("#btnAddExpense").click(function() {
+            $("#expenseModal").modal("show");
+        })
 
-        // Edit
-        document.addEventListener('click', async e => {
-            const editBtn = e.target.closest('.editBtn');
-            if (!editBtn) return;
-
-            const id = editBtn.dataset.id;
-            if (!id) return;
-
-            const res = await fetch(`/expenses/${id}`);
-            const data = await res.json();
-
-            document.getElementById('expenseId').value = data.id;
-            document.getElementById('expense_date').value = data.expense_date;
-            document.getElementById('category_id').value = data.category_id;
-            document.getElementById('amount').value = data.amount;
-            document.getElementById('description').value = data.description;
-
-            document.getElementById('expenseModalLabel').textContent = 'Edit Expense';
-            modal.show();
-        });
-
-        // Save (Create/Update)
-        document.getElementById('expenseForm').addEventListener('submit', async e => {
+        //add line handles click function
+        $(".btnAddline").on("click", function(e) {
             e.preventDefault();
 
-            const form = e.target;
-            const data = Object.fromEntries(new FormData(form));
-            const id = data.id;
+            let options = '';
 
-            const url = id ? `/expenses/${id}` : '/expenses';
-            const method = id ? 'PUT' : 'POST';
+            categories.forEach(val =>{
+                options += `<option value="${val.id}">${val.name}</option>`;
+            });
 
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            let trData = `
+                <tr>
+                    <td>
+                        <select class="form-select" name="category_id[]">
+                            <option value="" selected hidden disabled>-- Category --</option>
+                            ${options}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text"
+                            name="description[]"
+                            class="form-control"
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-center"
+                            name="qty[]"
+                            value="1"
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-end"
+                            name="unit_price[]"
+                            placeholder="0.00"
+                        >
+                        <input type="hidden"
+                            name="sub_total[]"
+                        >
+                    </td>
+                    <td class="tdSubTotal text-end">
+                        0.00
+                    </td>
+                    <td class="text-center">
+                        <a href="#" class="text-danger btnRemove"><i class="fa fa-trash fs-5"></i></a>
+                    </td>
+                </tr>
+            `;
 
-            try {
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify(data)
-                });
+            $("#expenseItems tbody").append(trData);
 
-                const result = await response.json();
-
-                if (response.ok) {
-                    modal.hide();
-                    resetForm();
-                    showToast.success(result.message);
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showToast.error(result.message || "Failed to save");
-                    console.error(result);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast.error('An error occurred');
-            }
         });
 
-        // Delete
-        document.addEventListener('click', async e => {
-            const deleteBtn = e.target.closest('.deleteBtn');
-            if (!deleteBtn) return;
+        //handle lost focus function for qty and 
+        $("#expenseModal #expenseItems tbody").on("focusout", "tr input[name='qty[]'], tr input[name='unit_price[]']", function(e) {
+            e.preventDefault();
 
-            if (!confirm('Are you sure you want to delete this expense?')) return;
+            computeSubTotal(this);
+        });
 
-            const id = deleteBtn.dataset.id;
-            if (!id) return;
+        //handle modal submit click function
+        $("#expenseModal .btnSubmit").click(function(e) {
+            e.preventDefault();
 
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            let formElement = $("#expenseModal #expenseForm")[0];
+            let formData = new FormData(formElement);
 
-            try {
-                const response = await fetch(`/expenses/${id}`, {
-                    method: 'DELETE',
+            // Add Dropzone files manually
+            Dropzone.forElement("#myDropzone").getAcceptedFiles().forEach((file, index) => {
+                formData.append("attachments[]", file, file.name);
+            });
+
+            if (!$("#expenseModal #expenseForm")[0].checkValidity()) {
+                swal({
+                    title: 'Error',
+                    text: 'Please fill all required fields',
+                    icon: 'warning',
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    dangerMode: true,
+                });
+            }else{
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('expenses.store') }}",
+                    data: formData,
+                    dataType: "json",
+                    processData: false,
+                    contentType: false,
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if(response.status !== 'undifined' && response.status == 'success') {
+                            swal({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                            }).then((willClose) => {
+                                if (willClose) {
+                                    location.reload();
+                                }
+                            });
+                        }
+                        console.log(response);  
+                    },
+                    error: function(xhr, status, error) {
+                        swal({
+                            title: 'Error',
+                            text: error,
+                            icon: 'warning',
+                            buttons: {
+                                confirm: {
+                                    text: "OK",
+                                    value: true,
+                                    visible: true,
+                                    className: "btn btn-primary",
+                                    closeModal: true
+                                }
+                            },
+                            dangerMode: true,
+                        });
                     }
                 });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    showToast.success(result.message);
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showToast.error('Failed to delete');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast.error('An error occurred');
             }
-        });
+
+        })
+
+        //items expense remove button click function
+        $("#expenseItems tbody").on("click", "tr .btnRemove", function(e) {
+            e.preventDefault();
+
+            $(this).closest("tr").remove();
+        })
+
+        function initializeDropzone() {
+            Dropzone.autoDiscover = false;
+
+            // Destroy existing Dropzone instance if exists
+            if (Dropzone.instances.length > 0) {
+                Dropzone.instances.forEach(function(dz) {
+                    dz.destroy();
+                });
+            }
+
+            var myDropzone = new Dropzone("#myDropzone", {
+                url: "/upload",
+                paramName: "attachments",
+                maxFilesize: 2,
+                acceptedFiles: "image/jpeg,image/png",
+                addRemoveLinks: true,
+                autoProcessQueue: false,
+                uploadMultiple: true,
+                parallelUploads: 10,
+                maxFiles: 10,
+            });
+        }
+
+        function computeSubTotal(e) {
+            let qty = parseFloat($(e).closest("tr").find("input[name='qty[]']").val());
+            let unitPrice = parseFloat($(e).closest("tr").find("input[name='unit_price[]']").val());
+
+            //compute subtotal
+            let subTotal = parseFloat(qty * unitPrice);
+
+
+            if(isNaN(subTotal)) {
+                subTotal = 0.00;
+                subTotalFormatted = 0.00;
+            }
+            
+            //pass value to nearest subtotal td
+            $(e).closest("tr").find(".tdSubTotal").text(formatNumber(subTotal));
+            $(e).closest("tr").find("input[name='sub_total[]']").val(subTotal.toFixed(2));
+
+            computeTotal();
+        }
+
+        function computeTotal() {
+            let total = 0;
+            let taxRate = $("#expenseModal input[name='tax_rate']").val();
+
+            //get total amount
+            $("#expenseModal #expenseItems tbody tr").each(function() {
+                total += parseFloat($(this).find("input[name='sub_total[]']").val());
+            });
+
+            if(isNaN(total)) {
+                total = 0.00;
+            }
+
+            //get overall tax
+            let totalTax = parseFloat(total * (taxRate / 100));
+            let subTotal = parseFloat(total - totalTax);
+
+            //pass values to hidden inputs
+            $("#expenseModal input[name='amount']").val(total);
+            $("#expenseModal input[name='sub_amount']").val(subTotal);
+            $("#expenseModal input[name='tax']").val(totalTax);
+
+
+            $("#expenseModal .overallSubTotal").html(formatNumber(subTotal));
+            $("#expenseModal .total-tax-amount").html(formatNumber(totalTax));
+            $("#expenseModal .total-amount").html(formatNumber(total));
+
+            console.log(total);
+        }
+
+        function formatNumber(number) {
+            let formattedNumber = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(number);
+
+            return formattedNumber;
+
+        }
     </script>
 @endpush

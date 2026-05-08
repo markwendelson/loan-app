@@ -6,10 +6,14 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 //models
+use App\Models\Branch;
 use App\Models\Expense;
+use App\Models\ExpenseAttachments;
+use App\Models\ExpenseItems;
 use App\Models\ExpenseReport;
 use App\Models\ExpenseCategory;
 use App\Models\User;
@@ -18,29 +22,103 @@ class ExpenseController extends Controller
 {
     public function index()
     {
-        $expenses = \App\Models\Expense::with(['category', 'creator'])->latest('expense_date')->get();
-        $categories = \App\Models\ExpenseCategory::all();
-        return view('expenses.index', compact('expenses', 'categories'));
+        $expenses = Expense::select('expenses.*', 
+                'branch.name AS branch_name', 
+                'users.name AS user_name', 
+                'users.email'
+            )
+            ->leftJoin('branch', 'branch.id' , '=', 'expenses.branch_id')
+            ->leftJoin('users', 'users.id', '=', 'expenses.created_by')
+            ->orderBy('expenses.expense_date', 'DESC')
+            ->paginate(10);
+
+        // dd($expenses->toArray());
+        $branches = Branch::where('status', 1)
+            ->orderBy('branch.name', 'ASC')
+            ->get();
+        $categories = ExpenseCategory::all();
+
+        return view('expenses.index', compact(
+            'expenses',
+            'categories',
+            'branches'
+        ));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'expense_date' => 'required|date',
-            'category_id' => 'required|exists:expense_categories,id',
-            'amount' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
+        $slug = 'EXP' . date('YmdHis');
+
+        $result = Expense::create([
+            'branch_id' => $request->branch_id,
+            'vendor_name' => $request->vendor_name,
+            'ref_no' => $request->reference_no,
+            'payment_method' => $request->payment_method,
+            'tax_rate' => $request->tax_rate,
+            'sub_total' => $request->sub_amount,
+            'amount' => $request->amount,
+            'tax' => $request->tax,
+            'description' => $request->notes,
+            'expense_date' => $request->expense_date,
+            'slug' => $slug,
+            'created_by' => auth()->id()
         ]);
 
-        $validated['created_by'] = auth()->id();
+        if(isset($result) && $result) {
+            //insert expense items
+            if(isset($request->category_id) && $request->category_id) {
+                $expenseItems = [];
 
-        \App\Models\Expense::create($validated);
+                foreach($request->category_id as $key => $val) {
+                    $expenseItems[] = [
+                        'expense_id' => $result->id,
+                        'category_id' => $val,
+                        'description' => $request->description[$key],
+                        'qty' => $request->qty[$key],
+                        'unit_price' => $request->unit_price[$key],
+                        'sub_total' => $request->sub_total[$key],
+                    ];
+                }
 
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Expense create successfully']);
+                //insert to expense_items
+                ExpenseItems::insert($expenseItems);
+            }
+
+            //get uploaded attachments
+            if($request->hasFile('attachments')){
+                $attachments = $request->file('attachments');
+                $folderPath = 'expenses/attachments/' . $slug;
+
+                $directories = Storage::disk('public')->allDirectories();
+                if(!in_array($folderPath, $directories)){
+                    //make directory if not yet existing
+                    Storage::disk('public')->makeDirectory($folderPath);
+                }
+
+                $expenseAttachments = [];
+                foreach ($attachments as $val) {
+                    if ($val->isValid()) {
+                        //generate file name
+                        $tempFileName = Str::random(40) . '.' . $val->getClientOriginalExtension();
+                        
+                        $val->storeAs($folderPath, $tempFileName, 'public');
+
+                        $expenseAttachments[] = [
+                            'expense_id' => $result->id,
+                            'name' => $tempFileName
+                        ];
+                    }
+                }
+
+                //bulk insert attachments
+                ExpenseAttachments::insert($expenseAttachments);
+            }
         }
 
-        return redirect()->route('expenses.index')->with('message', 'Expense created successfully');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Successfully added new expense'
+        ]);
     }
 
     public function show($id)

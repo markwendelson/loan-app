@@ -156,5 +156,12 @@ return [
             'name' => 'Food and Meal Allowance',
             'scope' => 'Pertains to the allowance given to the employee and purchase for rice.'
         ]
+    ],
+    'payment_methods' => [
+        'Cash',
+        'Bank Transfer',
+        'Check',
+        'GCash',
+        'Credit Card'
     ]
 ];
