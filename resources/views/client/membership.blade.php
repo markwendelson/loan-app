@@ -20,7 +20,7 @@
                             <td class="text-end">{{ $ploan->loanCharges->membership_fee ?? number_format(0,2) }}</td>
                         </tr>
                         {{-- membership fee payments --}}
-                        @if($ploan->loanCharges->membership_fee_paid)
+                        @if($ploan->loanCharges->membership_fee_paid != 0)
                         <tr>
                             <td>{{ $ploan->loan_date }}</td>
                             <td>Membership Fee Paid</td>
