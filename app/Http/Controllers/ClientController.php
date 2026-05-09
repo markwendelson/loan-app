@@ -367,9 +367,18 @@ class ClientController extends Controller
                 return $comaker;
             });
 
+        $ploan = Loan::where('id', $loan['principal_loan_id'])->first();
+        if($ploan) {
+            $loan_co_makers = $ploan->borrower->coMakers->filter(function ($comaker) use ($ploan) {
+                $loan_balance = getClientTotalLoanBalance($comaker);
+                $comaker->loan_balance = number_format($loan_balance, 2);
+                return $comaker->pivot->loan_id == $ploan->id;
+            });
+        }
+
         $docTypes = DocumentType::active()->get(['id', 'type_name', 'description']);
 
-        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments', 'docTypes'));
+        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments', 'docTypes','loan_co_makers', 'ploan'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)

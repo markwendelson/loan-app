@@ -185,8 +185,8 @@ class AjaxController extends Controller
     {
         try {
             $deleted = DB::table('client_co_makers')->where([
-                'client_id' => $request->client_id,
-                'co_maker_id' => $request->co_maker_id,
+                'client_id' => $request->co_maker_id,
+                'co_maker_id' => $request->client_id,
                 'loan_id' => $request->loan_id,
             ])->delete();
 

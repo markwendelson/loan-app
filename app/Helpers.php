@@ -153,3 +153,15 @@ if (!function_exists('getMembershipFeeBalance')) {
         return number_format($balance ?? 0, 2);
     }
 }
+
+if (!function_exists('getClientTotalLoanBalance')) {
+    function getClientTotalLoanBalance(Client $client)
+    {
+        $loan_ids =  $client->getApproveLoans()->pluck('id');
+        $amount = 0;
+        foreach ($loan_ids as $id) {
+            $amount += getLoanBalance(Loan::find($id));
+        }
+        return $amount;
+    }
+}

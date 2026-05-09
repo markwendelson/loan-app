@@ -73,6 +73,12 @@ $(function () {
         }
     });
 
+    $('#clear_comaker_search').on('click', function() {
+        $('#comaker_search').val('');
+        $('#comaker_table_wrapper').hide();
+        table.search('').draw();
+    });
+
     table.on('click', '.register-comaker', function () {
         const id = 'tmp_' + $(this).data('id');
         const borrower_id = $("#client_id").val();
