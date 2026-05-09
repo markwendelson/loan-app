@@ -219,7 +219,7 @@
 
                     <div class="modal-footer px-0 pb-0">
                         <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save"></i> Save Expense</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times"></i> Cancel</button>
+                        <button type="button" class="btn btn-secondary btnCancel"><i class="fa fa-times"></i> Cancel</button>
                     </div>
                 </form>
             </div>

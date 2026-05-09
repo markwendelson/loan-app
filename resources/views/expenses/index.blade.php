@@ -93,18 +93,18 @@
                         <tbody>
                             @if(isset($expenses) && $expenses)
                                 @foreach($expenses as $key => $val)
-                                    <tr>
+                                    <tr data-id="{{ $val->id }}">
                                         <td>{{ $val->expense_date }}</td>
                                         <td class="{{ isset($val->branch_name) && $val->branch_name ? '' : 'text-center'; }}">{{ $val->branch_name ?? '-' }}</td>
                                         <td class="text-center">{{ config('constants.payment_methods')[$val->payment_method]}}</td>
                                         <td>{{ $val->description ?? ''; }}</td>
                                         <td class="text-center">{{ $val->tax_rate ?? ''; }}</td>
                                         <td class="{{ isset($val->tax) && $val->tax ? 'text-end' : 'text-center'; }}">{{ $val->tax ?? '-'; }}</td>
-                                        <td class="{{ isset($val->sub_total) && $val->sub_total ? 'text-end' : 'text-center'; }}">{{ $val->sub_total ?? '-'; }}</td>
-                                        <td class="text-end">{{ $val->amount ?? ''; }}</td>
+                                        <td class="{{ isset($val->sub_total) && $val->sub_total ? 'text-end' : 'text-center'; }}">{{ number_format($val->sub_total, 2) ?? '-'; }}</td>
+                                        <td class="text-end">{{ number_format($val->amount, 2) ?? ''; }}</td>
                                         <td class="{{ (isset($val->user_name) && $val->user_name) && (isset($val->email) && $val->email) ? '' : 'text-center'; }}">{{ ($val->user_name ?? $val->email) ?? '-'; }}</td>
                                         <td class="text-center">
-                                            <a href="#" ><i class="fa fa-edit fs-5"></i></a>
+                                            <a href="#" class="btnEdit"><i class="fa fa-edit fs-5"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -147,58 +147,26 @@
             $("#expenseModal").modal("show");
         })
 
+        //handle edit button click function
+        $("#expenseTable tbody").on("click", "tr .btnEdit", function(e){
+            e.preventDefault();
+
+            alert("edit button clicked!");
+        })
+
+        $("#expenseModal .btnCancel").click(function(e) {
+            e.preventDefault();
+
+            $("#expenseModal").modal("hide");
+
+            resetModalForm();
+        })
+
         //add line handles click function
         $(".btnAddline").on("click", function(e) {
             e.preventDefault();
 
-            let options = '';
-
-            categories.forEach(val =>{
-                options += `<option value="${val.id}">${val.name}</option>`;
-            });
-
-            let trData = `
-                <tr>
-                    <td>
-                        <select class="form-select" name="category_id[]">
-                            <option value="" selected hidden disabled>-- Category --</option>
-                            ${options}
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text"
-                            name="description[]"
-                            class="form-control"
-                        >
-                    </td>
-                    <td>
-                        <input type="number"
-                            class="form-control text-center"
-                            name="qty[]"
-                            value="1"
-                        >
-                    </td>
-                    <td>
-                        <input type="number"
-                            class="form-control text-end"
-                            name="unit_price[]"
-                            placeholder="0.00"
-                        >
-                        <input type="hidden"
-                            name="sub_total[]"
-                        >
-                    </td>
-                    <td class="tdSubTotal text-end">
-                        0.00
-                    </td>
-                    <td class="text-center">
-                        <a href="#" class="text-danger btnRemove"><i class="fa fa-trash fs-5"></i></a>
-                    </td>
-                </tr>
-            `;
-
-            $("#expenseItems tbody").append(trData);
-
+            addLine();
         });
 
         //handle lost focus function for qty and 
@@ -379,6 +347,74 @@
             }).format(number);
 
             return formattedNumber;
+
+        }
+
+        function resetModalForm() {
+
+            $("#expenseModal #expenseForm input").val("");
+            $("#expenseModal #expenseForm select").val("");
+            $("#expenseModal #expenseForm textarea").val("");
+
+            //set initial tax rate to 12
+            $("#expenseModal input[name='tax_rate']").val(12);
+
+            //clear add line from modal form
+            $("#expenseModal #expenseItems tbody").html("");
+            addLine();
+
+            initializeDropzone();
+        }
+
+        function addLine() {
+
+            let options = '';
+
+            categories.forEach(val =>{
+                options += `<option value="${val.id}">${val.name}</option>`;
+            });
+
+            let trData = `
+                <tr>
+                    <td>
+                        <select class="form-select" name="category_id[]">
+                            <option value="" selected hidden disabled>-- Category --</option>
+                            ${options}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text"
+                            name="description[]"
+                            class="form-control"
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-center"
+                            name="qty[]"
+                            value="1"
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-end"
+                            name="unit_price[]"
+                            placeholder="0.00"
+                        >
+                        <input type="hidden"
+                            name="sub_total[]"
+                        >
+                    </td>
+                    <td class="tdSubTotal text-end">
+                        0.00
+                    </td>
+                    <td class="text-center">
+                        <a href="#" class="text-danger btnRemove"><i class="fa fa-trash fs-5"></i></a>
+                    </td>
+                </tr>
+            `;
+
+            $("#expenseModal #expenseItems tbody").append(trData);
 
         }
     </script>
