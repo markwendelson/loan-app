@@ -48,8 +48,13 @@
             <div>
                 <div class="comaker-search-section">
                     <div class="col mb-2">
-                        <input type="text" class="form-control" name="comaker_search" id="comaker_search"
-                            placeholder="Search co-maker to add" />
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="comaker_search" id="comaker_search"
+                                placeholder="Search co-maker to add" />
+                            <button class="btn btn-outline-secondary" type="button" id="clear_comaker_search">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="table-responsive bg-white border p-0 d-none">

@@ -203,8 +203,8 @@ class ClientController extends Controller
             $insurance_fee = $loan->loanCharges->insurance_fee;
             $notary_fee = $loan->loanCharges->notary_fee;
             $reloan_deduction = $loan->loanCharges->reloan_deduction;
-            $membership_fee = $loan->loanCharges->membership_fee;
-            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $membership_fee;
+            $membership_fee_paid = $loan->loanCharges->membership_fee_paid;
+            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $membership_fee_paid;
             $net_proceed = $loan->principal - $loan_charges;
             $i++;
             // Initial loan row
@@ -221,7 +221,7 @@ class ClientController extends Controller
                     'loan_service_fee' => number_format($service_fee, 2),
                     'loan_insurance_fee' => number_format($insurance_fee, 2),
                     'others' => number_format($notary_fee, 2),
-                    'membership_fee' => number_format($membership_fee, 2),
+                    'membership_fee' => number_format($membership_fee_paid, 2),
                     'net_proceed' => number_format($net_proceed, 2),
                     'signature' => null,
                     'wdl' => null,
@@ -359,16 +359,26 @@ class ClientController extends Controller
             ->get()
             ->map(function ($comaker) {
                 $client_loan = Loan::where('id', $comaker->pivot->loan_id)->first();
+                $comaker->loan_balance = 'No active loan.';
                 if ($client_loan) {
                     $loan_balance = getLoanBalance($client_loan);
+                    $comaker->loan_balance = number_format($loan_balance, 2);
                 }
-                $comaker->loan_balance = $client_loan == null ? 'No active loan.' : number_format($loan_balance, 2);
                 return $comaker;
             });
 
+        $ploan = Loan::where('id', $loan['principal_loan_id'])->first();
+        if($ploan) {
+            $loan_co_makers = $ploan->borrower->coMakers->filter(function ($comaker) use ($ploan) {
+                $loan_balance = getClientTotalLoanBalance($comaker);
+                $comaker->loan_balance = number_format($loan_balance, 2);
+                return $comaker->pivot->loan_id == $ploan->id;
+            });
+        }
+
         $docTypes = DocumentType::active()->get(['id', 'type_name', 'description']);
 
-        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments', 'docTypes'));
+        return view('client.ledger', compact('client', 'loan', 'principal_loan', 'special_loan', 'loan_is_co_maker', 'principal_attachments', 'special_attachments', 'docTypes','loan_co_makers', 'ploan'));
     }
 
     public function ledgerSpecial(Request $request, Client $client)
@@ -391,9 +401,9 @@ class ClientController extends Controller
             $insurance_fee = $loan->loanCharges->insurance_fee;
             $notary_fee = $loan->loanCharges->notary_fee;
             $reloan_deduction = $loan->loanCharges->reloan_deduction;
-            $membership_fee = $loan->loanCharges->membership_fee ?? 0;
+            $membership_fee_paid = $loan->loanCharges->membership_fee_paid ?? 0;
 
-            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $membership_fee;
+            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $membership_fee_paid;
             $net_proceed = $loan->principal - $loan_charges;
             $i++;
             // Initial loan row
@@ -409,7 +419,7 @@ class ClientController extends Controller
                     'loan_service_fee' => number_format($service_fee, 2),
                     'loan_insurance_fee' => number_format($insurance_fee, 2),
                     'others' => number_format($notary_fee, 2),
-                    'membership_fee' => number_format($membership_fee, 2),
+                    'membership_fee' => number_format($membership_fee_paid, 2),
                     'net_proceed' => number_format($net_proceed, 2),
                     'signature' => null,
                     'wdl' => null,

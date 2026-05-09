@@ -252,16 +252,7 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="membership" role="tabpanel" aria-labelledby="membership-tab">
-                    <div class="card">
-                        <div class="card-header">
-                            Membership
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <!-- Membership Ledger Table Here -->
-                            </div>
-                        </div>
-                    </div>
+                    @include('client.membership')
                 </div>
                 <div class="tab-pane fade" id="client-as-comaker" role="tabpanel" aria-labelledby="client-as-comaker-tab">
                     @include('client.co-maker-list')
@@ -508,15 +499,15 @@
                 { data: 'description', name: 'description' },
                 { data: 'amount', name: 'amount', render: function(data, type, row) {
                         return parseFloat(data || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                    } 
+                    }
                 },
                 { data: 'mode_of_payment', name: 'mode_of_payment', render: function(data, type, row) {
                     if (row.mode_of_payment == 'authorized_person') {
                         return 'Authorized Person'
                     }
-                        
+
                     return row.mode_of_payment;
-                } 
+                }
                 },
                 {
                     data: 'transaction_code', name: 'transaction_code', render: function(data, type, row) {

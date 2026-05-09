@@ -7,13 +7,16 @@
                                 opacity: 1;
                             } */
 
-        #client_comaker {
+        #client_comaker,
+        #client_is_comaker {
             border-collapse: collapse;
             width: 100%;
         }
 
         #client_comaker td,
-        #client_comaker th {
+        #client_comaker th,
+        #client_is_comaker td,
+        #client_is_comaker th {
             border: 1px solid #dee2e6;
             /* or whatever border color you use */
             padding: 8px;
@@ -43,13 +46,18 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div>
-            <h4 class="card-title">Client as Co-Maker</h4>
+            <h4 class="card-title">Co-Maker</h4>
         </div>
         <div>
             <div class="comaker-search-section">
                 <div class="col mb-2">
-                    <input type="text" class="form-control" name="comaker_search" id="comaker_search"
-                        placeholder="Search co-maker to add" />
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="comaker_search" id="comaker_search"
+                            placeholder="Search co-maker to add" />
+                        <button class="btn btn-outline-secondary" type="button" id="clear_comaker_search">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="table-responsive bg-white border p-0 d-none">
@@ -69,13 +77,54 @@
 
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover" id="client_comaker">
-                <thead>
+            <table class="table table-bordered table-hover" id="client_comaker">
+                <thead class="bg-default">
                     <tr>
                         <th class="text-start" width="150">Name</th>
                         <th class="text-start" width="150">Address</th>
                         <th class="text-center" width="80">Balance</th>
                         <th class="text-center co-maker-action-btn-header" width="80"><i class="fa fa-cog"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- Show co-makers for specific loan when editing, empty when creating --}}
+                    @if(isset($loan_co_makers) && $loan_co_makers)
+                        @foreach($loan_co_makers as $comaker)
+                            <tr data-id="{{$comaker->pivot->co_maker_id}}" data-client-id="{{$comaker->pivot->client_id}}"
+                                data-loan-id="{{$comaker->pivot->loan_id}}">
+                                <td>{{$comaker->details->fullname}}</td>
+                                <td>{{$comaker->details->present_full_address}}</td>
+                                <td class="text-end">{{ $comaker->loan_balance }}</td>
+                                <td class="text-center co-maker-action-btn-col">
+                                    <button class="btn btn-sm btn-danger btn-remove" data-id="{{$comaker->pivot->co_maker_id}}"
+                                        data-client-id="{{$comaker->pivot->client_id}}"
+                                        data-loan-id="{{$comaker->pivot->loan_id}}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title">Client as Co-Maker</h4>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="client_is_comaker">
+                <thead class="bg-default">
+                    <tr>
+                        <th class="text-start" width="150">Name</th>
+                        <th class="text-start" width="150">Address</th>
+                        <th class="text-center" width="80">Balance</th>
+                        {{-- <th class="text-center co-maker-action-btn-header" width="80"><i class="fa fa-cog"></i></th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -87,13 +136,13 @@
                                 <td>{{$comaker->details->fullname}}</td>
                                 <td>{{$comaker->details->present_full_address}}</td>
                                 <td class="text-end">{{ $comaker->loan_balance }}</td>
-                                <td class="text-center co-maker-action-btn-col">
+                                {{-- <td class="text-center co-maker-action-btn-col">
                                     <button class="btn btn-sm btn-danger btn-remove" data-id="{{$comaker->pivot->client_id}}"
                                         data-client-id="{{$comaker->pivot->co_maker_id}}"
                                         data-loan-id="{{$comaker->pivot->loan_id}}">
                                         <i class="fa fa-trash"></i>
                                     </button>
-                                </td>
+                                </td> --}}
                             </tr>
                         @endforeach
                     @endif
