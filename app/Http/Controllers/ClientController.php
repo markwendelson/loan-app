@@ -203,8 +203,8 @@ class ClientController extends Controller
             $insurance_fee = $loan->loanCharges->insurance_fee;
             $notary_fee = $loan->loanCharges->notary_fee;
             $reloan_deduction = $loan->loanCharges->reloan_deduction;
-            $membership_fee = $loan->loanCharges->membership_fee;
-            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $membership_fee;
+            $membership_fee_paid = $loan->loanCharges->membership_fee_paid;
+            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $reloan_deduction + $membership_fee_paid;
             $net_proceed = $loan->principal - $loan_charges;
             $i++;
             // Initial loan row
@@ -392,9 +392,9 @@ class ClientController extends Controller
             $insurance_fee = $loan->loanCharges->insurance_fee;
             $notary_fee = $loan->loanCharges->notary_fee;
             $reloan_deduction = $loan->loanCharges->reloan_deduction;
-            $membership_fee = $loan->loanCharges->membership_fee ?? 0;
+            $membership_fee_paid = $loan->loanCharges->membership_fee_paid ?? 0;
 
-            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $membership_fee;
+            $loan_charges = $interest + $service_fee + $insurance_fee + $notary_fee + $membership_fee_paid;
             $net_proceed = $loan->principal - $loan_charges;
             $i++;
             // Initial loan row
@@ -410,7 +410,7 @@ class ClientController extends Controller
                     'loan_service_fee' => number_format($service_fee, 2),
                     'loan_insurance_fee' => number_format($insurance_fee, 2),
                     'others' => number_format($notary_fee, 2),
-                    'membership_fee' => number_format($membership_fee, 2),
+                    'membership_fee' => number_format($membership_fee_paid, 2),
                     'net_proceed' => number_format($net_proceed, 2),
                     'signature' => null,
                     'wdl' => null,
