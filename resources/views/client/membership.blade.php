@@ -14,6 +14,7 @@
                         <th class="text-center" width="80">Amount</th>
                     </tr>
                     <tbody>
+                        @if($ploan)
                         <tr>
                             <td>{{ $ploan->loan_date }}</td>
                             <td>Membership Fee</td>
@@ -45,6 +46,7 @@
                                 <th class="text-end">{{ number_format($balance,2) }}</th>
                             </tr>
                         </tfoot>
+                        @endif
                     </tbody>
                 </thead>
             </table>

@@ -184,14 +184,15 @@ class ClientController extends Controller
     public function ledgerPrincipal(Request $request, Client $client)
     {
         $loans = Loan::with('payments', 'loanCharges')->where('borrower_id', $client->id)->where('status', LoanStatus::APPROVE)->orderBy('is_special')->get();
-        $filter = '';
-        foreach ($loans as $loan) {
-            $loan_prerequisites = DB::table('loan_product_prerequisites')->where('loan_product_id', $loan->loan_product_id)->get();
-            if (count($loan_prerequisites) == 0) {
-                $filter = $loan->loan_product_id;
-                break;
+
+            $filter = '';
+            foreach ($loans as $loan) {
+                $loan_prerequisites = DB::table('loan_product_prerequisites')->where('loan_product_id', $loan->loan_product_id)->get();
+                if (count($loan_prerequisites) == 0) {
+                    $filter = $loan->loan_product_id;
+                    break;
+                }
             }
-        }
 
         // Running total
         $total_payment_principal = 0;
@@ -320,13 +321,18 @@ class ClientController extends Controller
                 'draw' => intval($request->draw),
                 'recordsTotal' => $totalRecords,
                 'recordsFiltered' => $totalRecords,
-                'data' => $mappedData
+                'data' => $mappedData ?? []
             ]);
         }
 
-
         $principal_loan = $loans[0] ?? null;
         $special_loan = $loans[1] ?? null;
+
+        if ($loans[0]->is_special) {
+            $principal_loan = null;
+            $special_loan = $loans[0] ?? null;
+        }
+
         $principal_attachments = null;
         $special_attachments = null;
 
@@ -367,13 +373,16 @@ class ClientController extends Controller
                 return $comaker;
             });
 
-        $ploan = Loan::where('id', $loan['principal_loan_id'])->first();
-        if($ploan) {
-            $loan_co_makers = $ploan->borrower->coMakers->filter(function ($comaker) use ($ploan) {
-                $loan_balance = getClientTotalLoanBalance($comaker);
-                $comaker->loan_balance = number_format($loan_balance, 2);
-                return $comaker->pivot->loan_id == $ploan->id;
-            });
+        $loan_co_makers = $ploan = [];
+        if($principal_loan) {
+            $ploan = Loan::where('id', $loan['principal_loan_id'])->first();
+            if($ploan) {
+                $loan_co_makers = $ploan->borrower->coMakers->filter(function ($comaker) use ($ploan) {
+                    $loan_balance = getClientTotalLoanBalance($comaker);
+                    $comaker->loan_balance = number_format($loan_balance, 2);
+                    return $comaker->pivot->loan_id == $ploan->id;
+                });
+            }
         }
 
         $docTypes = DocumentType::active()->get(['id', 'type_name', 'description']);

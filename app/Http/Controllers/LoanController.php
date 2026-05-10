@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LoanStatus;
+use App\Enums\PaymentType;
 use App\Http\Requests\LoanRequest;
 use App\Models\Attachment;
 use App\Models\Client;
@@ -93,6 +94,18 @@ class LoanController extends Controller
         } else {
             $loan_products = LoanProduct::active()->get();
         }
+
+        // $loan_co_makers = [];
+        // if($previous_loan) {
+        //     $ploan = Loan::where('id', $previous_loan->id)->first();
+        //     if($ploan) {
+        //         $loan_co_makers = $ploan->borrower->coMakers->filter(function ($comaker) use ($ploan) {
+        //             $loan_balance = getClientTotalLoanBalance($comaker);
+        //             $comaker->loan_balance = number_format($loan_balance, 2);
+        //             return $comaker->pivot->loan_id == $ploan->id;
+        //         });
+        //     }
+        // }
 
         return view('loan.create', compact('loan_products', 'clients', 'reloan_deduction', 'previous_loan', 'principal_loan_balance', 'special_loan_balance'));
     }
@@ -640,6 +653,9 @@ class LoanController extends Controller
                 'updated_by' => Auth::id()
             ]);
 
+            // reversal or delete
+            Savings::where('payment_type_reference', $loan->loan_no)->delete();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Loan successfully withdrawn.'
@@ -847,6 +863,9 @@ class LoanController extends Controller
                 Log::info('interest(rebate): ' . $rebate);
                 Log::info('reloan_deduction: ' . $reloan_deduction);
 
+                // temp payment reference
+                $temp_reference = 'tmp'.time();
+
                 if ($data['include_special_loan_balance']) {
                     $special_loan_balance = $data['special_loan_balance'];
                     // create saving for payment
@@ -855,21 +874,27 @@ class LoanController extends Controller
                         'transaction_type' => 'deposit',
                         'client_id' => $data['borrower_id'],
                         'amount' => $principal_balance + $special_loan_balance,
+                        'payment_type' => PaymentType::RELOAN_DEDUCTION,
+                        'payment_type_reference' => $temp_reference,
+                        'description' => 'Reloan',
+                        'notes' => 'Reloan',
                     ]);
 
                     $client = Client::findOrFail($data['borrower_id']);
                     $loans = $client->getApproveLoans();
+
+
 
                     foreach ($loans as $loan) {
                         $payments = $loan?->payments->where('transaction_type', 'withdraw');
 
                         $loan_principal_balance = $loan->final_principal;
                         $loan_principal_payments = $payments->sum('principal');
-                        $earyl_settlement_amount = $loan_principal_balance - $loan_principal_payments;
+                        $early_settlement_amount = $loan_principal_balance - $loan_principal_payments;
 
                         Log::info('principal:' . $loan->final_principal);
                         Log::info('payment:' . $payments->sum('principal'));
-                        Log::info('earyl_settlement_amount' . $earyl_settlement_amount);
+                        Log::info('early_settlement_amount' . $early_settlement_amount);
                         Log::info('----------------------------------------------------------');
 
                         if ($loan->is_special) {
@@ -878,9 +903,13 @@ class LoanController extends Controller
                                 'transaction_type' => 'withdraw',
                                 'client_id' => $data['borrower_id'],
                                 'loan_id' => $loan->id,
-                                'amount' => $earyl_settlement_amount,
+                                'amount' => $early_settlement_amount,
                                 'interest' => 0,
-                                'principal' => $earyl_settlement_amount,
+                                'principal' => $early_settlement_amount,
+                                'payment_type' => PaymentType::RELOAN_DEDUCTION,
+                                'payment_type_reference' => $temp_reference,
+                                'description' => 'Reloan',
+                                'notes' => 'Reloan',
                             ]);
                         } else {
                             $principal_amount = $reloan_deduction - $special_loan_balance;
@@ -893,6 +922,10 @@ class LoanController extends Controller
                                 'amount' => $principal_balance,
                                 'interest' => $rebate,
                                 'principal' => $principal_amount - $rebate,
+                                'payment_type' => PaymentType::RELOAN_DEDUCTION,
+                                'payment_type_reference' => $temp_reference,
+                                'description' => 'Reloan',
+                                'notes' => 'Reloan',
                             ]);
                         }
                     }
@@ -905,6 +938,10 @@ class LoanController extends Controller
                         'transaction_type' => 'deposit',
                         'client_id' => $data['borrower_id'],
                         'amount' => $principal_balance,
+                        'payment_type' => PaymentType::RELOAN_DEDUCTION,
+                        'payment_type_reference' => $temp_reference,
+                        'description' => 'Reloan',
+                        'notes' => 'Reloan',
                     ]);
 
                     Savings::create([
@@ -915,6 +952,10 @@ class LoanController extends Controller
                         'amount' => $principal_balance,
                         'interest' => $rebate,
                         'principal' => $reloan_deduction - $rebate,
+                        'payment_type' => PaymentType::RELOAN_DEDUCTION,
+                        'payment_type_reference' => $temp_reference,
+                        'description' => 'Reloan',
+                        'notes' => 'Reloan',
                     ]);
                 }
 
@@ -938,6 +979,11 @@ class LoanController extends Controller
                     'insurance_monthly_fee' => $insurance->monthly_fee,
                     'insurance_annual_fee' => $insurance->annual_fee,
                     'monthly_amortization' => $data['monthly_amortization']
+                ]);
+
+                // update temp reference to new loan no
+                Savings::where('payment_type_reference', $temp_reference) ->update([
+                    'payment_type_reference' => $loan->loan_no
                 ]);
 
             });

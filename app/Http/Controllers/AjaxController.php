@@ -212,6 +212,12 @@ class AjaxController extends Controller
 
     public function registerCoMaker(Request $request)
     {
+        $request->validate([
+            'loan_id' => 'required'
+        ],[
+            'loan_id.required' => 'No principal loan active.'
+        ]);
+
         try {
             $client_id = $request->borrower_id;
             $co_maker_id = $request->co_maker_id;

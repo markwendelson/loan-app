@@ -83,6 +83,29 @@
                 </thead>
                 <tbody>
                     {{-- Show co-makers for specific loan when editing, empty when creating --}}
+                    @if(request()->route()->getName() == 'loan.create')
+                        @php
+                            // Filter co-makers by this loan's ID
+                            $loanCoMakers = $previous_loan->borrower->coMakers->filter(function ($comaker) use ($previous_loan) {
+                                return $comaker->pivot->loan_id == $previous_loan->id;
+                            });
+                        @endphp
+                        @foreach($loanCoMakers as $comaker)
+                            <tr data-id="{{'tmp_'.$comaker->id}}" data-client-id="{{$comaker->pivot->client_id}}" data-loan-id="">
+                                <td>
+                                    <input type="hidden" name="client_comaker[]" value="{{ $comaker->id }}">
+                                    {{$comaker->details->fullname}}
+                                </td>
+                                <td>{{$comaker->details->present_full_address}}</td>
+                                <td class="text-center co-maker-action-btn-col">
+                                    <button class="btn btn-sm btn-danger btn-remove" data-id="{{'tmp_'.$comaker->id}}" data-client-id="{{ $comaker->pivot->client_id }}" data-loan-id="">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+
                     @if(isset($loan) && isset($loan->borrower))
                         @php
                             // Filter co-makers by this loan's ID

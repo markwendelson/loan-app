@@ -24,7 +24,8 @@ class Loan extends Model implements Auditable
     public function scopePending($query)
     {
         if(auth()->user()->can('approve-secondary-approval')) {
-            return $query->where('status', LoanStatus::REQUEST_APPROVE);
+            return $query->where('status', LoanStatus::REQUEST_APPROVE)
+                    ->orWhere('status', LoanStatus::PENDING);
         }
         return $query->where('status', LoanStatus::PENDING);
     }
@@ -109,7 +110,13 @@ class Loan extends Model implements Auditable
     public function finalPrincipal(): Attribute
     {
         return Attribute::get(function () {
-            $referencingLoans = self::where('reference_loan_no', $this->loan_no)->get();
+            $referencingLoans = self::where('reference_loan_no', $this->loan_no)
+                                ->whereNotIn('status',[
+                                    LoanStatus::PENDING,
+                                    LoanStatus::DECLINE,
+                                    LoanStatus::WITHDRAWN,
+                                    LoanStatus::REQUEST_APPROVE
+                                ])->get();
 
             return $referencingLoans->sum('principal') + $this->principal;
         });

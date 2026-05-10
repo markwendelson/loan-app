@@ -81,8 +81,8 @@ $(function () {
 
     table.on('click', '.register-comaker', function () {
         const id = 'tmp_' + $(this).data('id');
-        const borrower_id = $("#client_id").val();
-        const loan_id = $("#principal_loan_id").val();
+        const borrower_id = $("#client_id").val() || $('#borrower_id').val();
+        const loan_id = $("#principal_loan_id").val() || '';
         const name = $(this).data('name');
         const address = $(this).data('address');
 
@@ -130,8 +130,8 @@ $(function () {
         const loanId = $(this).data('loan-id');
 
         const $row = $(`#client_comaker tbody tr[data-id="${rowId}"][data-client-id="${clientId}"][data-loan-id="${loanId}"]`);
-
         if (String(rowId).includes('tmp_')) {
+            console.log($row)
             $row.remove();
             return;
         }
