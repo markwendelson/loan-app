@@ -1,18 +1,21 @@
 @extends('layouts.app')
 
+@section('title') Manage Savings @endsection
+
 @push('css')
 <style>
     .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+        background-color: #1f807f;
+    }
+    .bg-default th {
+        color: white; /* Set white text for <th> elements */
+        border: 1px solid white;
+    }
+</style>
 @endpush
 
 @section('content')
+
 
     <div class="container-fluid">
         <div class="page-title">
@@ -33,6 +36,14 @@
                 </div>
             </div>
         </div>
+
+
+    </div>
+
+    <div class="card">
+        <div class="card-body d-flex justify-content-end">
+            <button type="button" class="btn btn-primary btnNewTransactions"><i class="fa fa-plus"></i> Multiple Entries</button>
+        </div>
     </div>
 
     <!-- button container -->
@@ -42,7 +53,6 @@
         </div>
     </div> --}}
 
-
     <!-- table container -->
     <div class="card">
         <div class="card-body">
@@ -50,6 +60,7 @@
                 <table class="table table-bordered table-hover" id="tblSavings">
                     <thead class="bg-default">
                         <tr>
+                            <th class="text-center" width="30"></th>
                             <th class="text-center" width="120">Client Id</th>
                             <th class="text-center" width="150">Name</th>
                             <th class="text-center" width="150">Balance</th>
@@ -62,11 +73,131 @@
         </div>
     </div>
 
+    <!-- modal multiple entries -->
+    <div class="modal fade" id="modalMultipleEntries" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <!-- content here -->
+        </div>
+    </div>
+
 @endsection
 
 @push('js')
 <script>
     $(document).ready(function () {
+
+        //clear local storage
+        localStorage.removeItem("table_selections");
+
+        //new multiple transaction click function
+        $(".btnNewTransactions").click(function(e) {
+            e.preventDefault();
+            
+            //get selected accounts
+            let selectedAccounts = JSON.parse(localStorage.getItem("table_selections") || "[]"); 
+
+            if(selectedAccounts.length <= 0) {
+                swal({
+                    title: 'Error',
+                    text: "Please select atleast one record!",
+                    icon: 'warning',
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    dangerMode: true,
+                });
+
+                return;
+            }
+
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('savings.get-multiple-entries-modal') }}",
+                data: {
+                    client_id : selectedAccounts
+                },
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(typeof response != 'undefined' && response.status == 'success') {
+                        if(typeof response.html != 'undefined' && response.html) {
+                            $("#modalMultipleEntries .modal-dialog").html(response.html);
+                            $("#modalMultipleEntries").modal("show");
+                        }
+                    }
+                }
+            });
+        })
+
+        //handle modal submit click function
+        $("#modalMultipleEntries").on("click", ".btnSubmit", function(e) {
+            e.preventDefault();
+
+
+            alert("hello world");
+        });
+
+        //modal cancel button click function
+        $("#modalMultipleEntries").on("click", ".btnCancel", function(e) {
+            e.preventDefault();
+
+            $("#modalMultipleEntries").modal("hide");
+        })
+
+        //handle td check holder click function
+        $("#tblSavings").on("click", ".tdCheck", function(e) {
+            let chckbox = $(this).find(".chckSelection");
+
+            let isChecked = $(chckbox).prop("checked");
+            $(chckbox).prop("checked", !isChecked);
+            $(chckbox).trigger("change");
+        });
+
+        //handle table checkboxes click function
+        $("#tblSavings").on("change", "tr .chckSelection", function(e) {
+            e.stopPropagation();
+
+            let selectedItems = JSON.parse(localStorage.getItem("table_selections")) || [];
+
+            let value = $(this).val();
+
+            if ($(this).prop("checked")) {
+                if (!selectedItems.includes(value)) {
+                    selectedItems.push(value);
+                }
+            } else {
+                selectedItems = selectedItems.filter(item => item !== value);
+            }
+
+            localStorage.setItem("table_selections", JSON.stringify(selectedItems));
+        });
+
+        //transaction type buttons handle click function
+        $("#modalMultipleEntries").on("change", ".btn-check", function(e) {
+            e.preventDefault();
+
+            let targetElement = $(this).data("bs-target");
+            
+            $(targetElement).closest(".tab-content").find('.tab-pane').removeClass("show active");
+
+            $(targetElement).addClass("show active");
+        })
+
         const table=$('#tblSavings').DataTable({
             ordering: false,
             processing: true,
@@ -77,6 +208,18 @@
                 url: "{{ route('savings.index') }}",
             },
             columns: [
+                {
+                    data: null,
+                    name: 'checkbox',
+                    render : function(data, type, row) {
+                        return `
+                            <div class="form-check checkbox checkbox-primary mb-0">
+                                <input class="form-check-input chckAll chckSelection" id="chck${row.id}" type="checkbox" value="${row.id}">
+                                <label class="form-check-label mb-1" for="chck${row.id}"></label>
+                            </div>
+                        `;
+                    }
+                },
                 { data: 'client_code', name: 'client_code' },
                 { data: 'fullname', name: 'fullname' },
                 { data: 'balance', name: 'balance' },
@@ -98,9 +241,27 @@
                 }
             ],
             columnDefs: [
-                { className: "text-center", targets: [3,4] },
-                { className: "text-end", targets: [2] },
+                { 
+                    className: "text-center mx-0 tdCheck",
+                    targets: [0],
+                    width: "20"
+                    
+                },
+                { 
+                    className: "text-center mx-0",
+                    targets: [4,5],
+                    width: "20"
+                    
+                },
+
+                { className: "text-center", targets: [0,4,5] },
+                { className: "text-end", targets: [3] },
             ]
+        });
+
+        //handle additional table pagination function
+        $('#tblSavings').on('draw.dt', function() {
+            loadSelectedRows();
         });
 
         $("#modalSavings .btnSubmit").click(function (e) {
@@ -190,6 +351,19 @@
 
             }
         })
+    }
+
+    function loadSelectedRows() {
+        //get all items
+        let selectedItems = JSON.parse(localStorage.getItem("table_selections")) || [];
+
+        $("#tblSavings tbody tr").each(function() {
+            let chckbox = $(this).find(".chckSelection");
+
+            if (selectedItems.includes($(chckbox).val())) {
+                $(chckbox).prop("checked", true);
+            }
+        });
     }
 
 </script>

@@ -143,6 +143,7 @@ Route::middleware('auth')->group(function () {
         Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
             Route::get('{id}/print', 'printReceipt')->name('savings.print');
             Route::post('{id}/change-transaction-code', 'updateTransactionCode')->name('savings.update-transaction-code');
+            Route::post('get-multiple-entries', 'getMultipleEntriesModal')->name('savings.get-multiple-entries-modal');
         });
     Route::resource('savings', SavingsController::class);
     Route::resource('loan', LoanController::class);

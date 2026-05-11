@@ -618,4 +618,34 @@ class SavingsController extends Controller
         ]);
     }
 
+    public function getMultipleEntriesModal(Request $request)
+    {
+        //get all data
+        $inputData = $request->all();
+
+        $clientData = [];
+        //get client list information
+        if(isset($inputData['client_id']) && $inputData['client_id']) {
+            $clientData = Client::select(
+                'clients.*',
+                'client_details.firstname',
+                'client_details.middlename',
+                'client_details.lastname',
+            )
+            ->leftJoin('client_details', 'client_details.client_id', '=', 'clients.id')
+            ->whereIn('clients.id', $inputData['client_id'])
+            ->get();
+        }
+
+        $html = view('savings.modal.multiple-entries', compact(
+            'clientData'
+        ))->render();
+
+        return response()->json([
+            'status' => 'success',
+            'html' => $html
+        ]);
+        
+    }
+
 }
