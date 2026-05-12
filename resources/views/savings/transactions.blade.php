@@ -45,10 +45,10 @@
 <!-- button container -->
 <div class="card">
     <div class="card-body">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1 style="font-size: 3.5rem;">{{$client->details->fullname}}</h1>
-                <h3>{{$client->details->present_full_address}}</h3>
+                <h3>{{$client->details->fullname}}</h3>
+                <span>{{$client->details->present_full_address}}</span>
             </div>
             <a href="{{route('client.ledger.principal', $client->id)}}" class="btn btn-sm btn-primary">Ledger</a>
         </div>

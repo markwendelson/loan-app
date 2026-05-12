@@ -85,119 +85,6 @@
 @push('js')
 <script>
     $(document).ready(function () {
-
-        //clear local storage
-        localStorage.removeItem("table_selections");
-
-        //new multiple transaction click function
-        $(".btnNewTransactions").click(function(e) {
-            e.preventDefault();
-            
-            //get selected accounts
-            let selectedAccounts = JSON.parse(localStorage.getItem("table_selections") || "[]"); 
-
-            if(selectedAccounts.length <= 0) {
-                swal({
-                    title: 'Error',
-                    text: "Please select atleast one record!",
-                    icon: 'warning',
-                    buttons: {
-                        confirm: {
-                            text: "OK",
-                            value: true,
-                            visible: true,
-                            className: "btn btn-primary",
-                            closeModal: true
-                        }
-                    },
-                    dangerMode: true,
-                });
-
-                return;
-            }
-
-            $(".loader-wrapper").fadeIn("slow");
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('savings.get-multiple-entries-modal') }}",
-                data: {
-                    client_id : selectedAccounts
-                },
-                dataType: "json",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
-                    //hide loading form
-                    $(".loader-wrapper").fadeOut("slow", function () {
-                        $(this).hide();
-                    });
-
-                    if(typeof response != 'undefined' && response.status == 'success') {
-                        if(typeof response.html != 'undefined' && response.html) {
-                            $("#modalMultipleEntries .modal-dialog").html(response.html);
-                            $("#modalMultipleEntries").modal("show");
-                        }
-                    }
-                }
-            });
-        })
-
-        //handle modal submit click function
-        $("#modalMultipleEntries").on("click", ".btnSubmit", function(e) {
-            e.preventDefault();
-
-
-            alert("hello world");
-        });
-
-        //modal cancel button click function
-        $("#modalMultipleEntries").on("click", ".btnCancel", function(e) {
-            e.preventDefault();
-
-            $("#modalMultipleEntries").modal("hide");
-        })
-
-        //handle td check holder click function
-        $("#tblSavings").on("click", ".tdCheck", function(e) {
-            let chckbox = $(this).find(".chckSelection");
-
-            let isChecked = $(chckbox).prop("checked");
-            $(chckbox).prop("checked", !isChecked);
-            $(chckbox).trigger("change");
-        });
-
-        //handle table checkboxes click function
-        $("#tblSavings").on("change", "tr .chckSelection", function(e) {
-            e.stopPropagation();
-
-            let selectedItems = JSON.parse(localStorage.getItem("table_selections")) || [];
-
-            let value = $(this).val();
-
-            if ($(this).prop("checked")) {
-                if (!selectedItems.includes(value)) {
-                    selectedItems.push(value);
-                }
-            } else {
-                selectedItems = selectedItems.filter(item => item !== value);
-            }
-
-            localStorage.setItem("table_selections", JSON.stringify(selectedItems));
-        });
-
-        //transaction type buttons handle click function
-        $("#modalMultipleEntries").on("change", ".btn-check", function(e) {
-            e.preventDefault();
-
-            let targetElement = $(this).data("bs-target");
-            
-            $(targetElement).closest(".tab-content").find('.tab-pane').removeClass("show active");
-
-            $(targetElement).addClass("show active");
-        })
-
         const table=$('#tblSavings').DataTable({
             ordering: false,
             processing: true,
@@ -258,6 +145,192 @@
                 { className: "text-end", targets: [3] },
             ]
         });
+
+        //clear local storage
+        localStorage.removeItem("table_selections");
+
+        //new multiple transaction click function
+        $(".btnNewTransactions").click(function(e) {
+            e.preventDefault();
+            
+            //get selected accounts
+            let selectedAccounts = JSON.parse(localStorage.getItem("table_selections") || "[]"); 
+
+            if(selectedAccounts.length <= 0) {
+                swal({
+                    title: 'Error',
+                    text: "Please select atleast one record!",
+                    icon: 'warning',
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    dangerMode: true,
+                });
+
+                return;
+            }
+
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('savings.get-multiple-entries-modal') }}",
+                data: {
+                    client_id : selectedAccounts
+                },
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(typeof response != 'undefined' && response.status == 'success') {
+                        if(typeof response.html != 'undefined' && response.html) {
+                            $("#modalMultipleEntries .modal-dialog").html(response.html);
+                            $("#modalMultipleEntries").modal("show");
+                        }
+                    }
+                }
+            });
+        });
+
+        //modal cancel button click function
+        $("#modalMultipleEntries").on("click", ".btnCancel", function(e) {
+            e.preventDefault();
+
+            $("#modalMultipleEntries").modal("hide");
+        })
+
+        //handle td check holder click function
+        $("#tblSavings").on("click", ".tdCheck", function(e) {
+            let chckbox = $(this).find(".chckSelection");
+
+            let isChecked = $(chckbox).prop("checked");
+            $(chckbox).prop("checked", !isChecked);
+            $(chckbox).trigger("change");
+        });
+
+        //handle table checkboxes click function
+        $("#tblSavings").on("change", "tr .chckSelection", function(e) {
+            e.stopPropagation();
+
+            let selectedItems = JSON.parse(localStorage.getItem("table_selections")) || [];
+
+            let value = $(this).val();
+
+            if ($(this).prop("checked")) {
+                if (!selectedItems.includes(value)) {
+                    selectedItems.push(value);
+                }
+            } else {
+                selectedItems = selectedItems.filter(item => item !== value);
+            }
+
+            localStorage.setItem("table_selections", JSON.stringify(selectedItems));
+        });
+
+        //transaction type buttons handle click function
+        $("#modalMultipleEntries").on("change", ".btn-check", function(e) {
+            e.preventDefault();
+
+            let targetElement = $(this).data("bs-target");
+            
+            $(targetElement).closest(".tab-content").find('.tab-pane').removeClass("show active");
+
+            $(targetElement).addClass("show active");
+        })
+
+        //handle collapse click function
+        $("#modalMultipleEntries").on("click", ".collapseHeader", function(e) {
+            e.preventDefault();
+
+            let autoHide = $("#modalMultipleEntries #chckAutoHide").prop("checked");
+            let targetElem = $(this).data("target-collapse");
+
+            if (autoHide) {
+                $(".collapse.show").collapse("hide");
+            }
+
+            $(targetElem).collapse("toggle");
+        });
+
+        //handle multiple entries modal submit function
+        $("#modalMultipleEntries").on("click", ".btnSubmit", function(e) {
+            e.preventDefault();
+
+            let formData = $("#modalMultipleEntries #frmMultipleSavings").serializeArray();
+
+            //show loading modal
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "POST",
+                url: "{{ route('savings.save-multiple-entries') }}",
+                data: formData,
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(typeof response.status !== 'undefined' && response.status == 'success') {
+                        swal({
+                            title: 'Success!',
+                            text: response.message,
+                            icon: 'success',
+                            buttons: {
+                                confirm: {
+                                    text: "OK",
+                                    value: true,
+                                    visible: true,
+                                    className: "btn btn-primary",
+                                    closeModal: true
+                                }
+                            },
+                        }).then((willClose) => {
+                            if (willClose) {
+                                //reload data table
+                                table.ajax.reload();
+
+                                $("#modalMultipleEntries").modal("hide");
+                            }
+                        });
+                    }else{
+                        swal({
+                            title: 'Error',
+                            text: response.message,
+                            icon: 'warning',
+                            buttons: {
+                                confirm: {
+                                    text: "OK",
+                                    value: true,
+                                    visible: true,
+                                    className: "btn btn-primary",
+                                    closeModal: true
+                                }
+                            },
+                            dangerMode: true,
+                        });
+                    }
+                }
+            });
+        })
+
+        
 
         //handle additional table pagination function
         $('#tblSavings').on('draw.dt', function() {

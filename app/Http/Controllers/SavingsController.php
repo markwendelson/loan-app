@@ -106,7 +106,7 @@ class SavingsController extends Controller
                     ], 500);
                 }
 
-                 if(!($request->loan_id)) {
+                if(!($request->loan_id)) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Select loan',
@@ -646,6 +646,45 @@ class SavingsController extends Controller
             'html' => $html
         ]);
         
+    }
+
+    public function saveMultipleEntries(Request $request) 
+    {
+        $inputData = $request->all();
+
+        $response = []; //handles response data
+        $processedData = [];
+
+        if(isset($inputData) && $inputData) {
+            foreach($inputData as $key => $val) {
+                $processedData[] = [
+                    'client_id' => $key,
+                    'transaction_no' => $val[$val['transaction_type']]['transaction_code'],
+                    'transaction_date' => $val[$val['transaction_type']]['date'],
+                    'description' => $val[$val['transaction_type']]['description'],
+                    'amount' => $val[$val['transaction_type']]['amount_withdrawn'],
+                    'classifications' => $val[$val['transaction_type']]['classification'],
+                    'atm_balance' => $val[$val['transaction_type']]['atm_balance'] ?? 0,
+                ];
+            }
+
+            //bulk insert to savings
+            $result = Savings::insert($processedData);
+
+            if($result) {
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Savings data successfully saved!'
+                ];
+            }
+        }else{
+            $response = [
+                'status' => 'error',
+                'message' => 'An error occured! Please try again later.'
+            ];
+        }
+
+        return response()->json($response);
     }
 
 }
