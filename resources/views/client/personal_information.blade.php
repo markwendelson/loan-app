@@ -266,7 +266,7 @@
                 <div class="row">
 
                     <div class="form-check checkbox checkbox-primary mb-0">
-                        <input class="form-check-input" name="client_details[same_as_present_address]" id="client_details[same_as_present_address]" type="checkbox" {{ old('client_details.same_as_present_address', $client->details->sameAsPresentAddressAttribute() ?? '') ? 'checked' : '' }}/>
+                        <input class="form-check-input" name="client_details[same_as_present_address]" id="client_details[same_as_present_address]" type="checkbox" {{ isset($client) && $client->details->sameAsPresentAddressAttribute() ?? old('client_details.same_as_present_address') ? 'checked' : '' }}/>
                         <label class="form-check-label" for="client_details[same_as_present_address]">Same as Present Address</label>
                     </div>
 

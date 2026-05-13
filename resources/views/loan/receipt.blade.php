@@ -13,13 +13,13 @@
             border-radius: 4px;
         }
 
-        body {
+        .receipt-layout {
             width: 80mm;
+            margin: 0 auto;
+            padding: 5mm;
             font-family: monospace;
             font-size: 12px;
             line-height: 1.4;
-            margin: 0;
-            padding: 0;
         }
 
         .receipt {
@@ -56,15 +56,24 @@
         }
 
         @media print {
-            body {
-                width: 80mm;
+
+            .page-break {
+                page-break-after: always;
+            }
+
+            .layout-receipt {
+
+            }
+
+            .layout-soa {
+
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="receipt">
+    <div class="receipt-layout receipt">
 
         <!-- DYNAMIC HEADER -->
         <div class="center bold">{{ $branchTitle }}</div>
@@ -161,6 +170,12 @@
             Signature over Printed Name
         </div>
     </div>
+
+    @if(request()->input('soa'))
+    <div style="page-break-before: always;">
+        @include('loan.report.soa-term')
+    </div>
+    @endif
 
     <script>
         window.onload = function () {

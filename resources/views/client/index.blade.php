@@ -41,15 +41,15 @@
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
-                <label for="filter">Filter</label>
+                {{-- <label for="filter">Filter</label>
                 <select name="filter" id="filter" class="form-control">
                     <option value="all">All</option>
                     <option value="">Guiuan</option>
                     <option value="">Borongan</option>
                     <option value="">Palo</option>
-                </select>
-                <a href="{{route('client.registration')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
+                </select> --}}
             </div>
+            <a href="{{route('client.registration')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
         </div>
     </div>
 
