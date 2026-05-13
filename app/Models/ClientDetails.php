@@ -69,4 +69,12 @@ class ClientDetails extends Model
     {
         return $this->belongsTo(City::class, 'permanent_city_id');
     }
+
+    public function sameAsPresentAddressAttribute()
+    {
+        return $this->present_province_id == $this->permanent_province_id &&
+        $this->present_city_id == $this->permanent_city_id &&
+        $this->present_zipcode == $this->permanent_zipcode &&
+        $this->present_address == $this->permanent_address;
+    }
 }

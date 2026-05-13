@@ -14,12 +14,20 @@
 
 @section('content')
 
-
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="container-fluid">
         <div class="page-title">
             <div class="row">
                 <div class="col-6">
-                    <h4>Client Registration </h4>
+                    <h4>Client Registration</h4>
                 </div>
                 <div class="col-6">
                     <ol class="breadcrumb">
@@ -172,23 +180,33 @@
         var payrollAccountStatus={!! json_encode(config('constants.status_value')) !!};
 
         $("[name='client_details[present_province]'], [name='client_details[permanent_province]'], [name='comaker[present_province]'], [name='comaker[permanent_province]']").change(function(){
-            let params={
-                province_id : $(this).val()
-            };
+            let provinceId = $(this).val();
 
+            if (!provinceId) {
+                return;
+            }
+
+            let params = {
+                province_id: provinceId
+            };
             let targetData=$(this).attr("data-target");
 
             getCities(params, function(response){
-                if(typeof response !== 'undefined' && response.has_error == 0){
-                    if(response.html){
-                        $("#" + targetData).empty();
-                        $("#" + targetData).append("<option value='' selected hidden disabled>-- Select --</option>")
-                        $("#" + targetData).append(response.html);
+            if (typeof response !== 'undefined' && response.has_error == 0) {
+                if (response.html) {
+                    let target = $("#" + targetData);
+                    target.empty();
+                    target.append("<option value='' hidden disabled>-- Select --</option>");
+                    target.append(response.html);
+                    // restore old selected value
+                    let selectedValue = target.data("old");
+                    if (selectedValue) {
+                        target.val(selectedValue);
                     }
-
                 }
+            }
             });
-        })
+        }).trigger('change')
 
         function getCities(params, callBack){
             //show loading
@@ -389,7 +407,7 @@
                 $('[name="client_details[permanent_city]"]').attr('required', true);
                 $('[name="client_details[permanent_address]"]').attr('required', true);
             }
-        })
+        }).trigger('change')
     </script>
 @endpush
 

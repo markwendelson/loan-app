@@ -11,13 +11,13 @@
                         <div class="col-12">
                             @if(isset($client))
                             <img id="client_photo_preview" class="img-thumbnail" src="{{ $client->details->photo ? asset('storage/'.$client->details->photo) : url('/assets/images/user/6.jpg')}}">
-                            @else 
+                            @else
                                 <img id="client_photo_preview" class="img-thumbnail" src="{{url('/assets/images/user/6.jpg')}}">
                             @endif
                         </div>
                         <div class="col-12">
                             <input type="file" id="client_details[photo]" name="client_details[photo]" accept="image/*" style="display: none;" />
-                            <button id="btn_img_upload" type="button" class="btn btn-primary mt-1"><i class="fa fa-camera"></i> Upload Image</button>
+                            <button id="btn_img_upload" type="button" class="btn btn-primary mt-1 btnUploadImage"><i class="fa fa-camera"></i> Upload Image</button>
                         </div>
                     </div>
                 </div>
@@ -27,10 +27,19 @@
                     <div class="col-12">
                         <label class="w-100">
                             Processing Branch
-                            <select class="form-select" name="client_details[branch_id]" value="{{old('client_details[branch_id]')}}" required>
+                                @php
+                                    if(isset($client)) {
+                                        $branch_id = $client->branch_id;
+                                    } else {
+                                        $branch_id = auth()->user()->branch_id;
+                                    }
+                                @endphp
+                            <select class="form-select" name="client_details[branch_id]" required>
                                 <option value="" selected hidden disabled>-- Select --</option>
                                     @foreach($branches as $branch)
-                                        <option value="{{$branch->id}}" {{isset($client) && $client->branch_id == $branch->id ? 'selected' : ''}}>{{$branch->name}}</option>
+                                        <option value="{{$branch->id}}"
+                                            {{ (string) old('client_details.branch_id', $branch_id ?? '') === (string) $branch->id ? 'selected' : '' }}
+                                        >{{$branch->name}}</option>
                                     @endforeach
                             </select>
                         </label>
@@ -44,7 +53,7 @@
                                 class="form-control mt-1"
                                 name="client_details[firstname]"
                                 placeholder="First Name"
-                                value="{{$client->details->firstname ?? old('client_details[firstname]')}}"
+                                value="{{$client->details->firstname ?? old('client_details.firstname')}}"
                                 required
                             >
                         </label>
@@ -58,7 +67,7 @@
                                 class="form-control mt-1"
                                 name="client_details[middlename]"
                                 placeholder="Middle Name"
-                                value="{{$client->details->middlename ?? old('client_details[middlename]')}}"
+                                value="{{$client->details->middlename ?? old('client_details.middlename')}}"
                                 required
                             >
                         </label>
@@ -72,7 +81,7 @@
                                 class="form-control mt-1"
                                 name="client_details[lastname]"
                                 placeholder="Last Name"
-                                value="{{$client->details->lastname ?? old('client_details[lastname]')}}"
+                                value="{{$client->details->lastname ?? old('client_details.lastname')}}"
                                 required
                             >
                         </label>
@@ -85,7 +94,7 @@
                             <input type="date"
                                 name="client_details[birthdate]"
                                 class="form-control"
-                                value="{{$client->details->birthdate ?? old('client_details[birthdate]')}}"
+                                value="{{$client->details->birthdate ?? old('client_details.birthdate')}}"
                                 required
                             >
                         </label>
@@ -98,7 +107,7 @@
                             <select class="form-select" name="client_details[gender]" required>
                                 <option value="" selected hidden disabled>-- Select --</option>
                                 @foreach(config('constants.genders') as $key => $val)
-                                    <option value="{{$key}}" {{isset($client) && $client->details->gender == $key ? 'selected' : ''}}>{{$val}}</option>
+                                    <option value="{{$key}}" {{ (string) old('client_details.gender',$client->details->gender ?? '') === (string) $key ? 'selected' : ''}}>{{$val}}</option>
                                 @endforeach
                             </select>
                         </label>
@@ -127,7 +136,7 @@
                                 name="client_details[email]"
                                 placeholder="Enter your email address"
                                 required
-                                value="{{$client->details->email ?? old('client_details[email]')}}"
+                                value="{{$client->details->email ?? old('client_details.email')}}"
                             >
                         </label>
                     </div>
@@ -138,7 +147,7 @@
                             Contact No.
                             <div class="input-group">
                                 <span class="input-group-text">{{config('constants.default_area_code')}}</span>
-                                <input type="number" class="form-control" name="client_details[contact_info]" placeholder="Contact No." oninput="this.value=this.value.slice(0, 10)" required value="{{$client->details->contact_info ?? old('client_details[contact_info]')}}"/>
+                                <input type="number" class="form-control" name="client_details[contact_info]" placeholder="Contact No." oninput="this.value=this.value.slice(0, 10)" required value="{{$client->details->contact_info ?? old('client_details.contact_info')}}"/>
                             </div>
                         </label>
                     </div>
@@ -152,7 +161,7 @@
                                 <select class="form-select custom-select-arrow" name="client_details[suffix]" id="client_details[suffix]">
                                     <option value="" selected hidden disabled>-- Select --</option>
                                     @foreach(config('constants.suffix_list') as $key => $val)
-                                        <option value="{{$key}}" {{isset($client) && $client->details->suffix == $key ? 'selected' : ''}}>{{$val}}</option>
+                                        <option value="{{$key}}" {{ (string) old('client_details.suffix',$client->details->suffix ?? '') == (string) $key ? 'selected' : ''}}>{{$val}}</option>
                                     @endforeach
                                 </select>
                         </label>
@@ -165,7 +174,7 @@
                             <select class="form-select" name="client_details[civil_status]" required>
                                 <option value="" selected hidden disabled>-- Select --</option>
                                 @foreach(config('constants.civil_status') as $key => $val)
-                                    <option value="{{$key}}" {{isset($client) && $client->details->civil_status == $key ? 'selected' : ''}}>{{$val}}</option>
+                                    <option value="{{$key}}" {{ (string) old('client_details.civil_status',$client->details->civil_status ?? '') == (string) $key ? 'selected' : ''}}>{{$val}}</option>
                                 @endforeach
                             </select>
                         </label>
@@ -178,7 +187,7 @@
                             <select class="form-select" name="client_details[nationality]" required>
                                 <option value="" selected hidden disabled>-- Select --</option>
                                     @foreach($nationalities as $nationality)
-                                        <option value="{{$nationality->id}}" {{isset($client) && $client->details->nationality == $nationality->id ? 'selected' : ''}}>{{$nationality->nationality}}</option>
+                                        <option value="{{$nationality->id}}" {{ (string) old('client_details.nationality',$client->details->nationality ?? '') == (string) $nationality->id ? 'selected' : ''}}>{{$nationality->nationality}}</option>
                                     @endforeach
                             </select>
                         </label>
@@ -199,11 +208,11 @@
                     <!-- present address province -->
                     <div class="col-sm-12 col-md-5 col-lg-4">
                         <label class="w-100">
-                            Province
+                            Province {{ old('client_details.present_province', $client->details->present_province_id ?? '') }}
                             <select class="form-select" name="client_details[present_province]" data-target="client_present_city" required>
                                 <option value="" selected hidden disabled>-- Select --</option>
                                     @foreach($provinces as $key  => $val)
-                                        <option value="{{$val['id']}}" {{isset($client) && $client->details->present_province_id == $val['id'] ? 'selected' : ''}}>{{$val['name']}}</option>
+                                        <option value="{{$val['id']}}" {{ old('client_details.present_province', $client->details->present_province_id ?? '') == $val['id'] ? 'selected' : ''}}>{{$val['name']}}</option>
                                     @endforeach
                             </select>
                         </label>
@@ -228,7 +237,7 @@
                                 name="client_details[present_zipcode]"
                                 placeholder="Zipcode"
                                 required
-                                value="{{$client->details->present_zipcode ?? old('client_details[present_zipcode]')}}"
+                                value="{{$client->details->present_zipcode ?? old('client_details.present_zipcode')}}"
                             >
                         </label>
                     </div>
@@ -241,7 +250,7 @@
                                 name="client_details[present_address]"
                                 rows="5"
                                 required
-                            >{{$client->details->present_address ?? old('client_details[present_address]')}}</textarea>
+                            >{{$client->details->present_address ?? old('client_details.present_address')}}</textarea>
                         </label>
                     </div>
                 </div>
@@ -257,7 +266,7 @@
                 <div class="row">
 
                     <div class="form-check checkbox checkbox-primary mb-0">
-                        <input class="form-check-input" name="client_details[same_as_present_address]" id="client_details[same_as_present_address]" type="checkbox" />
+                        <input class="form-check-input" name="client_details[same_as_present_address]" id="client_details[same_as_present_address]" type="checkbox" {{ old('client_details.same_as_present_address', $client->details->sameAsPresentAddressAttribute() ?? '') ? 'checked' : '' }}/>
                         <label class="form-check-label" for="client_details[same_as_present_address]">Same as Present Address</label>
                     </div>
 
@@ -269,7 +278,7 @@
                                 <select class="form-select" name="client_details[permanent_province]" data-target="client_permanent_city" required>
                                     <option value="" selected hidden disabled>-- Select --</option>
                                         @foreach($provinces as $key  => $val)
-                                            <option value="{{$val['id']}}" {{isset($client) && $client->details->permanent_province_id == $val['id'] ? 'selected' : ''}}>{{$val['name']}}</option>
+                                            <option value="{{$val['id']}}" {{ old('client_details.permanent_province',$client->details->permanent_province_id ?? '') == $val['id'] ? 'selected' : ''}}>{{$val['name']}}</option>
                                         @endforeach
                                 </select>
                             </label>
@@ -293,7 +302,7 @@
                                     class="form-control"
                                     name="client_details[permanent_zipcode]"
                                     placeholder="Zipcode"
-                                    value="{{$client->details->permanent_zipcode ?? old('client_details[permanent_zipcode]')}}"
+                                    value="{{$client->details->permanent_zipcode ?? old('client_details.permanent_zipcode')}}"
                                 >
                             </label>
                         </div>
@@ -307,7 +316,7 @@
                                     name="client_details[permanent_address]"
                                     rows="5"
                                     required
-                                >{{$client->details->permanent_address ?? old('client_details[permanent_address]')}}</textarea>
+                                >{{$client->details->permanent_address ?? old('client_details.permanent_address')}}</textarea>
                             </label>
                         </div>
                     </div>
@@ -334,7 +343,7 @@
                 <div class="row client-job-informations">
 
                     <!-- job information item -->
-                     
+
                     @isset($client)
                         @foreach($client->jobs as $client_job)
                             <div class="col-sm-12 col-md-4 col-lg-3 client-job-information-items">
@@ -377,7 +386,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <button type="button" class="btn btn-danger btn-xs float-end"><i class="fa fa-times"></i></button>
-        
+
                                         <h5><strong>{{$account->bank->name}}</strong></h5>
                                         <p class="mb-0">Account No: {{$account->account_no}}</p>
                                         <p>Account Name: {{$account->account_name}}</p>
@@ -400,9 +409,9 @@
             </div>
             <div class="card-body">
                 @if(isset($client))
-                <textarea id="interviewNotes" class="form-control" rows="5" name="notes">{{$client->details->notes ?? old('client_details[notes]')}}</textarea>
+                <textarea id="interviewNotes" class="form-control" rows="5" name="client_details[notes]">{{$client->details->notes ?? old('client_details.notes')}}</textarea>
                 @else
-                <textarea id="interviewNotes" class="form-control" rows="5" name="notes">{{old('client_details[notes]')}}</textarea>
+                <textarea id="interviewNotes" class="form-control" rows="5" name="client_details[notes]">{{old('client_details.notes')}}</textarea>
                 @endif
             </div>
         </div>
@@ -414,9 +423,9 @@
             </div>
             <div class="card-body">
                 @if(isset($client))
-                <textarea class="form-control" rows="5" name="recommendations">{{$client->details->recommendations ?? old('client_details[recommendations]')}}</textarea>
+                <textarea class="form-control" rows="5" name="client_details[recommendations]">{{$client->details->recommendations ?? old('client_details.recommendations')}}</textarea>
                 @else
-                <textarea class="form-control" rows="5" name="recommendations">{{old('client_details[recommendations]')}}</textarea>
+                <textarea class="form-control" rows="5" name="client_details[recommendations]">{{old('client_details.recommendations')}}</textarea>
                 @endif
             </div>
         </div>

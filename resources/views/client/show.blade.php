@@ -148,7 +148,6 @@
                 });
             }
 
-
             var permanent_province =$("[name='client_details[permanent_province]']").val();
             var permanent_city_id = `{{$client->details->permanent_city_id}}`;
 
@@ -165,8 +164,9 @@
                 });
             }
 
-
-            console.log({{$client->details->present_city_id}})
+            $('input, textarea').prop('readonly', true);
+            $('select,input[type="checkbox"]').prop('disabled', true);
+            $('.btnJobInformation, .btnPayrollAccount, .btnUploadImage, .btnAddDocument, .btn-remove').hide();
         })
 
         $('#btn_img_upload').click(function() {
@@ -424,7 +424,7 @@
                 $('[name="client_details[permanent_city]"]').attr('required', true);
                 $('[name="client_details[permanent_address]"]').attr('required', true);
             }
-        })
+        }).trigger('change')
     </script>
 @endpush
 
