@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class ClientRegistrationService
 {
-    protected $client;
+    protected Client $client;
 
     public static function register(array $data)
     {
@@ -62,7 +62,7 @@ class ClientRegistrationService
         }
     }
 
-    protected function createClient(array $data)
+    protected function createClient(array $data) : Client
     {
         // Create and return Client model
         $client_code = $this->generateClientCode($data['branch_id']);
@@ -83,7 +83,7 @@ class ClientRegistrationService
         if (isset($data['photo'])) {
             $path = $data['photo']->store('client_uploads', 'public');
         }
-       
+
         ClientDetails::create([
             'client_id' => $this->client->id,
             'firstname' => $data['firstname'],
@@ -248,9 +248,10 @@ class ClientRegistrationService
         // Dispatch a registration event, e.g. event(new ClientRegistered($this->client));
     }
 
-    protected function generateClientCode($branch)
+    protected function generateClientCode(int $branch)
     {
         $branch_code = Branch::find($branch);
-        return strtoupper($branch_code->code).'-'.time();
+        $count = str_pad(Client::count() + 1,7,'0', STR_PAD_LEFT);
+        return strtoupper($branch_code->code).'-'.$count;
     }
 }

@@ -4,19 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Enums\LoanStatus;
 use App\Models\Client;
-use App\Models\ClientDetails;
 use App\Models\ClientDocument;
 use App\Models\DocumentType;
 use App\Models\Loan;
-
 use App\Services\ClientRegistrationService;
 use App\Services\ClientUpdateService;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ClientController extends Controller
 {
@@ -93,8 +89,6 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-
         $client = ClientRegistrationService::register($request->all());
 
         if ($client['status'] == 'success') {
@@ -145,6 +139,7 @@ class ClientController extends Controller
         $job_titles = $this->job_titles;
         $nationalities = $this->nationalities;
         $banks = $this->banks;
+        // dd($client->details()->get());
 
         return view('client.edit', compact('client', 'branches', 'provinces', 'job_titles', 'nationalities', 'banks'));
     }
@@ -154,6 +149,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
+        // dd($request->all());
         $updatedClient = ClientUpdateService::update($client, $request->all());
 
         return redirect()->route('client.show', $client->id)->with('message', 'Client updated successfully');

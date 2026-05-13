@@ -142,14 +142,15 @@
                     if(typeof response !== 'undefined' && response.has_error == 0){
                         if(response.html){
                             $("#client_present_city").empty();
-                            $("#client_present_city").append("<option value='' selected hidden disabled>-- Select --</option>")
+                            $("#client_present_city").append("<option value='' hidden disabled>-- Select --</option>")
                             $("#client_present_city").append(response.html);
+                            $("#client_present_city").val(present_city_id);
                         }
-    
+
                     }
                 });
             }
-            
+
 
             var permanent_province =$("[name='client_details[permanent_province]']").val();
             var permanent_city_id = `{{$client->details->permanent_city_id}}`;
@@ -159,14 +160,15 @@
                     if(typeof response !== 'undefined' && response.has_error == 0){
                         if(response.html){
                             $("#client_permanent_city").empty();
-                            $("#client_permanent_city").append("<option value='' selected hidden disabled>-- Select --</option>")
+                            $("#client_permanent_city").append("<option value='' hidden disabled>-- Select --</option>")
                             $("#client_permanent_city").append(response.html);
+                            $("#client_permanent_city").val(permanent_city_id);
                         }
-    
+
                     }
                 });
             }
-            
+
 
             console.log({{$client->details->present_city_id}})
         })
@@ -219,7 +221,7 @@
                 if(typeof response !== 'undefined' && response.has_error == 0){
                     if(response.html){
                         $("#" + targetData).empty();
-                        $("#" + targetData).append("<option value='' selected hidden disabled>-- Select --</option>")
+                        $("#" + targetData).append("<option value='' hidden disabled>-- Select --</option>")
                         $("#" + targetData).append(response.html);
                     }
 
@@ -426,7 +428,7 @@
                 $('[name="client_details[permanent_city]"]').attr('required', true);
                 $('[name="client_details[permanent_address]"]').attr('required', true);
             }
-        })
+        }).trigger('change')
     </script>
 @endpush
 

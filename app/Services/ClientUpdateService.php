@@ -12,10 +12,11 @@ use App\Models\ClientDocument;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ClientUpdateService
 {
-    protected $client;
+    protected Client $client;
 
     public static function update(Client $client, array $data)
     {
@@ -29,7 +30,7 @@ class ClientUpdateService
         try {
             return DB::transaction(function () use ($data) {
                 $client_details = $data['client_details'];
-                if ($client_details['same_as_present_address']) {
+                if (isset($client_details['same_as_present_address']) && $client_details['same_as_present_address']) {
                     $client_details['permanent_province'] = $client_details['present_province'];
                     $client_details['permanent_city'] = $client_details['present_city'];
                     $client_details['permanent_zipcode'] = $client_details['present_zipcode'];
@@ -69,6 +70,9 @@ class ClientUpdateService
     protected function updateClientDetails(array $data)
     {
         $clientDetails = $this->client->details;
+        if (!$clientDetails) {
+            throw new \Exception('Client details not found.');
+        }
 
         $path = null;
         if (isset($data['photo'])) {
