@@ -63,8 +63,6 @@
                                     @endforeach
                                 @endif
                             </select>
-
-
                         </div>
                         <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
 
@@ -265,6 +263,8 @@
             e.preventDefault();
 
             $(this).closest("tr").remove();
+
+            computeTotal();
         })
 
         function initializeDropzone() {
@@ -355,6 +355,11 @@
             $("#expenseModal #expenseForm input").val("");
             $("#expenseModal #expenseForm select").val("");
             $("#expenseModal #expenseForm textarea").val("");
+
+            //reset label values
+            $("#expenseModal .overallSubTotal").html("0.00");
+            $("#expenseModal .total-tax-amount").html("0.00");
+            $("#expenseModal .total-amount").html("0.00");
 
             //set initial tax rate to 12
             $("#expenseModal input[name='tax_rate']").val(12);

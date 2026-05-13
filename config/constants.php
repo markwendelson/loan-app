@@ -163,5 +163,12 @@ return [
         'Check',
         'GCash',
         'Credit Card'
+    ],
+    'savings_classifications' => [
+        'Salary',
+        'Receivable',
+        'Pension',
+        'Allotment',
+        'Cash'
     ]
 ];

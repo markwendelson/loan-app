@@ -106,7 +106,7 @@ class SavingsController extends Controller
                     ], 500);
                 }
 
-                 if(!($request->loan_id)) {
+                if(!($request->loan_id)) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Select loan',
@@ -616,6 +616,83 @@ class SavingsController extends Controller
             'status' => 'success',
             'message' => 'Transaction code updated successfully',
         ]);
+    }
+
+    public function getMultipleEntriesModal(Request $request)
+    {
+        //get all data
+        $inputData = $request->all();
+
+        $clientData = [];
+        //get client list information
+        if(isset($inputData['client_id']) && $inputData['client_id']) {
+            $clientData = Client::select(
+                'clients.*',
+                'client_details.firstname',
+                'client_details.middlename',
+                'client_details.lastname',
+            )
+            ->leftJoin('client_details', 'client_details.client_id', '=', 'clients.id')
+            ->whereIn('clients.id', $inputData['client_id'])
+            ->get();
+        }
+
+        $html = view('savings.modal.multiple-entries', compact(
+            'clientData'
+        ))->render();
+
+        return response()->json([
+            'status' => 'success',
+            'html' => $html
+        ]);
+        
+    }
+
+    public function saveMultipleEntries(Request $request) 
+    {
+        $inputData = $request->all();
+
+
+        $response = []; //handles response data
+        $processedData = [];
+
+        if(isset($inputData) && $inputData) {
+            foreach($inputData as $key => $val) {
+
+                if(isset($val) && $val && is_array($val)) {
+                    foreach($val as $key2 => $val2) {
+                        $processedData[] = [
+                            'client_id' => $key,
+                            'transaction_no' => Savings::generateTransactionNumber($val2['date'], 'withdraw'),
+                            'transaction_date' => $val2['date'],
+                            'description' => $val2['description'],
+                            'transaction_type' => 'withdraw',
+                            'transaction_code' => $val2['transaction_code'],
+                            'amount' => $val2['amount_withdrawn'],
+                            'classifications' => $val2['classification'],
+                            'atm_balance' => $val2['atm_balance'] ?? 0,
+                        ];
+                    }
+                }
+            }
+
+            //bulk insert to savings
+            $result = Savings::insert($processedData);
+
+            if($result) {
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Savings data successfully saved!'
+                ];
+            }
+        }else{
+            $response = [
+                'status' => 'error',
+                'message' => 'An error occured! Please try again later.'
+            ];
+        }
+
+        return response()->json($response);
     }
 
 }
