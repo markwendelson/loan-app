@@ -75,7 +75,7 @@
 
     <!-- modal multiple entries -->
     <div class="modal fade" id="modalMultipleEntries" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog" style="max-width: 90%;" role="document">
             <!-- content here -->
         </div>
     </div>
@@ -239,17 +239,6 @@
             localStorage.setItem("table_selections", JSON.stringify(selectedItems));
         });
 
-        //transaction type buttons handle click function
-        $("#modalMultipleEntries").on("change", ".btn-check", function(e) {
-            e.preventDefault();
-
-            let targetElement = $(this).data("bs-target");
-            
-            $(targetElement).closest(".tab-content").find('.tab-pane').removeClass("show active");
-
-            $(targetElement).addClass("show active");
-        })
-
         //handle collapse click function
         $("#modalMultipleEntries").on("click", ".collapseHeader", function(e) {
             e.preventDefault();
@@ -262,6 +251,107 @@
             }
 
             $(targetElem).collapse("toggle");
+        });
+
+        //handle modal remove button
+        $("#modalMultipleEntries").on("click", ".btnRemove", function(e) {
+            e.preventDefault();
+
+            $(this).closest("tr").remove();
+        })
+        
+        //handle transaction type select change function
+        $("#modalMultipleEntries").on("change", ".slctTransType", function(e) {
+            let transacType = $(this).val();
+
+            let atmWithdrawalField = $(this).closest("tr").find(".atmBalance");
+
+            if(transacType == 'atm_withdrawal') {
+                $(atmWithdrawalField).prop("disabled", false);
+            }else{
+                $(atmWithdrawalField).prop("disabled", true);
+                $(atmWithdrawalField).val("");
+            }
+        })
+
+        //handle modal more inputs button
+        $("#modalMultipleEntries").on("click", ".btnMoreInputs", function(e) {
+            e.preventDefault();
+
+            let clientId = $(this).closest(".client-container").data("id");
+
+            let table = $(this).closest(".client-container").find("table tbody");
+            let increment = $(this).closest(".client-container").find("table tbody tr:last").data("increment") + 1;
+            let classificationsArray = @json(config('constants.savings_classifications'));
+
+            let classificationOptions = ''; // Create a string for the options
+
+            // Corrected forEach loop
+            classificationsArray.forEach(val => {
+                classificationOptions += `
+                    <option value="${val}">${val}</option>
+                `;
+            });
+
+            let trData = `
+                <tr data-increment="${increment}">
+                    <td>
+                        <select class="form-select slctTransType">
+                            <option value="" selected hidden disabled>-- Select  --</option>
+                            <option value="atm_withdrawal">ATM Withdrawal</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="palawan">Palawan</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="date"
+                            class="form-control"
+                            name="${clientId}[${increment}][date]"
+                        >
+                    </td>
+                    <td>
+                        <select class="form-select" name="${clientId}[${increment}][classification]">
+                            <option value="" selected hidden disabled>-- Classification --</option>
+                            ${classificationOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text"
+                            class="form-control"
+                            name="${clientId}[${increment}][transaction_code]"
+                            placeholder="TXN123456789..."
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-end atmBalance"
+                            name="${clientId}[${increment}][atm_balance]"
+                            placeholder="0.00"
+                            disabled
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-end"
+                            name="${clientId}[${increment}][amount_withdrawn]"
+                            placeholder="0.00"
+                        >
+                    </td>
+                    <td>
+                        <input type="text"
+                            class="form-control"
+                            name="${clientId}[${increment}][description]"
+                            placeholder="Description..."
+                        >
+                    </td>
+                    <td class="text-center">
+                        <a href="#" class="btnRemove"><i class="fa fa-trash text-danger fs-6"></i></a>
+                    </td>
+                </tr>
+            `;
+            $(table).append(trData);
+            console.log('new row added!.');
         });
 
         //handle multiple entries modal submit function

@@ -652,20 +652,26 @@ class SavingsController extends Controller
     {
         $inputData = $request->all();
 
+
         $response = []; //handles response data
         $processedData = [];
 
         if(isset($inputData) && $inputData) {
             foreach($inputData as $key => $val) {
-                $processedData[] = [
-                    'client_id' => $key,
-                    'transaction_no' => $val[$val['transaction_type']]['transaction_code'],
-                    'transaction_date' => $val[$val['transaction_type']]['date'],
-                    'description' => $val[$val['transaction_type']]['description'],
-                    'amount' => $val[$val['transaction_type']]['amount_withdrawn'],
-                    'classifications' => $val[$val['transaction_type']]['classification'],
-                    'atm_balance' => $val[$val['transaction_type']]['atm_balance'] ?? 0,
-                ];
+
+                if(isset($val) && $val && is_array($val)) {
+                    foreach($val as $key2 => $val2) {
+                        $processedData[] = [
+                            'client_id' => $key,
+                            'transaction_no' => $val2['transaction_code'],
+                            'transaction_date' => $val2['date'],
+                            'description' => $val2['description'],
+                            'amount' => $val2['amount_withdrawn'],
+                            'classifications' => $val2['classification'],
+                            'atm_balance' => $val2['atm_balance'] ?? 0,
+                        ];
+                    }
+                }
             }
 
             //bulk insert to savings
