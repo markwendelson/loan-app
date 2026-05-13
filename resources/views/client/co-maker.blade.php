@@ -86,11 +86,13 @@
                     @if(request()->route()->getName() == 'loan.create')
                         @php
                             // Filter co-makers by this loan's ID
-                            $loanCoMakers = $previous_loan->borrower->coMakers->filter(function ($comaker) use ($previous_loan) {
-                                return $comaker->pivot->loan_id == $previous_loan->id;
-                            });
+                            if($previous_loan) {
+                                $loanCoMakers = $previous_loan->borrower->coMakers->filter(function ($comaker) use ($previous_loan) {
+                                    return $comaker->pivot->loan_id == $previous_loan->id;
+                                });
+                            }
                         @endphp
-                        @foreach($loanCoMakers as $comaker)
+                        @foreach($loanCoMakers ?? [] as $comaker)
                             <tr data-id="{{'tmp_'.$comaker->id}}" data-client-id="{{$comaker->pivot->client_id}}" data-loan-id="">
                                 <td>
                                     <input type="hidden" name="client_comaker[]" value="{{ $comaker->id }}">
