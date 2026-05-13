@@ -33,7 +33,7 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="card-title">Documents</h4>
-            <button type="button" id="addFileRow" class="btn btn-primary"><i class="fa fa-plus"></i> Add Documents</button>
+            <button type="button" id="addFileRow" class="btn btn-primary btnAddDocument"><i class="fa fa-plus"></i> Add Document</button>
         </div>
 
         @php
@@ -44,9 +44,9 @@
                 });
             }
         @endphp
-        
+
         @if((isset($loan) && isset($loan->borrower->documents)) && (isset($docViewOnly) && $docViewOnly))
-            @foreach($loanDocuments as $val) 
+            @foreach($loanDocuments as $val)
                 <div class="border p-3 rounded attachment-items mb-2">
                     <a href="{{ Storage::url($val->file_path) }}" target="_blank" class="d-block">
                         <div class="d-flex justify-content-between align-items-center flex-wrap">
