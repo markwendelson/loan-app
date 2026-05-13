@@ -46,13 +46,6 @@
         </div>
     </div>
 
-    <!-- button container -->
-    {{-- <div class="card">
-        <div class="card-body">
-            <button class="btn btn-primary float-end" onclick="showModal('modalSavings')"><i class="fa fa-plus"></i> New Savings</button>
-        </div>
-    </div> --}}
-
     <!-- table container -->
     <div class="card">
         <div class="card-body">
@@ -418,9 +411,7 @@
                     }
                 }
             });
-        })
-
-        
+        });
 
         //handle additional table pagination function
         $('#tblSavings').on('draw.dt', function() {
@@ -485,9 +476,7 @@
         $("#tblSavings").on("click", ".btnTransactions", function(){
             let id=$(this).attr("data-id");
             window.location.href = `/savings/${id}/transactions`;
-        })
-
-
+        });
     });
 
     function deleteData(id) {

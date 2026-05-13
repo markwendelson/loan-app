@@ -17,7 +17,7 @@
 
             @if(isset($clientData) && $clientData)
                 @foreach($clientData as $key => $val)
-                    <div class="mb-2 rounded border p-0 client-container" data-id="{{ $val->id }}">
+                    <div class="mb-2 rounded border p-0 client-container shadow-sm" data-id="{{ $val->id }}">
                         <div class="d-flex justify-content-between align-items-center p-2">
                             <!-- Client information -->
                             <div class="d-flex flex-column">
@@ -27,7 +27,7 @@
                                 </a>
                             </div>
                             <div>
-                                <button type="button" class="btn btn-primary btn-sm btnMoreInputs"><i class="fa fa-plus"></i></button>
+                                <button type="button" class="btn btn-light btn-sm btnMoreInputs"><i class="fa fa-plus txt-primary"></i></button>
                             </div>
                         </div>
 
@@ -107,9 +107,11 @@
                             </table>
                         </div>
                     </div>
-                @endforeach
 
-                
+                    @if(!$loop->last)
+                        <hr style="border: 2px dashed !important">
+                    @endif
+                @endforeach
             @endif
         </form>
     </div>

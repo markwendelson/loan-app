@@ -663,9 +663,11 @@ class SavingsController extends Controller
                     foreach($val as $key2 => $val2) {
                         $processedData[] = [
                             'client_id' => $key,
-                            'transaction_no' => $val2['transaction_code'],
+                            'transaction_no' => Savings::generateTransactionNumber($val2['date'], 'withdraw'),
                             'transaction_date' => $val2['date'],
                             'description' => $val2['description'],
+                            'transaction_type' => 'withdraw',
+                            'transaction_code' => $val2['transaction_code'],
                             'amount' => $val2['amount_withdrawn'],
                             'classifications' => $val2['classification'],
                             'atm_balance' => $val2['atm_balance'] ?? 0,
