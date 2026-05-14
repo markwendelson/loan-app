@@ -115,57 +115,6 @@
 
         $("#modalDisbursement .btnSubmit").click(function (e) {
             e.preventDefault();
-            var id = $("#modalDisbursement [name='id']").val();
-            const baseUrl = window.location.origin;
-            swal({
-                title: 'Select Action',
-                text: 'Choose whether to download or print SOA.',
-                icon: 'info',
-                buttons: {
-                    // cancel: 'Cancel',
-                    download: {
-                        text: 'Download',
-                        value: 'download',
-                    },
-                    print: {
-                        text: 'Print',
-                        value: 'print',
-                    }
-                }
-            }).then((value) => {
-
-                if (value === 'download') {
-                    let iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = baseUrl + '/loan/' + id + '/print';
-                    document.body.appendChild(iframe);
-                    iframe.onload = function () {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                    };
-                }
-
-                if (value === 'print') {
-                    let iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = baseUrl + '/loan/' + id + '/print?soa=1';
-                    document.body.appendChild(iframe);
-                    iframe.onload = function () {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                    };
-                }
-            });
-
-            setTimeout(() => {
-                $('.swal-footer').css({
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '10px'
-                });
-            }, 10);
-
-            return
 
             let form = $("#frmDisbursementModal")[0];
 
@@ -203,16 +152,7 @@
 
                             // Trigger print preview (open loan details/voucher in new tab)
                             // Assuming /loan/{id} is the printable view or voucher
-                            // window.open('/loan/' + id + '/print', '_blank');
-                            let iframe = document.createElement('iframe');
-                            iframe.style.display = 'none';
-                            iframe.src = baseUrl + '/loan/' + id + '/print';
-                            document.body.appendChild(iframe);
-                            iframe.onload = function () {
-                                iframe.contentWindow.focus();
-                                iframe.contentWindow.print();
-                            };
-
+                            window.open('/loan/' + id + '/print', '_blank');
                         }else{
                             showToast.error(response.message)
                         }
