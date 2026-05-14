@@ -3,6 +3,7 @@
 @section('title') Manage Savings @endsection
 
 @push('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .bg-default {
         background-color: #1f807f;
@@ -10,6 +11,17 @@
     .bg-default th {
         color: white; /* Set white text for <th> elements */
         border: 1px solid white;
+    }
+
+    .select2-selection__arrow {
+        display: none !important; /* Hide the dropdown arrow */
+    }
+    
+    .select2-container--default .select2-selection--single {
+        height: 38px !important;
+        line-height: 36px !important;  /* Slightly smaller line-height to compensate for borders */
+        padding-top: 5px !important;
+        border-color: #dee2e6 !important;
     }
 </style>
 @endpush
@@ -53,8 +65,7 @@
                 <table class="table table-bordered table-hover" id="tblSavings">
                     <thead class="bg-default">
                         <tr>
-                            <th class="text-center" width="30"></th>
-                            <th class="text-center" width="120">Client Id</th>
+                            <th width="120">Account No</th>
                             <th class="text-center" width="150">Name</th>
                             <th class="text-center" width="150">Balance</th>
                             <th class="text-center" width="180">Status</th>
@@ -67,17 +78,22 @@
     </div>
 
     <!-- modal multiple entries -->
-    <div class="modal fade" id="modalMultipleEntries" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog" style="max-width: 90%;" role="document">
-            <!-- content here -->
-        </div>
-    </div>
+    @include('savings.modal.multiple-entries');
 
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     $(document).ready(function () {
+
+        //intialize select
+        initializeSelect2();
+
+        var clientOptions = `{!! $clientOptions !!}`;
+        var classificationOptions = `{!! $classificationOptions !!}`
+
         const table=$('#tblSavings').DataTable({
             ordering: false,
             processing: true,
@@ -88,18 +104,6 @@
                 url: "{{ route('savings.index') }}",
             },
             columns: [
-                {
-                    data: null,
-                    name: 'checkbox',
-                    render : function(data, type, row) {
-                        return `
-                            <div class="form-check checkbox checkbox-primary mb-0">
-                                <input class="form-check-input chckAll chckSelection" id="chck${row.id}" type="checkbox" value="${row.id}">
-                                <label class="form-check-label mb-1" for="chck${row.id}"></label>
-                            </div>
-                        `;
-                    }
-                },
                 { data: 'client_code', name: 'client_code' },
                 { data: 'fullname', name: 'fullname' },
                 { data: 'balance', name: 'balance' },
@@ -122,129 +126,34 @@
             ],
             columnDefs: [
                 { 
-                    className: "text-center mx-0 tdCheck",
-                    targets: [0],
-                    width: "20"
-                    
-                },
-                { 
                     className: "text-center mx-0",
-                    targets: [4,5],
+                    targets: [3,4],
                     width: "20"
                     
                 },
 
-                { className: "text-center", targets: [0,4,5] },
-                { className: "text-end", targets: [3] },
+                { className: "text-center", targets: [3,4] },
+                { className: "text-end", targets: [2] },
             ]
         });
-
-        //clear local storage
-        localStorage.removeItem("table_selections");
 
         //new multiple transaction click function
         $(".btnNewTransactions").click(function(e) {
             e.preventDefault();
-            
-            //get selected accounts
-            let selectedAccounts = JSON.parse(localStorage.getItem("table_selections") || "[]"); 
 
-            if(selectedAccounts.length <= 0) {
-                swal({
-                    title: 'Error',
-                    text: "Please select atleast one record!",
-                    icon: 'warning',
-                    buttons: {
-                        confirm: {
-                            text: "OK",
-                            value: true,
-                            visible: true,
-                            className: "btn btn-primary",
-                            closeModal: true
-                        }
-                    },
-                    dangerMode: true,
-                });
-
-                return;
-            }
-
-            $(".loader-wrapper").fadeIn("slow");
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('savings.get-multiple-entries-modal') }}",
-                data: {
-                    client_id : selectedAccounts
-                },
-                dataType: "json",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (response) {
-                    //hide loading form
-                    $(".loader-wrapper").fadeOut("slow", function () {
-                        $(this).hide();
-                    });
-
-                    if(typeof response != 'undefined' && response.status == 'success') {
-                        if(typeof response.html != 'undefined' && response.html) {
-                            $("#modalMultipleEntries .modal-dialog").html(response.html);
-                            $("#modalMultipleEntries").modal("show");
-                        }
-                    }
-                }
-            });
+            $("#modalMultipleEntries").modal("show");
         });
 
         //modal cancel button click function
         $("#modalMultipleEntries").on("click", ".btnCancel", function(e) {
             e.preventDefault();
 
+            //empty first table
+            $("#modalMultipleEntries table tbody").html("");
+            addRow();
+
             $("#modalMultipleEntries").modal("hide");
         })
-
-        //handle td check holder click function
-        $("#tblSavings").on("click", ".tdCheck", function(e) {
-            let chckbox = $(this).find(".chckSelection");
-
-            let isChecked = $(chckbox).prop("checked");
-            $(chckbox).prop("checked", !isChecked);
-            $(chckbox).trigger("change");
-        });
-
-        //handle table checkboxes click function
-        $("#tblSavings").on("change", "tr .chckSelection", function(e) {
-            e.stopPropagation();
-
-            let selectedItems = JSON.parse(localStorage.getItem("table_selections")) || [];
-
-            let value = $(this).val();
-
-            if ($(this).prop("checked")) {
-                if (!selectedItems.includes(value)) {
-                    selectedItems.push(value);
-                }
-            } else {
-                selectedItems = selectedItems.filter(item => item !== value);
-            }
-
-            localStorage.setItem("table_selections", JSON.stringify(selectedItems));
-        });
-
-        //handle collapse click function
-        $("#modalMultipleEntries").on("click", ".collapseHeader", function(e) {
-            e.preventDefault();
-
-            let autoHide = $("#modalMultipleEntries #chckAutoHide").prop("checked");
-            let targetElem = $(this).data("target-collapse");
-
-            if (autoHide) {
-                $(".collapse.show").collapse("hide");
-            }
-
-            $(targetElem).collapse("toggle");
-        });
 
         //handle modal remove button
         $("#modalMultipleEntries").on("click", ".btnRemove", function(e) {
@@ -252,99 +161,42 @@
 
             $(this).closest("tr").remove();
         })
-        
-        //handle transaction type select change function
-        $("#modalMultipleEntries").on("change", ".slctTransType", function(e) {
-            let transacType = $(this).val();
-
-            let atmWithdrawalField = $(this).closest("tr").find(".atmBalance");
-
-            if(transacType == 'atm_withdrawal') {
-                $(atmWithdrawalField).prop("disabled", false);
-            }else{
-                $(atmWithdrawalField).prop("disabled", true);
-                $(atmWithdrawalField).val("");
-            }
-        })
 
         //handle modal more inputs button
         $("#modalMultipleEntries").on("click", ".btnMoreInputs", function(e) {
             e.preventDefault();
 
-            let clientId = $(this).closest(".client-container").data("id");
+            addRow();
+        });
 
-            let table = $(this).closest(".client-container").find("table tbody");
-            let increment = $(this).closest(".client-container").find("table tbody tr:last").data("increment") + 1;
-            let classificationsArray = @json(config('constants.savings_classifications'));
+        //handle client select change function
+        $("#modalMultipleEntries").on("change", "table tbody .selectClient", function(e) {
+            e.preventDefault();
 
-            let classificationOptions = ''; // Create a string for the options
+            let clientId = $(this).val();
+            let rowIndex = $(this).closest("tr").index();
 
-            // Corrected forEach loop
-            classificationsArray.forEach(val => {
-                classificationOptions += `
-                    <option value="${val}">${val}</option>
-                `;
-            });
+            //update naming
+            $(this).attr("name", `${rowIndex}[client_id]`);
+            $(this).closest("tr").find(".selectTransactionType").attr("name", `${rowIndex}[transaction_type]`);
+            $(this).closest("tr").find(".inputDate").attr("name", `${rowIndex}[date]`);
+            $(this).closest("tr").find(".selectClassifications").attr("name", `${rowIndex}[classifications]`);
+            $(this).closest("tr").find(".inputTransactionCode").attr("name", `${rowIndex}[transaction_code]`);
+            $(this).closest("tr").find(".inputAtmBalance").attr("name", `${rowIndex}[atm_balance]`);
+            $(this).closest("tr").find(".inputAmountWithdrawn").attr("name", `${rowIndex}[amount_withdrawn]`);
+            $(this).closest("tr").find(".inputDescription").attr("name", `${rowIndex}[description]`);
+        });
 
-            let trData = `
-                <tr data-increment="${increment}">
-                    <td>
-                        <select class="form-select slctTransType">
-                            <option value="" selected hidden disabled>-- Select  --</option>
-                            <option value="atm_withdrawal">ATM Withdrawal</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="palawan">Palawan</option>
-                            <option value="cash">Cash</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="date"
-                            class="form-control"
-                            name="${clientId}[${increment}][date]"
-                        >
-                    </td>
-                    <td>
-                        <select class="form-select" name="${clientId}[${increment}][classification]">
-                            <option value="" selected hidden disabled>-- Classification --</option>
-                            ${classificationOptions}
-                        </select>
-                    </td>
-                    <td>
-                        <input type="text"
-                            class="form-control"
-                            name="${clientId}[${increment}][transaction_code]"
-                            placeholder="TXN123456789..."
-                        >
-                    </td>
-                    <td>
-                        <input type="number"
-                            class="form-control text-end atmBalance"
-                            name="${clientId}[${increment}][atm_balance]"
-                            placeholder="0.00"
-                            disabled
-                        >
-                    </td>
-                    <td>
-                        <input type="number"
-                            class="form-control text-end"
-                            name="${clientId}[${increment}][amount_withdrawn]"
-                            placeholder="0.00"
-                        >
-                    </td>
-                    <td>
-                        <input type="text"
-                            class="form-control"
-                            name="${clientId}[${increment}][description]"
-                            placeholder="Description..."
-                        >
-                    </td>
-                    <td class="text-center">
-                        <a href="#" class="btnRemove"><i class="fa fa-trash text-danger fs-6"></i></a>
-                    </td>
-                </tr>
-            `;
-            $(table).append(trData);
-            console.log('new row added!.');
+        //handle transaction type change function
+        $("#modalMultipleEntries").on("change", "table tbody .selectTransactionType", function(e) {
+            e.preventDefault();
+
+            $(this).closest("tr").find(".inputAtmBalance").val("");
+            if ($(this).val() != 'atm_withdrawal') {
+                $(this).closest("tr").find(".inputAtmBalance").prop("disabled", true);
+            } else {
+                $(this).closest("tr").find(".inputAtmBalance").prop("disabled", false);
+            }
         });
 
         //handle multiple entries modal submit function
@@ -389,6 +241,8 @@
                                 //reload data table
                                 table.ajax.reload();
 
+                                $("#modalMultipleEntries table tbody").html("");
+                                addRow();
                                 $("#modalMultipleEntries").modal("hide");
                             }
                         });
@@ -411,11 +265,6 @@
                     }
                 }
             });
-        });
-
-        //handle additional table pagination function
-        $('#tblSavings').on('draw.dt', function() {
-            loadSelectedRows();
         });
 
         $("#modalSavings .btnSubmit").click(function (e) {
@@ -476,7 +325,71 @@
         $("#tblSavings").on("click", ".btnTransactions", function(){
             let id=$(this).attr("data-id");
             window.location.href = `/savings/${id}/transactions`;
+
         });
+
+        function addRow() {
+            let trData = `
+                <tr>
+                    <td>
+                        <select class="form-select selectClient">
+                            <option value="" selected hidden disabled>-- Client --</option>
+                            ${clientOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select selectTransactionType">
+                            <option value="" selected hidden disabled>-- Transaction Type --</option>
+                            <option value="atm_withdrawal">ATM Withdrawal</option>
+                            <option value="bank_transfer">Bank Transfer </option>
+                            <option value="palawan">Palawan</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="date"
+                            class="form-control inputDate"
+                        >
+                    </td>
+                    <td>
+                        <select class="form-select selectClassifications">
+                            <option value="" selected hidden disabled>-- Classification --</option>
+                            ${classificationOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text"
+                            class="form-control inputTransactionCode"
+                            placeholder="ex. TXN123456789"
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-end inputAtmBalance"
+                            placeholder="0.00"
+                        >
+                    </td>
+                    <td>
+                        <input type="number"
+                            class="form-control text-end inputAmountWithdrawn"
+                            placeholder="0.00"
+                        >
+                    </td>
+                    <td>
+                        <input type="text"
+                            class="form-control inputDescription"
+                            placeholder="ex. hello 123"
+                        >
+                    </td>
+                    <td class ="text-center">
+                        <a href="#" class="btnRemove"><i class="fa fa-trash text-danger fs-6"></i></a>
+                    </td>
+                </tr>
+            `;
+
+            $("#modalMultipleEntries #tblMultipleSavings tbody").append(trData);
+            initializeSelect2();
+        }
     });
 
     function deleteData(id) {
@@ -517,6 +430,15 @@
             }
         });
     }
+
+    function initializeSelect2() {
+        $(".selectClient").select2({
+            placeholder : '-- Client --',
+            dropdownParent: '#modalMultipleEntries'
+        });
+    }
+
+    
 
 </script>
 @endpush

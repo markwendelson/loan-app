@@ -20,7 +20,31 @@ class SavingsController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
+    {   
+        //get all clients
+        $clientData = Client::select(
+            'clients.*',
+            'client_details.firstname',
+            'client_details.middlename',
+            'client_details.lastname',
+        )
+        ->leftJoin('client_details', 'client_details.client_id', '=', 'clients.id')
+        ->where('clients.status', 1)
+        ->whereNull('clients.deleted_at')
+        ->get();
+
+        $clientOptions = '';
+        $classificationOptions = '';
+        if($clientData->isNotEmpty()) {
+            foreach($clientData as $key => $val) {
+                $clientOptions .= '<option value="' . $val->id . '">' . ucwords(strtolower($val->firstname)) . ' ' . ucwords(strtolower($val->lastname)) . ' ' . ucfirst(substr($val->middlename, 0, 1)) . '.</option>';
+            }
+
+            foreach(config('constants.savings_classifications') as $key => $val) {
+                $classificationOptions .= '<option value="' . $val . '">' . $val . '</option>';
+            }
+        }
+
         if($request->ajax()) {
             $search = $request->search['value'];
 
@@ -58,7 +82,11 @@ class SavingsController extends Controller
             ]);
         }
 
-        return view('savings.index');
+        return view('savings.index', compact(
+            'clientData',
+            'clientOptions',
+            'classificationOptions',
+        ));
     }
 
     /**
@@ -618,40 +646,9 @@ class SavingsController extends Controller
         ]);
     }
 
-    public function getMultipleEntriesModal(Request $request)
-    {
-        //get all data
-        $inputData = $request->all();
-
-        $clientData = [];
-        //get client list information
-        if(isset($inputData['client_id']) && $inputData['client_id']) {
-            $clientData = Client::select(
-                'clients.*',
-                'client_details.firstname',
-                'client_details.middlename',
-                'client_details.lastname',
-            )
-            ->leftJoin('client_details', 'client_details.client_id', '=', 'clients.id')
-            ->whereIn('clients.id', $inputData['client_id'])
-            ->get();
-        }
-
-        $html = view('savings.modal.multiple-entries', compact(
-            'clientData'
-        ))->render();
-
-        return response()->json([
-            'status' => 'success',
-            'html' => $html
-        ]);
-        
-    }
-
     public function saveMultipleEntries(Request $request) 
     {
         $inputData = $request->all();
-
 
         $response = []; //handles response data
         $processedData = [];
@@ -659,21 +656,17 @@ class SavingsController extends Controller
         if(isset($inputData) && $inputData) {
             foreach($inputData as $key => $val) {
 
-                if(isset($val) && $val && is_array($val)) {
-                    foreach($val as $key2 => $val2) {
-                        $processedData[] = [
-                            'client_id' => $key,
-                            'transaction_no' => Savings::generateTransactionNumber($val2['date'], 'withdraw'),
-                            'transaction_date' => $val2['date'],
-                            'description' => $val2['description'],
-                            'transaction_type' => 'withdraw',
-                            'transaction_code' => $val2['transaction_code'],
-                            'amount' => $val2['amount_withdrawn'],
-                            'classifications' => $val2['classification'],
-                            'atm_balance' => $val2['atm_balance'] ?? 0,
-                        ];
-                    }
-                }
+                $processedData[] = [
+                    'client_id' => $val['client_id'],
+                    'transaction_no' => Savings::generateTransactionNumber($val['date'], 'withdraw'),
+                    'transaction_date' => $val['date'],
+                    'description' => $val['description'],
+                    'transaction_type' => 'withdraw',
+                    'transaction_code' => $val['transaction_code'],
+                    'amount' => $val['amount_withdrawn'],
+                    'classifications' => $val['classifications'],
+                    'atm_balance' => $val['atm_balance'] ?? 0,
+                ];
             }
 
             //bulk insert to savings

@@ -10,6 +10,8 @@ return [
     'pusher_app_secret' => '3464b3c7c83878e63dda',
     'company_name' => 'Guiuan Lending Loan System',
     'company_powered_by' => 'Copyright 2024 © Powered by A.J Solutions Inc.',
+    'default_country' => 'Philippines',
+    'default_country_id' => 137,
     'suffix_list' => [
         1 => 'Jr.',
         2 => 'Sr.',
@@ -170,5 +172,27 @@ return [
         'Pension',
         'Allotment',
         'Cash'
+    ],
+    'vendor_types' => [
+        'Raw Materials Supplier',
+        'Office Supplies',
+        'Equipment Supplier',
+        'Service Providers',
+        'Wholesaler',
+        'Distributor',
+        'Contractor/Subcontractor',
+        'Technology/Software Provider',
+        'Transport and Logistics',
+        'Food and Beverage Supplier',
+        'Utility Providers',
+        'Maintenance and Repair',
+        'Marketing and Advertising',
+        'Cleaning Services',
+        'Packaging Supplier',
+        'Financial Service Providers',
+        'Security Services',
+        'Consultants',
+        'Importers/Exporters',
+        'Healthcare Providers'
     ]
 ];

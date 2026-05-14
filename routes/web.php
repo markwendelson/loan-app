@@ -21,6 +21,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SavingsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckEncashmentController;
+use App\Http\Controllers\VendorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
@@ -143,7 +144,6 @@ Route::middleware('auth')->group(function () {
         Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
             Route::get('{id}/print', 'printReceipt')->name('savings.print');
             Route::post('{id}/change-transaction-code', 'updateTransactionCode')->name('savings.update-transaction-code');
-            Route::post('get-multiple-entries', 'getMultipleEntriesModal')->name('savings.get-multiple-entries-modal');
             Route::post('submit-multiple-entries', 'saveMultipleEntries')->name('savings.save-multiple-entries');
         });
     Route::resource('savings', SavingsController::class);
@@ -221,6 +221,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DocumentTypeController::class, 'index'])->name('document-type.index');
         Route::post('store', [DocumentTypeController::class, 'store'])->name('document-type.add');
         Route::put('update',[DocumentTypeController::class, 'update'])->name('document-type.update');
+    });
+
+    Route::prefix('vendors')->group(function() {
+        route::get('/', [VendorController::class, 'index'])->name('vendors.index');
     });
 
     include_once(__DIR__ . '/ajax.php');
