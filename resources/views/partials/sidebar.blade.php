@@ -199,7 +199,9 @@
         <li><a href="{{route('loan-product.index')}}">Loan Products</a></li>
 
         <li><a href="{{ route('service-fees.index') }}">Service Fees (Others)</a></li>
-
+        @endcan
+        @can('view-vendors')
+        <li><a href="{{ route('vendors.index') }}">Vendors</a></li>
         @endcan
         {{-- <li><a href="/charge">Charges</a></li> --}}
         {{-- <li><a href="#">Repayment Methods</a></li> --}}
