@@ -225,6 +225,9 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('vendors')->group(function() {
         route::get('/', [VendorController::class, 'index'])->name('vendors.index');
+        route::post('new-vendor', [VendorController::class, 'store'])->name('vendor.store');
+        route::post('get-vendor-data', [VendorController::class, 'getVendorData'])->name('vendor.get-vendor-data');
+        route::put('update-vendor', [VendorController::class, 'update'])->name('vendor.update');
     });
 
     include_once(__DIR__ . '/ajax.php');

@@ -1,4 +1,4 @@
-<div class="modal fade" id="vendorModal">
+<div class="modal fade" id="vendorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,6 +6,9 @@
             </div>
             <div class="modal-body">
                 <form id="frmVendor">
+                    <!-- vendor id -->
+                    <input type="hidden" name="vendor_id">
+
                     <div class="row">
                         <!-- name -->
                         <div class="col-lg-8">
@@ -14,6 +17,8 @@
                                 <input type="text" 
                                     class="form-control"
                                     placeholder="Juan Dela Cruz..."
+                                    name="name"
+                                    required
                                 >
                             </label>
                         </div>
@@ -25,6 +30,8 @@
                                 <input type="text"
                                     class="form-control"
                                     placeholder="000-000-000..."
+                                    name="tin"
+                                    required
                                 >
                             </label>
                         </div>
@@ -33,8 +40,8 @@
                         <div class="col-lg-5">
                             <label class="w-100">
                                 Type
-                                <select class="form-select">
-                                    <option value="" selected hidden disabled>-- Type --</option>
+                                <select class="form-select" name="vendor_type">
+                                    <option value=""  selected hidden disabled>-- Type --</option>
                                     @foreach(config('constants.vendor_types') as $key => $val)
                                         <option value="{{ $key }}">{{ $val }}</option>
                                     @endforeach
@@ -49,6 +56,7 @@
                                 <input type="text"
                                     class="form-control"
                                     placeholder="ex., https://www.example.com"
+                                    name="website"
                                 >
                             </label>
                         </div>
@@ -60,6 +68,7 @@
                                 <input type="tel"
                                     class="form-control"
                                     placeholder="ex. +639123456789"
+                                    name="contact_no"
                                 >
                             </label>
                         </div>
@@ -71,6 +80,7 @@
                                 <input type="email"
                                     class="form-control"
                                     placeholder="ex. juandelacruz@gmail.com"
+                                    name="email"
                                 >
                             </label>
                         </div>
@@ -82,6 +92,7 @@
                                 <input type="tel"
                                     class="form-control"
                                     placeholder="ex., +1 (555) 123-4567"
+                                    name="fax"
                                 >
                             </label>
                         </div>
@@ -90,7 +101,7 @@
                         <div class="col-lg-4">
                             <label class="w-100">
                                 Country
-                                <select class="form-select">
+                                <select class="form-select" name="country_id">
                                     <option value="" selected hidden disabled>-- Country --</option>
                                     @if(isset($countryCode) && $countryCode)
                                         @foreach($countryCode as $key => $val)
@@ -105,7 +116,7 @@
                         <div class="col-lg-12">
                             <label class="w-100">
                                 Billing Address
-                                <textarea class="form-control" placeholder="House No., Street, Barangay, City/Municipality, Province, Postal Code"></textarea>
+                                <textarea class="form-control" name="billing_address" placeholder="House No., Street, Barangay, City/Municipality, Province, Postal Code"></textarea>
                             </label>
                         </div>
 
@@ -113,7 +124,7 @@
                         <div class="col-lg-12">
                             <label class="w-100">
                                 Shipping Address
-                                <textarea class="form-control" placeholder="House No., Street, Barangay, City/Municipality, Province, Postal Code"></textarea>
+                                <textarea class="form-control" name="shipping_address" placeholder="House No., Street, Barangay, City/Municipality, Province, Postal Code"></textarea>
                             </label>
                         </div>
                         
@@ -121,7 +132,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary"><i class="fa fa-save"></i> Submit Vendor Data</button>
+                <button type="button" class="btn btn-primary btnSubmit" data-submit-url="" data-method=""><i class="fa fa-save"></i> Submit Vendor Data</button>
                 <button type="button" class="btn btn-danger btnCancel"><i class="fa fa-times"></i> Cancel</button>
             </div>
         </div>
