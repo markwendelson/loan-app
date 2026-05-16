@@ -324,7 +324,7 @@ class ClientController extends Controller
         $principal_loan = $loans[0] ?? null;
         $special_loan = $loans[1] ?? null;
 
-        if ($loans[0]->is_special) {
+        if (isset($loans[0]) && $loans[0]->is_special) {
             $principal_loan = null;
             $special_loan = $loans[0] ?? null;
         }
