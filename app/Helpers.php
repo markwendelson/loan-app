@@ -78,11 +78,24 @@ if (!function_exists('getClientBalance')) {
     {
         $deposit = $client->savings
             ->where('transaction_type', 'deposit')->sum('amount');
-        $withdraw = $client->savings
-            ->where('transaction_type', 'withdraw')->sum('amount');
-        $change = $client->savings
+
+        // deductions
+        // $withdraw = $client->savings
+        //     ->where('transaction_type', 'withdraw')->sum('amount');
+        $interest = $client->savings
+            ->where('transaction_type', 'withdraw')->sum('interest');
+        $insurance = $client->savings
+            ->where('transaction_type', 'withdraw')->sum('insurance');
+        $principal = $client->savings
+            ->where('transaction_type', 'withdraw')->sum('principal');
+        $membership_fee = $client->savings
+            ->where('transaction_type', 'withdraw')->sum('membership_fee');
+        $due_change = $client->savings
             ->where('transaction_type', 'withdraw')->sum('due_change');
-        $balance = $deposit - ($withdraw + $change);
+
+        $deductions = $interest + $insurance + $principal + $membership_fee + $due_change;
+
+        $balance = $deposit - $deductions;
 
         return number_format($balance, 2);
     }
@@ -91,7 +104,7 @@ if (!function_exists('getClientBalance')) {
 if (!function_exists('getLoanBalance')) {
     function getLoanBalance(Loan $loan)
     {
-        $principal = $loan->final_principal;
+        $membership_fee = $loan->final_principal;
         $payment = Savings::where('loan_id', $loan->id)->where('transaction_type', 'withdraw')->sum('principal');
         $balance = $principal - $payment;
 
