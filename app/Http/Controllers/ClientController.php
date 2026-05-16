@@ -605,7 +605,7 @@ class ClientController extends Controller
                         ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
                         : null,
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => number_format($change, 2),
+                    'change' => number_format($payment->due_change, 2),
                     'balance' => null, // to be computed
                     'remarks' => null,
                     'order_date' => Carbon::parse($payment->transaction_date),
