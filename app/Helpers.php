@@ -80,7 +80,9 @@ if (!function_exists('getClientBalance')) {
             ->where('transaction_type', 'deposit')->sum('amount');
         $withdraw = $client->savings
             ->where('transaction_type', 'withdraw')->sum('amount');
-        $balance = $deposit - $withdraw;
+        $change = $client->savings
+            ->where('transaction_type', 'withdraw')->sum('due_change');
+        $balance = $deposit - $withdraw - $change;
 
         return number_format($balance, 2);
     }
