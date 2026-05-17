@@ -132,11 +132,19 @@ class VendorController extends Controller
     {
         $response = [];
 
-        $vendorData = Vendor::where('id', $request['vendor_id'])
+        $vendorData = Vendor::select(
+                'vendors.*',
+                'country_codes.country_name'
+            )
+            ->where('vendors.id', $request['vendor_id'])
+            ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id')
             ->first()
             ->toArray();
 
         if(!empty($vendorData) && is_array($vendorData)) {
+            //adjust vendor type
+            $vendorData['vendor_type'] = config('constants.vendor_types')[$vendorData['vendor_type']];
+
             $response = [
                 'status' => 'success',
                 'message' => 'Vendor data successfully fetched!',

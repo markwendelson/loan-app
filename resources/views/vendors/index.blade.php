@@ -66,7 +66,7 @@
                                                 <i class="fa fa-ellipsis-v"></i>
                                             </button>
                                             <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="#"><i class="fa fa-eye txt-infos"></i> View Vendor</a></li>
+                                                <li><a class="dropdown-item viewVendor" href="#"><i class="fa fa-eye txt-infos"></i> View Vendor</a></li>
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li><a class="dropdown-item btnEditVendor" href="#"><i class="fa fa-edit txt-primary"></i> Edit</a></li>
                                                 <li><a class="dropdown-item" href="#"><i class="fa fa-trash txt-danger"></i> Delete</a></li>
@@ -87,7 +87,9 @@
     </div>
 
     <!-- vendor modal -->  
-    @include('vendors.modal.vendorModal') 
+    @include('vendors.modal.vendorModal')
+
+    @include('vendors.modal.view-vendor')
 @endsection
 
 @push('js')
@@ -221,6 +223,55 @@
                     }
                 });
             });
+
+            //handle view vendor button click function
+            $("#tblVendors").on("click", ".viewVendor", function(e) {
+                e.preventDefault();
+
+                //show loading form
+                $(".loader-wrapper").fadeIn("slow");
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('vendor.get-vendor-data') }}",
+                    data: {
+                        vendor_id : $(this).closest("tr").data('id')
+                    },
+                    dataType: "json",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        //hide loading form
+                        $(".loader-wrapper").fadeOut("slow", function () {
+                            $(this).hide();
+                        });
+
+                        if(typeof response.status !== 'undefined' && response.status == 'success') {
+                            $("#viewVendorModal .vendorName").html(response.data.name);
+                            $("#viewVendorModal .vendorTin").html(response.data.tin);
+                            $("#viewVendorModal .vendorType").html(response.data.vendor_type);
+                            $("#viewVendorModal .vendorCountry").html(response.data.country_name);
+                            $("#viewVendorModal .vendorEmail").html(response.data.email);
+                            $("#viewVendorModal .vendorFax").html(response.data.fax);
+                            $("#viewVendorModal .vendorContactNo").html(response.data.contact_no);
+                            $("#viewVendorModal .vendorWebsite").html(response.data.website);
+                            $("#viewVendorModal .vendorBillingAddress").html(response.data.billing_address);
+                            $("#viewVendorModal .vendorShippingAddress").html(response.data.shipping_address);
+
+                            $("#viewVendorModal").modal("show");
+                        }
+                    }
+                });
+
+            });
+
+            //handle cancel button for view vendor modal
+            $("#viewVendorModal").on("click",".btnCancel", function(e) {
+                e.preventDefault();
+
+                $("#viewVendorModal").modal("hide");
+            })
 
             function clearVendorModalForm() {
                 $("#vendorModal input").val("");
