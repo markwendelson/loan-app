@@ -324,7 +324,7 @@ class ClientController extends Controller
         $principal_loan = $loans[0] ?? null;
         $special_loan = $loans[1] ?? null;
 
-        if ($loans[0]->is_special) {
+        if (isset($loans[0]) && $loans[0]->is_special) {
             $principal_loan = null;
             $special_loan = $loans[0] ?? null;
         }
@@ -605,7 +605,7 @@ class ClientController extends Controller
                         ? (new DateTime("{$payment->insurance_year}-{$payment->insurance_month}-01"))->format('M y')
                         : null,
                     'payment_principal' => number_format($payment->principal, 2),
-                    'change' => number_format($change, 2),
+                    'change' => number_format($payment->due_change, 2),
                     'balance' => null, // to be computed
                     'remarks' => null,
                     'order_date' => Carbon::parse($payment->transaction_date),
