@@ -194,7 +194,68 @@
     $("#modalTransaction .btnSubmit").click(function (e) {
         e.preventDefault();
         calculateChange()
+        var is_early_settlement = $("[name='is_early_settlement']").prop('checked');
+        if(is_early_settlement) {
+            const baseUrl = window.location.origin;
+            swal({
+                title: 'Select Action',
+                text: 'Choose whether to download or print SOA.',
+                icon: 'info',
+                buttons: {
+                    // cancel: 'Cancel',
+                    download: {
+                        text: 'Download',
+                        value: 'download',
+                    },
+                    print: {
+                        text: 'Print',
+                        value: 'print',
+                    }
+                }
+            }).then((value) => {
+                var id = $("#modalTransaction [name='id']").val();
 
+                if (value === 'download') {
+                    let iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = baseUrl + '/loan/' + id + '/print';
+                    document.body.appendChild(iframe);
+                    iframe.onload = function () {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    };
+                }
+
+                if (value === 'print') {
+                    let iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = baseUrl + '/loan/' + id + '/print?soa=1';
+                    document.body.appendChild(iframe);
+                    iframe.onload = function () {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    };
+                }
+
+                submitTransaction()
+            });
+
+            setTimeout(() => {
+                $('.swal-footer').css({
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '10px'
+                });
+            }, 10);
+        } else {
+            submitTransaction()
+        }
+
+
+
+    });
+
+    function submitTransaction() {
         let form = $("#frmTransactionModal")[0];
 
         if (!form.checkValidity()) {
@@ -269,7 +330,7 @@
                 }
             });
         }
-    });
+    }
 
     table.on("click", ".btnEdit", function () {
         let id = $(this).attr("data-id");
@@ -347,7 +408,12 @@
     })
 
     $("[name='is_early_settlement']").on('change', function () {
-        $("[name='include_special_loan_balance']").prop('checked', true);
+        var is_early_settlement = $("[name='is_early_settlement']").prop('checked');
+        if(is_early_settlement) {
+            $("[name='include_special_loan_balance']").prop('checked', true);
+        } else {
+            $("[name='include_special_loan_balance']").prop('checked', false);
+        }
         calculateChange()
     });
 
@@ -759,7 +825,7 @@
         })
     }
 
-    $("[name='exclude_interest']").on('change', function () {
+    $("[name='exclude_interest'],[name='interest']").on('change', function () {
         calculateChange()
     });
 

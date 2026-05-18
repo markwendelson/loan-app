@@ -20,7 +20,7 @@ class SavingsController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {   
+    {
         //get all clients
         $clientData = Client::select(
             'clients.*',
@@ -251,7 +251,13 @@ class SavingsController extends Controller
                 ]);
             }
 
-            $remaining_balance = $client_balance - $request->amount;
+            if($request->transaction_type == 'deposit') {
+                $remaining_balance = $client_balance + $request->amount;
+            }
+
+            if($request->transaction_type == 'withdraw') {
+                $remaining_balance = $client_balance - $request->amount;
+            }
 
             DB::commit();
 
@@ -646,7 +652,7 @@ class SavingsController extends Controller
         ]);
     }
 
-    public function saveMultipleEntries(Request $request) 
+    public function saveMultipleEntries(Request $request)
     {
         $inputData = $request->all();
 
