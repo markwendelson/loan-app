@@ -1,6 +1,6 @@
 <!-- Modal -->
 <div class="modal fade" id="expenseModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog" style="max-width: 90% !important;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="expenseModalLabel">Add Expense</h5>
@@ -11,17 +11,13 @@
                     <input type="hidden" name="id" id="expenseId">
 
                     <!-- amount -->
-                    <input type="hidden" name="amount">
-
-                    <!-- sub total -->
-                    <input type="hidden" name="sub_amount">
+                    <input type="hidden" name="total_amount">
 
                     <!-- tax -->
-                    <input type="hidden" name="tax">
 
                     <div class="row">
                         <!-- date -->
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <label class="w-100">
                                 Date <span class="text-danger">*</span>
                                 <input type="date" 
@@ -34,8 +30,24 @@
                             </label>
                         </div>
 
+                        <!-- expense type -->
+                        <div class="col-lg-3">
+                            <label class="w-100">
+                                Expense Type <span class="text-danger">*</span>
+                                <select class="form-select" name="category_id" required>
+                                    <option value="" selected hidden disabled>-- Expense Type --</option>
+                                    @if(isset($categories) && !empty($categories))
+                                        @foreach($categories as $key => $val)
+                                            <option value="{{ $val->id }}">{{ $val->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </label>
+                        </div>
+
+
                         <!-- vendor / payee -->
-                        <div class="col-lg-6">
+                        {{-- <div class="col-lg-6">
                             <label class="w-100">
                                 Vendor/ Payee <span class="text-danger">*</span>
                                 <input type="text"
@@ -44,10 +56,10 @@
                                     required
                                 >
                             </label>
-                        </div>
+                        </div> --}}
 
                         <!-- reference # -->
-                        <div class="col-lg-3">
+                        {{-- <div class="col-lg-3">
                             <label class="w-100">
                                 Reference #
                                 <input type="text"
@@ -55,20 +67,22 @@
                                     class="form-control"
                                 >
                             </label>
-                        </div>
+                        </div> --}}
 
                         <!-- branch -->
+                        
                         <div class="col-lg-3">
                             <label class="w-100">
                                 Branch <span class="text-danger">*</span>
                                 <select class="form-select"
                                     name="branch_id"
                                     required
+                                    {{ isset($user->branch_id) && $user->branch_id ? 'disabled' : ''; }}
                                 >
                                     <option value="" selected hidden disabled>-- Branch --</option>
                                     @if(isset($branches) && $branches)
                                         @foreach($branches as $key => $val)
-                                            <option value="{{ $val->id }}">{{ $val->name }}</option>
+                                            <option value="{{ $val->id }}" {{ isset($user->branch_id) && $user->branch_id == $val->id ? 'selected' : '';  }}>{{ $val->name }}</option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -76,7 +90,7 @@
                         </div>
 
                         <!-- payment method -->
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <label class="w-100">
                                 Payment Method <span class="text-danger">*</span>
                                 <select name="payment_method"
@@ -92,7 +106,7 @@
                         </div>
                         
                         <!-- tax rate -->
-                        <div class="col-lg-3">
+                        {{-- <div class="col-lg-3">
                             <label class="w-100">
                                 Tax Rate (%) <span class="text-danger">*</span>
                                 <input type="number"
@@ -102,34 +116,48 @@
                                     required
                                 >
                             </label>
+                        </div> --}}
+
+                        <div class="mt-2">
+                            <label for="description" class="form-label">Notes</label>
+                            <textarea class="form-control" 
+                                id="description" 
+                                name="notes"
+                                placeholder="Additional details about the expense, if needed." 
+                                rows="3"
+                            ></textarea>
                         </div>
                     </div>
-
+                    <hr>
                     <!-- line items -->
                     <div class="card mt-2">
                         <div class="card-header d-flex justify-content-end">
-                            <button type="button" class="btn btn-primary btnAddline"><i class="fa fa-plus"></i> Add Line</button>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-success btnRefreshVendor"><i class="fa fa-refresh"></i> Refresh Vendor</button>
+                                <button type="button" class="btn btn-primary btnAddline"><i class="fa fa-plus"></i> Add Line</button>
+                            </div>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-bordered table-hover" id="expenseItems">
                                 <thead>
                                     <tr>
-                                        <th>Category</th>
+                                        <th width="300">Vendor /Payee</th>
                                         <th>Description</th>
-                                        <th class="text-center" width="100">Qty</th>
-                                        <th class="text-center">Unit Price</th>
-                                        <th class="text-center">Subtotal</th>
+                                        <th width="300">Reference No.</th>
+                                        <th class="text-center" width="150">Amount</th>
                                         <th class="text-center" width="50"><i class="fa fa-cog"></i></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>
-                                            <select class="form-select" name="category_id[]">
-                                                <option value="" selected hidden disabled>-- Category --</option>
-                                                @foreach($categories as $category)
-                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                                @endforeach
+                                            <select class="form-select selectVendor" name="vendor_id[]">
+                                                <option value="" selected hidden disabled>-- Select --</option>
+                                                @if(isset($vendorsData) && !empty($vendorsData))
+                                                    @foreach($vendorsData as $key => $val)
+                                                        <option value="{{ $val->id }}">{{ $val->name }}</option>
+                                                    @endforeach
+                                                @endif
                                             </select>
                                         </td>
                                         <td>
@@ -139,24 +167,18 @@
                                             >
                                         </td>
                                         <td>
-                                            <input type="number"
-                                                class="form-control text-center"
-                                                name="qty[]"
-                                                value="1"
+                                            <input type="text"
+                                                class="form-control"
+                                                name="ref_no[]"
+                                                placeholder="E.g. Invoice #, Receipt #, etc."
                                             >
                                         </td>
                                         <td>
                                             <input type="number"
                                                 class="form-control text-end"
-                                                name="unit_price[]"
+                                                name="sub_amount[]"
                                                 placeholder="0.00"
                                             >
-                                            <input type="hidden"
-                                                name="sub_total[]"
-                                            >
-                                        </td>
-                                        <td class="tdSubTotal text-end">
-                                            0.00
                                         </td>
                                         <td class="text-center">
                                             <a href="#" class="text-danger btnRemove"><i class="fa fa-trash  fs-5"></i></a>
@@ -170,15 +192,6 @@
                     <!-- total -->
                     <div class="row justify-content-end">
                         <div class="col-lg-3">
-                            <div class="d-flex justify-content-between">
-                                <span>Subtotal</span>
-                                <span class="overallSubTotal">0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Tax</span>
-                                <span class="total-tax-amount">0.00</span>
-                            </div>
-                            <hr class="my-1">
                             <div class="d-flex justify-content-between">
                                 <span class="fw-semibold">Total</span>
                                 <span class="fw-semibold total-amount">0.00</span>
@@ -212,12 +225,9 @@
                         <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
                     </div> --}}
 
-                    <div class="mt-2">
-                        <label for="description" class="form-label">Notes</label>
-                        <textarea class="form-control" id="description" name="notes" rows="3"></textarea>
-                    </div>
+                    
 
-                    <div class="modal-footer px-0 pb-0">
+                    <div class="modal-footer mt-3 px-0 pb-0">
                         <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save"></i> Save Expense</button>
                         <button type="button" class="btn btn-secondary btnCancel"><i class="fa fa-times"></i> Cancel</button>
                     </div>

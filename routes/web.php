@@ -227,7 +227,9 @@ Route::middleware('auth')->group(function () {
         route::get('/', [VendorController::class, 'index'])->name('vendors.index');
         route::post('new-vendor', [VendorController::class, 'store'])->name('vendor.store');
         route::post('get-vendor-data', [VendorController::class, 'getVendorData'])->name('vendor.get-vendor-data');
+        route::post('get-vendors-list', [VendorController::class, 'getVendorsList'])->name('vendor.get-vendors-list');
         route::put('update-vendor', [VendorController::class, 'update'])->name('vendor.update');
+        route::delete('destroy', [VendorController::class, 'destroy'])->name('vendor.destroy');
     });
 
     include_once(__DIR__ . '/ajax.php');

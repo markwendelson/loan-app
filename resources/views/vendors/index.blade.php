@@ -34,7 +34,51 @@
 
         <div class="card">
             <div class="card-header">
+                <form method="GET" action="{{ url()->current() }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            @if($user->hasRole(['admin', 'super_admin'])) 
+                            <div class="form-check checkbox checkbox-primary mb-0">
+                                <input class="form-check-input " id="chckDeleted" type="checkbox"  value="1" name="is_deleted" {{ isset($filterData['is_deleted']) && $filterData['is_deleted'] ? 'checked' : ''; }}>
+                                <label class="form-check-label mb-1" for="chckDeleted"><small>Deleted</small></label>
+                            </div>
+                            @endif
+                        </div>
 
+                        <div class="d-flex justify-content-end gap-2">
+                            <!-- search filter -->
+                            <input type="search" 
+                                class="form-control" 
+                                name="q" 
+                                value="{{ isset($filterData['q']) && $filterData['q'] ? $filterData['q'] : ''; }}"
+                                placeholder="Search..."
+                                style="width: 250px !important;"
+                            >
+
+                            <!-- vendor type -->
+                            <select class="form-select"
+                                name="vendor_type"
+                                style="width: 250px !important;"
+                            >
+                                <option value="">-- All Types --</option>
+                                @foreach(config('constants.vendor_types') as $key => $val)
+                                    <option value="{{ $key }}" {{ isset($filterData['vendor_type']) && $filterData['vendor_type'] == $key ? 'selected' : ''; }}>{{ $val }}</option>
+                                @endforeach
+                            </select>
+
+                            @if(($user->hasRole(['admin', 'super_admin'])) && (isset($usersData) && $usersData))
+                                <select class="form-select" name="author" style="width: 200px !important;">
+                                    <option value="">-- Author --</option>
+                                    @foreach($usersData as $key => $val)
+                                        <option value="{{ $val->id }}" {{ isset($filterData['author']) && $filterData['author'] == $val->id ? 'selected' : ''; }}>{{ $val->name; }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
+
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="card-body p-0">
                 <table class="table table-bordered table-hover" id="tblVendors">
@@ -68,8 +112,12 @@
                                             <ul class="dropdown-menu">
                                                 <li><a class="dropdown-item viewVendor" href="#"><i class="fa fa-eye txt-infos"></i> View Vendor</a></li>
                                                 <li><hr class="dropdown-divider"></li>
+                                                @can('edit-vendors')
                                                 <li><a class="dropdown-item btnEditVendor" href="#"><i class="fa fa-edit txt-primary"></i> Edit</a></li>
-                                                <li><a class="dropdown-item" href="#"><i class="fa fa-trash txt-danger"></i> Delete</a></li>
+                                                @endcan
+                                                @can('delete-vendors')
+                                                <li><a class="dropdown-item btnDelete" href="#"><i class="fa fa-trash txt-danger"></i> Delete</a></li>
+                                                @endcan
                                             </ul>
                                         </div>
                                     </td>
@@ -82,6 +130,11 @@
                         @endif
                     </tbody>
                 </table>
+            </div>
+
+            <!-- pagination container -->
+            <div class="d-flex justify-content-end">
+                {{ $vendorData->appends(request()->input())->onEachSide(0)->links('partials.pagination.default') }}
             </div>
         </div>
     </div>
@@ -222,6 +275,81 @@
                         }
                     }
                 });
+            });
+
+            //handle table delete button
+            $("#tblVendors").on("click", ".btnDelete", function(e) {
+                e.preventDefault();
+
+                swal({
+                    title: 'Are you sure?',
+                    text: "Do you want to proceed?",
+                    icon: 'warning',
+                    buttons: {
+                        confirm: {
+                            text: "Yes",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        },
+                        cancel: {
+                            text: "No",
+                            value: false,
+                            visible: true,
+                            className: "btn btn-danger",
+                            closeModal: true,
+                        },
+                        
+                    },
+                }).then((willProceed) => {
+                    //yes
+                    if (willProceed) {
+                        //show loading form
+                        $(".loader-wrapper").fadeIn("slow");
+
+                        $.ajax({
+                            type: "DELETE",
+                            url: "{{ route('vendor.destroy') }}",
+                            data: {
+                                vendor_id : $(this).closest("tr").data("id")
+                            },
+                            dataType: "json",
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function (response) {
+                                //hide loading form
+                                $(".loader-wrapper").fadeOut("slow", function () {
+                                    $(this).hide();
+                                });
+
+                                if(typeof response.status !== 'undefined' && response.status == 'success') {
+                                    swal({
+                                        title: 'Success!',
+                                        text: response.message,
+                                        icon: 'success',
+                                        buttons: {
+                                            confirm: {
+                                                text: "OK",
+                                                value: true,
+                                                visible: true,
+                                                className: "btn btn-primary",
+                                                closeModal: true
+                                            }
+                                        },
+                                    }).then((willClose) => {
+                                        if (willClose) {
+                                            //reload page
+                                            location.reload();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+
             });
 
             //handle view vendor button click function

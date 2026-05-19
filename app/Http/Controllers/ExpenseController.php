@@ -13,15 +13,18 @@ use Illuminate\Support\Str;
 use App\Models\Branch;
 use App\Models\Expense;
 use App\Models\ExpenseAttachments;
+use App\Models\ExpenseCategory;
 use App\Models\ExpenseItems;
 use App\Models\ExpenseReport;
-use App\Models\ExpenseCategory;
 use App\Models\User;
+use App\Models\Vendor;
 
 class ExpenseController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
         $expenses = Expense::select('expenses.*', 
                 'branch.name AS branch_name', 
                 'users.name AS user_name', 
@@ -38,10 +41,20 @@ class ExpenseController extends Controller
             ->get();
         $categories = ExpenseCategory::all();
 
+        //users
+        $usersData = User::withTrashed()
+        ->where('status', 1)->get();
+
+        //vendors
+        $vendorsData = Vendor::all();
+
         return view('expenses.index', compact(
+            'user',
+            'usersData',
             'expenses',
             'categories',
-            'branches'
+            'branches',
+            'vendorsData'
         ));
     }
 
@@ -49,34 +62,31 @@ class ExpenseController extends Controller
     {
         $slug = 'EXP' . date('YmdHis');
 
-        $result = Expense::create([
+        $insertData = [
             'branch_id' => $request->branch_id,
             'vendor_name' => $request->vendor_name,
-            'ref_no' => $request->reference_no,
             'payment_method' => $request->payment_method,
-            'tax_rate' => $request->tax_rate,
-            'sub_total' => $request->sub_amount,
-            'amount' => $request->amount,
-            'tax' => $request->tax,
             'description' => $request->notes,
+            'amount' => $request->total_amount,
             'expense_date' => $request->expense_date,
             'slug' => $slug,
             'created_by' => auth()->id()
-        ]);
+        ];
+
+        $result = Expense::create($insertData);
 
         if(isset($result) && $result) {
             //insert expense items
-            if(isset($request->category_id) && $request->category_id) {
+            if(isset($request->vendor_id) && $request->vendor_id) {
                 $expenseItems = [];
 
-                foreach($request->category_id as $key => $val) {
+                foreach($request->vendor_id as $key => $val) {
                     $expenseItems[] = [
                         'expense_id' => $result->id,
-                        'category_id' => $val,
+                        'vendor_id' => $request->vendor_id[$key],
                         'description' => $request->description[$key],
-                        'qty' => $request->qty[$key],
-                        'unit_price' => $request->unit_price[$key],
-                        'sub_total' => $request->sub_total[$key],
+                        'ref_no' => $request->ref_no[$key],
+                        'amount' => $request->sub_amount[$key],
                     ];
                 }
 

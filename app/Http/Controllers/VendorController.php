@@ -2,39 +2,78 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 
 //models
 use App\Models\CountryCode;
+use App\Models\User;
 use App\Models\Vendor;
 
 class VendorController extends Controller
 {
     public function index(Request $request) {
 
-        if(!auth()->user()->can('view-vendors')) {
+        $filterData = $request->all();
+
+        $user = auth()->user();
+
+        if(!$user->can('view-vendors')) {
             abort(403);
         }
-        
-        $vendorData = Vendor::select(
+
+        //main query
+        $query = Vendor::select(
                 'vendors.*',
                 'country_codes.country_name'
             )
-            ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id')
-            ->paginate(10);
+            ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id');
+
+        //soft delete
+        if(isset($filterData['is_deleted']) && $filterData['is_deleted']) {
+            $query->withTrashed();
+        }
+
+        //q
+        if (isset($filterData['q']) && $filterData['q']) {
+            $query->where(function($q) use ($filterData) {
+                $q->where('name', 'like', '%' . $filterData['q'] . '%')
+                ->orWhere('contact_no', $filterData['q'])
+                ->orWhere('email', $filterData['q'])
+                ->orWhere('website', $filterData['q']);
+            });
+        }
+
+        //vendor_type
+        if(isset($filterData['vendor_type']) && $filterData['vendor_type']) {
+            $query->where('vendor_type', $filterData['vendor_type']);
+        }
+
+        //author
+        if(isset($filterData['author']) && $filterData['author']) {
+            $query->where('created_by', $filterData['author']);
+        }
+
+        $vendorData = $query->paginate(10)->appends($filterData);
         $countryCode = CountryCode::getCountryCodes([
             'is_multiple' => 1,
         ]);
 
+        //users
+        $usersData = User::withTrashed()
+            ->where('status', 1)->get();
+
         return view('vendors.index', compact(
+            'user',
+            'usersData',
             'vendorData',
-            'countryCode'
+            'countryCode',
+            'filterData',
         ));
     }
 
@@ -136,6 +175,7 @@ class VendorController extends Controller
                 'vendors.*',
                 'country_codes.country_name'
             )
+            ->withTrashed()
             ->where('vendors.id', $request['vendor_id'])
             ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id')
             ->first()
@@ -158,5 +198,70 @@ class VendorController extends Controller
             ];
         }
         return response()->json($response);
+    }
+
+    public function getVendorsList(Request $request) 
+    {
+        $response = [];
+
+        $vendorsData = Vendor::all()->toArray();
+
+        if(isset($vendorsData) && !empty($vendorsData)) {
+            $response = [
+                'status' => 'success',
+                'message' => 'Vendors list successfully updated!',
+                'data' => $vendorsData
+            ];
+        }else{
+            $response = [
+                'status' => 'error',
+                'message' => 'No vendors found!',
+                'data' => []
+            ];
+        }
+
+        return response()->json($response);
+    }
+    
+
+    public function destroy(Request $request)
+    {
+        $inputData = $request->all();
+        $response = []; //reponse holder
+
+        if(!auth()->user()->can('delete-vendors')) {
+            $response = [
+                'status' => 'error',
+                'message' => 'You do not have permission to delete vendors. Please contact your administrator if you believe this is an error.'
+            ];
+        }
+
+        if(isset($inputData['vendor_id']) && $inputData['vendor_id']) {
+            $vendor = Vendor::find($inputData['vendor_id']);
+
+            if($vendor) {
+                $result = $vendor->delete();
+
+                if($result) {
+                    $response = [
+                        'status' => 'success',
+                        'message' => 'Vendor has been successfully deleted'
+                    ];
+                }else {
+                    $response = [
+                        'status' => 'error',
+                        'message' => 'Failed to delete vendor,  Please try again.'
+                    ];
+                }
+            }
+        }else{
+            $response = [
+                'status' => 'error',
+                'message' => 'Please select an item to delete before proceeding.'
+            ];
+        }
+
+        return response()->json($response);
+
     }
 }

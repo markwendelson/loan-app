@@ -8,12 +8,17 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class User extends Authenticatable implements Auditable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
     use \OwenIt\Auditing\Auditable;
+    use SoftDeletes;
+    
+    protected $dates = ['deleted_at'];
 
     /**
      * The attributes that are mass assignable.

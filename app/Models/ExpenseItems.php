@@ -9,11 +9,10 @@ class ExpenseItems extends Model
     protected $table = 'expense_items';
     protected $fillable = [
         'expense_id',
-        'category_id',
+        'vendor_id',
         'description',
-        'qty',
-        'unit_price',
-        'sub_total',
+        'ref_no',
+        'amount',
         'created_at',
         'updated_at',
     ];
