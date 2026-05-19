@@ -7,6 +7,7 @@ use App\Models\Attachment;
 use App\Models\Client;
 use App\Models\Loan;
 use App\Models\LoanFee;
+use App\Models\LoanProduct;
 use App\Models\Savings;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -169,8 +170,8 @@ class SavingsController extends Controller
                     ], 500);
                 }
             }
-
             $data = $request->all();
+            // dd($data);
             $transaction_date = $data['transaction_date'];
             $transaction_type = $data['transaction_type'];
             $data['transaction_no'] = Savings::generateTransactionNumber($transaction_date, $transaction_type);
@@ -424,6 +425,8 @@ class SavingsController extends Controller
 
         $membership_fee_balance = getMembershipFeeBalance($loan);
 
+        $loan_product = LoanProduct::whereId($loan->loan_product_id)->first('repayment_order');
+
         if($loan->is_special) {
             return response()->json([
                 'interest' => number_format(0,2),
@@ -439,6 +442,7 @@ class SavingsController extends Controller
                 'membership_fee_balance' => $membership_fee_balance,
                 'previous_interest_deficit' => number_format($savings->interest_deficit,2) ?? 0,
                 'current_interest' => number_format(0,2),
+                'repayment_order' => json_decode($loan_product->repayment_order),
             ]);
         } else {
             return response()->json([
@@ -455,6 +459,7 @@ class SavingsController extends Controller
                 'membership_fee_balance' => $membership_fee_balance,
                 'previous_interest_deficit' => number_format($savings->interest_deficit ?? 0,2),
                 'current_interest' => number_format($interest,2),
+                'repayment_order' =>  json_decode($loan_product->repayment_order),
             ]);
         }
 
