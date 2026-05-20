@@ -121,7 +121,7 @@
                                     <label class="form-check-label" for="exclude_interest"><small>Exclude Interest</small></label>
                                 </div>
                                 <div class="col-md-4 form-group">
-                                    <label class="form-label" for="interest">Interest Deficit</label>
+                                    <label class="form-label interest-label" for="interest_deficit">Interest Deficit</label>
                                     <input type="number" class="form-control form-control-sm" name="interest_deficit" min="0" readonly/>
                                 </div>
 
