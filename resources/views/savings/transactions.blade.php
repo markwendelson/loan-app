@@ -832,7 +832,32 @@
 
     }
 
-    function deleteData(id) {
+    function getBalance() {
+        var client_id = $("#client_id").val();
+        return $.ajax({
+            type: 'GET',
+            url: `{{ route('client.get-balance',':client_id') }}`.replace(':client_id', client_id)
+        })
+    }
+
+    $("[name='exclude_interest'],[name='interest']").on('change', function () {
+        calculateChange()
+    });
+
+    $("[name='interest']").on('change', function () {
+        var interest = parseFloat($("#modalTransaction [name='interest']").val())
+        var data_interest = parseFloat($("#modalTransaction [name='interest']").data('interest'))
+        var deficit = interest - data_interest;
+        $("#modalTransaction [name='interest_deficit']").val(deficit)
+    });
+
+    $("#change_mop").on("change", function() {
+        $('.attachment').toggleClass('d-none', $(this).val() !== 'authorized_person');
+    }).trigger("change");
+
+});
+
+function deleteData(id) {
         swal({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -858,31 +883,6 @@
             }
         })
     }
-
-    function getBalance() {
-        var client_id = $("#client_id").val();
-        return $.ajax({
-            type: 'GET',
-            url: `{{ route('client.get-balance',':client_id') }}`.replace(':client_id', client_id)
-        })
-    }
-
-    $("[name='exclude_interest'],[name='interest']").on('change', function () {
-        calculateChange()
-    });
-
-    $("[name='interest']").on('change', function () {
-        var interest = parseFloat($("#modalTransaction [name='interest']").val())
-        var data_interest = parseFloat($("#modalTransaction [name='interest']").data('interest'))
-        var deficit = interest - data_interest;
-        $("#modalTransaction [name='interest_deficit']").val(deficit)
-    });
-
-    $("#change_mop").on("change", function() {
-        $('.attachment').toggleClass('d-none', $(this).val() !== 'authorized_person');
-    }).trigger("change");
-
-});
 
 
 </script>
