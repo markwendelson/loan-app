@@ -17,4 +17,10 @@ class ExpenseItems extends Model
         'updated_at',
     ];
 
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class)
+            ->leftJoin('vendors', 'vendors.id', '=', 'expense_items.vendor_id');
+    }
+
 }

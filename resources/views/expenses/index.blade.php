@@ -5,7 +5,7 @@
 @push('css')
     <link rel="stylesheet" type="text/css" href="{{ url('assets/css/vendors/dropzone.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
+    <link rel="stylesheet" href="https://unpkg.com/viewerjs/dist/viewer.min.css">
 
     <style>
         .bg-default {
@@ -26,6 +26,11 @@
             padding-top: 5px !important;
             border-color: #dee2e6 !important;
         }
+
+        .dropdown-menu .dropdown-item {
+            opacity: 0.95 !important;
+        }
+
     </style>
 @endpush
 
@@ -53,12 +58,14 @@
     </div>
 
 
+    @can('create-expense')
     <div class="card">
         <div class="card-body d-flex justify-content-end">
             <button type="button" id="btnAddExpense" class="btn btn-primary"><i class="fa fa-plus"></i> New Expense</button>
         </div>
     </div>
-
+    @endcan
+    
     
     <div class="col-sm-12">
         <div class="card">
@@ -72,7 +79,7 @@
                                 <option value="">-- All Branch --</option>
                                 @if(isset($branches) && $branches)
                                     @foreach($branches as $key => $val)
-                                        <option value="{{ $val->id }}">{{ $val->name }}</option>
+                                        <option value="{{ $val->id }}" {{ isset($filterData['branch_id']) && $filterData['branch_id'] == $val->id ? 'selected' : '' ; }}>{{ $val->name }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -106,7 +113,7 @@
                                 <th class="align-middle">Description</th>
                                 <th class="align-middle text-center">Amount</th>
                                 <th class="align-middle">Created By</th>
-                                <th class="text-center align-middle"><i class="fa fa-cog"></i></th>
+                                <th class="text-center align-middle" width="50"><i class="fa fa-cog"></i></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,7 +127,21 @@
                                         <td class="text-end">{{ number_format($val->amount, 2) ?? ''; }}</td>
                                         <td class="{{ (isset($val->user_name) && $val->user_name) && (isset($val->email) && $val->email) ? '' : 'text-center'; }}">{{ ($val->user_name ?? $val->email) ?? '-'; }}</td>
                                         <td class="text-center">
-                                            <a href="#" class="btnEdit"><i class="fa fa-edit fs-5"></i></a>
+                                            <div class="dropdown">
+                                                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fa fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu" style="opacity: 1 !important;">
+                                                    <li><a class="dropdown-item btnViewExpense" href="#"><i class="fa fa-eye txt-success"></i> View Expenses Data</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    @can('edit-expense')
+                                                    <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-edit txt-primary"></i> Edit</a></li>
+                                                    @endcan
+                                                    @can('delete-expense')
+                                                    {{-- <li><a class="dropdown-item" href="#"><i class="fa fa-trash txt-danger"></i> Delete</a></li> --}}
+                                                    @endcan
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -145,6 +166,13 @@
     {{-- Include Modal --}}
     @include('expenses.modal')
 
+    <!-- edit modal -->
+    <div class="modal fade" id="expenseEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog" style="max-width: 90% !important;">
+            <!-- content here -->
+        </div> 
+    </div>
+
 @endsection
 
 @push('js')
@@ -152,24 +180,18 @@
     <script src="{{ url('assets/js/dropzone/dropzone-script.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/viewerjs/dist/viewer.min.js"></script>
 
     <script>
         var vendors = @json($vendorsData);
 
         $(document).ready(function() {
             initializeDropzone();
-            initializeSelect2();
         })
 
         $("#btnAddExpense").click(function() {
+            initializeSelect2();
             $("#expenseModal").modal("show");
-        })
-
-        //handle edit button click function
-        $("#expenseTable tbody").on("click", "tr .btnEdit", function(e){
-            e.preventDefault();
-
-            alert("edit button clicked!");
         })
 
         $("#expenseModal .btnCancel").click(function(e) {
@@ -181,20 +203,27 @@
         })
 
         //add line handles click function
-        $(".btnAddline").on("click", function(e) {
+        $(document).on("click", "#expenseModal .btnAddline, #expenseEditModal .btnAddline", function(e) {
             e.preventDefault();
 
-            addLine();
+            let targetTable = $(this).data("addline-target-table") || "";
+            let parentModal = $(this).data("parent-modal")
+
+            addLine(targetTable);
+            initializeSelect2(parentModal);
         });
 
         //handle lost focus function for qty and 
-        $("#expenseModal #expenseItems tbody").on("focusout", "tr input[name='sub_amount[]']", function(e) {
+        $(document).on("focusout", "#expenseModal #expenseItems tbody tr input[name='sub_amount[]'], #expenseEditModal #expenseItems tbody tr input[name='sub_amount[]'],#expenseEditModal #expenseItems tbody tr input[name='old_sub_amount[]']", function(e) {
             e.preventDefault();
-            computeTotal();
+
+            let modal = $(this).closest(".modal");
+        
+            computeTotal(modal);
         });
 
         //handle modal refresh vendor
-        $("#expenseModal .btnRefreshVendor").on("click", function(e) {
+        $(document).on("click", "#expenseModal .btnRefreshVendor, #expenseEditModal .btnRefreshVendor", function(e) {
             e.preventDefault();
 
             //show loading form
@@ -256,18 +285,22 @@
         })
 
         //handle modal submit click function
-        $("#expenseModal .btnSubmit").click(function(e) {
+        $(document).on("click", "#expenseModal .btnSubmit, #expenseEditModal .btnSubmit", function(e) {
             e.preventDefault();
+            let submitUrl = $(this).data("url");
 
-            let formElement = $("#expenseModal #expenseForm")[0];
+            let modal = $(this).closest(".modal-content");
+
+
+            let formElement =  $(modal).find("form")[0];
             let formData = new FormData(formElement);
 
             // Add Dropzone files manually
-            Dropzone.forElement("#myDropzone").getAcceptedFiles().forEach((file, index) => {
+            Dropzone.forElement($(modal).find("#myDropzone")[0]).getAcceptedFiles().forEach((file, index) => {
                 formData.append("attachments[]", file, file.name);
             });
 
-            if (!$("#expenseModal #expenseForm")[0].checkValidity()) {
+            if (!$(modal).find("#expenseForm")[0].checkValidity()) {
                 swal({
                     title: 'Error',
                     text: 'Please fill all required fields',
@@ -284,9 +317,12 @@
                     dangerMode: true,
                 });
             }else{
+                //show loading form
+                $(".loader-wrapper").fadeIn("slow");
+
                 $.ajax({
-                    type: "POST",
-                    url: "{{ route('expenses.store') }}",
+                    type: 'POST',
+                    url: submitUrl,
                     data: formData,
                     dataType: "json",
                     processData: false,
@@ -294,7 +330,14 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
+                    processData: false,
+                    contentType: false,
                     success: function(response) {
+                        //hide loading form
+                        $(".loader-wrapper").fadeOut("slow", function () {
+                            $(this).hide();
+                        });
+
                         if(response.status !== 'undifined' && response.status == 'success') {
                             swal({
                                 title: 'Success!',
@@ -340,16 +383,123 @@
         })
 
         //items expense remove button click function
-        $("#expenseItems tbody").on("click", "tr .btnRemove", function(e) {
+        $(document).on("click", "#expenseModal #expenseItems tbody tr .btnRemove, #expenseEditModal #expenseItems tbody tr .btnRemove", function(e) {
             e.preventDefault();
+            let modal = $(this).closest(".modal");
+
+            let itemId = $(this).closest("tr").data("id");
+            let removedItemsIdsInput = $("#expenseEditModal input[name='deleted_items']");
+            let removedItemsIds = removedItemsIdsInput.val() ? removedItemsIdsInput.val().split(",") : [];
+            removedItemsIds.push(itemId);
+            removedItemsIdsInput.val(removedItemsIds.join(","));
 
             $(this).closest("tr").remove();
 
-            computeTotal();
+            computeTotal(modal);
         })
 
-        function initializeDropzone() {
+        //handle edit button click function
+        $("#expenseTable tbody").on("click", "tr .btnEdit", function(e){
+            e.preventDefault();
+
+            //show loading form
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('expense.edit-modal') }}",
+                data: {
+                    expense_id : $(this).closest("tr").data("id")
+                },
+                dataType: "json",
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(typeof response.status !== 'undefined' && response.status == 'success') {
+                        $("#expenseEditModal .modal-dialog").html(response.html);
+                        initializeViewerZoom();
+                        initializeDropzone("#expenseEditModal .myDropzone");
+                        initializeSelect2("#expenseEditModal");
+
+                        $("#expenseEditModal").modal("show");
+                    }else{
+                        swal({
+                            title: 'Error',
+                            text: response.message,
+                            icon: 'warning',
+                            buttons: {
+                                confirm: {
+                                    text: "OK",
+                                    value: true,
+                                    visible: true,
+                                    className: "btn btn-primary",
+                                    closeModal: true
+                                }
+                            },
+                            dangerMode: true,
+                        });
+                    }
+                }
+            });
+        });
+
+        //handle edit modal cancel button click function
+        $("#expenseEditModal").on("click", ".btnCancel", function(e) {
+            e.preventDefault();
+
+            $("#expenseEditModal").modal("hide");
+        });
+
+        //handle remove button for attachments in edit modal
+        $("#expenseEditModal").on("click", ".btnRemoveAttachments", function(e) {
+            e.preventDefault();
+
+            let attachmentId = $(this).data("id");
+            let removedAttachmentIdsInput = $(`#expenseEditModal input[name="deleted_attachments"]`).val();
+            let removedAttachmentIds = removedAttachmentIdsInput ? removedAttachmentIdsInput.split(",") : [];
+            removedAttachmentIds.push(attachmentId);
+            $(`#expenseEditModal input[name="deleted_attachments"]`).val(removedAttachmentIds.join(","));
+
+            $(this).closest(".attachment-image").closest("a").remove();
+        });
+
+        //handle view button click function
+        $("#expenseTable tbody").on("click", "tr .btnViewExpense", function(e) {
+            e.preventDefault();
+
+            //show loading form
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('expense.view-expense-data') }}",
+                data: {
+                    expense_id : $(this).closest("tr").data("id")
+                },
+                dataType: "json",
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(typeof response.status  !== 'undefined' && response.status == 'success') {
+                        $("#expenseEditModal .modal-dialog").html(response.html);
+
+                        initializeViewerZoom();
+                        $("#expenseEditModal").modal("show");
+                    }
+                }
+            });
+        })
+
+        function initializeDropzone(target) {
             Dropzone.autoDiscover = false;
+
+            let defaultDropzoneElement = '#expenseModal .myDropzone';
 
             // Destroy existing Dropzone instance if exists
             if (Dropzone.instances.length > 0) {
@@ -358,7 +508,7 @@
                 });
             }
 
-            var myDropzone = new Dropzone("#myDropzone", {
+            var myDropzone = new Dropzone(target || defaultDropzoneElement, {
                 url: "/upload",
                 paramName: "attachments",
                 maxFilesize: 2,
@@ -371,13 +521,11 @@
             });
         }
 
-        function computeTotal() {
+        function computeTotal(e) {
+            // let defaultTable = "#expenseModal #expenseItems tbody"
             let total = 0;
-            // let taxRate = $("#expenseModal input[name='tax_rate']").val();
-
-            //get total amount
-            $("#expenseModal #expenseItems tbody tr").each(function() {
-                total += parseFloat($(this).find("input[name='sub_amount[]']").val());
+            $(e).find("#expenseItems tbody tr").each(function() {
+                total += parseFloat($(this).find("input[name='sub_amount[]']").val() || $(this).find("input[name='old_sub_amount[]']").val());
             });
 
             if(isNaN(total)) {
@@ -385,11 +533,8 @@
             }
 
             //pass values to hidden inputs
-            $("#expenseModal input[name='total_amount']").val(total);
-
-            $("#expenseModal .total-amount").html(formatNumber(total));
-
-            console.log(total);
+            $(e).find("input[name='total_amount']").val(total);
+            $(e).find(".total-amount").html(formatNumber(total));
         }
 
         function formatNumber(number) {
@@ -420,9 +565,10 @@
             initializeDropzone();
         }
 
-        function addLine() {
+        function addLine(target) {
 
             let options = '';
+            let defaultTable = '#expenseModal #expenseItems tbody';
 
             vendors.forEach(val =>{
                 options += `<option value="${val.id}">${val.name}</option>`;
@@ -453,6 +599,7 @@
                         <input type="number"
                             class="form-control text-end"
                             name="sub_amount[]"
+                            data-target-table="${target || defaultTable}"
                             placeholder="0.00"
                         >
                     </td>
@@ -461,18 +608,30 @@
                     </td>
                 </tr>
             `;
-
-            $("#expenseModal #expenseItems tbody").append(trData);
-
-            initializeSelect2();
-
+            
+            $(target || defaultTable).append(trData);
         }
 
-        function initializeSelect2() {
+        function initializeSelect2(parentModal) {
             $(".selectVendor").select2({
                 placeholder : '-- Select --',
-                dropdownParent: '#expenseModal'
+                dropdownParent: parentModal || '#expenseModal'
             });
+        }
+
+        function initializeViewerZoom() {
+            var $attachmentImgs = $('.image-container, .attachments-container');
+            if ($attachmentImgs.length) {
+                $attachmentImgs.each(function () {
+                    new Viewer(this, {
+                    toolbar: false,
+                    title: false,
+                    viewed: function() {
+                        // this.viewer.zoomTo(1);
+                    }
+                    });
+                });
+            }
         }
     </script>
 @endpush

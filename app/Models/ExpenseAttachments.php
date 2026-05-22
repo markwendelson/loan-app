@@ -13,4 +13,9 @@ class ExpenseAttachments extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class);
+    }
 }

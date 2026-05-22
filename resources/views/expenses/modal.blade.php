@@ -45,32 +45,7 @@
                             </label>
                         </div>
 
-
-                        <!-- vendor / payee -->
-                        {{-- <div class="col-lg-6">
-                            <label class="w-100">
-                                Vendor/ Payee <span class="text-danger">*</span>
-                                <input type="text"
-                                    class="form-control"
-                                    name="vendor_name"
-                                    required
-                                >
-                            </label>
-                        </div> --}}
-
-                        <!-- reference # -->
-                        {{-- <div class="col-lg-3">
-                            <label class="w-100">
-                                Reference #
-                                <input type="text"
-                                    name="reference_no"
-                                    class="form-control"
-                                >
-                            </label>
-                        </div> --}}
-
-                        <!-- branch -->
-                        
+                        <!-- branch -->                        
                         <div class="col-lg-3">
                             <label class="w-100">
                                 Branch <span class="text-danger">*</span>
@@ -104,19 +79,6 @@
                                 </select>
                             </label>
                         </div>
-                        
-                        <!-- tax rate -->
-                        {{-- <div class="col-lg-3">
-                            <label class="w-100">
-                                Tax Rate (%) <span class="text-danger">*</span>
-                                <input type="number"
-                                    name="tax_rate"
-                                    class="form-control"
-                                    value="12"
-                                    required
-                                >
-                            </label>
-                        </div> --}}
 
                         <div class="mt-2">
                             <label for="description" class="form-label">Notes</label>
@@ -134,14 +96,19 @@
                         <div class="card-header d-flex justify-content-end">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-success btnRefreshVendor"><i class="fa fa-refresh"></i> Refresh Vendor</button>
-                                <button type="button" class="btn btn-primary btnAddline"><i class="fa fa-plus"></i> Add Line</button>
+                                <button type="button" 
+                                    class="btn btn-primary btnAddline"
+                                    data-addline-target-table="#expenseModal #expenseItems tbody"
+                                    data-target-table="#expenseModal #expenseItems tbody tr"
+                                    data-parent-modal="#expenseModal"
+                                ><i class="fa fa-plus"></i> Add Line</button>
                             </div>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-bordered table-hover" id="expenseItems">
                                 <thead>
                                     <tr>
-                                        <th width="300">Vendor /Payee</th>
+                                        <th width="300">Vendor / Payee</th>
                                         <th>Description</th>
                                         <th width="300">Reference No.</th>
                                         <th class="text-center" width="150">Amount</th>
@@ -177,6 +144,7 @@
                                             <input type="number"
                                                 class="form-control text-end"
                                                 name="sub_amount[]"
+                                                data-target-table="#expenseModal #expenseItems tbody"
                                                 placeholder="0.00"
                                             >
                                         </td>
@@ -201,37 +169,17 @@
 
                     <span class="fw-semibold">Image Attachments</span>
                     <!-- dropzone -->
-                    <div class = "dropzone mt-1" id = "myDropzone" style = "border: dashed !important;">
+                    <div class = "dropzone myDropzone mt-1" id = "myDropzone" style = "border: dashed !important;">
                         <div class="d-flex flex-column align-items-center">
                             <h4 class="txt-primary">Drop your image(s) here</h4>
                             <span>JPEG, PNG</span>
                         </div>
                     </div>
-                    
-
-
-                    {{-- <div class="mb-3">
-                        <label for="category_id" class="form-label">Category</label>
-                        <select class="form-select" id="category_id" name="category_id" required>
-                            <option value="">Select Category</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="amount" class="form-label">Amount</label>
-                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
-                    </div> --}}
-
-                    
-
-                    <div class="modal-footer mt-3 px-0 pb-0">
-                        <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save"></i> Save Expense</button>
-                        <button type="button" class="btn btn-secondary btnCancel"><i class="fa fa-times"></i> Cancel</button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btnSubmit" data-url="{{ route('expenses.store') }}"><i class="fa fa-save"></i> Save Expense</button>
+                <button type="button" class="btn btn-secondary btnCancel"><i class="fa fa-times"></i> Cancel</button>
             </div>
         </div>
     </div>

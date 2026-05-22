@@ -122,6 +122,7 @@ return [
             ['name' => 'view-expense','label' => 'View Expense'],
             ['name' => 'create-expense','label' => 'Create Expense'],
             ['name' => 'edit-expense','label' => 'Edit Expense'],
+            ['name' => 'delete-expense','label' => 'Delete Expense'],
             ['name' => 'view-vendors','label' => 'View Vendors'],
             ['name' => 'create-vendors','label' => 'Create Vendors'],
             ['name' => 'edit-vendors','label' => 'Create Vendors'],
