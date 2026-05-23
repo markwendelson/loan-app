@@ -276,6 +276,17 @@
             formData.append('client_id', client_id);
 
             let transaction_type = $("[name='transaction_type']").val();
+            var txn_code = $("#transaction_code").val()
+
+            if(transaction_type == 'deposit' && txn_code == '') {
+                $("#modalTransaction [name='transaction_code']").addClass('is-invalid')
+                $(".loader-wrapper").fadeOut("slow", function () {
+                    $(this).hide();
+                });
+                return
+            } else {
+                $("#modalTransaction [name='transaction_code']").removeClass('is-invalid')
+            }
 
             if (transaction_type === 'deposit') {
                 let mop = $("[name='transaction_type'] option:selected").data('mop');
