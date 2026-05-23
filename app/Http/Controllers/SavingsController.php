@@ -106,7 +106,8 @@ class SavingsController extends Controller
 
         $request->validate([
             'amount' => 'required',
-            'attachment' => 'required_if:mode_of_change,authorized_person|file|mimes:jpg,jpeg,png,pdf|max:2048'
+            'attachment' => 'required_if:mode_of_change,authorized_person|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'transaction_code' => 'required_if:transaction_type,deposit'
             // 'interest_year' => 'required_if:interest,!=,0',
             // 'insurance_year' => 'required_if:insurance,!=,0'
         ]);
@@ -116,7 +117,8 @@ class SavingsController extends Controller
             // check balance if withdraw
             $client = Client::findOrFail($request->client_id);
 
-            $client_balance = 0;
+            $str_balance = getClientBalance($client);
+            $client_balance = (float) str_replace(',', '', $str_balance);
 
             if($request->transaction_type == 'withdraw') {
                 $request->merge([
@@ -125,8 +127,6 @@ class SavingsController extends Controller
                     'interest_start_date' => $request->exclude_interest ? null : $request->interest_start_date,
                     'interest_end_date' => $request->exclude_interest ? null : $request->interest_end_date,
                 ]);
-                $str_balance = getClientBalance($client);
-                $client_balance = (float) str_replace(',', '', $str_balance);
 
                 if($client_balance<=0 || $request->amount > $client_balance) {
                     return response()->json([
