@@ -73,7 +73,7 @@
                 </div>
                 <div class="form-group">
                     <label for="principal">Principal</label>
-                    <input type="text" class="form-control form-control-sm decimal-only text-end" name="principal" id="principal" min="1" placeholder="0" onblur="numberFormat(this)"/>
+                    <input type="text" class="form-control form-control-sm decimal-only text-end" name="principal" id="principal" min="1" placeholder="0"/>
                 </div>
                 <div class="form-group term">
                     <label for="term">Term (months)</label>
@@ -176,13 +176,13 @@
                         <li class="mt-3 mb-3" id="redeem_charges_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="redeem_charges">Redeem Charges</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="redeem_charges" id="redeem_charges" placeholder="0.00" onblur="numberFormat(this)"/>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="redeem_charges" id="redeem_charges" placeholder="0.00"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="principal_advance_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
-                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" placeholder="0.00" onblur="numberFormat(this)"/>
+                                <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" placeholder="0.00"/>
                             </div>
                         </li>
                         <li class="mt-3 mb-3" id="paid_interest_advance_container">

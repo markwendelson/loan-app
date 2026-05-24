@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('expense_categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('scope')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('expense_categories')) {
+            Schema::create('expense_categories', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->text('scope')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

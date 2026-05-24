@@ -14,7 +14,7 @@
         table.table-mobile-friendly {
             font-size: 0.85rem;
         }
-        table.table-mobile-friendly td, 
+        table.table-mobile-friendly td,
         table.table-mobile-friendly th {
             white-space: nowrap;
         }
@@ -71,6 +71,6 @@
 
 @endsection
 
-@section('scripts')
+@push('js')
 <script src="{{ asset('assets/js/service-fees.js') }}"></script>
-@endsection
+@endpush

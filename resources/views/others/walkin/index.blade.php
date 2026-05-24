@@ -118,7 +118,7 @@
 @include('others.walkin.modal')
 @endsection
 
-@section('scripts')
+@push('js')
 <script>
 const modal = new bootstrap.Modal(document.getElementById('walkinModal'));
 
@@ -297,12 +297,12 @@ document.getElementById('walkinForm').addEventListener('submit', async e => {
             window.open(result.print_url, '_blank'); //  open in new tab
          location.reload();
 
-    
+
     } else {
         alert(result.message || "Failed to save");
         console.error(result);
     }
-   
+
 });
 
 // Delete
@@ -345,4 +345,4 @@ document.getElementById('searchWalkin').addEventListener('keyup', function() {
     });
 });
 </script>
-@endsection
+@endpush

@@ -104,6 +104,9 @@
                                 <td>{{ $branch->address }}</td>
                                 <td>{{ $branch->status == 1 ? 'Active' : 'Inactive' }}</td>
                                 <td class="text-center">
+                                    @can('view-branch')
+                                        <button class="btn btn-primary btn-sm" onclick="window.location.href = '/branches/{{ $branch->id }}'" title="View Branch"><i class="fa fa-eye"></i></button>
+                                    @endcan
                                     <!-- Edit Button to trigger modal -->
                                     @can('edit-branch')
                                     <button class="btn btn-primary btn-sm" onclick="openEditModal({{ $branch }})"><i class="fa fa-edit"></i></button>

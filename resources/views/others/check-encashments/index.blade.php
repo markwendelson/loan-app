@@ -91,7 +91,7 @@
 @include('others.check-encashments.modal')
 @endsection
 
-@section('scripts')
+@push('js')
 <script>
 function openCreateModal() {
 
@@ -108,7 +108,7 @@ function openCreateModal() {
      // Set default date to today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById("transDate").value = today;
-    
+
     // Reset image preview
     const preview = document.getElementById("idPicturePreview");
     preview.src = '';
@@ -326,7 +326,7 @@ if (noServiceCheckbox.checked) {
 //     formData.append('bankName', $('#bankName').val());
 //     formData.append('checkAmount', unformatNumber($('#checkAmount').val()));
 //     formData.append('charge', unformatNumber($('#charge').val()));
-//     formData.append('net_proceeds', unformatNumber($('#netProceeds').val()));  
+//     formData.append('net_proceeds', unformatNumber($('#netProceeds').val()));
 //     formData.append('id_type', $('#idType').val());       // corrected
 //     formData.append('id_number', $('#idNumber').val());   // corrected
 
@@ -374,9 +374,9 @@ function deleteCheck(id) {
         $.ajax({
             url: '/check-encashments/' + id,
             method: 'POST',
-            data: { 
+            data: {
                 _method: 'DELETE',
-                _token: '{{ csrf_token() }}' 
+                _token: '{{ csrf_token() }}'
             },
             success: function(data) {
                 $('#checkRow' + id).remove();
@@ -468,4 +468,4 @@ $(document).ready(function () {
 
 });
 </script>
-@endsection
+@endpush

@@ -190,7 +190,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
-    @stack('js')
     <script src="{{url('assets/js/script.js')}}"></script>
     <script>
         const showToast = {
@@ -336,9 +335,30 @@
             e.value = amount;
         }
 
-    </script>
+        $(".decimal-only").on("blur", function () {
+            numberFormat(this, 2);
+        });
 
-    @yield('scripts')
+        function updateBranch(branchId) {
+            $.ajax({
+                url: "{{ route('user.update-branch') }}",
+                type: "POST",
+                data: {
+                    branch_id: branchId,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    location.reload();
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+
+    </script>
+    @stack('js')
 </body>
 
 </html>

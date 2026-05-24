@@ -1,3 +1,11 @@
+@push('css')
+<style>
+    .branch-dropdown {
+        widows: 210px !important;
+        left: 0 !important;
+    }
+</style>
+@endpush
 
 <!-- Page Header Start-->
 <div class="page-header">
@@ -102,12 +110,32 @@
 
                 </li>
 
+                <li class="branch-nav onhover-dropdown" style="background: transparent">
+                    <div class="media profile-media">
+                        <img class="b-r-10" src="{{ url('/assets/images/user/6.jpg') }}" alt="Branch Picture" style="width: 40px; height: 40px; border-radius: 10px;">
+                        <div class="media-body d-xxl-block d-none box-col-none">
+                            <div class="d-flex align-items-center gap-2"> <span>Current Branch:</span><i class="middle fa fa-angle-down"> </i></div>
+                            <p class="mb-0 font-roboto">{{ Auth::user()->roles()->first()->name ?? '[NO_ROLE]' }}</p>
+                            <p class="mb-0 font-roboto">{{ Auth::user()->branch->name ?? '[NO_BRANCH]' }}</p>
+                        </div>
+                    </div>
+                    <ul class="profile-dropdown branch-dropdown onhover-show-div">
+                        @php
+                            $userBranches = getUserBranch(Auth::user());
+                        @endphp
+                        @foreach ($userBranches as $branch)
+                            <li><a href="javascript:void(0)" onclick="updateBranch({{ $branch->branch_id }})"><i data-feather="home"></i><span>{{ $branch->branch->name }}</span></a></li>
+                        @endforeach
+                    </ul>
+                </li>
+
                 <li class="profile-nav onhover-dropdown">
                     <div class="media profile-media">
-                        <img class="b-r-10" src="{{ isset($profileImageUrl) && $profileImageUrl ? $profileImageUrl : url('/assets/images/dashboard/profile.png') }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 10px;">
+                        <img class="b-r-10" src="{{ Auth::user()->photo ? asset('storage/'.Auth::user()->photo) : url('/assets/images/user/6.jpg') }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 10px;">
                         <div class="media-body d-xxl-block d-none box-col-none">
                             <div class="d-flex align-items-center gap-2"> <span>{{ Auth::user()->name }}</span><i class="middle fa fa-angle-down"> </i></div>
-                            <p class="mb-0 font-roboto">{{ Auth::user()->roles()->first()->name }}</p>
+                            {{-- <p class="mb-0 font-roboto">{{ Auth::user()->roles()->first()->name ?? '[NO_ROLE]' }}</p> --}}
+                            {{-- <p class="mb-0 font-roboto">{{ Auth::user()->branch->name ?? '[NO_BRANCH]' }}</p> --}}
                         </div>
                     </div>
                     <ul class="profile-dropdown onhover-show-div">
@@ -118,15 +146,6 @@
                 </li>
             </ul>
         </div>
-        <script class="result-template" type="text/x-handlebars-template">
-            <div class="ProfileCard u-cf">
-                <div class="ProfileCard-avatar"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-airplay m-0"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path><polygon points="12 15 17 21 7 21 12 15"></polygon></svg></div>
-                <div class="ProfileCard-details">
-                    <div class="ProfileCard-realName">HARHAR</div>
-                </div>
-            </div>
-        </script>
-        <script class="empty-template" type="text/x-handlebars-template"><div class="EmptyMessage">Your search turned up 0 results. This most likely means the backend is down, yikes!</div></script>
     </div>
 </div>
 <!-- Page Header Ends -->

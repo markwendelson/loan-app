@@ -14,6 +14,7 @@ use App\Models\Loan;
 use App\Models\LoanCharge;
 use App\Models\LoanFee;
 use App\Models\LoanProduct;
+use App\Models\LoanType;
 use App\Models\LoanWithdrawRequest;
 use App\Models\Savings;
 use Carbon\Carbon;
@@ -38,8 +39,8 @@ class LoanController extends Controller
 
             $loans = Loan::with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
                 ->whereNotNull('borrower_id')
-                ->when(!auth()->user()->hasRole('admin|superadmin'), function ($query) {
-                    // Apply filter only if the user is not an admin or superadmin
+                ->when(!auth()->user()->hasRole('admin|super_admin'), function ($query) {
+                    // Apply filter only if the user is not an admin or super_admin
                     $query->whereHas('borrower', function ($query) {
                         $query->where('branch_id', auth()->user()->branch_id);
                     });
@@ -171,7 +172,15 @@ class LoanController extends Controller
                     ])
                     ->first();
 
-                if ($alreadyHasLoan) {
+                $loan_types = LoanType::get('name');
+                $limits = [];
+                foreach ($loan_types as $type) {
+                    $limits[Str::slug($type->name)] = 1;
+                }
+
+                // dd($loan_product->loanType->name == Str::slug($alreadyHasLoan->loanProduct->loanType->name));
+
+                if ($alreadyHasLoan && Str::slug($loan_product->loanType->name) !== 'mortgage-loan') {
                     return response()->json(
                         [
                             'status' => 'error',

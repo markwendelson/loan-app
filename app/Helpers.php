@@ -3,6 +3,7 @@
 use App\Enums\LoanStatus;
 use App\Models\Bank;
 use App\Models\Branch;
+use App\Models\BranchUser;
 use App\Models\CountryCode;
 use App\Models\JobTitle;
 use App\Models\Province;
@@ -10,8 +11,10 @@ use App\Models\Client;
 use App\Models\ClientMembershipFee;
 use App\Models\Loan;
 use App\Models\Savings;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role;
 
 if (!function_exists('getProvinces')) {
     function getProvinces()
@@ -178,5 +181,32 @@ if (!function_exists('getClientTotalLoanBalance')) {
             $amount += getLoanBalance(Loan::find($id));
         }
         return $amount;
+    }
+}
+
+if (!function_exists('getUserRoles')) {
+    function getUserRoles(User $user, ?int $branchId)
+    {
+        $branchId ??= $user->current_branch_id;
+
+        $roleQuery = DB::table('model_has_roles')
+                    ->where('model_id', $user->id)
+                    ->where('branch_id', $branchId)
+                    ->pluck('role_id');
+
+        $roles = Role::withoutGlobalScopes()
+            ->whereIn('id',$roleQuery)->pluck('name')
+            ->toArray();
+
+        return implode(",",$roles);
+    }
+}
+
+if (!function_exists('getUserBranch')) {
+    function getUserBranch(User $user)
+    {
+        $branches = BranchUser::with('branch')->where('user_id', $user->id)->get(['user_id','branch_id']);
+
+        return $branches;
     }
 }
