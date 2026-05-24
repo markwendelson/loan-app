@@ -36,7 +36,7 @@ class Client extends Model implements Auditable
     public function scopeCurrentBranch($query)
     {
         $branchId = auth()->user()->current_branch_id;
-        return $query->where('current_branch_id',$branchId);
+        return $query->where('branch_id',$branchId);
     }
 
     public function scopeActive($query)
