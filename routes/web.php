@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('branches', [BranchController::class, 'index'])->name('branch.index');
     Route::delete('branches/{id}', [BranchController::class, 'destroy'])->name('branch.destroy');
     Route::put('branches/{id}', [BranchController::class, 'update'])->name('branch.update');
+    Route::get('branches/{id}', [BranchController::class, 'show'])->name('branch.show');
     Route::post('branches', [BranchController::class, 'store'])->name('branch.store');
 
     //-----Department
@@ -112,7 +113,14 @@ Route::middleware('auth')->group(function () {
             Route::get('{client}/partial-ledger', 'partialLedger')->name('client.partial-ledger');
         });
 
-    Route::post('user/{user}/permission', [UserController::class, 'updatePermission'])->name('user.update-permission');
+        Route::get('user/{user}/branch/{branch}/permission', [UserController::class, 'getBranchPermission'])->name('user.get-branch-permission');
+        Route::post('user/{user}/branch/{branch}/permission', [UserController::class, 'updateBranchPermission'])->name('user.update-branch-permission');
+        Route::post('user/{user}/permission', [UserController::class, 'updatePermission'])->name('user.update-permission');
+        Route::post('user/{user}/role',[UserController::class, 'assignRole'])->name('user.assign-role');
+
+        Route::delete('user/{user}/branch/{branchId}', [UserController::class, 'deleteBranchRole'])->name('user.delete-branch-role');
+
+        Route::post('user/update-branch', [UserController::class, 'updateUserBranch'])->name('user.update-branch');
 
     Route::resource('user', UserController::class);
     Route::resource('role', RoleController::class);
@@ -141,7 +149,8 @@ Route::middleware('auth')->group(function () {
     Route::controller(SavingsController::class)
         ->prefix('savings')
         ->group(function () {
-        Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
+            Route::get('{client_id}/transactions/create', 'createTransaction')->name('savings.transactions.create');
+            Route::get('{client_id}/transactions', 'transactions')->name('savings.transactions');
             Route::get('{id}/print', 'printReceipt')->name('savings.print');
             Route::post('{id}/change-transaction-code', 'updateTransactionCode')->name('savings.update-transaction-code');
             Route::post('submit-multiple-entries', 'saveMultipleEntries')->name('savings.save-multiple-entries');
@@ -151,7 +160,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
-    
+
     Route::controller(ExpenseController::class)
         ->prefix('expenses')
         ->group(function() {
@@ -171,7 +180,7 @@ Route::middleware('auth')->group(function () {
         });
 
 
-    
+
 
 
 

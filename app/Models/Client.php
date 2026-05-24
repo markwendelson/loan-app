@@ -110,4 +110,9 @@ class Client extends Model implements Auditable
         return $this->belongsTo(Branch::class);
     }
 
+    public function getBalance()
+    {
+        return getClientBalance($this);
+    }
+
 }

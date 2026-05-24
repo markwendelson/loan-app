@@ -36,7 +36,7 @@
     <div class="container-fluid">
         @php
             $user = auth()->user();
-            
+
             $rolePriority = [
                 'admin',
                 'supervisor',

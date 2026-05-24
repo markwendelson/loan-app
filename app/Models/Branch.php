@@ -64,4 +64,9 @@ class Branch extends Model {
         return $query->where('status', 1);
     }
 
+    public function users()
+    {
+        return $this->hasMany(BranchUser::class, 'branch_id', 'id');
+    }
+
 }

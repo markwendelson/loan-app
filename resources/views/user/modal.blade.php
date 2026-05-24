@@ -7,7 +7,7 @@
             </div>
 
             <div class="modal-body">
-                <form id="frmUserModal" class="row g-3 needs-validation custom-input" novalidate="">
+                <form id="frmUserModal" class="row g-3 needs-validation custom-input" novalidate="" action="{{ route('user.store') }}">
                     @csrf
                     <input type="hidden" value="" name="id" id="id">
                     <div class="col-12">
@@ -25,7 +25,7 @@
                         <select class="form-select form-select-sm" name="branch_id">
                             <option value="" selected hidden disabled>-- Select --</option>
                             @foreach($branches as $key => $val)
-                                <option value="{{$val['id']}}">{{$val['name']}}</option>
+                                <option value="{{$val['id']}}" {{ auth()->user()->current_branch_id == $val['id'] ? 'selected' : '' }}>{{$val['name']}}</option>
                             @endforeach
                         </select>
                 </div>

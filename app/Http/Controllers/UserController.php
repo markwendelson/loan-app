@@ -3,16 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\BranchUser;
 use App\Models\User;
-use Illuminate\Database\QueryException;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class UserController extends Controller
 {
 
-    private $branch;
+    private $branch = [];
 
     public function __construct()
     {
@@ -26,10 +30,10 @@ class UserController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $users = User::filter($search)->get();
+            $users = User::currentBranch()->notsuper_admin()->filter($search)->get();
             $totalRecords = $users->count();
             $mappedUsers = $users->map(function($user) {
-                $user['role'] = $user->getRoleNames()->implode(",");
+                $user['role'] = getUserRoles($user, null);
                 return $user;
             });
 
@@ -68,28 +72,42 @@ class UserController extends Controller
         ]);
 
         try {
-            $user = new User;
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->branch_id = $request->branch_id;
-            $user->password = bcrypt('password');
-            $user->save();
-
-            $role = Role::findById($request->role_id);
-            $user->assignRole($role);
-            $user->syncPermissions($role->permissions);
-
-        } catch (QueryException $e) {
-            if ($e->errorInfo[1] == 1062) {
+            DB::beginTransaction();
+            $exists = User::where('email', $request->email)->orWhere('name', $request->name)->first();
+            if($exists) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Duplicate entry'
+                    'message' => 'Account already exists.',
+                    'id' => $exists->id
                 ], 409);
             }
 
+            $user = new User;
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->current_branch_id = $request->branch_id;
+            $user->password = bcrypt('password');
+            $user->save();
+
+            BranchUser::create([
+                'user_id' => $user->id,
+                'branch_id' => $user->current_branch_id,
+                'is_active' => $request->status,
+                'created_at' => now()
+            ]);
+
+            $role = Role::withoutGlobalScopes()->find($request->role_id);
+            $user->addNewRole($role->id);
+
+            $permissions = $role->permissions->pluck('id')->toArray();
+            $user->syncBranchPermissions($permissions);
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Something went wrong.'
+                'message' => 'Something went wrong. '. $e->getMessage()
             ], 500);
         }
 
@@ -102,26 +120,39 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show(Request $request, User $user)
     {
-        if($user) {
-            return response()->json($user);
+        if($request->ajax()) {
+            if($user) {
+                return response()->json($user);
+            }
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found'
+            ], 404);
         }
-        return response()->json([
-            'status' => 'error',
-            'message' => 'User not found'
-        ], 404);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(int $id)
     {
+        $user = User::findOrFail($id);
         $branches = $this->branch;
         $permissions = Permission::all();
+        $roles = Role::where('name','<>','super_admin')->get(['id','name']);
+        $branch_roles = [];
+        foreach($branches as $key => $branch) {
+            $branch_roles[$key] = [
+                'user_id' => $user->id,
+                'branch_id' => $branch->id,
+                'branch' => $branch->name,
+                'roles' => getUserRoles($user, $branch->id)
+            ];
+        }
 
-        return view('user.edit', compact('user','branches','permissions'));
+        return view('user.edit', compact('user','branches','permissions','branch_roles','roles'));
     }
 
     /**
@@ -130,7 +161,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $user->name = $request->name;
-        $user->branch_id = $request->branch_id;
+        $user->current_branch_id = $request->branch_id;
         $user->email = $request->email;
 
         if (isset($request->user_photo)) {
@@ -161,5 +192,141 @@ class UserController extends Controller
         $user->syncPermissions($request->permissions);
 
         return redirect()->back()->with('message', 'User permissions updated successfully');
+    }
+
+    public function getBranchPermission(User $user, Branch $branch ,Request $request)
+    {
+        if($request->ajax()) {
+            $assignedPermissionNames = $user->getBranchPermissionName($branch->id)->toArray();
+            return view('user.permissions', compact('assignedPermissionNames','user','branch'));
+        }
+
+        abort(404);
+    }
+
+    public function updateBranchPermission(User $user, Branch $branch ,Request $request)
+    {
+        $permissions = Permission::whereIn('name',$request->permissions)->pluck('id')->toArray();
+        $user->syncBranchPermissions($permissions, $branch->id);
+
+        return redirect()->back()->with('message', 'User permissions updated successfully');
+    }
+
+    public function assignRole(User $user, Request $request)
+    {
+        $branchId = $request->branch_id;
+        $roleId = $request->role_id;
+
+        $branchUser = BranchUser::where([
+                            'user_id' => $user->id,
+                            'branch_id' => $branchId
+                        ])->first();
+
+        if(!$branchUser) {
+            BranchUser::create([
+                'user_id' => $user->id,
+                'branch_id' => $branchId,
+                'is_active' => 1,
+                'created_at' => now()
+            ]);
+        } else {
+            // change role
+            $current_role = DB::table('model_has_roles')
+                                    ->where('model_type', User::class)
+                                    ->where('model_id', $user->id)
+                                    ->where('branch_id', $branchId)
+                                    ->first();
+
+            if ($current_role->role_id == $roleId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User already exists in branch.',
+                ],405);
+            }
+
+            // update or insert role
+            DB::table('model_has_roles')
+                ->where('model_type', User::class)
+                ->where('model_id', $user->id)
+                ->where('branch_id', $branchId)
+                ->update([
+                    'role_id' => $roleId
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User role updated successfully',
+            ]);
+        }
+
+        $role = Role::withoutGlobalScopes()->find($roleId);
+        $user->addNewRole($roleId, $branchId);
+
+        $permissions = $role->permissions->pluck('id')->toArray();
+        $user->syncBranchPermissions($permissions);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User role added successfully',
+        ]);
+    }
+
+    public function deleteBranchRole(User $user, int $branchId)
+    {
+        $branchUser = BranchUser::where([
+            'user_id' => $user->id,
+            'branch_id' => $branchId
+        ])->first();
+
+        if($branchUser->branch_id == $user->current_branch_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cannot delete user current branch and role.',
+            ],500);
+        }
+
+        if($branchUser) {
+            DB::beginTransaction();
+            $branchUser->delete();
+
+            DB::table('model_has_roles')
+                ->where('model_type', User::class)
+                ->where('model_id', $user->id)
+                ->where('branch_id', $branchId)
+                ->delete();
+
+            DB::table('model_has_permissions')
+                            ->where('model_type', User::class)
+                            ->where('model_id', $user->id)
+                            ->where('branch_id', $branchId)
+                            ->delete();
+
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            DB::commit();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User role deleted successfully',
+        ]);
+    }
+
+    public function updateUserBranch(Request $request)
+    {
+        $request->validate([
+            'branch_id' => 'required|exists:branch,id',
+        ]);
+
+        $user = auth()->user();
+
+        $user->update([
+            'current_branch_id' => $request->branch_id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Branch updated successfully',
+        ]);
     }
 }

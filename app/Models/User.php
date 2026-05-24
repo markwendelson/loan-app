@@ -4,8 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -22,7 +24,7 @@ class User extends Authenticatable implements Auditable
      */
     protected $fillable = [
         'name',
-        'branch_id',
+        'current_branch_id',
         'email',
         'password',
         'last_login_at'
@@ -51,6 +53,19 @@ class User extends Authenticatable implements Auditable
         ];
     }
 
+    public function scopeCurrentBranch($query)
+    {
+        $branchId = auth()->user()->current_branch_id;
+        return $query->where('current_branch_id',$branchId);
+    }
+
+    public function scopeNotsuper_admin($query)
+    {
+        return $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'super_admin');
+        });
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 1);
@@ -69,7 +84,87 @@ class User extends Authenticatable implements Auditable
 
     public function branch()
     {
-        return $this->belongsTo(Branch::class, 'branch_id');
+        return $this->belongsTo(Branch::class, 'current_branch_id');
+    }
+
+    public function assignedBranch()
+    {
+        return $this->hasMany(BranchUser::class);
+    }
+
+    public function addNewRole(int $roleId, ?int $branchId = null)
+    {
+        $branchId ??= $this->current_branch_id;
+
+        DB::table('model_has_roles')
+            ->updateOrInsert([
+                'role_id' => $roleId,
+                'model_type' => self::class,
+                'model_id' => $this->id,
+                'branch_id' => $branchId,
+            ]);
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+    }
+
+    public function removeRole(int $roleId, ?int $branchId = null)
+    {
+        $branchId ??= $this->current_branch_id;
+
+        if ($branchId == $this->current_branch_id) {
+            return false;
+        }
+
+        DB::table('model_has_roles')
+            ->where('role_id', $roleId)
+            ->where('model_type', self::class)
+            ->where('model_id', $this->id)
+            ->where('branch_id', $branchId)
+            ->delete();
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]
+            ->forgetCachedPermissions();
+
+        return true;
+    }
+
+    public function syncBranchPermissions(array $permissionIds, ?int $branchId = null)
+    {
+        $branchId ??= $this->current_branch_id;
+
+        DB::table('model_has_permissions')
+            ->where('model_id', $this->id)
+            ->where('model_type', self::class)
+            ->where('branch_id', $branchId)
+            ->delete();
+
+        foreach ($permissionIds as $permissionId) {
+
+            DB::table('model_has_permissions')
+                ->insert([
+                    'permission_id' => $permissionId,
+                    'model_type' => self::class,
+                    'model_id' => $this->id,
+                    'branch_id' => $branchId,
+                ]);
+        }
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+    }
+
+    public function getBranchPermissionName(?int $branchId = null)
+    {
+        $branchId ??= $this->current_branch_id;
+
+        return DB::table('model_has_permissions')
+                    ->join(
+                        'permissions', 'permissions.id', '=', 'model_has_permissions.permission_id'
+                    )
+                    ->where('model_has_permissions.model_id', $this->id)
+                    ->where('model_has_permissions.model_type', self::class)
+                    ->where('model_has_permissions.branch_id', $branchId)
+                    ->pluck('permissions.name');
+
     }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LoanStatus;
+use App\Http\Requests\SavingsRequest;
 use App\Models\Attachment;
 use App\Models\Client;
 use App\Models\Loan;
@@ -49,7 +50,7 @@ class SavingsController extends Controller
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            if (!auth()->user()->hasRole('admin|superadmin')) {
+            if (!auth()->user()->hasRole('admin|super_admin')) {
                 $savings = Client::where('branch_id', auth()->user()->branch_id)
                     ->with('details','savings')
                     ->filter($search);
@@ -101,16 +102,9 @@ class SavingsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(SavingsRequest $request)
     {
 
-        $request->validate([
-            'amount' => 'required',
-            'attachment' => 'required_if:mode_of_change,authorized_person|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'transaction_code' => 'required_if:transaction_type,deposit'
-            // 'interest_year' => 'required_if:interest,!=,0',
-            // 'insurance_year' => 'required_if:insurance,!=,0'
-        ]);
         try {
 
             DB::beginTransaction();
@@ -139,6 +133,20 @@ class SavingsController extends Controller
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Select loan',
+                    ], 500);
+                }
+
+                // verify amount thru mode of payment
+                $sumAmount = Savings::where('client_id', $request->client_id)
+                                ->whereIn('transaction_code', explode(',', $request->transaction_code))
+                                ->where('mode_of_payment', $request->mode_of_payment)
+                                ->where('transaction_type', 'deposit')
+                                ->sum('amount');
+
+                if($sumAmount !== $request->amount) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Invalid amount.',
                     ], 500);
                 }
 
@@ -697,6 +705,17 @@ class SavingsController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function createTransaction(int $client_id)
+    {
+        $client = Client::findOrFail($client_id);
+        $loans = $client->getApproveLoans();
+
+        $balance = getClientBalance($client);
+
+
+        return view('savings.create-transaction', compact('client', 'loans'));
     }
 
 }
