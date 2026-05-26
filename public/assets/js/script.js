@@ -15,13 +15,14 @@
         05. Translate js
 
  --------------------------------------------------------------------------------- */
+$(document).ready(function() {
+  toggleMode();
+
+  getActiveSidebar(); //load active sidebar
+});
 
 (function ($) {
   "use strict";
-
-  $(document).ready(function() {
-    toggleMode();
-  });
 
   $(document).on("click", function (e) {
     var outside_space = $(".outside");
@@ -409,3 +410,33 @@ function toggleMode(toggled) {
     }
   }
 }
+
+function getActiveSidebar() {
+  // Ensure the URL is correctly formatted
+    let currentUrl = window.location.href;
+
+    let link = $(`.sidebar-submenu a[href="${currentUrl}"], .sidebar-link[href="${currentUrl}"]`);
+
+    if (link.length > 0) {
+      link.addClass("active");
+
+      let subContainer = link.closest(".sidebar-submenu");
+
+      if (subContainer.length > 0) {
+        subContainer.css("display", "block");
+
+        subContainer
+          .closest(".sidebar-list")
+          .find("> .sidebar-link")
+          .addClass("active");
+
+        subContainer
+          .closest(".sidebar-list")
+          .find("> .sidebar-link .according-menu i")
+          .removeClass("fa-angle-right")
+          .addClass("fa-angle-down");
+      }
+    }
+}
+
+
