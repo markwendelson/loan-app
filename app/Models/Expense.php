@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends Model
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     protected $fillable = [
         'branch_id',
         'category_id',
@@ -17,6 +21,7 @@ class Expense extends Model
         'created_by',
         'created_at',
         'updated_at',
+        'deleted_at'
     ];
 
     public function expenseItems()

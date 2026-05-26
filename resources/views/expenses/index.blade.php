@@ -86,6 +86,15 @@
                         </div>
 
                         <div>
+                            <select class="form-select" name="payment_method">
+                                <option value="">-- All Payment Method --</option>
+                                @foreach(config('constants.payment_methods') as $key => $val)
+                                    <option value="{{ $key }}" {{ isset($filterData['payment_method']) && $filterData['payment_method'] == $key ? 'selected' : ''; }}>{{ $val }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
                             @if($user->hasRole(['admin', 'super_admin']) && $usersData->isNotEmpty())
                             <select class="form-control" name="author">
                                 <option value="">-- All Author --</option>
@@ -117,7 +126,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if(isset($expenses) && $expenses)
+                            @if(isset($expenses) && $expenses->isNotEmpty())
                                 @foreach($expenses as $key => $val)
                                     <tr data-id="{{ $val->id }}">
                                         <td>{{ $val->expense_date }}</td>
@@ -138,7 +147,7 @@
                                                     <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-edit txt-primary"></i> Edit</a></li>
                                                     @endcan
                                                     @can('delete-expense')
-                                                    {{-- <li><a class="dropdown-item" href="#"><i class="fa fa-trash txt-danger"></i> Delete</a></li> --}}
+                                                    <li><a class="dropdown-item btnDelete" href="#"><i class="fa fa-trash txt-danger"></i> Delete</a></li>
                                                     @endcan
                                                 </ul>
                                             </div>
@@ -357,8 +366,23 @@
                                     location.reload();
                                 }
                             });
+                        }else{
+                            swal({
+                                title: 'Error',
+                                text: response.message,
+                                icon: 'warning',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                                dangerMode: true,
+                            });
                         }
-                        console.log(response);  
                     },
                     error: function(xhr, status, error) {
                         swal({
@@ -470,31 +494,99 @@
         $("#expenseTable tbody").on("click", "tr .btnViewExpense", function(e) {
             e.preventDefault();
 
-            //show loading form
-            $(".loader-wrapper").fadeIn("slow");
+            swal({
+                title: 'Error',
+                text: response.message,
+                icon: 'warning',
+                confirmButton: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+                    //show loading form
+                    $(".loader-wrapper").fadeIn("slow");
 
-            $.ajax({
-                type: "GET",
-                url: "{{ route('expense.view-expense-data') }}",
-                data: {
-                    expense_id : $(this).closest("tr").data("id")
-                },
-                dataType: "json",
-                success: function (response) {
-                    //hide loading form
-                    $(".loader-wrapper").fadeOut("slow", function () {
-                        $(this).hide();
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('expense.view-expense-data') }}",
+                        data: {
+                            expense_id : $(this).closest("tr").data("id")
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            //hide loading form
+                            $(".loader-wrapper").fadeOut("slow", function () {
+                                $(this).hide();
+                            });
+
+                            if(typeof response.status  !== 'undefined' && response.status == 'success') {
+                                $("#expenseEditModal .modal-dialog").html(response.html);
+
+                                initializeViewerZoom();
+                                $("#expenseEditModal").modal("show");
+                            }
+                        }
                     });
-
-                    if(typeof response.status  !== 'undefined' && response.status == 'success') {
-                        $("#expenseEditModal .modal-dialog").html(response.html);
-
-                        initializeViewerZoom();
-                        $("#expenseEditModal").modal("show");
-                    }
                 }
             });
-        })
+        });
+
+        //handle delete expense button click function
+        $("#expenseTable tbody").on("click", "tr .btnDelete", function(e) {
+            e.preventDefault(); 
+
+            swal({
+                title: 'Delete Expense?',
+                text: 'Are you sure you want to delete this expense?',
+                icon: 'warning',
+                buttons: {
+                    confirm: {
+                        text: 'Yes, Delete',
+                        visible: true,
+                        closeModal: true
+                    },
+                    cancel: {
+                        text: 'Cancel',
+                        visible: true,
+                        closeModal: true
+                    },
+                },
+                dangerMode: true,
+            }).then((willDelete) => {
+                if (willDelete) {
+
+                    $(".loader-wrapper").fadeIn("slow");
+
+                    $.ajax({
+                        type: "DELETE",
+                        url: "{{ route('expense.delete') }}",
+                        data: {
+                            expense_id : $(this).closest("tr").data("id")
+                        },
+                        dataType: "json",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+
+                            $(".loader-wrapper").fadeOut("slow", function () {
+                                $(this).hide();
+                            });
+
+                            if (typeof response.status !== 'undefined' && response.status === 'success') {
+                                swal({
+                                    title: 'Deleted!',
+                                    text: 'Expense has been deleted successfully.',
+                                    icon: 'success',
+                                    button: 'OK'
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
 
         function initializeDropzone(target) {
             Dropzone.autoDiscover = false;

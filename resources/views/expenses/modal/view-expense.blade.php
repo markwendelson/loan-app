@@ -65,7 +65,12 @@
                     @if(isset($items) && $items)
                         @foreach($items as $key => $val)
                             <tr>
-                                <td>{{ $val['vendor_name'] }}</td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span><strong>Name:</strong> {{ $val['vendor_name'] }}</span>
+                                        <span><strong>TIN:</strong> {{ $val['vendor_tin'] }}</span>
+                                    </div>
+                                </td>
                                 <td>{{ $val['description'] }}</td>
                                 <td>{{ $val['ref_no'] }}</td>
                                 <td class="text-end">{{ number_format($val['amount'], 2) }}</td>
@@ -91,14 +96,14 @@
         <div class="attachments-container mt-3">
             <span class="fw-semibold">Attachments:</span>
             <div class="d-flex justify-content-start flex-wrap gap-2">
-                @if(isset($attachments) && $attachments)
-                    @foreach($attachments as $key => $val)
+                @if(isset($expenseAttachments) && $expenseAttachments)
+                    @foreach($expenseAttachments as $key => $val)
                         <a href="#" class="position-relative">
                             <div class="attachment-image border rounded">
                                 <img class="rounded " 
                                     height="100" 
                                     width="100" 
-                                    src="{{ Storage::url('expenses/attachments/' . $expenseData['slug'] . '/' . $val['name']) }}"
+                                    src="{{ Storage::disk('public')->exists($val['file_path']) ?  Storage::url($val['file_path']) : url('assets/images/avtar/3.jpg') }}"
                                     loading="lazy"
                                 >
                             </div>

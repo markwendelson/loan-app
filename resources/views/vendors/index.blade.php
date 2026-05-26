@@ -2,6 +2,14 @@
 
 @section('title') Vendors @endsection
 
+@push('css')
+    <style>
+        .dropdown-menu .dropdown-item {
+            opacity: 0.95 !important;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <div class="page-title">

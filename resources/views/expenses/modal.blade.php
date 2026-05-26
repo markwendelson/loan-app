@@ -52,12 +52,12 @@
                                 <select class="form-select"
                                     name="branch_id"
                                     required
-                                    {{ isset($user->branch_id) && $user->branch_id ? 'disabled' : ''; }}
+                                    {{ isset($user->current_branch_id) && $user->current_branch_id ? 'disabled' : ''; }}
                                 >
                                     <option value="" selected hidden disabled>-- Branch --</option>
                                     @if(isset($branches) && $branches)
                                         @foreach($branches as $key => $val)
-                                            <option value="{{ $val->id }}" {{ isset($user->branch_id) && $user->branch_id == $val->id ? 'selected' : '';  }}>{{ $val->name }}</option>
+                                            <option value="{{ $val->id }}" {{ isset($user->current_branch_id) && $user->current_branch_id == $val->id ? 'selected' : '';  }}>{{ $val->name }}</option>
                                         @endforeach
                                     @endif
                                 </select>

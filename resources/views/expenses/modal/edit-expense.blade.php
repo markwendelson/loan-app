@@ -1,7 +1,6 @@
 @php
     // dump($expenseData);
     $items = $expenseData['expense_items'] ?? '';
-    $attachments = $expenseData['expense_attachments'] ?? [];
 @endphp
 
 <div class="modal-content">
@@ -66,12 +65,12 @@
                         <select class="form-select"
                             name="branch_id"
                             required
-                            {{ isset($user->branch_id) && $user->branch_id ? 'disabled' : ''; }}
+                            {{ isset($user->current_branch_id) && $user->current_branch_id ? 'disabled' : ''; }}
                         >
                             <option value="" selected hidden disabled>-- Branch --</option>
                             @if(isset($branches) && $branches)
                                 @foreach($branches as $key => $val)
-                                    <option value="{{ $val->id }}" {{ isset($user->branch_id) && $user->branch_id == $val->id ? 'selected' : '';  }}>{{ $val->name }}</option>
+                                    <option value="{{ $val->id }}" {{ isset($user->current_branch_id) && $user->current_branch_id == $val->id ? 'selected' : '';  }}>{{ $val->name }}</option>
                                 @endforeach
                             @endif
                         </select>
@@ -182,14 +181,14 @@
             <!-- total -->
             <div class="row justify-content-end">
                 <div class="col-lg-9 d-flex justify-content-start flex-wrap gap-2 image-container">
-                    @if(isset($attachments) && $attachments)
-                        @foreach($attachments as $key => $val)
+                    @if(isset($expenseAttachments) && $expenseAttachments)
+                        @foreach($expenseAttachments as $key => $val)
                             <a href="#" class="position-relative">
                                 <div class="attachment-image border">
                                     <img class="rounded " 
                                         height="100" 
                                         width="100" 
-                                        src="{{ Storage::url('expenses/attachments/' . $expenseData['slug'] . '/' . $val['name']) }}"
+                                        src="{{ Storage::disk('public')->exists($val['file_path']) ?  Storage::url($val['file_path']) : url('assets/images/avtar/3.jpg') }}"
                                         loading="lazy"
                                     >
                                     <button type="button" class="btn btn-danger btn-xs position-absolute btnRemoveAttachments" data-id="{{ $val['id'] }}" style="top: -5px; right: -5px;"><i class="fa fa-times"></i></button>
@@ -199,7 +198,7 @@
                     @endif
                 </div>
                 <div class="col-lg-3">
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between">    
                         <span class="fw-semibold">Total</span>
                         <span class="fw-semibold total-amount">{{ number_format($expenseData['amount'] ?? 0, 2) }}</span>
                     </div>

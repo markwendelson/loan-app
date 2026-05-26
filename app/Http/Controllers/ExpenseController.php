@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 //models
+use App\Models\Attachment;
 use App\Models\Branch;
 use App\Models\Expense;
-use App\Models\ExpenseAttachments;
 use App\Models\ExpenseCategory;
 use App\Models\ExpenseItems;
 use App\Models\ExpenseReport;
@@ -40,6 +40,7 @@ class ExpenseController extends Controller
             ->leftJoin('branch', 'branch.id' , '=', 'expenses.branch_id')
             ->leftJoin('users', 'users.id', '=', 'expenses.created_by')
             ->orderBy('expenses.expense_date', 'DESC');
+
         //branch_id
         if(isset($request->branch_id) && $request->branch_id){
             $query->where('expenses.branch_id', $request->branch_id);
@@ -48,6 +49,11 @@ class ExpenseController extends Controller
         //author
         if(isset($request->author) && $request->author) {
             $query->where('expenses.created_by', $request->author);
+        }
+
+        //payment method
+        if(isset($request->payment_method) && $request->payment_method) {
+            $query->where('expenses.payment_method', $request->payment_method);
         }
 
         $expenses = $query->paginate(10)->appends($request->all());
@@ -78,74 +84,105 @@ class ExpenseController extends Controller
 
     public function store(Request $request)
     {
-        $slug = 'EXP' . date('YmdHis');
+        $response = [];
 
-        $insertData = [
-            'branch_id' => $request->branch_id,
-            'payment_method' => $request->payment_method,
-            'description' => $request->notes,
-            'amount' => $request->total_amount,
-            'expense_date' => $request->expense_date,
-            'slug' => $slug,
-            'created_by' => auth()->id()
-        ];
+        //check user role if allowed to add new record
+        if(!auth()->user()->can('create-expense')) {
+            $response = [
+                'status' => 'success',
+                'message' => 'You do not have permission to create a new expense.'
+            ];
 
-        $result = Expense::create($insertData);
-
-        if(isset($result) && $result) {
-            //insert expense items
-            if(isset($request->vendor_id) && $request->vendor_id) {
-                $expenseItems = [];
-
-                foreach($request->vendor_id as $key => $val) {
-                    $expenseItems[] = [
-                        'expense_id' => $result->id,
-                        'vendor_id' => $request->vendor_id[$key],
-                        'description' => $request->description[$key],
-                        'ref_no' => $request->ref_no[$key],
-                        'amount' => $request->sub_amount[$key],
-                    ];
-                }
-
-                //insert to expense_items
-                ExpenseItems::insert($expenseItems);
-            }
-
-            //get uploaded attachments
-            if($request->hasFile('attachments')){
-                $attachments = $request->file('attachments');
-                $folderPath = 'expenses/attachments/' . $slug;
-
-                $directories = Storage::disk('public')->allDirectories();
-                if(!in_array($folderPath, $directories)){
-                    //make directory if not yet existing
-                    Storage::disk('public')->makeDirectory($folderPath);
-                }
-
-                $expenseAttachments = [];
-                foreach ($attachments as $val) {
-                    if ($val->isValid()) {
-                        //generate file name
-                        $tempFileName = Str::random(40) . '.' . $val->getClientOriginalExtension();
-                        
-                        $val->storeAs($folderPath, $tempFileName, 'public');
-
-                        $expenseAttachments[] = [
-                            'expense_id' => $result->id,
-                            'name' => $tempFileName
-                        ];
-                    }
-                }
-
-                //bulk insert attachments
-                ExpenseAttachments::insert($expenseAttachments);
-            }
+            return response()->json($response);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully added new expense'
-        ]);
+        try {
+            DB::beginTransaction();
+
+            $slug = 'EXP' . date('YmdHis');
+
+            $insertData = [
+                'branch_id' => $request->branch_id,
+                'category_id' => $request->category_id,
+                'payment_method' => $request->payment_method,
+                'description' => $request->notes,
+                'amount' => $request->total_amount,
+                'expense_date' => $request->expense_date,
+                'slug' => $slug,
+                'created_by' => auth()->id()
+            ];
+
+            $expenseId = DB::table('expenses')->insertGetId($insertData);
+
+            if(isset($expenseId) && $expenseId) {
+                //insert expense items
+                if(isset($request->vendor_id) && $request->vendor_id) {
+                    $expenseItems = [];
+
+                    foreach($request->vendor_id as $key => $val) {
+                        $expenseItems[] = [
+                            'expense_id' => $expenseId,
+                            'vendor_id' => $request->vendor_id[$key],
+                            'description' => $request->description[$key],
+                            'ref_no' => $request->ref_no[$key],
+                            'amount' => $request->sub_amount[$key],
+                        ];
+                    }
+
+                    //insert to expense_items
+                    DB::table('expense_items')->insert($expenseItems);
+                }
+                
+                //get uploaded attachments
+                if($request->hasFile('attachments')){
+                    $attachments = $request->file('attachments');
+                    $folderPath = 'attachments/expenses/' . $slug;
+
+                    $directories = Storage::disk('public')->allDirectories();
+                    if(!in_array($folderPath, $directories)){
+                        //make directory if not yet existing
+                        Storage::disk('public')->makeDirectory($folderPath);
+                    }
+
+                    $expenseAttachments = [];
+                    foreach ($attachments as $val) {
+                        if ($val->isValid()) {
+                            //generate file name
+                            $tempFileName = Str::random(40);
+                            $fileExtension = $val->getClientOriginalExtension();
+                            
+                            $val->storeAs($folderPath, $tempFileName . '.' . $fileExtension, 'public');
+
+                            $expenseAttachments[] = [
+                                'file_reference' => 'expenses',
+                                'transaction_no' => $slug,
+                                'file_name' => $tempFileName . '.'. $fileExtension,
+                                'file_path' => $folderPath . '/' . $tempFileName . '.' . $fileExtension,
+                            ];
+                        }
+                    }
+
+                    //bulk insert attachments
+                    DB::table('attachments')->insert($expenseAttachments);
+                }
+            }
+            DB::commit();
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Expense has been successfully created.'
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            $repsonse = [
+                'status' => 'error',
+                'message' => 'There was an error while processing your request. Please try again later.'
+            ];
+        }
+
+        return response()->json($response);
     }
 
     public function expenseEditModal(Request $request)
@@ -155,10 +192,16 @@ class ExpenseController extends Controller
 
         $user = auth()->user();
 
-        $expenseData = Expense::with('expenseItems', 'expenseAttachments')
+        $expenseData = Expense::with('expenseItems')
             ->where('id', $inputData['expense_id'])
             ->first()
             ->toArray();
+
+        $expenseAttachments = [];
+        if(isset($expenseData) && $expenseData) {
+            //get expense attachments from attachments table
+            $expenseAttachments = Attachment::where('transaction_no', $expenseData['slug'])->get()->toArray();
+        }
 
         $branches = Branch::where('status', 1)
             ->orderBy('branch.name', 'ASC')
@@ -170,6 +213,7 @@ class ExpenseController extends Controller
         $viewHtml = view('expenses.modal.edit-expense', compact(
             'user',
             'expenseData',
+            'expenseAttachments',
             'categories',
             'branches',
             'vendorsData',
@@ -192,122 +236,159 @@ class ExpenseController extends Controller
 
     public function updateExpenses(Request $request)
     {
-        $inputData = $request->all(); //get all input data
         $response = []; //response holder
 
-        // dd($inputData);
-
-        if(isset($inputData) && empty($inputData)) {
+        //check user if allowed to update
+        if(!auth()->user()->can('update-expense')) {
             $response = [
                 'status' => 'error',
-                'message' => 'No data provided for update.'
+                'message' => 'You are not allowed to update expense.'
             ];
-
             return response()->json($response);
         }
 
-        $updateData = [
-            'branch_id' => $request->branch_id,
-            'payment_method' => $request->payment_method,
-            'description' => $request->notes,
-            'amount' => $request->total_amount,
-            'expense_date' => $request->expense_date,
-            'updated_at' => now()
-        ];
-        //update expense data
-        $result = Expense::find($inputData['expense_id'])
-            ->update($updateData);
+        try {
+            DB::beginTransaction();
 
-        if($result) {
-            //remove items / attachments that are specifically removed by user
-            if(isset($inputData['deleted_items']) && $inputData['deleted_items']) {
-                $deletedItems = explode(',', $inputData['deleted_items']);
-                ExpenseItems::whereIn('id', $deletedItems)->delete();
-            }
+            $inputData = $request->all(); //get all input data
 
-            if(isset($inputData['deleted_attachments']) && $inputData['deleted_attachments']) {
-                $deletedAttachmentsIds = explode(',', $inputData['deleted_attachments']);
+            $updateData = [
+                'branch_id' => $request->branch_id,
+                'category_id' => $request->category_id,
+                'payment_method' => $request->payment_method,
+                'description' => $request->notes,
+                'amount' => $request->total_amount,
+                'expense_date' => $request->expense_date,
+                'updated_at' => now()
+            ];
 
-                //get first data from database to get the folder path of the attachments
-                $forRemoveAttachments = ExpenseAttachments::whereIn('id', $deletedAttachmentsIds)->get();
-                if($forRemoveAttachments->isNotEmpty()) {
-                    foreach($forRemoveAttachments as $key => $val) {
-                        $filePath = 'expenses/attachments/' . $inputData['slug'] . '/' . $val->name;
-                        if(Storage::disk('public')->exists($filePath)) {
-                            Storage::disk('public')->delete($filePath);
+            //update expenses
+            $result = DB::table('expenses')->where('id', $inputData['expense_id'])->update($updateData);
+
+            if($result) {
+                //remove items / attachments that are specifically removed by user
+                if(isset($inputData['deleted_items']) && $inputData['deleted_items']) {
+                    $deletedItems = explode(',', $inputData['deleted_items']);
+                    DB::table('expense_items')->whereIn('id', $deletedItems)->delete();
+                }
+
+
+                if(isset($inputData['deleted_attachments']) && $inputData['deleted_attachments']) {
+                    $deletedAttachmentsIds = explode(',', $inputData['deleted_attachments']);
+
+                    // Ensure deletedAttachmentsIds is an array
+                    if (!is_array($deletedAttachmentsIds)) {
+                        $deletedAttachmentsIds = array_filter(explode(',', $inputData['deleted_attachments']));
+                    }
+
+                    //get first data from database to get the folder path of the attachments
+                    $forRemoveAttachments = DB::table('attachments')->whereIn('id', $deletedAttachmentsIds)->get();
+                    if($forRemoveAttachments->isNotEmpty()) {
+                        foreach($forRemoveAttachments as $key => $val) {
+                            $filePath = $val->file_path;
+                            try {
+                                if(Storage::disk('public')->exists($filePath)) {
+                                    Storage::disk('public')->delete($filePath);
+                                }
+
+                                DB::table('attachments')->where('id', $val->id)->delete();
+                            } catch (\Exception $e) {
+                                // Log the error or handle it as needed
+                                Log::error("Failed to delete attachment: {$e->getMessage()}");
+                            }
                         }
                     }
                 }
 
-                ExpenseAttachments::whereIn('id', $deletedAttachmentsIds)->delete();
-            }
-
-            //update old items
-            if(isset($inputData['old_vendor_id']) && $inputData['old_vendor_id']) {
-                foreach($inputData['old_vendor_id'] as $key => $val) {
-                    $itemId = $inputData['old_expense_item_id'][$key];
-                    $updateItemData = [
-                        'vendor_id' => $inputData['old_vendor_id'][$key],
-                        'description' => $inputData['old_description'][$key],
-                        'ref_no' => $inputData['old_ref_no'][$key],
-                        'amount' => $inputData['old_sub_amount'][$key],
-                        'updated_at' => now()
-                    ];
-
-                    ExpenseItems::where('id', $itemId)->update($updateItemData);
-                }
-            }
-
-            if(isset($inputData['vendor_id']) && $inputData['vendor_id']) {
-                $expenseItems = [];
-
-                foreach($inputData['vendor_id'] as $key => $val) {
-                    $expenseItems[] = [
-                        'expense_id' => $inputData['expense_id'],
-                        'vendor_id' => $inputData['vendor_id'][$key],
-                        'description' => $inputData['description'][$key],
-                        'ref_no' => $inputData['ref_no'][$key],
-                        'amount' => $inputData['sub_amount'][$key],
-                    ];
-                }
-
-                //insert to expense_items
-                ExpenseItems::insert($expenseItems);
-            }
-
-            //get uploaded attachments
-            if($inputData['attachments']){
-                $attachments = $inputData['attachments'];
-                $folderPath = 'expenses/attachments/' . $inputData['slug'];
-
-                $directories = Storage::disk('public')->allDirectories();
-                if(!in_array($folderPath, $directories)){
-                    //make directory if not yet existing
-                    Storage::disk('public')->makeDirectory($folderPath);
-                }
-
-                $expenseAttachments = [];
-                foreach ($attachments as $val) {
-                    if ($val->isValid()) {
-                        //generate file name
-                        $tempFileName = Str::random(40) . '.' . $val->getClientOriginalExtension();
-                        
-                        $val->storeAs($folderPath, $tempFileName, 'public');
-
-                        $expenseAttachments[] = [
-                            'expense_id' => $inputData['expense_id'],
-                            'name' => $tempFileName
+                //update old items
+                if (isset($inputData['old_vendor_id']) && $inputData['old_vendor_id']) {
+                    foreach ($inputData['old_vendor_id'] as $key => $val) {
+                        $itemId = $inputData['old_expense_item_id'][$key];
+                        $updateItemData = [
+                            'vendor_id' => $inputData['old_vendor_id'][$key],
+                            'description' => $inputData['old_description'][$key],
+                            'ref_no' => $inputData['old_ref_no'][$key],
+                            'amount' => $inputData['old_sub_amount'][$key],
+                            'updated_at' => now()
                         ];
+
+                        try {
+                            DB::table('expense_items')->where('id', $itemId)->update($updateItemData);
+                        } catch (\Exception $e) {
+                            // Log the error or handle it as needed
+                            Log::error("Failed to update expense item with ID {$itemId}: {$e->getMessage()}");
+                        }
                     }
                 }
 
-                //bulk insert attachments
-                ExpenseAttachments::insert($expenseAttachments);
+                //insert new items if any
+                if(isset($inputData['vendor_id']) && $inputData['vendor_id']) {
+                    $expenseItems = [];
+
+                    foreach($inputData['vendor_id'] as $key => $val) {
+                        $expenseItems[] = [
+                            'expense_id' => $inputData['expense_id'],
+                            'vendor_id' => $inputData['vendor_id'][$key],
+                            'description' => $inputData['description'][$key],
+                            'ref_no' => $inputData['ref_no'][$key],
+                            'amount' => $inputData['sub_amount'][$key],
+                        ];
+                    }
+
+                    //insert to expense_items
+                    DB::table('expense_items')->insert($expenseItems);
+                }
+
+                //get uploaded attachments
+                if(isset($inputData['attachments']) && $inputData['attachments']){
+
+                    $attachments = $inputData['attachments'];
+                    $folderPath = 'attachments/expenses/' . $inputData['slug'];
+                    $directories = Storage::disk('public')->allDirectories();
+
+                    if(!in_array($folderPath, $directories)){
+                        //make directory if not yet existing
+                        Storage::disk('public')->makeDirectory($folderPath);
+                    }
+
+                    $expenseAttachments = [];
+                    foreach ($attachments as $val) {
+                        if ($val->isValid()) {
+                            //generate file name
+                            $tempFileName = Str::random(40);
+                            $fileExtension = $val->getClientOriginalExtension();
+                            
+                            $val->storeAs($folderPath, $tempFileName . '.' . $fileExtension , 'public');
+
+                            $expenseAttachments[] = [
+                                'file_reference' => 'expenses',
+                                'transaction_no' => $inputData['slug'],
+                                'file_name' => $tempFileName . '.'. $fileExtension,
+                                'file_path' => $folderPath . '/' . $tempFileName . '.' . $fileExtension,
+                            ];
+                        }
+                    }
+
+                    //bulk insert attachments
+                    DB::table('attachments')->insert($expenseAttachments);
+                }
+                
             }
+
+            DB::commit();
 
             $response = [
                 'status' => 'success',
                 'message' => 'Expense updated successfully.'
+            ];
+
+        } catch (\Exception $e) {
+            //handle exception here
+            DB::rollback();
+
+            $response = [
+                'status' => 'error',
+                'message' => 'Failed to update expenses. Please try again later.'
             ];
         }
 
@@ -333,9 +414,16 @@ class ExpenseController extends Controller
             ->where('expenses.id', $inputData['expense_id'])
             ->first()
             ->toArray();
+
+        $expenseAttachments = [];
+        if(isset($expenseData) && $expenseData) {
+            //get expense attachments from attachments table
+            $expenseAttachments = Attachment::where('transaction_no', $expenseData['slug'])->get()->toArray();
+        }
         
         $viewHtml = view('expenses.modal.view-expense', compact(
-            'expenseData'
+            'expenseData',
+            'expenseAttachments'
         ))->render();
 
         if(!empty($viewHtml) && $expenseData) {
@@ -348,6 +436,45 @@ class ExpenseController extends Controller
                 'status' => 'error',
                 'message' => 'Error loading expense data.'
             ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function deleteExpense(Request $request) 
+    {
+        //response
+        $response = [];
+
+        if(!auth()->user()->can('delete-expense')) {
+            $response = [
+                'status' => 'error',
+                'message' => 'You do not have permission to delete this expense.'
+            ];
+
+            return response()->json($response);
+        }
+
+        if($request->has('expense_id')) {
+            try {
+
+                DB::beginTransaction();
+                Expense::where('id', $request->expense_id)->delete();
+                DB::commit();
+
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Expense deleted successfully.'
+                ];
+            } catch (\Exception $e) {
+                DB::rollback();
+                Log::error("Failed to delete expense: {$e->getMessage()}");
+
+                $response = [
+                    'status' => 'error',
+                    'message' => 'Error deleting expense.'
+                ];
+            }
         }
 
         return response()->json($response);

@@ -169,6 +169,7 @@ Route::middleware('auth')->group(function () {
             Route::post('create', 'generateExpenseReport')->name('expense.create-report');
             Route::get('edit-modal', 'expenseEditModal')->name('expense.edit-modal');
             Route::post('update', 'updateExpenses')->name('expense.update');
+            Route::delete('delete', 'deleteExpense')->name('expense.delete');
             Route::get('view-expense-data', 'viewExpenseData')->name('expense.view-expense-data');
             Route::get('report/download-pdf/{slug}', 'downloadPdf')->name('expense-category.download-pdf');
         });
