@@ -49688,7 +49688,13 @@ html[dir=rtl] body.dark-only .page-wrapper .page-body-wrapper .page-body .card:n
     width: 67%;
   }
 }
+body.dark-only .form-control {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
 
+body.dark-only textarea {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
 /**=====================
   5.9 Box-layout CSS Ends
 ==========================**/
