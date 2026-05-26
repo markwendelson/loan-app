@@ -40,7 +40,7 @@ class ClientController extends Controller
 
             // $clients = Client::whereHas('coMakers')->with('details')->get();
             if (!auth()->user()->hasRole('admin|super_admin')) {
-                $clients = Client::where('branch_id', auth()->user()->branch_id)
+                $clients = Client::currentBranch()
                     ->filter($search)
                     ->with('details');
             } else {
