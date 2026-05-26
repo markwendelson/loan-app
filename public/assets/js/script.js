@@ -18,6 +18,11 @@
 
 (function ($) {
   "use strict";
+
+  $(document).ready(function() {
+    toggleMode();
+  });
+
   $(document).on("click", function (e) {
     var outside_space = $(".outside");
     if (
@@ -140,30 +145,10 @@
       $("body").removeClass("offcanvas");
     }
   });
-  $(".mode").on("click", function () {
-    const bodyModeDark = $("body").hasClass("dark-only");
 
-    if (!bodyModeDark) {
-      $(".mode").addClass("active");
-      localStorage.setItem("mode", "dark-only");
-      $("body").addClass("dark-only");
-      $("body").removeClass("light");
-    }
-    if (bodyModeDark) {
-      $(".mode").removeClass("active");
-      localStorage.setItem("mode", "light");
-      $("body").removeClass("dark-only");
-      $("body").addClass("light");
-    }
+  $(document).on("click", ".mode", function () {
+    toggleMode(true, this);
   }); 
-  // $("body").addClass(
-  //   localStorage.getItem("mode")
-  //     ? localStorage.getItem("mode")
-  //     : "light"
-  // ); 
-  $(".mode").addClass(
-    localStorage.getItem("mode") === "dark-only" ? "active" : " "
-  );
 
   // sidebar filter
   $(".md-sidebar .md-sidebar-toggle ").on("click", function (e) {
@@ -385,3 +370,42 @@
   // ================ show and hide input css end 
 
 })(jQuery);
+
+function toggleMode(toggled) {
+  const bodyModeDark = $("body").hasClass("dark-only");
+
+  if (toggled) {
+    if (!bodyModeDark) {
+      $(".mode").addClass("active");
+      localStorage.setItem("mode", "dark-only");
+      $("body").addClass("dark-only");
+      $("body").removeClass("light");
+      $(".mode").html("<i class='moon' data-feather='sun'></i>");
+      feather.replace(); // Re-render Feather Icons
+    }
+    if (bodyModeDark) {
+      $(".mode").removeClass("active");
+      localStorage.setItem("mode", "light");
+      $("body").removeClass("dark-only");
+      $("body").addClass("light");
+      $(".mode").html("<i class='moon' data-feather='moon'></i>");
+      feather.replace(); // Re-render Feather Icons
+    }
+  } else {
+    // Load only
+    const savedMode = localStorage.getItem("mode");
+    if (savedMode === "dark-only") {
+      $(".mode").addClass("active");
+      $("body").addClass("dark-only");
+      $("body").removeClass("light");
+      $(".mode").html("<i class='moon' data-feather='sun'></i>");
+      feather.replace(); // Re-render Feather Icons
+    } else {
+      $(".mode").removeClass("active");
+      $("body").addClass("light");
+      $("body").removeClass("dark-only");
+      $(".mode").html("<i class='moon' data-feather='moon'></i>");
+      feather.replace(); // Re-render Feather Icons
+    }
+  }
+}

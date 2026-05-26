@@ -56,7 +56,7 @@
                     </div>
                 </li>
                 <li>
-                    <div class="mode"><i class="moon" data-feather="moon"> </i></div>
+                    <div class="mode" data-test="harhar"><i class="moon" data-feather="moon"> </i></div>
                 </li>
                 <li class="onhover-dropdown notification-down">
                     <div class="notification-box">
