@@ -96,7 +96,7 @@
 
                         <div>
                             @if($user->hasRole(['admin', 'super_admin']) && $usersData->isNotEmpty())
-                            <select class="form-control" name="author">
+                            <select class="form-select" name="author">
                                 <option value="">-- All Author --</option>
                                 @foreach($usersData as $key => $val)
                                     <option value="{{ $val->id }}" {{ isset($filterData['author']) && $filterData['author'] == $val->id ? 'selected' : ''; }}>{{ $val->name }}</option>
