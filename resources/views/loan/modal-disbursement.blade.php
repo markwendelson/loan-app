@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-sm   ">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addModalLabel">Disbursement Information</h5>
+                <h5 class="modal-title" id="addModalLabel">Disbursement Details</h5>
             </div>
 
             <div class="modal-body">
@@ -11,7 +11,7 @@
                     @csrf
                     <input type="hidden" value="" name="id" id="id">
                     <div class="col-12">
-                       <label for="disbursed_date">Disbursement Date</label>
+                        <label for="disbursed_date">Disbursement Date</label>
                         <input type="date" class="form-control" name="disbursed_date" id="disbursed_date" value="{{ date('Y-m-d') }}"/>
                     </div>
 
@@ -20,8 +20,8 @@
                         <input type="text" class="form-control form-control-sm" name="amount" placeholder="0.00" readonly/>
                     </div>
 
-                     <div class="col-12">
-                       <label for="mode_of_payment">Mode of Payment</label>
+                    <div class="col-12">
+                        <label for="mode_of_payment">Mode of Payment</label>
                             @php
                                 $modes = config('settings.mode_of_payment');
                             @endphp

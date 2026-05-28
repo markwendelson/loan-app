@@ -15,19 +15,19 @@
                     <table class="border-0">
                         <tbody>
                             <tr>
-                                <td width="120" class="bg-light-subtle text-dark fw-semibold">Date</td>
+                                <td width="120" class="fw-semibold">Date</td>
                                 <td>{{ date('M d, Y', strtotime($expenseData['expense_date'])) }}</td>
                             </tr>
                             <tr>
-                                <td width="120" class="bg-light-subtle text-dark fw-semibold">Branch</td>
+                                <td width="120" class="fw-semibold">Branch</td>
                                 <td>{{ $expenseData['branch_name'] }}</td>
                             </tr>
                             <tr>
-                                <td width="120" class="bg-light-subtle text-dark fw-semibold">Type</td>
+                                <td width="120" class="fw-semibold">Type</td>
                                 <td>{{ $expenseData['category_name'] }}</td>
                             </tr>
                             <tr>
-                                <td width="120" class="bg-light-subtle text-dark fw-semibold">Total Expense</td>
+                                <td width="120" class="fw-semibold">Total Expense</td>
                                 <td>{{ number_format($expenseData['amount'], 2) }}</td>
                             </tr>
                         </tbody>
@@ -37,11 +37,11 @@
                     <table>
                         <tbody>
                             <tr>
-                                <td width="150" class="bg-light-subtle text-dark fw-semibold">Date Processed</td>
+                                <td width="150" class="fw-semibold">Date Processed</td>
                                 <td>{{ date('M-d-Y', strtotime($expenseData['created_at'])) }}</td>
                             </tr>
                             <tr>
-                                <td width="150" class="bg-light-subtle text-dark fw-semibold">Processed By</td>
+                                <td width="150" class="fw-semibold">Processed By</td>
                                 <td>{{ $expenseData['user_name'] ?? ''; }}</td>
                             </tr>
                         </tbody>
@@ -79,7 +79,7 @@
                     @endif
                 </tbody>
                 <tfoot>
-                    <tr class="bg-light-subtle">
+                    <tr>
                         <td colspan="2"></td>
                         <td colspan="2">
                             <div class="d-flex justify-content-between align-items-center">

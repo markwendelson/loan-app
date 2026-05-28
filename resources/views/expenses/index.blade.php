@@ -494,14 +494,14 @@
         $("#expenseTable tbody").on("click", "tr .btnViewExpense", function(e) {
             e.preventDefault();
 
-            swal({
-                title: 'Error',
-                text: response.message,
-                icon: 'warning',
-                confirmButton: true,
-                dangerMode: true,
-            }).then((willDelete) => {
-                if (willDelete) {
+            // swal({
+            //     title: 'Error',
+            //     text: '',
+            //     icon: 'warning',
+            //     confirmButton: true,
+            //     dangerMode: true,
+            // }).then((willDelete) => {
+                // if (willDelete) {
                     //show loading form
                     $(".loader-wrapper").fadeIn("slow");
 
@@ -526,8 +526,8 @@
                             }
                         }
                     });
-                }
-            });
+                // }
+            // });
         });
 
         //handle delete expense button click function

@@ -82,6 +82,11 @@ class Loan extends Model implements Auditable
         return $this->hasOne(LoanFee::class);
     }
 
+    public function loanDisbursementDetails()
+    {
+        return $this->hasMany(LoanDisbursementDetails::class);
+    }
+
     public function scopeFilter($query, $search)
     {
         if (!empty($search)) {

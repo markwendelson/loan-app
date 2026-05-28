@@ -12,6 +12,7 @@ use App\Models\DocumentType;
 use App\Models\InsuranceFeeSchedule;
 use App\Models\Loan;
 use App\Models\LoanCharge;
+use App\Models\LoanDisbursementDetails;
 use App\Models\LoanFee;
 use App\Models\LoanProduct;
 use App\Models\LoanType;
@@ -525,7 +526,7 @@ class LoanController extends Controller
         if ($request->ajax()) {
             $search = $request->search['value'];
 
-            $loans = Loan::approved()->with('loanProduct', 'loanProduct.loanType', 'borrower.details', 'loanCharges')->filter($search)
+            $loans = Loan::approved()->with('loanProduct', 'loanProduct.loanType', 'borrower.details', 'loanCharges', 'loanDisbursementDetails')->filter($search)
                 ->whereNull('disbursed_date')
                 ->orderByDesc('loan_date')
                 ->orderByDesc('loan_no');
@@ -546,7 +547,8 @@ class LoanController extends Controller
                     ($loan->loanCharges->notary_fee ?? 0) +
                     ($loan->loanCharges->reloan_deduction ?? 0) +
                     ($loan->loanCharges->membership_fee_paid ?? 0) +
-                    ($loan->loanCharges->principal_advance ?? 0)
+                    ($loan->loanCharges->principal_advance ?? 0) + 
+                    ($loan->loanDisbursementDetails->sum('amount') ?? 0)
                 );
                 return $loan;
             });
@@ -745,6 +747,16 @@ class LoanController extends Controller
             // $loan->disbursement_reference = $request->transaction_code;
             $loan->disbursed_by = auth()->user()->id;
             $loan->save();
+
+            //add disbursement details data
+            LoanDisbursementDetails::insert([
+                'loan_id' => $loan->id,
+                'processing_branch' => auth()->user()->current_branch_id,
+                'amount' => floatval(str_replace(',', '', $request->amount)),
+                'disbursed_by' => auth()->user()->id,
+                'disburse_date' => $request->disbursed_date,
+                'notes' => $request->notes
+            ]);
 
             if ($request->hasFile('attachment')) {
 
