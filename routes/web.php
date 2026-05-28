@@ -144,7 +144,9 @@ Route::middleware('auth')->group(function () {
             Route::post('get-reloan-deduction', 'getReloanDeduction')->name('loan.get-reloan-deduction');
             Route::get('{id}/print', 'printReceipt')->name('loan.print');
             Route::post('{id}/update-disbursement-reference', 'updateDisbursementReference')->name('loan.update-disbursement-reference');
-            Route::get('report/download/soa-term', 'downloadSoaTerm')->name('loan.soa-term-pdf'); //mockup route for testing soa term pdf generation
+            Route::get('report/preview/soa-term', 'previewSoaTerm')->name('loan.preview-soa-term'); //mockup route for viewing soa
+            Route::get('report/preview/soa-no-term', 'previewSoaNoTerm')->name('loan.preview-soa-no-term');
+
         });
     Route::controller(SavingsController::class)
         ->prefix('savings')

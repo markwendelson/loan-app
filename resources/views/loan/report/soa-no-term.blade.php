@@ -1,4 +1,6 @@
 
+@extends('layouts.app')
+
 @push('css')
     <style>
         .font-12 {
@@ -619,12 +621,12 @@
 
 @endphp
 
-
+@section('content')
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
             <!-- report header -->
-            <div class="header-container">
+            <div class="header-container mt-5">
                 <div class="d-flex justify-content-center">
                     <div class="d-flex flex-column align-items-center">
                         <h4 class="car-title txt-primary text-uppercase">Statement Of Account</h4>
@@ -809,3 +811,4 @@
         </div>
     </div>
 </div>
+@endsection

@@ -1249,4 +1249,16 @@ class LoanController extends Controller
             'message' => 'Transaction code updated successfully',
         ]);
     }
+
+    public function previewSoaTerm()
+    {
+        return view('loan.report.soa-term');
+    }
+
+    public function previewSoaNoTerm()
+    {
+        return view('loan.report.soa-no-term');
+    }
+
+
 }

@@ -1,5 +1,7 @@
 
-    @php 
+   @extends('layouts.app')
+   
+   @php 
     $mockData = [
             [
                 'month' => 'January 2024',
@@ -124,11 +126,12 @@
         ];
     @endphp
     
+    @section('content')
     <div class="container-fluid">
         <!-- report content goes here -->
         <div class="card">
             <div class="card-body">
-                <div class="row justify-content-center">
+                <div class="row justify-content-center mt-5">
                     <div class="col-lg-4 text-center">
                         <h3 class="card-title txt-primary mb-0 text-uppercase">Statement of Account</h3>
                         <span class="text-uppercase"> as of {{ date('F d, Y') }}</span>
@@ -281,3 +284,4 @@
             </div>
         </div>
     </div>
+    @endsection
