@@ -1,20 +1,21 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "public/index.php",
-            "use": "@vercel/php"
-        }
-    ],
+    "framework" : null,
+    "functions" : {
+        "api/index.php" : { "runtime": "vercel-php@0.6.0" }
+    },
     "routes": [
         {
             "src": "/(.*)",
-            "headers": { "X-Frame-Options": "SAMEORIGIN" },
-            "continue": true
+            "dest" : "/api/index.php",
         },
         {
             "src": "/(.*)",
             "dest": "/"
         }
-    ]
+    ],
+    "env" : {
+        "APP_ENV" : "development",
+        "APP_DEBUG" : "true",
+    }
 }
