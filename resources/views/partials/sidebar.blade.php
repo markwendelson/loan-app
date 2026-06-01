@@ -175,6 +175,9 @@
         @can('view-expense-category')
         <li><a href="{{ route('expense-category.index') }}">Expense Category</a></li>
         @endcan
+        @can('view-client-group-type')
+        <li><a href="{{ route('client-group.types-index') }}">Group Types</a></li>
+        @endcan
 
         <!-- <li><a href="/departments">Department</a></li> -->
         @can('view-job-title')

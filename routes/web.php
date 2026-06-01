@@ -4,6 +4,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientGroupsController;
 use App\Http\Controllers\ClientIDsController;
 use App\Http\Controllers\DepartmentController;
 // use App\Http\Controllers\EmployeeController;
@@ -121,6 +122,13 @@ Route::middleware('auth')->group(function () {
         Route::delete('user/{user}/branch/{branchId}', [UserController::class, 'deleteBranchRole'])->name('user.delete-branch-role');
 
         Route::post('user/update-branch', [UserController::class, 'updateUserBranch'])->name('user.update-branch');
+
+    Route::controller(ClientGroupsController::class)
+        ->prefix('client-group')
+        ->group(function() {
+            Route::get('types', 'clientGrouptypes')->name('client-group.types-index');
+            Route::post('store-group-types', 'storeClientGroupTypes')->name('client-group.store');
+    });
 
     Route::resource('user', UserController::class);
     Route::resource('role', RoleController::class);
