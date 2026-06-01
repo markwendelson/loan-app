@@ -1,21 +1,19 @@
 {
-    "version": 2,
-    "framework" : null,
-    "functions" : {
-        "api/index.php" : { "runtime": "vercel-php@0.6.0" }
-    },
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest" : "/api/index.php",
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/"
-        }
-    ],
-    "env" : {
-        "APP_ENV" : "development",
-        "APP_DEBUG" : "true"
+  "version": 2,
+  "functions": {
+    "public/index.php": {
+      "runtime": "vercel-php@0.6.0"
     }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/public/index.php"
+    }
+  ],
+  "env": {
+    "APP_ENV": "development",
+    "APP_DEBUG": "true",
+    "APP_KEY": "base64:Lq/PNR39HOtJO2yhUNZ6wneJoIKNr+FCBoLo3aa4xis="
+  }
 }
