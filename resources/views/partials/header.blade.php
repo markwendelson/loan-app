@@ -141,7 +141,7 @@
                     <ul class="profile-dropdown onhover-show-div">
                         <li><a href="#"><i data-feather="user"></i><span>My Profile</span></a></li>
                         <li> <a href="#"> <i data-feather="settings"></i><span>Settings</span></a></li>
-                        <li><a class="btn btn-pill btn-outline-primary btn-sm" href="{{ url()->route('logout') }}">Log Out</a></li>
+                        <li><a class="btn btn-pill btn-outline-primary btn-sm" href="{{ url()->route('custom.logout') }}">Log Out</a></li>
                     </ul>
                 </li>
             </ul>
