@@ -59,7 +59,11 @@
                                             <span class="{{ config('constants.status_badge')[$val->status] }}">{{ config('constants.status_value')[$val->status] }}</span>
                                         </td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-light btnEditGroupTypes"><i class="fa fa-pencil"></i></button>
+                                            <button type="button" 
+                                                class="btn btn-light btnEditGroupTypes"
+                                                data-submit-url="{{ route('put-group-types.put') }}"
+                                                data-method="put"
+                                            ><i class="fa fa-pencil"></i></button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -90,6 +94,9 @@
                 //show loading modal
                 $(".loader-wrapper").fadeIn("slow");
 
+                $("#modalGroupTypes .modal-title").html("New Group Type");
+
+
                 //transfer data
                 $("#modalGroupTypes .btnSubmit").data("submit-url", $(this).data("submit-url"));
                 $("#modalGroupTypes .btnSubmit").data("method", $(this).data("method"));
@@ -106,6 +113,8 @@
             $("#modalGroupTypes").on("click", ".btnCancel", function(e) {
                 e.preventDefault();
 
+                clearModalForm();
+
                 $("#modalGroupTypes").modal("hide");
             });
 
@@ -113,13 +122,40 @@
             $("#tblGroupTypes").on("click", "tbody .btnEditGroupTypes", function(e) {
                 e.preventDefault();
 
+                //show loading modal
+                $(".loader-wrapper").fadeIn("slow");
+
+                //transfer data
+                $("#modalGroupTypes .btnSubmit").data("submit-url", $(this).data("submit-url"));
+                $("#modalGroupTypes .btnSubmit").data("method", $(this).data("method"));
+
                 $.ajax({
-                    type: "get",
-                    url: "{{ route('') }}",
-                    data: "data",
-                    dataType: "dataType",
+                    type: "POST",
+                    url: "{{ route('client-group-types.get-types') }}",
+                    data: {
+                        client_group_type_id : $(this).closest("tr").data("id")
+                    },
+                    dataType: "json",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function (response) {
-                        
+                        //hide loading form
+                        $(".loader-wrapper").fadeOut("slow", function () {
+                            $(this).hide();
+                        });
+
+                        if(typeof response !== 'undefined' && response.status == 'success') {
+                            $("#modalGroupTypes .modal-title").html("Update Group Type");
+
+                            $("#modalGroupTypes form input[name='id']").val(response.data.id);
+                            $("#modalGroupTypes form input[name='name']").val(response.data.name);
+                            $("#modalGroupTypes form select[name='status']").val(response.data.status);
+                            $("#modalGroupTypes form textarea[name='description']").val(response.data.description);
+
+                            $("#modalGroupTypes").modal("show");
+                        }
+
                     }
                 });
             });

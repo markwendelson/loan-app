@@ -126,8 +126,11 @@ Route::middleware('auth')->group(function () {
     Route::controller(ClientGroupsController::class)
         ->prefix('client-group')
         ->group(function() {
-            Route::get('types', 'clientGrouptypes')->name('client-group.types-index');
+            Route::get('/', 'index')->name('client-group.index');
+            Route::get('types', 'clientGrouptypes')->name('client-group-types.index');
             Route::post('store-group-types', 'storeClientGroupTypes')->name('client-group.store');
+            Route::post('get-group-types', 'getGroupType')->name('client-group-types.get-types');
+            Route::put('put-group-types', 'putClientGroupTypes')->name('put-group-types.put');
     });
 
     Route::resource('user', UserController::class);

@@ -130,7 +130,7 @@
                 </li>
 
                 <li class="profile-nav onhover-dropdown">
-                    <div class="media profile-media">
+                    <div class="media profile-media d-flex align-items-center">
                         <img class="b-r-10" src="{{ Auth::user()->photo ? asset('storage/'.Auth::user()->photo) : url('/assets/images/user/6.jpg') }}" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 10px;">
                         <div class="media-body d-xxl-block d-none box-col-none">
                             <div class="d-flex align-items-center gap-2"> <span>{{ Auth::user()->name }}</span><i class="middle fa fa-angle-down"> </i></div>

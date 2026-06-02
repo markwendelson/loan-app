@@ -131,6 +131,10 @@ return [
             ['name' => 'create-client-group-type','label' => 'Create Client Group Type'],
             ['name' => 'edit-client-group-type','label' => 'Edit Client Group Type'],
             ['name' => 'delete-client-group-type','label' => 'Delete Client Group Type'],
+            ['name' => 'view-client-group','label' => 'View Client Group'],
+            ['name' => 'create-client-group','label' => 'Create Client Group'],
+            ['name' => 'update-client-group','label' => 'Update Client Group'],
+            ['name' => 'delete-client-group','label' => 'Delete Client Group'],
         ]
     ],
     'Reports' => [

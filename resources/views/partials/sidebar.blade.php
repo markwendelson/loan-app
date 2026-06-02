@@ -41,6 +41,9 @@
         @can('view-client')
         <li><a href="{{route('client.index')}}">Client List</a></li>
         @endcan
+        @can('view-client-group')
+        <li><a href="{{ route('client-group.index') }}">Client Grouping</a></li>
+        @endcan
         @can('create-client')
         <li><a href="{{route('client.create')}}">Client Register</a></li>
         @endcan
@@ -176,7 +179,7 @@
         <li><a href="{{ route('expense-category.index') }}">Expense Category</a></li>
         @endcan
         @can('view-client-group-type')
-        <li><a href="{{ route('client-group.types-index') }}">Group Types</a></li>
+        <li><a href="{{ route('client-group-types.index') }}">Group Types</a></li>
         @endcan
 
         <!-- <li><a href="/departments">Department</a></li> -->

@@ -6,6 +6,13 @@
             </div>
             <div class="modal-body">
                 <form id="frmGroupTypes">
+                    <!-- groupt type id -->
+                    
+                    <input type="hidden"
+                        name="id"
+                        value=""
+                    >
+
                     <div class="row">
 
                         <!-- name -->
