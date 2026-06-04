@@ -2,20 +2,79 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
 //models
+use App\Models\Client;
 use App\Models\ClientGroupType;
+use App\Models\ClientGroupTagging;
 
 class ClientGroupsController extends Controller
 {
     //client group index
-    public function index()
+    public function index(Request $request)
     {
-        return view('client.group.index');
+        if(!auth()->user()->can('create-client-group')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if($request->isMethod('post')) {
+            if(isset($request->client_group_tagging) && $request->client_group_tagging) {
+                $userId = auth()->user()->id;
+            
+
+                try {
+                    DB::beginTransaction();
+
+                    $bactchData = [];
+                    foreach($request->client_group_tagging as $key => $val) {
+                        $batchData[] = [
+                            'client_id' => $val['client_id'],
+                            'client_group_type_id' => $val['type'],
+                            'created_by' => $userId,
+                        ];
+                    }
+
+                    ClientGroupTagging::upsert(
+                        $bactchData,
+                        [
+                            'client_id'
+                        ],
+                        [
+                            'client_group_type_id',
+                            'updated_at' => now()
+                        ]
+                    );
+
+                    DB::commit();
+
+                    return redirect()->route('client-group.index')->with('success', 'Client group created successfully!');
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return redirect()->route('client-group.index')->withErrors($e->getMessage());
+                }
+            }
+        }
+
+        //get all client list
+        $clients = Client::select(
+            'clients.*',
+            'client_details.firstname',
+            'client_details.middlename',
+            'client_details.lastname',
+        )->leftJoin('client_details', 'client_details.client_id', '=', 'clients.id')
+        ->get()->toArray();
+
+        $clientGroupType = ClientGroupType::all()->toArray();
+
+        return view('client.group.index', compact(
+            'clients',
+            'clientGroupType',
+        ));
     }
 
     

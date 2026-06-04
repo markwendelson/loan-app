@@ -11,6 +11,9 @@
             color: white; /* Set white text for <th> elements */
             border: 1px solid white;
         }
+        .dropdown-menu .dropdown-item {
+            opacity: 0.95 !important;
+        }
     </style>
 @endpush
 
@@ -29,7 +32,8 @@
                                 <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
-                        <li class="breadcrumb-item">Client</li>
+                        <li class="breadcrumb-item">Transaction</li>
+                        <li class="breadcrumb-item">Clients</li>
                         <li class="breadcrumb-item active">Manage Client</li>
                     </ol>
                 </div>
@@ -40,38 +44,127 @@
     <!-- button container -->
     <div class="card">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-                {{-- <label for="filter">Filter</label>
-                <select name="filter" id="filter" class="form-control">
-                    <option value="all">All</option>
-                    <option value="">Guiuan</option>
-                    <option value="">Borongan</option>
-                    <option value="">Palo</option>
-                </select> --}}
-            </div>
             <a href="{{route('client.registration')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
         </div>
     </div>
 
-
-    <!-- table container -->
     <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="tblClient">
-                    <thead class="bg-default">
+        <div class="card-header">
+            <form id="frmFilter" method="GET" action="{{ url()->current() }}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2 align-items-center">
+                        <span>Show</span>
+                        <select class="form-select" name="entries">
+                            <option value="10" {{ isset($filterData['entries']) && $filterData['entries'] == 10 ? 'selected' : ''; }}>10</option>
+                            <option value="25" {{ isset($filterData['entries']) && $filterData['entries'] == 25 ? 'selected' : ''; }}>25</option>
+                            <option value="50" {{ isset($filterData['entries']) && $filterData['entries'] == 50 ? 'selected' : ''; }}>50</option>
+                            <option value="100" {{ isset($filterData['entries']) && $filterData['entries'] == 100 ? 'selected' : ''; }}>100</option>
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+
+                        <!-- search textbox -->
+                        <input type="search"
+                            class="form-control"
+                            name="q"
+                            value="{{ $filterData['q'] ?? ''; }}"
+                            placeholder="Search..."
+                        >
+
+                        <select class="form-select" name="branch_id">
+                            @if(isset($branchData) && $branchData)
+                            <option value="">-- Branch --</option>
+                                @foreach($branchData as $key => $val)
+                                    <option value="{{ $val->id }}" {{ isset($filterData['branch_id']) && $filterData['branch_id'] == $val->id ? 'selected' : ''; }}>{{ $val->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+
+                        <select class="form-select" name="group_type">
+                            <option value="">-- Tag Type --</option>
+                            @if(isset($groupTypes) && $groupTypes)
+                                @foreach($groupTypes as $key => $val)
+                                    <option value="{{ $val->id }}" {{ isset($filterData['group_type']) && $filterData['group_type'] == $val->id ? 'selected' : ''; }}>{{ $val->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-response">
+                <table class="table table-bordered table-hover">
+                    <thead>
                         <tr>
-                            <th class="text-center" width="40">No.</th>
-                            <th class="text-leftr" width="120">Code</th>
-                            <th class="text-leftr" width="150">Name</th>
-                            <th class="text-leftr" width="150">Address</th>
-                            <th class="text-center" width="80">Status</th>
-                            <th class="text-center" width="150"><i class="fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
+                            <th width="50"></th>
+                            <th>Client</th>
+                            <th>Address</th>
+                            <th class="text-center" width="120">Status</th>
+                            <th width="50" class="text-center"><i class="fa fa-cog"></i></th>
                         </tr>
                     </thead>
+                    <tbody>
+                        @if(isset($clientData) && $clientData)
+                            @foreach($clientData as $key => $val)
+                                <tr>
+                                    <td>
+                                        <img class="rounded bordered" 
+                                            src="{{ url('assets/images/user/user.png') }}" 
+                                            width="50px" 
+                                            height="50px" 
+                                            alt=""
+                                            loading="lazy"
+                                        >
+                                    </td>
+                                    <td class="align-center">
+                                        <div class="d-flex flex-column">
+                                            <span>{{ (($val->details->lastname) ?? '' ) . ' ' . (($val->details->firstname) ?? '') . ' ' . (($val->details->middlename) ?? '') }} </span>
+                                            <span class="fw-semibold">{{ $val->client_code }}</span>
+                                            <span class="badge bg-light p-1">{{ $val->clientGroupTagging->type_name ?? ''; }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="align-center">{{ $val->details->present_full_address ?? '' }}</td>
+                                    <td class="text-center align-center">
+                                        @if($val->status == 1)
+                                            <span class="badge badge-success">Active</span>
+                                        @else
+                                            <span class="badge badge-danger">Inactive</span>
+                                        @endif
+                                    </td>
+                                    <td class="align-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{{ url('client/'. $val->id.'/edit') }}" target="_blank"><i class="fa fa-pencil"></i> Edit</a></li>
+                                                <li><a class="dropdown-item" href="{{ url('client/'. $val->id.'/ledger') }}" target="_blank"><i class="fa fa-table"></i> Ledger</a></li>
+                                                <li><a class="dropdown-item" href="{{ url('client/'. $val->id .'/loan-history') }}" target="_blank"><i class="fa fa-list"></i> Loan History</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item txt-danger" href="#" onclick="deleteData({{ $val->id }})" ><i class="fa fa-trash"></i> Delete</a></li>
+                                            </ul> 
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                        <tr>
+                            <td colspan="6" class="text-center">-- No Data --</td>
+                        </tr>
+                        @endif
+                    </tbody>
                 </table>
             </div>
         </div>
+    </div>
+
+    <!-- pagination -->
+    <div class="d-flex justify-content-end">
+        {{ $clientData->appends(request()->input())->onEachSide(0)->links('partials.pagination.default') }}
     </div>
 
     <!-- job modal -->
@@ -83,77 +176,7 @@
 
 <script>
     $(document).ready(function () {
-        const canViewLedger = {{ auth()->user()->can('view-ledger') ? 1 : 0 }};
-        const canViewClient = {{ auth()->user()->can('view-client') ? 1 : 0 }};
-        const canEdit = {{ auth()->user()->can('edit-client') ? 1 : 0 }};
         const canDelete = {{ auth()->user()->can('delete-client') ? 1 : 0 }};
-
-        const table = $('#tblClient').DataTable({
-            ordering: false,
-            processing: true,
-            serverSide: true,
-            stateSave: true,
-            searching: true,
-            ajax: {
-                url: "{{ route('client.index') }}",
-            },
-            columns: [
-                { data: 'id', name: 'id' },
-                { data: 'client_code', name: 'client_code' },
-                { data: 'details.fullname', name: 'fullname' },
-                { data: 'details.present_full_address', name: 'address' },
-                { data: 'status', name: 'status', render: function(data, type, row) {
-                    if (data == 1) {
-                        return '<span class="badge badge-success">Active</span>';
-                    } else {
-                        return '<span class="badge badge-danger">Inactive</span>';
-                    }
-                } },
-                {
-                    data: null,
-                    name: 'actions',
-                    render: function(data, type, row) {
-                        let buttons = '';
-                        if (canViewLedger) {
-                            buttons += `<button class="btn btn-primary btn-xs btnLedger" title="Ledger" data-id="${row.id}"><i class="fa fa-table"></i></button> `;
-                        }
-                        if (canViewClient) {
-                            buttons += `<button class="btn btn-primary btn-xs btnHistory" title="Loan History" data-id="${row.id}"><i class="fa fa-list"></i></button> `;
-                        }
-                        if (canEdit) {
-                            buttons += `<button class="btn btn-primary btn-xs btnEdit" title="Edit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
-                        }
-                        if (canDelete) {
-                            buttons += `<button class="btn btn-danger btn-xs" title="Delete" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
-                        }
-                        return buttons;
-                    }
-                }
-            ],
-            columnDefs: [
-                { className: "text-center", targets: [4,5] },
-            ]
-        });
-
-
-
-        $("#tblClient").on("click", ".btnEdit", function(){
-            let id = $(this).attr("data-id");
-            window.location.href = `/client/${id}/edit`;
-        })
-
-        $("#tblClient").on("click", ".btnLedger", function(){
-            let id = $(this).attr("data-id");
-            window.location.href = `/client/${id}/ledger`;
-        })
-
-
-        $("#tblClient").on("click", ".btnHistory", function(){
-            let id = $(this).attr("data-id");
-            window.location.href = `/client/${id}/loan-history`;
-        })
-
-
     });
 
 

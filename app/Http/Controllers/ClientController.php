@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LoanStatus;
-use App\Models\Client;
-use App\Models\ClientDocument;
-use App\Models\DocumentType;
-use App\Models\Loan;
 use App\Services\ClientRegistrationService;
 use App\Services\ClientUpdateService;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+//models
+use App\Models\Client;
+use App\Models\ClientDocument;
+use App\Models\ClientGroupType;
+use App\Models\DocumentType;
+use App\Models\Loan;
 
 class ClientController extends Controller
 {
@@ -34,7 +37,48 @@ class ClientController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
+    {   
+        if(!auth()->user()->can('view-client')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $filterData = $request->all();
+        $query = Client::with('details','clientGroupTagging');
+
+        //q
+        if(!empty($filterData['q'])) {
+            $query->where(function($q) use ($filterData) {
+                $q->where('client_code', 'like', '%' . $filterData['q'] . '%')
+                    ->orWhereHas('details', function($q2) use ($filterData) {
+                        $q2->where('firstname', 'like', '%' . $filterData['q'] . '%');
+                        $q2->orWhere('middlename', 'like', '%' . $filterData['q'] . '%');
+                        $q2->orWhere('lastname', 'like', '%' . $filterData['q'] . '%');
+                        $q2->orWhere('email', 'like', '%' . $filterData['q'] . '%');
+                    });
+            });
+        }
+
+        //branch
+        if(!empty($filterData['branch_id'])) {
+            $query->where('branch_id', $filterData['branch_id']);
+        }else{
+            $query->where('branch_id', auth()->user()->current_branch_id);
+        }
+
+        //group_type
+        if(isset($filterData['group_type']) && $filterData['group_type']) {
+            $query->orWhereHas('clientGroupTagging', function($q) use($filterData){
+                $q->where('client_group_type_id', $filterData['group_type']);
+            });
+        }
+
+        // Paginate
+        $clientData = $query->paginate($filterData['entries'] ?? 10)->appends($filterData);
+
+        $branchData = $this->branches;
+
+        $groupTypes = ClientGroupType::all();
+
         if ($request->ajax()) {
             $search = $request->search['value'];
 
@@ -69,7 +113,12 @@ class ClientController extends Controller
 
         }
 
-        return view('client.index');
+        return view('client.index', compact(
+            'clientData',
+            'filterData',
+            'branchData',
+            'groupTypes'
+        ));
     }
 
 
