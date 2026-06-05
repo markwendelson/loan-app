@@ -66,8 +66,8 @@ class ClientController extends Controller
         }
 
         //group_type
-        if(isset($filterData['group_type']) && $filterData['group_type']) {
-            $query->orWhereHas('clientGroupTagging', function($q) use($filterData){
+        if(!empty($filterData['group_type'])) {
+            $query->whereHas('clientGroupTagging', function($q) use($filterData) {
                 $q->where('client_group_type_id', $filterData['group_type']);
             });
         }

@@ -112,10 +112,19 @@
                             @foreach($clientData as $key => $val)
                                 <tr>
                                     <td>
-                                        <img class="rounded bordered" 
-                                            src="{{ url('assets/images/user/user.png') }}" 
-                                            width="50px" 
-                                            height="50px" 
+                                        @php
+                                            $photo = $val->details?->photo;
+                                            if ($photo && file_exists(public_path('storage/' . $photo))) {
+                                                $photoUrl = asset('storage/' . $photo);
+                                            } else {
+                                                $photoUrl = asset('assets/images/user/user.png');
+                                            }
+                                        @endphp
+
+                                        <img class="rounded bordered"
+                                            src="{{ $photoUrl }}"
+                                            width="50"
+                                            height="50"
                                             alt=""
                                             loading="lazy"
                                         >

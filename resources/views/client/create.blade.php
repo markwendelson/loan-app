@@ -36,6 +36,7 @@
                                 <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
+                        <li class="breadcrumb-item">Transaction</li>
                         <li class="breadcrumb-item">Client</li>
                         <li class="breadcrumb-item active">Client Register</li>
                     </ol>
