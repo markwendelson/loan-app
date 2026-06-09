@@ -441,6 +441,30 @@ class ExpenseController extends Controller
         return response()->json($response);
     }
 
+    public function downloadExpenseDetailsPdf(Request $request)
+    {
+        
+        $expenseData = Expense::with('expenseItems')
+            ->select(
+                'expenses.*',
+                'branch.name AS branch_name',
+                'expense_categories.name AS category_name',
+                'users.name AS user_name'
+            )
+            ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.category_id')
+            ->leftJoin('branch', 'branch.id', '=', 'expenses.branch_id')
+            ->leftJoin('users', 'users.id', '=', 'expenses.created_by')
+            ->where('expenses.slug', $request->slug)
+            ->first()
+            ->toArray();
+
+        $pdf = Pdf::loadView('expenses.report.download-expense-details-pdf', compact(
+            'expenseData'
+        ))->setPaper('a4', 'portrait');
+
+        return $pdf->download($expenseData['slug'] . '.pdf');
+    }
+
     public function deleteExpense(Request $request) 
     {
         //response
@@ -515,6 +539,9 @@ class ExpenseController extends Controller
 
     public function expenseReport(Request $request)
     {
+        //temp return to dashboard
+        return redirect('/');
+
         if(!auth()->user()->can('view-expense-report')) {
             abort(403, 'Unauthorized action.');
         }
