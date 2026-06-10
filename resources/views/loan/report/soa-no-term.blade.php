@@ -1,6 +1,8 @@
 
 @extends('layouts.app')
 
+@section('title') SOA No Term @endsection
+
 @push('css')
     <style>
         .font-12 {

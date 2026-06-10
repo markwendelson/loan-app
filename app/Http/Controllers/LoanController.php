@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LoanController extends Controller
 {
@@ -1255,9 +1256,23 @@ class LoanController extends Controller
         return view('loan.report.soa-term');
     }
 
+    public function downloadSoaTerm()
+    {
+        $pdf = Pdf::loadView('loan.report.soa-term-pdf')->setPaper('a4', 'landscape');
+
+        return $pdf->download(Str::random(40) . '.pdf');
+    }
+
     public function previewSoaNoTerm()
     {
         return view('loan.report.soa-no-term');
+    }
+
+    public function downloadSoaNoTerm()
+    {
+        $pdf = Pdf::loadView('loan.report.soa-no-term-pdf')->setPaper('legal', 'landscape');
+
+        return $pdf->download(Str::random(40) . '.pdf');
     }
 
 
