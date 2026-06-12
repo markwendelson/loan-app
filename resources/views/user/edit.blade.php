@@ -104,8 +104,8 @@
 
                         @include('user.roles')
 
-                        <div id="permissions">
-                            <div class="d-flex justify-content-center align-items-center bg-white" style="height: 200px;">
+                        <div class="card" id="permissions">
+                            <div class="card-body d-flex justify-content-center align-items-center bg-white" style="height: 200px;">
                                 <h4>Select in role to view permissions</h4>
                             </div>
                         </div>
