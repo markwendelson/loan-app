@@ -44,7 +44,7 @@ class LoanController extends Controller
                 ->when(!auth()->user()->hasRole('admin|super_admin'), function ($query) {
                     // Apply filter only if the user is not an admin or super_admin
                     $query->whereHas('borrower', function ($query) {
-                        $query->where('branch_id', auth()->user()->branch_id);
+                        $query->where('branch_id', auth()->user()->current_branch_id);
                     });
                 })
                 ->orderByDesc('loan_date')

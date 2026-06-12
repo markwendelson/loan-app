@@ -31,7 +31,7 @@
                                     if(isset($client)) {
                                         $branch_id = $client->branch_id;
                                     } else {
-                                        $branch_id = auth()->user()->branch_id;
+                                        $branch_id = auth()->user()->current_branch_id;
                                     }
                                 @endphp
                             <select class="form-select" name="client_details[branch_id]" required>

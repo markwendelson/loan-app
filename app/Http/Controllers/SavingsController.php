@@ -51,7 +51,7 @@ class SavingsController extends Controller
             $search = $request->search['value'];
 
             if (!auth()->user()->hasRole('admin|super_admin')) {
-                $savings = Client::where('branch_id', auth()->user()->branch_id)
+                $savings = Client::where('branch_id', auth()->user()->current_branch_id)
                     ->with('details','savings')
                     ->filter($search);
             } else {

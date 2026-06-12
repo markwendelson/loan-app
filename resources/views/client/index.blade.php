@@ -149,12 +149,20 @@
                                             <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                 <i class="fa fa-ellipsis-v"></i>
                                             </button>
-                                            <ul class="dropdown-menu">
+                                            <ul class="dropdown-menu">                                                
+                                                @can('edit-client')
                                                 <li><a class="dropdown-item" href="{{ url('client/'. $val->id.'/edit') }}" target="_blank"><i class="fa fa-pencil"></i> Edit</a></li>
+                                                @endcan
+                                                @can('view-ledger')
                                                 <li><a class="dropdown-item" href="{{ url('client/'. $val->id.'/ledger') }}" target="_blank"><i class="fa fa-table"></i> Ledger</a></li>
+                                                @endcan
+                                                @can('view-ledger')
                                                 <li><a class="dropdown-item" href="{{ url('client/'. $val->id .'/loan-history') }}" target="_blank"><i class="fa fa-list"></i> Loan History</a></li>
+                                                @endcan
                                                 <li><hr class="dropdown-divider"></li>
+                                                @can('delete')
                                                 <li><a class="dropdown-item txt-danger" href="#" onclick="deleteData({{ $val->id }})" ><i class="fa fa-trash"></i> Delete</a></li>
+                                                @endcan
                                             </ul> 
                                         </div>
                                     </td>
