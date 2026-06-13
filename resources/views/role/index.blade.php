@@ -5,13 +5,19 @@
 @push('css')
 <style>
     .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+        background-color: #1f807f;
+    }
+    .bg-default th {
+        color: white; /* Set white text for <th> elements */
+        border: 1px solid white;
+    }
+    .custom-input .form-check .form-check-input:valid ~ .form-check-label {
+        color: #000000;
+    }
+    body.dark-only .custom-input .form-check .form-check-input:valid ~ .form-check-label {
+        color:rgba(255, 255, 255, 0.6) !important;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -173,12 +179,43 @@
                     $("#modalRole input[name='permissions[]'][id='" + permission.name + "']").prop('checked', true);
                 });
 
+                checkGroupCheckbox();
+                checkAllGroupCheckbox();
+
                 // Show the modal
                 showModal('modalRole');
             }).catch((error) => {
                 showToast.error("Failed to fetch role data.");
             });
         })
+
+        //handle checkAll functionality
+        $(document).on("change", ".chckAll", function(e) {
+            e.preventDefault();
+
+            if($(this).is(":checked")) {
+                $(".chck-permissions input[type='checkbox']").prop("checked", true);
+            }else{
+                $(".chck-permissions input[type='checkbox']").prop("checked", false);
+            }
+        });
+
+        //handle checkAllGroup functionality
+        $(document).on("change", ".chckAllGroup", function(e) {
+            e.preventDefault();
+
+            if($(this).is(":checked")) {
+                $(this).closest(".group-permissions").find("input[type='checkbox']").prop("checked", true);
+            }else{
+                $(this).closest(".group-permissions").find("input[type='checkbox']").prop("checked", false);   
+            }
+
+            checkAllGroupCheckbox(this);
+        });
+
+        $(document).on("change", ".subCheckBox", function () {
+            checkGroupCheckbox(this);
+        });
 
 
     });
@@ -218,6 +255,78 @@
 
             }
         })
+    }
+
+    function checkGroupCheckbox(el = null) {
+        if (el) {
+
+            let card = $(el).closest(".card");
+
+            let total = card.find(".subCheckBox").length;
+            let checked = card.find(".subCheckBox:checked").length;
+
+            let all = card.find(".chckAllGroup");
+
+            all.prop("checked", checked === total);
+            all.prop("indeterminate", checked > 0 && checked < total);
+
+            checkAllGroupCheckbox();
+
+            return;
+        }
+
+        $(".card").each(function () {
+
+            let card = $(this);
+
+            let total = card.find(".subCheckBox").length;
+            let checked = card.find(".subCheckBox:checked").length;
+
+            let all = card.find(".chckAllGroup");
+
+            all.prop("checked", checked === total);
+            all.prop("indeterminate", checked > 0 && checked < total);
+        });
+    }
+
+    function checkAllGroupCheckbox(el = null) {
+        let all = $(".chckAll");
+        let isAllChecked = true;
+
+        if (el) {
+            $(".chckAllGroup").each(function () {
+                if (!$(this).is(":checked")) {
+                    isAllChecked = false;
+                }
+            });
+
+            if (isAllChecked) {
+                all.prop("checked", true);
+            } else {
+                all.prop("checked", false);
+            }
+
+            all.prop("indeterminate", false);
+
+            return;
+        }
+
+        $(".chckAllGroup").each(function () {
+            console.log("checking");
+            if (!$(this).is(":checked")) {
+                isAllChecked = false;
+            }
+        });
+
+        if (isAllChecked) {
+            all.prop("checked", true);
+        } else {
+            all.prop("checked", false);
+        }
+
+        all.prop("indeterminate", false);
+
+        return;
     }
 
 </script>

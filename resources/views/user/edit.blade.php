@@ -41,76 +41,76 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                    <div class="col-sm-12 col-md-5 col-lg-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title">User Information</h5>
-                            </div>
-                            <div class="card-body">
-                                <form method="post" action="{{route('user.update', $user->id)}}" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="image-container text-center mb-3">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                @if(isset($user))
-                                                    <img id="user_photo_preview" class="img-thumbnail" src="{{ $user->photo ? asset('storage/'.$user->photo) : url('/assets/images/user/6.jpg') }}">
-                                                @else
-                                                    <img id="user_photo_preview" class="img-thumbnail" src="{{url('/assets/images/user/6.jpg')}}">
-                                                @endif
-                                            </div>
-                                            <div class="col-12">
-                                                <input type="file" id="user_photo" name="user_photo" accept="image/*" style="display: none;" />
-                                                <button type="button" id="btn_img_upload" class="btn btn-primary mt-1"><i class="fa fa-camera"></i> Upload Image</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                <div class="col-sm-12 col-md-5 col-lg-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">User Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{{route('user.update', $user->id)}}" enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
+                                <div class="image-container text-center mb-3">
                                     <div class="row">
-                                        <!-- branch -->
                                         <div class="col-12">
-                                            <label class="w-100">
-                                                Processing Branch
-                                                <select class="form-select" name="branch_id" required>
-                                                    <option value="" selected hidden disabled>-- Select --</option>
-                                                        @foreach($branches as $key => $val)
-                                                            <option value="{{$val->id}}" {{$user->current_branch_id == $val->id ? 'selected' : ''}}>{{$val->name}}</option>
-                                                        @endforeach
-                                                </select>
-                                            </label>
+                                            @if(isset($user))
+                                                <img id="user_photo_preview" class="img-thumbnail" src="{{ $user->photo ? asset('storage/'.$user->photo) : url('/assets/images/user/6.jpg') }}">
+                                            @else
+                                                <img id="user_photo_preview" class="img-thumbnail" src="{{url('/assets/images/user/6.jpg')}}">
+                                            @endif
                                         </div>
-
                                         <div class="col-12">
-                                            <label class="w-100" for="name">Name</label>
-                                            <input type="text" class="form-control mt-1" name="name" placeholder="Name" value="{{$user->name}}" required/>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label class="w-100" for="email">Email</label>
-                                            <input type="email" class="form-control mt-1" name="email" placeholder="Email" value="{{$user->email}}" required/>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <button type="submit" class="btn btn-primary mt-2 w-100"><i class="fa fa-save"></i> Update User</button>
+                                            <input type="file" id="user_photo" name="user_photo" accept="image/*" style="display: none;" />
+                                            <button type="button" id="btn_img_upload" class="btn btn-primary mt-1"><i class="fa fa-camera"></i> Upload Image</button>
                                         </div>
                                     </div>
-                                </form>
+                                </div>
 
-                            </div>
+                                <div class="row">
+                                    <!-- branch -->
+                                    <div class="col-12">
+                                        <label class="w-100">
+                                            Processing Branch
+                                            <select class="form-select" name="branch_id" required>
+                                                <option value="" selected hidden disabled>-- Select --</option>
+                                                    @foreach($branches as $key => $val)
+                                                        <option value="{{$val->id}}" {{$user->current_branch_id == $val->id ? 'selected' : ''}}>{{$val->name}}</option>
+                                                    @endforeach
+                                            </select>
+                                        </label>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="w-100" for="name">Name</label>
+                                        <input type="text" class="form-control mt-1" name="name" placeholder="Name" value="{{$user->name}}" required/>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="w-100" for="email">Email</label>
+                                        <input type="email" class="form-control mt-1" name="email" placeholder="Email" value="{{$user->email}}" required/>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary mt-2 w-100"><i class="fa fa-save"></i> Update User</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-7 col-lg-9">
+
+                    @include('user.roles')
+
+                    <div class="card" id="permissions">
+                        <div class="card-body d-flex justify-content-center align-items-center p-0" style="height: 200px;">
+                            <h4>Select in role to view permissions</h4>
                         </div>
                     </div>
 
-                    <div class="col-sm-12 col-md-7 col-lg-9">
-
-                        @include('user.roles')
-
-                        <div class="card" id="permissions">
-                            <div class="card-body d-flex justify-content-center align-items-center bg-white" style="height: 200px;">
-                                <h4>Select in role to view permissions</h4>
-                            </div>
-                        </div>
-
-                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -152,6 +152,9 @@
                 method: 'GET',
                 success: function (response) {
                     $('#permissions').html(response);
+
+                    checkGroupCheckbox();
+                    checkAllGroupCheckbox();
                 },
                 error: function () {
                     $('#permissions').html(`
@@ -165,7 +168,108 @@
                 $(this).hide();
             });
         })
+
+        //handle checkAll functionality
+        $(document).on("change", ".chckAll", function(e) {
+            e.preventDefault();
+
+            if($(this).is(":checked")) {
+                $(".chck-permissions input[type='checkbox']").prop("checked", true);
+            }else{
+                $(".chck-permissions input[type='checkbox']").prop("checked", false);
+            }
+        });
+
+        //handle checkAllGroup functionality
+        $(document).on("change", ".chckAllGroup", function(e) {
+            e.preventDefault();
+
+            if($(this).is(":checked")) {
+                $(this).closest(".card").find(".group-permissions input[type='checkbox']").prop("checked", true);
+
+            }else{
+                $(this).closest(".card").find(".group-permissions input[type='checkbox']").prop("checked", false);   
+            }
+
+            checkAllGroupCheckbox(this);
+        });
+
+        $(document).on("change", ".subCheckBox", function () {
+            checkGroupCheckbox(this);
+        });
     })
+
+    function checkGroupCheckbox(el = null) {
+        if (el) {
+
+            let card = $(el).closest(".card");
+
+            let total = card.find(".subCheckBox").length;
+            let checked = card.find(".subCheckBox:checked").length;
+
+            let all = card.find(".chckAllGroup");
+
+            all.prop("checked", checked === total);
+            all.prop("indeterminate", checked > 0 && checked < total);
+
+            checkAllGroupCheckbox();
+
+            return;
+        }
+
+        $(".card").each(function () {
+
+            let card = $(this);
+
+            let total = card.find(".subCheckBox").length;
+            let checked = card.find(".subCheckBox:checked").length;
+
+            let all = card.find(".chckAllGroup");
+
+            all.prop("checked", checked === total);
+            all.prop("indeterminate", checked > 0 && checked < total);
+        });
+    }
+
+    function checkAllGroupCheckbox(el = null) {
+        let all = $(".chckAll");
+        let isAllChecked = true;
+
+        if (el) {
+            $(".chckAllGroup").each(function () {
+                if (!$(this).is(":checked")) {
+                    isAllChecked = false;
+                }
+            });
+
+            if (isAllChecked) {
+                all.prop("checked", true);
+            } else {
+                all.prop("checked", false);
+            }
+
+            all.prop("indeterminate", false);
+
+            return;
+        }
+
+        $(".chckAllGroup").each(function () {
+            console.log("checking");
+            if (!$(this).is(":checked")) {
+                isAllChecked = false;
+            }
+        });
+
+        if (isAllChecked) {
+            all.prop("checked", true);
+        } else {
+            all.prop("checked", false);
+        }
+
+        all.prop("indeterminate", false);
+
+        return;
+    }
 
 
 </script>
