@@ -60,8 +60,13 @@ class User extends Authenticatable implements Auditable
 
     public function scopeCurrentBranch($query)
     {
-        $branchId = auth()->user()->current_branch_id;
-        return $query->where('current_branch_id',$branchId);
+        $user = auth()->user();
+
+        if (!$user || $user->hasAnyRole(['admin', 'super-admin'])) {
+            return $query;
+        }
+
+        return $query->where('current_branch_id', $user->current_branch_id);
     }
 
     public function scopeNotsuper_admin($query)

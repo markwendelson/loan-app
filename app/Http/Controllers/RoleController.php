@@ -13,6 +13,19 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        $filterData = $request->all();
+        $query = Role::where('name', '!=', 'super_admin');
+
+        //q
+        if(isset($filterData['q']) && $filterData['q']) {
+            $query->where(function ($query) use ($filterData) {
+                $query->orWhere('roles.name', 'like', '%' . $filterData['q'] . '%');
+            });
+        }
+
+        $roles = $query->paginate($filterData['entries'] ?? 10)
+            ->appends($filterData);
+
         if($request->ajax()) {
             $search = $request->search['value'];
 
@@ -33,7 +46,10 @@ class RoleController extends Controller
             ]);
         }
 
-        return view('role.index');
+        return view('role.index', compact(
+            'roles',
+            'filterData'
+        ));
     }
 
     /**

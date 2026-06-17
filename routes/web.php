@@ -118,6 +118,7 @@ Route::middleware('auth')->group(function () {
         Route::post('user/{user}/branch/{branch}/permission', [UserController::class, 'updateBranchPermission'])->name('user.update-branch-permission');
         Route::post('user/{user}/permission', [UserController::class, 'updatePermission'])->name('user.update-permission');
         Route::post('user/{user}/role',[UserController::class, 'assignRole'])->name('user.assign-role');
+        Route::put('user/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
 
         Route::delete('user/{user}/branch/{branchId}', [UserController::class, 'deleteBranchRole'])->name('user.delete-branch-role');
 

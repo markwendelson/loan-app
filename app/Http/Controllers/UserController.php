@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -26,11 +27,41 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
+    {      
+        $filterData = $request->all();
+        // $users = User::currentBranch()->notsuper_admin()->paginate($filterData['entries'] ?? 10)->appends($filterData);
+
+        // dd($users->toArray());
+        $query = User::currentBranch()
+            ->select('users.*', 'branch.name as branch_name')
+            ->notsuper_admin()
+            ->leftJoin('branch', 'branch.id', '=', 'users.current_branch_id')
+            ->whereNotIn('users.id', [auth()->id()]);
+        //branch_id
+        if(isset($filterData['branch_id']) && $filterData['branch_id']) {
+            $query->where('current_branch_id', $filterData['branch_id']);
+        }
+
+        //q
+        if(isset($filterData['q']) && $filterData['q']) {
+            $query->where(function ($query) use ($filterData) {
+                $query->orWhere('users.name', 'like', '%' . $filterData['q'] . '%')
+                    ->orWhere('users.email', 'like', '%' . $filterData['q'] . '%');
+            });
+        }
+
+        $users = $query->paginate($filterData['entries'] ?? 10)->appends($filterData);
+
+        $users->getCollection()->transform(function ($user) {
+            $user->role = getUserRoles($user, null);
+            return $user;
+        });
+
         if($request->ajax()) {
             $search = $request->search['value'];
 
-            $users = User::currentBranch()->notsuper_admin()->filter($search)->get();
+            $users = User::currentBranch()->notsuper_admin()->get();
+
             $totalRecords = $users->count();
             $mappedUsers = $users->map(function($user) {
                 $user['role'] = getUserRoles($user, null);
@@ -49,7 +80,12 @@ class UserController extends Controller
 
         $roles = Role::where('name','<>','super_admin')->get(['id','name']);
 
-        return view('user.index', compact('roles','branches'));
+        return view('user.index', compact(
+            'roles',
+            'branches',
+            'filterData',
+            'users'
+        ));
     }
 
     /**
@@ -237,7 +273,7 @@ class UserController extends Controller
                                     ->where('branch_id', $branchId)
                                     ->first();
 
-            if ($current_role->role_id == $roleId) {
+            if (isset($current_role->role_id) && $current_role->role_id == $roleId) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'User already exists in branch.',
@@ -328,5 +364,51 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Branch updated successfully',
         ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $response = [];
+
+        $validator = Validator::make($request->all(), [
+            'password' => 'required',
+            'confirm_password' => 'required|same:password',
+        ], [
+            'confirm_password.same' => 'Passwords do not match!',
+        ]);
+
+        if($validator->fails()){
+            $allErrors = implode(',', $validator->errors()->all());
+            $response = [
+                'status' => 'fail',
+                'message' => 'Validation Failed!: ' . $allErrors,
+            ];
+
+            return response()->json($response);
+        }
+
+        try {
+            DB::beginTransaction();
+            User::where('id', $request->id)
+                ->update([
+                    'password' => bcrypt($request->password)
+                ]);
+            DB::commit();
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Password reset successfully.',
+            ];
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error resetting password: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json($response);
+
     }
 }

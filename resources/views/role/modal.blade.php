@@ -71,8 +71,8 @@
             </div>
 
             <div class="modal-footer gap-1">
-                <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save"></i> Submit</button>
-                <button type="button" class="btn btn-light" onclick="hideModal('modalRole')"><i class="fa fa-close"></i> Cancel</button>
+                <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save"></i> Submit Changes</button>
+                <button type="button" class="btn btn-danger" onclick="hideModal('modalRole')"><i class="fa fa-close"></i> Cancel</button>
             </div>
         </div>
     </div>

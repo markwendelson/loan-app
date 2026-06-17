@@ -159,6 +159,32 @@
     </a>
     @endcan --}}
 </li>
+<li class="sidebar-main-title">
+    <div>
+        <h6>Administration</h6>
+    </div>
+</li>
+<li class="sidebar-list">
+    <i class="fa fa-thumb-tack"></i>
+    <a class="sidebar-link sidebar-title" href="#">
+        <i class="fa fa-user text-white"></i>&nbsp;
+        <span>Users</span>
+
+        <div class="according-menu">
+            <i class="fa fa-angle-right"></i>
+        </div>
+    </a>
+    <ul class="sidebar-submenu">
+        {{-- <li><a href="#">Users</a></li>
+        <li><a href="#">Roles & Permissions</a></li> --}}
+        @can('view-user')
+        <li><a href="{{route('user.index')}}">Users</a></li>
+        @endcan
+        @can('view-role')
+        <li><a href="{{route('role.index')}}">Roles & Permissions</a></li>
+        @endcan
+    </ul>
+</li>
 
 <li class="sidebar-main-title">
     <div>
@@ -186,12 +212,7 @@
         @can('view-job-title')
         <li><a href="/job-titles">Job Title</a></li>
         @endcan
-        @can('view-user')
-        <li><a href="{{route('user.index')}}">Users</a></li>
-        @endcan
-        @can('view-role')
-        <li><a href="{{route('role.index')}}">Roles</a></li>
-        @endcan
+
         @can('view-insurance-fee')
         <li><a href="{{route('insurance-fee-schedule.index')}}">Insurance Fees</a></li>
         @endcan
