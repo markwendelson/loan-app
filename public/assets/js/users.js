@@ -1,45 +1,4 @@
 $(function () {
-    // $('#tblUser').DataTable({
-    //     ordering: false,
-    //     processing: true,
-    //     serverSide: true,
-    //     stateSave: true,
-    //     searching: true,
-    //     ajax: {
-    //         url: userEndpoint,
-    //     },
-    //     columns: [
-    //         { data: 'id', name: 'id' },
-    //         { data: 'name', name: 'name' },
-    //         { data: 'email', name: 'email' },
-    //         { data: 'role', name: 'role' },
-    //         { data: 'status', name: 'status', render: function(data, type, row) {
-    //             if (data == 1) {
-    //                 return '<span class="badge badge-success">Active</span>';
-    //             } else {
-    //                 return '<span class="badge badge-danger">Inactive</span>';
-    //             }
-    //         } },
-    //         {
-    //             data: null,
-    //             name: 'actions',
-    //             render: function(data, type, row) {
-    //                 let buttons = '';
-    //                 if (canEdit) {
-    //                     buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
-    //                 }
-    //                 if (canDelete) {
-    //                     buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
-    //                 }
-    //                 return buttons;
-    //             }
-    //         }
-    //     ],
-    //     columnDefs: [
-    //         { className: "text-center", targets: [3,4,5] },
-    //     ]
-    // });
-
     $("#tblUser").on("click", ".btnEdit", function(){
         let id=$(this).attr("data-id");
         window.location.href = `/user/${id}/edit`;

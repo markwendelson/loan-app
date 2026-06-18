@@ -13,6 +13,7 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\UserNotification;
 
 class UserController extends Controller
 {
@@ -29,9 +30,7 @@ class UserController extends Controller
     public function index(Request $request)
     {      
         $filterData = $request->all();
-        // $users = User::currentBranch()->notsuper_admin()->paginate($filterData['entries'] ?? 10)->appends($filterData);
 
-        // dd($users->toArray());
         $query = User::currentBranch()
             ->select('users.*', 'branch.name as branch_name')
             ->notsuper_admin()
@@ -56,25 +55,6 @@ class UserController extends Controller
             $user->role = getUserRoles($user, null);
             return $user;
         });
-
-        if($request->ajax()) {
-            $search = $request->search['value'];
-
-            $users = User::currentBranch()->notsuper_admin()->get();
-
-            $totalRecords = $users->count();
-            $mappedUsers = $users->map(function($user) {
-                $user['role'] = getUserRoles($user, null);
-                return $user;
-            });
-
-            return response()->json([
-                'draw' => intval($request->draw), // Keep track of the request number
-                'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
-                'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
-                'data' => $mappedUsers  // The paginated and formatted data
-            ]);
-        }
 
         $branches = $this->branch;
 
