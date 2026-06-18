@@ -2,6 +2,23 @@
 
 @section("title") Group Types @endsection
 
+@push('css')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        .select2-selection__arrow {
+            display: none !important; /* Hide the dropdown arrow */
+        }
+        
+        .select2-container--default .select2-selection--single {
+            height: 38px !important;
+            line-height: 36px !important;  /* Slightly smaller line-height to compensate for borders */
+            padding-top: 5px !important;
+            border-color: #dee2e6 !important;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <div class="page-title">
@@ -43,18 +60,22 @@
                             <tr>
                                 <th width="300">Name</th>
                                 <th>Description</th>
+                                <th>Person In-Charge</th>
                                 <th class="text-center" width="50">Status</th>
-                                <th class="text-center" width="50">
-                                    
-                                </th>
+                                <th class="text-center" width="50"></th>
                             </tr>
                         </thead>
                         <tbody>
                             @if(isset($groupTypesData) && $groupTypesData)
-                                @foreach(@$groupTypesData as $key => $val)
+                                @foreach($groupTypesData as $key => $val)
                                     <tr data-id="{{ $val->id }}">
                                         <td>{{ $val->name }}</td>
                                         <td>{{ $val->description }}</td>
+                                        <td>
+                                            @if($val->lastname && $val->firstname && $val->middlename)
+                                            {{ Str::title($val->lastname . ', ' . $val->firstname . ' ' . $val->middlename)  }}
+                                            @endif
+                                        </td>
                                         <td>
                                             <span class="{{ config('constants.status_badge')[$val->status] }}">{{ config('constants.status_value')[$val->status] }}</span>
                                         </td>
@@ -85,6 +106,8 @@
 @endsection
 
 @push('js')
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         $(document).ready(function() {
             //handle new group type button click function
@@ -100,6 +123,8 @@
                 //transfer data
                 $("#modalGroupTypes .btnSubmit").data("submit-url", $(this).data("submit-url"));
                 $("#modalGroupTypes .btnSubmit").data("method", $(this).data("method"));
+
+                initializeSelect2();
 
                 $("#modalGroupTypes").modal("show");
 
@@ -146,12 +171,16 @@
                         });
 
                         if(typeof response !== 'undefined' && response.status == 'success') {
+
                             $("#modalGroupTypes .modal-title").html("Update Group Type");
 
                             $("#modalGroupTypes form input[name='id']").val(response.data.id);
                             $("#modalGroupTypes form input[name='name']").val(response.data.name);
+                            $("#modalGroupTypes form select[name='client_id']").val(response.data.client_id).trigger("change");
                             $("#modalGroupTypes form select[name='status']").val(response.data.status);
                             $("#modalGroupTypes form textarea[name='description']").val(response.data.description);
+
+                            initializeSelect2();
 
                             $("#modalGroupTypes").modal("show");
                         }
@@ -230,6 +259,13 @@
 
         function clearModalForm() {
             $("#modalGroupTypes #frmGroupTypes")[0].reset();
+        }
+
+        function initializeSelect2() {
+            $(".selectPersonInCharge").select2({
+                placeholder : '-- Select In-Charge --',
+                dropdownParent: '#modalGroupTypes'
+            });
         }
     </script>
 @endpush

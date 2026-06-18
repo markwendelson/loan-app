@@ -40,6 +40,21 @@
                             </label>
                         </div>
 
+                        <!-- person in charge -->
+                        <div class="col-lg-12">
+                            <label class="w-100">
+                                Person In-Charge <span class="text-danger">*</span>
+                                <select class="form-select selectPersonInCharge" name="client_id" required>
+                                    <option value="" selected hidden disabled>-- Select In Charge --</option>
+                                    @if(isset($clientData) && $clientData)
+                                        @foreach($clientData as $key => $val)
+                                            <option value="{{ $val->id }}">{{ Str::title($val->lastname . ', '. $val->firstname . ' ' . $val->middlename) }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </label>
+                        </div>
+
                         <!-- description -->
                         <div class="col-lg-12">
                             <label class="w-100">

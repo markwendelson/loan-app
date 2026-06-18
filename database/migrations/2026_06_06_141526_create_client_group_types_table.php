@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('client_group_types', function (Blueprint $table) {
             $table->id();
+            $table->integer('client_id')->nullable()->comment('FK client');
             $table->string('name', 100)->nullable();
             $table->text('description')->nullable();
             $table->tinyInteger('status')->default(0);

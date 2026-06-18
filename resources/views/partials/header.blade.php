@@ -76,7 +76,6 @@
                             <div class="notitications-bar">
                                 <!-- Notifications Dropdown -->
                                 <div class="notification-dropdown">
-                                <div class="notification-dropdown">
                                     @if (isset($notifications) && $notifications->count() > 0)
                                         <div class="dropdown">
                                             <button class="btn btn-secondary dropdown-toggle" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -103,7 +102,6 @@
                                         <p>No new notifications</p>
                                     @endif
                                 </div>
-                            </div>
                             </div>
                         </div>
                     </div>

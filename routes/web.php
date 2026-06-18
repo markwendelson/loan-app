@@ -129,6 +129,7 @@ Route::middleware('auth')->group(function () {
         ->group(function() {
             Route::any('/', 'index')->name('client-group.index');
             Route::get('types', 'clientGrouptypes')->name('client-group-types.index');
+            Route::delete('remove-grouping/{id}', 'removeClientGrouping')->name('client-group.remove-client-grouping');
             Route::post('store-group-types', 'storeClientGroupTypes')->name('client-group.store');
             Route::post('get-group-types', 'getGroupType')->name('client-group-types.get-types');
             Route::put('put-group-types', 'putClientGroupTypes')->name('put-group-types.put');

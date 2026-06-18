@@ -163,6 +163,10 @@
                                                 @can('delete')
                                                 <li><a class="dropdown-item txt-danger" href="#" onclick="deleteData({{ $val->id }})" ><i class="fa fa-trash"></i> Delete</a></li>
                                                 @endcan
+                                                @if(isset($val->clientGroupTagging->type_name) && $val->clientGroupTagging->type_name && auth()->user()->can('delete-client-group'))
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item txt-danger btnRemoveFromGroup" href="#" onclick="removeFromGroup({{ $val->id }})"><i class="fa fa-minus-square me-1"></i>Remove From Group</a></li>
+                                                @endif
                                             </ul> 
                                         </div>
                                     </td>
@@ -216,7 +220,7 @@
                     success: function(response) {
                         if(response.status == 'success') {
                             showToast.success(response.message)
-                            $('#tblClient').DataTable().ajax.reload();
+                            location.reload();
                         }
                         if(response.status == 'error') {
                             showToast.error(response.message)
@@ -224,6 +228,39 @@
                     }
                 });
 
+            }
+        })
+    }
+
+    function removeFromGroup(id) {
+        swal({
+            title: 'Confirm Action',
+            text: "Are you sure you want to remove this client from the group?",
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+        }).then((result) => {
+            if (result) {
+                $.ajax({
+                    url: '/client-group/remove-grouping/' + id,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if(response.status == 'success') {
+                            showToast.success(response.message)
+
+                            location.reload();
+                        }
+                        if(response.status == 'error') {
+                            showToast.error(response.message)
+                        }
+                    }
+                });
+            }
+            else{
+                alert("haha");
             }
         })
     }

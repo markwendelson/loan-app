@@ -60,6 +60,9 @@ class ClientGroupsController extends Controller
             }
         }
 
+        //get group person incharge
+        $inchargeData = ClientGroupType::whereNotNull('client_id')->pluck('client_id')->toArray();
+
         //get all client list
         $clients = Client::select(
             'clients.*',
@@ -67,6 +70,7 @@ class ClientGroupsController extends Controller
             'client_details.middlename',
             'client_details.lastname',
         )->leftJoin('client_details', 'client_details.client_id', '=', 'clients.id')
+        ->whereNotIn('clients.id', $inchargeData)
         ->get()->toArray();
 
         $clientGroupType = ClientGroupType::all()->toArray();
@@ -85,10 +89,28 @@ class ClientGroupsController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $groupTypesData = ClientGroupType::paginate(10);
+        $groupTypesData = ClientGroupType::select(
+                'client_group_types.*',
+                'client_details.firstname',
+                'client_details.lastname',
+                'client_details.middlename',
+            )
+            ->leftJoin('client_details', 'client_details.client_id', 'client_group_types.client_id')
+            ->paginate(10);
+
+        //get client list
+        $clientData = Client::select(
+                'clients.*',
+                'client_details.firstname',
+                'client_details.lastname',
+                'client_details.middlename',
+            )
+            ->leftJoin('client_details', 'client_details.client_id', '=', 'clients.id')
+            ->get();
 
         return view('client.group.group-type.index', compact(
-            'groupTypesData'
+            'groupTypesData',
+            'clientData'
         ));
     }
 
@@ -104,6 +126,10 @@ class ClientGroupsController extends Controller
         //validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:client_group_types,name,',
+            'client_id' => [
+                'required',
+                'exists:clients,id'
+            ]
         ]);
 
         if($validator->fails()){
@@ -122,6 +148,7 @@ class ClientGroupsController extends Controller
             ClientGroupType::insert([
                 'name' => $request->name,
                 'description' => $request->description,
+                'client_id' => $request->client_id,
                 'status' => $request->status,
                 'created_by' => auth()->user()->id
             ]);
@@ -190,6 +217,14 @@ class ClientGroupsController extends Controller
                 'string',
                 'max:255',
                 Rule::unique('client_group_types')->ignore($request->input('id')),
+            ],
+            'client_id' => [
+                'required',
+                Rule::unique('client_group_types')->ignore($request->input('id'))
+            ],
+            [
+                'client_id.required' => 'Person In-charge is required.',
+                'client_id.unique' => 'This Persion is already assigned to another group type.',
             ]
         ]);
 
@@ -208,6 +243,7 @@ class ClientGroupsController extends Controller
             DB::beginTransaction();
 
             ClientGroupType::where('id', $request->input('id'))->update([
+                'client_id' => $request->client_id,
                 'name' => $request->name,
                 'description' => $request->description,
                 'status' => $request->status
@@ -227,6 +263,30 @@ class ClientGroupsController extends Controller
             ];
         }
 
+        return response()->json($response);
+    }
+
+    public function removeClientGrouping($id)
+    {
+        $response = [];
+
+        try {
+            DB::beginTransaction();
+
+            ClientGroupTagging::where('id', $id)->delete();
+
+            DB::commit();
+            $response = [
+                'status' => 'success',
+                'message' => 'Client succesfully removed from group.'
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => 'An error occurred while removing the client from grouping: ' . $e->getMessage()
+            ];
+        }
         return response()->json($response);
     }
 
