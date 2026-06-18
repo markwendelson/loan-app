@@ -102,7 +102,7 @@
                 let clientOptions = `<option value="" selected hidden disabled>-- Client --</option>`;
                 if(clients.length > 0) {
                     clients.forEach(val => {
-                        clientOptions += `<option value="${val.id}">${val.firstname}</option>`;
+                        clientOptions += `<option value="${val.id}">${val.lastname + ", " + val.firstname + " " + val.middlename + " | " + val.client_code}</option>`;
                     })
                 }
 
