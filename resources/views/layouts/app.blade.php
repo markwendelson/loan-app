@@ -335,7 +335,7 @@
             e.value = amount;
         }
 
-        $(".decimal-only").on("blur", function () {
+        $(document).on("blur", ".decimal-only", function () {
             numberFormat(this, 2);
         });
 
