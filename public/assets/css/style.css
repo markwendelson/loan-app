@@ -49692,10 +49692,26 @@ html[dir=rtl] body.dark-only .page-wrapper .page-body-wrapper .page-body .card:n
 body.dark-only .form-control,
 body.dark-only textarea,
 body.dark-only table th,
-body.dark-only .badge.bg-light {
+body.dark-only .badge.bg-light,
+body.dark-only .table tbody td {
   color: rgba(255, 255, 255, 0.6) !important;
 }
 
+body.dark-only .choices__inner {
+  background-color: rgb(26, 28, 35) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  border: none;
+}
+
+body.dark-only .choices__inner .choices__input{
+  background-color: rgb(26, 28, 35) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+body.dark-only .choices__item {
+  background-color: rgb(26, 28, 35) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
 /**=====================
   5.9 Box-layout CSS Ends
 ==========================**/
