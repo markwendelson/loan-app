@@ -548,7 +548,7 @@ class LoanController extends Controller
                     ($loan->loanCharges->notary_fee ?? 0) +
                     ($loan->loanCharges->reloan_deduction ?? 0) +
                     ($loan->loanCharges->membership_fee_paid ?? 0) +
-                    ($loan->loanCharges->principal_advance ?? 0) + 
+                    ($loan->loanCharges->principal_advance ?? 0) +
                     ($loan->loanDisbursementDetails->sum('amount') ?? 0)
                 );
                 return $loan;
@@ -1256,19 +1256,19 @@ class LoanController extends Controller
         return view('loan.report.soa-term');
     }
 
-    public function downloadSoaTerm()
+    public function downloadSoaTerm(int $id)
     {
         $pdf = Pdf::loadView('loan.report.soa-term-pdf')->setPaper('a4', 'landscape');
 
         return $pdf->download(Str::random(40) . '.pdf');
     }
 
-    public function previewSoaNoTerm()
+    public function previewSoaNoTerm(int $id)
     {
         return view('loan.report.soa-no-term');
     }
 
-    public function downloadSoaNoTerm()
+    public function downloadSoaNoTerm(int $id)
     {
         $pdf = Pdf::loadView('loan.report.soa-no-term-pdf')->setPaper('legal', 'landscape');
 

@@ -33,7 +33,7 @@
         2.18 Forms CSS
         2.19 Icons CSS
         2.20 List CSS
-        2.21 Loader CSS 
+        2.21 Loader CSS
         2.22 Modal CSS
         2.23 Popover CSS
         2.24 Print CSS
@@ -60,7 +60,7 @@
         3.7 Comingsoon CSS
         3.8 Contacts CSS
         3.9 Dashboard_2 CSS
-        3.10 Dashboard_3 CSS 
+        3.10 Dashboard_3 CSS
         3.11 Dashboard_4 CSS
         3.12 Dashboard_5 CSS
         3.13 Dashboard_default CSS
@@ -111,7 +111,7 @@
         5.6 Select2 CSS
         5.7 Sidebar CSS
         5.8 Rtl CSS
-        5.9 Box-layout CSS 
+        5.9 Box-layout CSS
 
  */
 :root {
@@ -35937,6 +35937,13 @@ body.dark-only .form-control {
   background-color: #22242B !important;
   border-color: rgba(255, 255, 255, 0.1);
 }
+body.dark-only .choices, .choices__inner, .choices__input, .choices__list {
+  background-color: #22242B !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+body.choices__list--dropdown .choices__item--selectable.is-highlighted, .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+  background-color: #1f1f1f !important;
+}
 body.dark-only input::-webkit-input-placeholder {
   color: rgba(255, 255, 255, 0.6);
 }
@@ -49690,6 +49697,8 @@ html[dir=rtl] body.dark-only .page-wrapper .page-body-wrapper .page-body .card:n
 }
 
 body.dark-only .form-control,
+body.dark-only .choices,
+body.dark-only .choices__inner,
 body.dark-only textarea,
 body.dark-only table th,
 body.dark-only .badge.bg-light,
