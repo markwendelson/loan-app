@@ -62,7 +62,10 @@
                     <div class="notification-box">
                         <svg>
                             <use href="{{url('assets/svg/icon-sprite.svg#notification-header')}}"></use>
-                        </svg><span class="badge rounded-pill badge-secondary">{{ auth()->user()->unreadNotifications()->count() }}</span>
+                        </svg>
+                        @if(auth()->user()->unreadNotifications()->count() > 0)
+                        <span class="badge rounded-pill badge-secondary">{{ auth()->user()->unreadNotifications()->count() }}</span>
+                        @endif
                     </div>
                     <div class="onhover-show-div notification-dropdown" style="width: 350px !important;">
                         <div class="card mb-0">
