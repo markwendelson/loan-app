@@ -60,6 +60,8 @@
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
+    <livewire:styles />
+
     @stack('css')
     <style>
         .form-group {
@@ -358,6 +360,9 @@
 
 
     </script>
+
+    <livewire:scripts />
+
     @stack('js')
 </body>
 
