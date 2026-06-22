@@ -42,12 +42,7 @@ class ClientController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('client.index', compact(
-            'clientData',
-            'filterData',
-            'branchData',
-            'groupTypes'
-        ));
+        return view('client.index');
     }
 
 
