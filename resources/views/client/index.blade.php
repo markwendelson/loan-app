@@ -53,9 +53,7 @@
             <livewire:Client.ClientList.FilterData />
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <livewire:Client.ClientList.TableData defer />
-            </div>
+            <livewire:Client.ClientList.TableData defer />
         </div>
     </div>
 

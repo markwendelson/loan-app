@@ -33,6 +33,8 @@ $(function () {
                         $(this).hide();
                     });
                     if(response.status == 'success'){
+                        Livewire.dispatch('user-created');
+
                         hideModal('modalUser');
                         showToast.success(response.message)
                         $('#tblUser').DataTable().ajax.reload();

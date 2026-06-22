@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 
 
 //models
+use App\Models\BranchUser;
 use App\Models\Client;
 
 class TableData extends Component
@@ -20,12 +21,7 @@ class TableData extends Component
     public $branch_id = '';
     public $group_type= '';
 
-    protected $queryString = [
-        'entries',
-        'q',
-        'branch_id',
-        'group_type',
-    ];
+    public $allowedBranches;
 
     #[On('client-list-filter-updated')]
     public function updateFilters($data)
@@ -41,6 +37,8 @@ class TableData extends Component
     public function mount()
     {
         $this->branch_id =  auth()->user()->current_branch_id;
+        $this->allowedBranches = BranchUser::where('user_id', auth()->user()->id)
+            ->where('is_active', 1)->pluck('branch_id')->toArray();
     }
 
     public function placeholder()
@@ -135,6 +133,8 @@ class TableData extends Component
         //branch
         if($this->branch_id) {
             $query->where('branch_id', $this->branch_id);
+        }else{
+            $query->whereIn('branch_id', $this->allowedBranches);
         }
 
         //group_type

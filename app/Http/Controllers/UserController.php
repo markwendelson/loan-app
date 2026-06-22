@@ -29,32 +29,9 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {      
-        $filterData = $request->all();
-
-        $query = User::currentBranch()
-            ->select('users.*', 'branch.name as branch_name')
-            ->notsuper_admin()
-            ->leftJoin('branch', 'branch.id', '=', 'users.current_branch_id')
-            ->whereNotIn('users.id', [auth()->id()]);
-        //branch_id
-        if(isset($filterData['branch_id']) && $filterData['branch_id']) {
-            $query->where('current_branch_id', $filterData['branch_id']);
+        if(!auth()->user()->can('view-user')) {
+            abort(403, 'Unauthorized action.');
         }
-
-        //q
-        if(isset($filterData['q']) && $filterData['q']) {
-            $query->where(function ($query) use ($filterData) {
-                $query->orWhere('users.name', 'like', '%' . $filterData['q'] . '%')
-                    ->orWhere('users.email', 'like', '%' . $filterData['q'] . '%');
-            });
-        }
-
-        $users = $query->paginate($filterData['entries'] ?? 10)->appends($filterData);
-
-        $users->getCollection()->transform(function ($user) {
-            $user->role = getUserRoles($user, null);
-            return $user;
-        });
 
         $branches = $this->branch;
 
@@ -63,8 +40,6 @@ class UserController extends Controller
         return view('user.index', compact(
             'roles',
             'branches',
-            'filterData',
-            'users'
         ));
     }
 
