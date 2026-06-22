@@ -50,11 +50,11 @@
 
     <div class="card">
         <div class="card-header">
-            <livewire:client.clientList.filterdata />
+            <livewire:Client.ClientList.FilterData />
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <livewire:client.clientlist.tabledata defer />
+                <livewire:Client.ClientList.TableData defer />
             </div>
         </div>
     </div>
