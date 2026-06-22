@@ -6,6 +6,7 @@ use Livewire\Component;
 
 //models
 use App\Models\Branch;
+use App\Models\BranchUser;
 use App\Models\ClientGroupType;
 
 class FilterData extends Component
@@ -16,6 +17,7 @@ class FilterData extends Component
     public $group_type= '';
 
     public $branchData;
+    public $allowedBranches;
     public $groupTypes;
 
     public function mount()
@@ -23,6 +25,11 @@ class FilterData extends Component
         $this->branchData = Branch::all();
         $this->groupTypes = ClientGroupType::all();
         $this->branch_id =  auth()->user()->current_branch_id;
+
+        $this->allowedBranches = BranchUser::where('user_id', auth()->user()->id)
+            ->where('is_active', 1)
+            ->pluck('branch_id')
+            ->toArray();
     }
 
     public function updated() {

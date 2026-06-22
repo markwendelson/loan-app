@@ -22,7 +22,9 @@
                 <option value="">-- Branch --</option>
                 @if(isset($branchData) && $branchData)
                     @foreach($branchData as $key => $val)
+                        @if(in_array($val->id, $allowedBranches))
                         <option value="{{ $val->id }}">{{ $val->name }}</option>
+                        @endif
                     @endforeach
                 @endif
             </select>

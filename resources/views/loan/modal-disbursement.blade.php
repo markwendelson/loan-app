@@ -17,7 +17,7 @@
 
                     <div class="col-12">
                         <label for="amount">Amount</label>
-                        <input type="text" class="form-control form-control-sm" name="amount" placeholder="0.00" readonly/>
+                        <input type="text" class="form-control form-control-sm" name="amount" placeholder="0.00"/>
                     </div>
 
                     <div class="col-12">
