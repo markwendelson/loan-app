@@ -4,6 +4,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientGroupsController;
 use App\Http\Controllers\ClientIDsController;
 use App\Http\Controllers\DepartmentController;
 // use App\Http\Controllers\EmployeeController;
@@ -117,10 +118,22 @@ Route::middleware('auth')->group(function () {
         Route::post('user/{user}/branch/{branch}/permission', [UserController::class, 'updateBranchPermission'])->name('user.update-branch-permission');
         Route::post('user/{user}/permission', [UserController::class, 'updatePermission'])->name('user.update-permission');
         Route::post('user/{user}/role',[UserController::class, 'assignRole'])->name('user.assign-role');
+        Route::put('user/reset-password', [UserController::class, 'resetPassword'])->name('user.reset-password');
 
         Route::delete('user/{user}/branch/{branchId}', [UserController::class, 'deleteBranchRole'])->name('user.delete-branch-role');
 
         Route::post('user/update-branch', [UserController::class, 'updateUserBranch'])->name('user.update-branch');
+
+    Route::controller(ClientGroupsController::class)
+        ->prefix('client-group')
+        ->group(function() {
+            Route::any('/', 'index')->name('client-group.index');
+            Route::get('types', 'clientGrouptypes')->name('client-group-types.index');
+            Route::delete('remove-grouping/{id}', 'removeClientGrouping')->name('client-group.remove-client-grouping');
+            Route::post('store-group-types', 'storeClientGroupTypes')->name('client-group.store');
+            Route::post('get-group-types', 'getGroupType')->name('client-group-types.get-types');
+            Route::put('put-group-types', 'putClientGroupTypes')->name('put-group-types.put');
+    });
 
     Route::resource('user', UserController::class);
     Route::resource('role', RoleController::class);
@@ -144,8 +157,11 @@ Route::middleware('auth')->group(function () {
             Route::post('get-reloan-deduction', 'getReloanDeduction')->name('loan.get-reloan-deduction');
             Route::get('{id}/print', 'printReceipt')->name('loan.print');
             Route::post('{id}/update-disbursement-reference', 'updateDisbursementReference')->name('loan.update-disbursement-reference');
-            Route::get('report/preview/soa-term', 'previewSoaTerm')->name('loan.preview-soa-term'); //mockup route for viewing soa
-            Route::get('report/preview/soa-no-term', 'previewSoaNoTerm')->name('loan.preview-soa-no-term');
+            Route::get('report/{id}/preview/soa-term', 'previewSoaTerm')->name('loan.preview-soa-term'); //mockup route for viewing soa
+            Route::get('report/{id}/download-pdf/soa-term', 'downloadSoaTerm')->name('loan.download-pdf-soa-term');
+            Route::get('report/{id}//preview/soa-no-term', 'previewSoaNoTerm')->name('loan.preview-soa-no-term');
+            Route::get('report/{id}/download-pdf/soa-no-term', 'downloadSoaNoTerm')->name('loan.download-pdf-soa-no-term');
+
 
         });
     Route::controller(SavingsController::class)
@@ -173,6 +189,7 @@ Route::middleware('auth')->group(function () {
             Route::post('update', 'updateExpenses')->name('expense.update');
             Route::delete('delete', 'deleteExpense')->name('expense.delete');
             Route::get('view-expense-data', 'viewExpenseData')->name('expense.view-expense-data');
+            Route::get('download-expense-details-pdf', 'downloadExpenseDetailsPdf')->name('expense.download-expense-details-pdf');
             Route::get('report/download-pdf/{slug}', 'downloadPdf')->name('expense-category.download-pdf');
         });
     Route::resource('expenses',ExpenseController::class);

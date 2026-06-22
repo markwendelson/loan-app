@@ -4,8 +4,14 @@
 @endphp
 
 <div class="modal-content">
-    <div class="modal-header">
-        <h4 class="modal-title">View Expense Details</h4>
+    <div class="modal-header d-flex justify-content-between">
+        <div>
+            <h4 class="modal-title">View Expense Details</h4>
+        </div>
+        <div>
+            {{-- <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-download"></i> PDF</button> --}}
+            <a class="btn btn-primary btn-sm" href="{{ route('expense.download-expense-details-pdf', ['slug' => $expenseData['slug']]) }}" target="_blank"><i class="fa fa-download me-1"></i>PDF</a>
+        </div>
     </div>
     <div class="modal-body">
         <!-- main info contianer -->

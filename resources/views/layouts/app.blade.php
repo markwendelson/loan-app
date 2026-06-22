@@ -60,6 +60,8 @@
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
+    <livewire:styles />
+
     @stack('css')
     <style>
         .form-group {
@@ -335,7 +337,7 @@
             e.value = amount;
         }
 
-        $(".decimal-only").on("blur", function () {
+        $(document).on("blur", ".decimal-only", function () {
             numberFormat(this, 2);
         });
 
@@ -358,6 +360,9 @@
 
 
     </script>
+
+    <livewire:scripts />
+
     @stack('js')
 </body>
 

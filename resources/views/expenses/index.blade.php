@@ -141,12 +141,12 @@
                                                     <i class="fa fa-ellipsis-v"></i>
                                                 </button>
                                                 <ul class="dropdown-menu" style="opacity: 1 !important;">
-                                                    <li><a class="dropdown-item btnViewExpense" href="#"><i class="fa fa-eye txt-success"></i> View Expenses Data</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item btnViewExpense" href="#"><i class="fa fa-eye"></i> View Expenses Data</a></li>
                                                     @can('edit-expense')
-                                                    <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-edit txt-primary"></i> Edit</a></li>
+                                                    <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-edit"></i> Edit</a></li>
                                                     @endcan
                                                     @can('delete-expense')
+                                                    <li><hr class="dropdown-divider"></li>
                                                     <li><a class="dropdown-item btnDelete" href="#"><i class="fa fa-trash txt-danger"></i> Delete</a></li>
                                                     @endcan
                                                 </ul>
@@ -494,40 +494,29 @@
         $("#expenseTable tbody").on("click", "tr .btnViewExpense", function(e) {
             e.preventDefault();
 
-            // swal({
-            //     title: 'Error',
-            //     text: '',
-            //     icon: 'warning',
-            //     confirmButton: true,
-            //     dangerMode: true,
-            // }).then((willDelete) => {
-                // if (willDelete) {
-                    //show loading form
-                    $(".loader-wrapper").fadeIn("slow");
+            $(".loader-wrapper").fadeIn("slow");
 
-                    $.ajax({
-                        type: "GET",
-                        url: "{{ route('expense.view-expense-data') }}",
-                        data: {
-                            expense_id : $(this).closest("tr").data("id")
-                        },
-                        dataType: "json",
-                        success: function (response) {
-                            //hide loading form
-                            $(".loader-wrapper").fadeOut("slow", function () {
-                                $(this).hide();
-                            });
-
-                            if(typeof response.status  !== 'undefined' && response.status == 'success') {
-                                $("#expenseEditModal .modal-dialog").html(response.html);
-
-                                initializeViewerZoom();
-                                $("#expenseEditModal").modal("show");
-                            }
-                        }
+            $.ajax({
+                type: "GET",
+                url: "{{ route('expense.view-expense-data') }}",
+                data: {
+                    expense_id : $(this).closest("tr").data("id")
+                },
+                dataType: "json",
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
                     });
-                // }
-            // });
+
+                    if(typeof response.status  !== 'undefined' && response.status == 'success') {
+                        $("#expenseEditModal .modal-dialog").html(response.html);
+
+                        initializeViewerZoom();
+                        $("#expenseEditModal").modal("show");
+                    }
+                }
+            });
         });
 
         //handle delete expense button click function

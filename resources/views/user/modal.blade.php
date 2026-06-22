@@ -1,6 +1,6 @@
 
 <div class="modal fade" id="modalUser" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-sm">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addModalLabel">User Information</h5>
@@ -10,12 +10,12 @@
                 <form id="frmUserModal" class="row g-3 needs-validation custom-input" novalidate="" action="{{ route('user.store') }}">
                     @csrf
                     <input type="hidden" value="" name="id" id="id">
-                    <div class="col-12">
+                    <div class="col-6">
                         <label class="w-100" for="name">Name</label>
                         <input type="text" class="form-control form-control-sm" name="name" placeholder="Name" required />
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
                         <label class="w-100" for="email">Email</label>
                         <input type="email" class="form-control form-control-sm" name="email" placeholder="Email" required />
                     </div>
@@ -30,7 +30,7 @@
                         </select>
                 </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
                         <label class="w-100" for="role_id">Role</label>
                         <select class="form-select form-select-sm" name="role_id">
                             <option value="" disabled>-- Select --</option>
@@ -40,7 +40,7 @@
                         </select>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-6">
                         <label class="w-100" for="status">Status</label>
                         <select class="form-select form-select-sm" name="status">
                             <option value="" disabled>-- Select --</option>
@@ -54,8 +54,17 @@
             </div>
 
             <div class="modal-footer gap-1">
-                <button type="button" class="btn btn-primary btnSubmit w-100"><i class="fa fa-save"></i> Submit</button>
-                <button type="button" class="btn btn-light w-100" onclick="hideModal('modalUser')"><i class="fa fa-close"></i> Cancel</button>
+                <div class="d-lg-none w-100">
+                    <div class="d-flex flex-column gap-1">
+                        <button type="button" class="btn btn-primary btnSubmit w-100"><i class="fa fa-save"></i> Submit User</button>
+                        <button type="button" class="btn btn-danger w-100" onclick="hideModal('modalUser')"><i class="fa fa-times"></i> Cancel</button>
+                    </div>
+                </div>
+
+                <div class="d-none d-lg-block">
+                    <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save"></i> Submit User</button>
+                    <button type="button" class="btn btn-danger" onclick="hideModal('modalUser')"><i class="fa fa-times"></i> Cancel</button>
+                </div>
             </div>
         </div>
     </div>

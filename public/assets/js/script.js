@@ -413,7 +413,7 @@ function toggleMode(toggled) {
 
 function getActiveSidebar() {
   // Ensure the URL is correctly formatted
-    let currentUrl = window.location.href;
+    let currentUrl = window.location.origin + window.location.pathname;
 
     let link = $(`.sidebar-submenu a[href="${currentUrl}"], .sidebar-link[href="${currentUrl}"]`);
 

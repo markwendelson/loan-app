@@ -41,6 +41,9 @@
         @can('view-client')
         <li><a href="{{route('client.index')}}">Client List</a></li>
         @endcan
+        @can('view-client-group')
+        <li><a href="{{ route('client-group.index') }}">Client Grouping</a></li>
+        @endcan
         @can('create-client')
         <li><a href="{{route('client.create')}}">Client Register</a></li>
         @endcan
@@ -147,15 +150,43 @@
 </li>
 <li class="sidebar-list">
 
-    @can('view-expense-report')
+    {{-- @can('view-expense-report')
     <a class="sidebar-link sidebar-title link-nav" href="{{route('expenses.report')}}">
         <svg class="stroke-icon">
             <use href="{{url('assets/svg/icon-sprite.svg#expense')}}"></use>
         </svg>
         <span>Expenses</span>
     </a>
-    @endcan
+    @endcan --}}
 </li>
+<li class="sidebar-main-title">
+    <div>
+        <h6>Administration</h6>
+    </div>
+</li>
+@if(auth()->user()->hasRole('super-admin') ||  auth()->user()->hasAnyPermission(['view-user', 'view-role']))
+<li class="sidebar-list">
+    <i class="fa fa-thumb-tack"></i>
+    <a class="sidebar-link sidebar-title" href="#">
+        <i class="fa fa-user text-white"></i>&nbsp;
+        <span>Users</span>
+
+        <div class="according-menu">
+            <i class="fa fa-angle-right"></i>
+        </div>
+    </a>
+    <ul class="sidebar-submenu">
+        {{-- <li><a href="#">Users</a></li>
+        <li><a href="#">Roles & Permissions</a></li> --}}
+        @can('view-user')
+        <li><a href="{{route('user.index')}}">Users</a></li>
+        @endcan
+        @can('view-role')
+        <li><a href="{{route('role.index')}}">Roles & Permissions</a></li>
+        @endcan
+    </ul>
+</li>
+@endif
 
 <li class="sidebar-main-title">
     <div>
@@ -175,17 +206,15 @@
         @can('view-expense-category')
         <li><a href="{{ route('expense-category.index') }}">Expense Category</a></li>
         @endcan
+        @can('view-client-group-type')
+        <li><a href="{{ route('client-group-types.index') }}">Group Types</a></li>
+        @endcan
 
         <!-- <li><a href="/departments">Department</a></li> -->
         @can('view-job-title')
         <li><a href="/job-titles">Job Title</a></li>
         @endcan
-        @can('view-user')
-        <li><a href="{{route('user.index')}}">Users</a></li>
-        @endcan
-        @can('view-role')
-        <li><a href="{{route('role.index')}}">Roles</a></li>
-        @endcan
+
         @can('view-insurance-fee')
         <li><a href="{{route('insurance-fee-schedule.index')}}">Insurance Fees</a></li>
         @endcan

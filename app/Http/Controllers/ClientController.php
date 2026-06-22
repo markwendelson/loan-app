@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LoanStatus;
-use App\Models\Client;
-use App\Models\ClientDocument;
-use App\Models\DocumentType;
-use App\Models\Loan;
 use App\Services\ClientRegistrationService;
 use App\Services\ClientUpdateService;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+//models
+use App\Models\Client;
+use App\Models\ClientDocument;
+use App\Models\ClientGroupType;
+use App\Models\DocumentType;
+use App\Models\Loan;
 
 class ClientController extends Controller
 {
@@ -34,39 +37,9 @@ class ClientController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            $search = $request->search['value'];
-
-            // $clients = Client::whereHas('coMakers')->with('details')->get();
-            if (!auth()->user()->hasRole('admin|super_admin')) {
-                $clients = Client::currentBranch()
-                    ->filter($search)
-                    ->with('details');
-            } else {
-                $clients = Client::filter($search)->with('details');
-            }
-
-            // $mappedClients = $clients->map(function($client) {
-            //     $client->fullname = trim(collect([$client->firstname, $client->middlename, $client->lastname, ])->filter()->implode(' '));
-            //     $client->present_full_address = trim(collect([$client->present_address,$client->presentCity->name ?? '',$client->presentProvince->name ?? '',])->filter()->implode(' '));
-            //     return $client;
-            // });
-
-            $start = $request->input('start', 0);
-            $length = $request->input('length', 5);
-            $totalRecords = $clients->count();
-            $clients = $clients->skip($start)
-                ->take($length)
-                ->get();
-
-            return response()->json([
-                'draw' => intval($request->draw), // Keep track of the request number
-                'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
-                'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
-                'data' => $clients  // The paginated and formatted data
-            ]);
-
+    {   
+        if(!auth()->user()->can('view-client')) {
+            abort(403, 'Unauthorized action.');
         }
 
         return view('client.index');

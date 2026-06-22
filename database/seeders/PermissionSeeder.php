@@ -19,7 +19,15 @@ class PermissionSeeder extends Seeder
 
         foreach ($modules as $moduleKey => $module) {
             foreach ($module['permissions'] as $permission) {
-                Permission::firstOrCreate(['name' => $permission['name'], 'group' => $moduleKey, 'guard_name' => 'web']);
+                if (isset($permission['name']) && isset($permission['label'])) {
+                    Permission::firstOrCreate([
+                        'name' => $permission['name'],
+                        'group' => $moduleKey,
+                        'guard_name' => 'web',
+                    ]);
+                } else {
+                    \Log::error("Permission missing name or label in module: $moduleKey");
+                }
             }
         }
     }

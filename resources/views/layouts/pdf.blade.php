@@ -16,9 +16,9 @@
                 padding: 10px 0;
                 /* background-color: #f1f1f1; */
             }
-            .header-color {
+            /* .header-color {
                 color: #006666; 
-            }
+            } */
             /* main {
                 padding: 20px;
             } */
@@ -39,22 +39,30 @@
             .table-bordered th,
             .table-bordered td {
                 border: 0.5px solid #999999; 
-                padding: 8px;
+                padding-left: 5px;
+                padding-right: 5px;
+                padding-top: 2px;
+                padding-bottom: 2px;
                 text-align: center;
             }
             th, td {
                 padding: 8px;
-                text-align: center;
             }
             th {
                 background-color: #006666;
                 color: white;
             }
             .text-end {
-                text-align: right;
+                text-align: right !important;
+            }
+            .text-start {
+                text-align: left !important;
             }
             .fw-bold {
                 font-weight: bold;
+            }
+            .fw-semibold {
+                font-weight: 600;
             }
             .w-300px {
                 width: 300px;
@@ -83,6 +91,13 @@
             
             .p-0 {
                 padding: 0px !important;
+            }
+
+            .d-flex {
+                display: flex !important;
+            }
+            .justify-content-between {
+                justify-content: space-between !important;
             }
         </style>
     </head>

@@ -1,17 +1,23 @@
 @extends('layouts.app')
 
-@section('title') Manage Role @endsection
+@section('title') Roles & Permissions @endsection
 
 @push('css')
 <style>
     .bg-default {
-         background-color: #1f807f;
-     }
-     .bg-default th {
-         color: white; /* Set white text for <th> elements */
-         border: 1px solid white;
-     }
- </style>
+        background-color: #1f807f;
+    }
+    .bg-default th {
+        color: white; /* Set white text for <th> elements */
+        border: 1px solid white;
+    }
+    .custom-input .form-check .form-check-input:valid ~ .form-check-label {
+        color: #000000;
+    }
+    body.dark-only .custom-input .form-check .form-check-input:valid ~ .form-check-label {
+        color:rgba(255, 255, 255, 0.6) !important;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -29,8 +35,9 @@
                                 <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
-                        <li class="breadcrumb-item">Role</li>
-                        <li class="breadcrumb-item active">Manage Role</li>
+                        <li class="breadcrumb-item">Administration</li>
+                        <li class="breadcrumb-item">Users</li>
+                        <li class="breadcrumb-item active">Roles & Permissions</li>
                     </ol>
                 </div>
             </div>
@@ -44,21 +51,67 @@
         </div>
     </div>
 
-
     <!-- table container -->
     <div class="card">
-        <div class="card-body">
+        <div class="card-header">
+            <form action="{{ url()->current() }}" method="GET">
+                <div class="d-flex justify-content-between gap-2">
+                    <div class="d-flex gap-2 align-items-center">
+                        <span>Show</span>
+                        <select name="entries" class="form-select">
+                            <option value="10" {{ isset($filterData['entries']) && $filterData['entries'] == 10 ? 'selected' : ''; }}>10</option>
+                            <option value="25" {{ isset($filterData['entries']) && $filterData['entries'] == 25 ? 'selected' : ''; }}>25</option>
+                            <option value="50" {{ isset($filterData['entries']) && $filterData['entries'] == 50 ? 'selected' : ''; }}>50</option>
+                            <option value="100" {{ isset($filterData['entries']) && $filterData['entries'] == 100 ? 'selected' : ''; }}>100</option>
+                        </select>
+                    </div>
+                    <!-- branch select -->
+                    <div class="d-flex justify-content-start align-items-center gap-2">
+                        <input type="search"
+                            class="form-control"
+                            placeholder="Search roles..."
+                            value="{{ $filterData['q'] ?? ''; }}"
+                            name="q"
+                        >
+                        <button type="submit" class="btn btn-success"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="tblRole">
-                    <thead class="bg-default">
+                <table id="tblRole" class="table table-bordered table-hover">
+                    <thead>
                         <tr>
-                            <th class="text-center" width="150">Name</th>
-                            <th class="text-center" width="150"><i class="fa fa-cog"></i></th> <!-- New column for Edit/Delete buttons -->
+                            <th>Name</th>
+                            <th class="text-center"  width="50"><i class="fa fa-cog"></i></th>
                         </tr>
                     </thead>
+                    <tbody>
+                        @if(isset($roles) && $roles)
+                            @foreach($roles as $key => $val)
+                                <tr data-id="{{ $val->id }}">
+                                    <td>{{ $val->name }}</td>
+                                    <td class="d-flex justify-content-start gap-1">
+                                        @can('edit-role')
+                                        <button type="button" class="btn btn-primary btn-sm btnEdit" data-id="{{ $val->id }}"><i class="fa fa-pencil"></i></button>
+                                        @endcan
+                                        @can('delete-role')
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteData({{ $val->id }})"><i class="fa fa-trash"></i></button>
+                                        @endcan
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
                 </table>
             </div>
         </div>
+    </div>
+
+    <!-- pagination -->
+    <div class="d-flex justify-content-end">
+        {{ $roles->appends(request()->input())->onEachSide(0)->links('partials.pagination.default') }}
     </div>
 
     @include('role.modal')
@@ -68,40 +121,6 @@
 @push('js')
 <script>
     $(document).ready(function () {
-        const canEdit = {{ auth()->user()->can('edit-role') ? 1 : 0 }};
-        const canDelete = {{ auth()->user()->can('delete-role') ? 1 : 0 }};
-        
-        const table=$('#tblRole').DataTable({
-            ordering: false,
-            processing: true,
-            serverSide: true,
-            stateSave: true,
-            searching: true,
-            ajax: {
-                url: "{{ route('role.index') }}",
-            },
-            columns: [
-                { data: 'name', name: 'name' },
-                {
-                    data: null,
-                    name: 'actions',
-                    render: function(data, type, row) {
-                        let buttons = '';
-                        if (canEdit) {
-                            buttons += `<button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button> `;
-                        }
-                        if (canDelete) {
-                            buttons += `<button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>`;
-                        }
-                        return buttons;
-                    }
-                }
-            ],
-            columnDefs: [
-                { className: "text-center", targets: [1] },
-            ]
-        });
-
         $("#modalRole .btnSubmit").click(function (e) {
             e.preventDefault();
 
@@ -173,12 +192,43 @@
                     $("#modalRole input[name='permissions[]'][id='" + permission.name + "']").prop('checked', true);
                 });
 
+                checkGroupCheckbox();
+                checkAllGroupCheckbox();
+
                 // Show the modal
                 showModal('modalRole');
             }).catch((error) => {
                 showToast.error("Failed to fetch role data.");
             });
         })
+
+        //handle checkAll functionality
+        $(document).on("change", ".chckAll", function(e) {
+            e.preventDefault();
+
+            if($(this).is(":checked")) {
+                $(".chck-permissions input[type='checkbox']").prop("checked", true);
+            }else{
+                $(".chck-permissions input[type='checkbox']").prop("checked", false);
+            }
+        });
+
+        //handle checkAllGroup functionality
+        $(document).on("change", ".chckAllGroup", function(e) {
+            e.preventDefault();
+
+            if($(this).is(":checked")) {
+                $(this).closest(".group-permissions").find("input[type='checkbox']").prop("checked", true);
+            }else{
+                $(this).closest(".group-permissions").find("input[type='checkbox']").prop("checked", false);   
+            }
+
+            checkAllGroupCheckbox(this);
+        });
+
+        $(document).on("change", ".subCheckBox", function () {
+            checkGroupCheckbox(this);
+        });
 
 
     });
@@ -218,6 +268,78 @@
 
             }
         })
+    }
+
+    function checkGroupCheckbox(el = null) {
+        if (el) {
+
+            let card = $(el).closest(".card");
+
+            let total = card.find(".subCheckBox").length;
+            let checked = card.find(".subCheckBox:checked").length;
+
+            let all = card.find(".chckAllGroup");
+
+            all.prop("checked", checked === total);
+            all.prop("indeterminate", checked > 0 && checked < total);
+
+            checkAllGroupCheckbox();
+
+            return;
+        }
+
+        $(".card").each(function () {
+
+            let card = $(this);
+
+            let total = card.find(".subCheckBox").length;
+            let checked = card.find(".subCheckBox:checked").length;
+
+            let all = card.find(".chckAllGroup");
+
+            all.prop("checked", checked === total);
+            all.prop("indeterminate", checked > 0 && checked < total);
+        });
+    }
+
+    function checkAllGroupCheckbox(el = null) {
+        let all = $(".chckAll");
+        let isAllChecked = true;
+
+        if (el) {
+            $(".chckAllGroup").each(function () {
+                if (!$(this).is(":checked")) {
+                    isAllChecked = false;
+                }
+            });
+
+            if (isAllChecked) {
+                all.prop("checked", true);
+            } else {
+                all.prop("checked", false);
+            }
+
+            all.prop("indeterminate", false);
+
+            return;
+        }
+
+        $(".chckAllGroup").each(function () {
+            console.log("checking");
+            if (!$(this).is(":checked")) {
+                isAllChecked = false;
+            }
+        });
+
+        if (isAllChecked) {
+            all.prop("checked", true);
+        } else {
+            all.prop("checked", false);
+        }
+
+        all.prop("indeterminate", false);
+
+        return;
     }
 
 </script>

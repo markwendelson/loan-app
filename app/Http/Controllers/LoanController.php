@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LoanController extends Controller
 {
@@ -43,7 +44,7 @@ class LoanController extends Controller
                 ->when(!auth()->user()->hasRole('admin|super_admin'), function ($query) {
                     // Apply filter only if the user is not an admin or super_admin
                     $query->whereHas('borrower', function ($query) {
-                        $query->where('branch_id', auth()->user()->branch_id);
+                        $query->where('branch_id', auth()->user()->current_branch_id);
                     });
                 })
                 ->orderByDesc('loan_date')
@@ -547,7 +548,7 @@ class LoanController extends Controller
                     ($loan->loanCharges->notary_fee ?? 0) +
                     ($loan->loanCharges->reloan_deduction ?? 0) +
                     ($loan->loanCharges->membership_fee_paid ?? 0) +
-                    ($loan->loanCharges->principal_advance ?? 0) + 
+                    ($loan->loanCharges->principal_advance ?? 0) +
                     ($loan->loanDisbursementDetails->sum('amount') ?? 0)
                 );
                 return $loan;
@@ -1255,9 +1256,23 @@ class LoanController extends Controller
         return view('loan.report.soa-term');
     }
 
-    public function previewSoaNoTerm()
+    public function downloadSoaTerm(int $id)
+    {
+        $pdf = Pdf::loadView('loan.report.soa-term-pdf')->setPaper('a4', 'landscape');
+
+        return $pdf->download(Str::random(40) . '.pdf');
+    }
+
+    public function previewSoaNoTerm(int $id)
     {
         return view('loan.report.soa-no-term');
+    }
+
+    public function downloadSoaNoTerm(int $id)
+    {
+        $pdf = Pdf::loadView('loan.report.soa-no-term-pdf')->setPaper('legal', 'landscape');
+
+        return $pdf->download(Str::random(40) . '.pdf');
     }
 
 

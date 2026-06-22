@@ -96,6 +96,13 @@ class Client extends Model implements Auditable
         return $this->hasMany(ClientPayrollAccount::class);
     }
 
+    public function clientGroupTagging()
+    {
+        return $this->hasOne(ClientGroupTagging::class)
+            ->select('client_group_tagging.*', 'client_group_types.name AS type_name')
+            ->leftJoin('client_group_types', 'client_group_types.id', '=', 'client_group_tagging.client_group_type_id');
+    }
+
     public function getApproveLoans()
     {
        return Loan::with([
