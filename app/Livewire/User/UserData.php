@@ -131,6 +131,11 @@ class UserData extends Component
     }
 
     #[On("user-created")]
+    public function refresh() 
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = User::currentBranch()
