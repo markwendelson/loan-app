@@ -59,6 +59,11 @@
         </div>
     </div>
 
+    <!-- pagination -->
+    <div class="d-flex justify-content-end">
+        {{ $clientData->appends(request()->input())->onEachSide(0)->links('partials.pagination.default') }}
+    </div>
+
     <!-- job modal -->
     @include('insurance-fee-schedule.modal')
 
