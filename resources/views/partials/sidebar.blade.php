@@ -164,6 +164,7 @@
         <h6>Administration</h6>
     </div>
 </li>
+@if(auth()->user()->hasRole('super-admin') ||  auth()->user()->hasAnyPermission(['view-user', 'view-role']))
 <li class="sidebar-list">
     <i class="fa fa-thumb-tack"></i>
     <a class="sidebar-link sidebar-title" href="#">
@@ -185,6 +186,7 @@
         @endcan
     </ul>
 </li>
+@endif
 
 <li class="sidebar-main-title">
     <div>
