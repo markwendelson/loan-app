@@ -229,7 +229,12 @@ class SavingsController extends Controller
                 $savings = $first_savings;
 
             } else {
-                $data = $request->all();
+                $data = $request->except([
+                    'loan_id', 'interest', 'interest_deficit', 'insurance', 'insurance_month', 'insurance_year',
+                    'principal', 'principal_advance', 'membership_fee', 'loan_amount',
+                    'interest_start_date', 'interest_end_date', 'exclude_interest',
+                    'is_early_settlement', 'include_special_loan_balance'
+                ]);
                 $data['transaction_no'] = Savings::generateTransactionNumber($request->transaction_date, 'deposit');
 
                 if($request->transaction_code != null) {
@@ -431,8 +436,17 @@ class SavingsController extends Controller
         } else {
             $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
             $interest_rate = $loan->interest_rate / 100;
-            $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
-            $rounded_interest = round($interest - ($savings->interest_deficit ?? 0));
+            
+            $start_date = Carbon::parse($result['start_date']);
+            $end_date = Carbon::parse($result['end_date']);
+            
+            if ($start_date->gte($end_date)) {
+                $interest = 0;
+                $rounded_interest = 0;
+            } else {
+                $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
+                $rounded_interest = round($interest - ($savings->interest_deficit ?? 0));
+            }
             $insurance_monthly_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0;
             $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
         }
@@ -556,12 +570,14 @@ class SavingsController extends Controller
     function getNumberOfDays(Loan $loan, string $interest_end_date = '')
     {
 
-        // interest
-        $savings = Savings::where('loan_id',$loan->id)->where([
-                                    ['transaction_type','=','withdraw'],
-                                    ['interest_start_date','!=',''],
-                                    ['interest_end_date','!=',''],
-                                ])->orderByDesc('transaction_date')->first();
+        $savings = Savings::where('loan_id',$loan->id)
+                            ->where([
+                                ['transaction_type','=','withdraw'],
+                                ['interest','>',0],
+                            ])
+                            ->whereNotNull('interest_end_date')
+                            ->orderByDesc('interest_end_date')
+                            ->first();
 
         $savings_insurance = Savings::where('loan_id',$loan->id)->where([
                                     ['transaction_type','=','withdraw'],
