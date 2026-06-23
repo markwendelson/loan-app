@@ -12,6 +12,8 @@ use Spatie\Permission\Models\Role;
 
 class RoleData extends Component
 {
+    use WithPagination;
+
     public $q;
     public $entries = 10;
 

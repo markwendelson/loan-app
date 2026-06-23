@@ -25,60 +25,24 @@ class ExpenseController extends Controller
     {
         $user = auth()->user();
 
-        //filter data
-        $filterData = $request->all();
-
         //check user if have view permission
         if(!$user->can('view-expense')) {
             abort(403, 'Unauthorized action.');
         }
-        $query = Expense::select('expenses.*', 
-                'branch.name AS branch_name', 
-                'users.name AS user_name', 
-                'users.email'
-            )
-            ->leftJoin('branch', 'branch.id' , '=', 'expenses.branch_id')
-            ->leftJoin('users', 'users.id', '=', 'expenses.created_by')
-            ->orderBy('expenses.expense_date', 'DESC');
-
-        //branch_id
-        if(isset($request->branch_id) && $request->branch_id){
-            $query->where('expenses.branch_id', $request->branch_id);
-        }
-
-        //author
-        if(isset($request->author) && $request->author) {
-            $query->where('expenses.created_by', $request->author);
-        }
-
-        //payment method
-        if(isset($request->payment_method) && $request->payment_method) {
-            $query->where('expenses.payment_method', $request->payment_method);
-        }
-
-        $expenses = $query->paginate(10)->appends($request->all());
-
-        // dd($expenses->toArray());
+        
         $branches = Branch::where('status', 1)
             ->orderBy('branch.name', 'ASC')
             ->get();
         $categories = ExpenseCategory::all();
-
-        //users
-        $usersData = User::withTrashed()
-        ->where('status', 1)->get();
 
         //vendors
         $vendorsData = Vendor::all();
 
         return view('expenses.index', compact(
             'user',
-            'usersData',
-            'expenses',
             'categories',
             'branches',
             'vendorsData',
-            'filterData'
         ));
     }
 
@@ -239,7 +203,7 @@ class ExpenseController extends Controller
         $response = []; //response holder
 
         //check user if allowed to update
-        if(!auth()->user()->can('update-expense')) {
+        if(!auth()->user()->can('edit-expense')) {
             $response = [
                 'status' => 'error',
                 'message' => 'You are not allowed to update expense.'
