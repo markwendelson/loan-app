@@ -282,8 +282,8 @@
             let cardHtml = `
             <div class="card mb-3 border border-light-subtle shadow-sm loan-card" id="loan-card-${loanId}" style="animation: fadeIn 0.3s ease-in-out;">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                    <h6 class="mb-0 text-primary"><i class="fa fa-file-text-o me-2"></i> ${loanText}</h6>
-                    <span class="badge bg-info text-dark">${loanType}</span>
+                    <h6 class="mb-0 text-primary loan-card-title"><i class="fa fa-file-text-o me-2"></i> ${loanText}</h6>
+                    <span class="badge bg-info text-light loan-card-title">${loanType}</span>
                 </div>
                 <div class="card-body p-3">
                     <div class="row g-3">
