@@ -436,10 +436,10 @@ class SavingsController extends Controller
         } else {
             $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
             $interest_rate = $loan->interest_rate / 100;
-            
-            $start_date = Carbon::parse($result['start_date']);
-            $end_date = Carbon::parse($result['end_date']);
-            
+
+            $start_date = Carbon::createFromFormat('m/d/Y', $result['start_date'])->startOfDay();
+            $end_date = Carbon::createFromFormat('m/d/Y', $result['end_date'])->startOfDay();
+
             if ($start_date->gte($end_date)) {
                 $interest = 0;
                 $rounded_interest = 0;
