@@ -446,7 +446,7 @@ class SavingsController extends Controller
                 'special_loan_balance' => '0',
                 'early_settlement_amount' => number_format($principal_balance,2),
                 'membership_fee_balance' => $membership_fee_balance,
-                'previous_interest_deficit' => number_format($savings->interest_deficit,2) ?? 0,
+                'previous_interest_deficit' => number_format($savings->interest_deficit ?? 0,2),
                 'current_interest' => number_format(0,2),
                 'repayment_order' => json_decode($loan_product->repayment_order),
             ]);
@@ -708,7 +708,7 @@ class SavingsController extends Controller
     public function createTransaction(int $client_id)
     {
         $client = Client::findOrFail($client_id);
-        $loans = $client->getApproveLoans();
+        $loans = $client->getApproveLoans()->whereNotNull('disbursed_date');
 
         $balance = getClientBalance($client);
 
