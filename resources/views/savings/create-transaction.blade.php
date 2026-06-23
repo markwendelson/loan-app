@@ -235,9 +235,11 @@
 
         if (transaction_type == 'withdraw') {
             $(".withdraw").show()
+            $("[name='amount']").prop('readonly', true);
             calculateChange();
         } else {
             $(".withdraw").hide()
+            $("[name='amount']").prop('readonly', false);
         }
 
         $("#mode_of_payment_container").hide();
@@ -250,14 +252,17 @@
                 $("#mode_of_payment_container").show();
                 $(".deposit-withdraw").show();
                 $('.withdraw').show();
+                $("[name='amount']").prop('readonly', true);
             } else if (type == "deposit" || type == "cash") {
                 $("#mode_of_payment_container").hide();
                 $(".deposit-withdraw").show();
                 $('.withdraw').hide();
+                $("[name='amount']").prop('readonly', false);
             } else {
                 $("#mode_of_payment_container").hide();
                 $(".deposit-withdraw").hide();
                 $('.withdraw').hide();
+                $("[name='amount']").prop('readonly', false);
             }
         });
 
@@ -279,37 +284,7 @@
         });
 
         function renderLoanCard(loanId, loanText, loanType) {
-            let cardHtml = `
-            <div class="card mb-3 border border-light-subtle shadow-sm loan-card" id="loan-card-${loanId}" style="animation: fadeIn 0.3s ease-in-out;">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
-                    <h6 class="mb-0 text-primary loan-card-title"><i class="fa fa-file-text-o me-2"></i> ${loanText}</h6>
-                    <span class="badge bg-info text-light loan-card-title">${loanType}</span>
-                </div>
-                <div class="card-body p-3">
-                    <div class="row g-3">
-                        <div class="col-md-3 form-group">
-                            <label class="form-label" for="loan_amount_${loanId}">Allocated Amount</label>
-                            <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-amount-input" name="loan_amount[${loanId}]" id="loan_amount_${loanId}" placeholder="0.00" required autocomplete="off"/>
-                        </div>
-                        
-                        <div class="col-md-3 form-group">
-                            <label class="form-label" for="interest_${loanId}">Interest</label>
-                            <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-interest-input" name="interest[${loanId}]" id="interest_${loanId}" placeholder="0.00"/>
-                            <span id="interest_and_interest_deficit_${loanId}" class="text-xs text-muted d-block mt-1"></span>
-                        </div>
-                        <div class="col-md-3 form-group">
-                            <label class="form-label" for="interest_period_${loanId}">Interest Period</label>
-                            <input type="text" name="interest_period[${loanId}]" id="interest_period_${loanId}" class="form-control form-control-sm interest-period-input"/>
-                            <div class="form-check mt-1">
-                                <input type="checkbox" name="exclude_interest[${loanId}]" id="exclude_interest_${loanId}" class="form-check-input loan-input exclude-interest-checkbox" value="1"/>
-                                <label class="form-check-label" for="exclude_interest_${loanId}"><small>Exclude Interest</small></label>
-                            </div>
-                        </div>
-                        <div class="col-md-3 form-group">
-                            <label class="form-label interest-label" for="interest_deficit_${loanId}">Interest Deficit</label>
-                            <input type="text" class="form-control form-control-sm decimal-only text-end" name="interest_deficit[${loanId}]" id="interest_deficit_${loanId}" readonly placeholder="0.00"/>
-                        </div>
-
+            let insuranceDiv = `
                         <div class="col-md-4 form-group">
                             <label class="form-label" for="insurance_${loanId}">Insurance</label>
                             <input type="text" class="form-control form-control-sm decimal-only text-end loan-input" name="insurance[${loanId}]" id="insurance_${loanId}" placeholder="0.00"/>
@@ -326,16 +301,66 @@
                         <div class="col-md-4 form-group">
                             <label class="form-label" for="insurance_year_${loanId}">Insurance Year</label>
                             <input type="text" class="form-control form-control-sm loan-input my-insurance" id="insurance_year_${loanId}" name="insurance_year[${loanId}]" value="{{date('Y')}}" min="0">
-                        </div>
+                        </div>`;
 
-                        <div class="col-md-6">
-                            <div class="form-group mb-2">
-                                <label class="form-label" for="principal_${loanId}">Principal</label>
-                                <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-principal-input" name="principal[${loanId}]" id="principal_${loanId}" placeholder="0.00" readonly/>
-                            </div>
-                            <div class="form-group mb-2">
+            let membershipDiv = `
+                            <div class="col-md-6 form-group mb-2">
                                 <label class="form-label" for="membership_fee_${loanId}">Membership Fee</label>
                                 <input type="text" class="form-control form-control-sm decimal-only text-end loan-input" name="membership_fee[${loanId}]" id="membership_fee_${loanId}" placeholder="0.00"/>
+                            </div>`;
+
+            if(loanType == 'special-loan' || loanType == 'mortgage-loan') {
+                membershipDiv = ``;
+            }
+
+            if(loanType == 'special-loan') {
+                insuranceDiv = ``;
+            }
+
+            let cardHtml = `
+            <div class="card mb-3 border border-light-subtle shadow-sm loan-card" id="loan-card-${loanId}" style="animation: fadeIn 0.3s ease-in-out;">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                    <h6 class="mb-0 text-primary loan-card-title"><i class="fa fa-file-text-o me-2"></i> ${loanText}</h6>
+                    <span class="badge bg-info text-light loan-card-title">${loanType}</span>
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-3">
+                        <div class="col-md-3 form-group d-none">
+                            <label class="form-label" for="loan_amount_${loanId}">Allocated Amount</label>
+                            <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-amount-input" name="loan_amount[${loanId}]" id="loan_amount_${loanId}" placeholder="0.00" required autocomplete="off"/>
+                        </div>
+
+                        <div class="col-md-4 form-group">
+                            <label class="form-label" for="interest_${loanId}">Interest</label>
+                            <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-interest-input" name="interest[${loanId}]" id="interest_${loanId}" placeholder="0.00"/>
+                            <span id="interest_and_interest_deficit_${loanId}" class="text-xs text-muted d-block mt-1"></span>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="form-label" for="interest_period_${loanId}">Interest Period</label>
+                            <input type="text" name="interest_period[${loanId}]" id="interest_period_${loanId}" class="form-control form-control-sm interest-period-input"/>
+                            <div class="form-check mt-1">
+                                <input type="checkbox" name="exclude_interest[${loanId}]" id="exclude_interest_${loanId}" class="form-check-input loan-input exclude-interest-checkbox" value="1"/>
+                                <label class="form-check-label" for="exclude_interest_${loanId}"><small>Exclude Interest</small></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="form-label interest-label" for="interest_deficit_${loanId}">Interest Deficit</label>
+                            <input type="text" class="form-control form-control-sm decimal-only text-end" name="interest_deficit[${loanId}]" id="interest_deficit_${loanId}" readonly placeholder="0.00"/>
+                        </div>
+
+                        `+insuranceDiv+`
+
+                        <div class="col-md-8">
+                            <div class="row g-2 mb-2">
+                                <div class="col-6 form-group">
+                                    <label class="form-label" for="principal_${loanId}">Principal</label>
+                                    <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-principal-input" name="principal[${loanId}]" id="principal_${loanId}" placeholder="0.00" readonly/>
+                                </div>
+                                <div class="col-6 form-group">
+                                    <label class="form-label" for="principal_advance_${loanId}">Principal Advance</label>
+                                    <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-principal-advance-input" name="principal_advance[${loanId}]" id="principal_advance_${loanId}" placeholder="0.00"/>
+                                </div>
+                                `+membershipDiv+`
                             </div>
                             <div class="form-check">
                                 <input type="checkbox" name="is_early_settlement[${loanId}]" id="is_early_settlement_${loanId}" class="form-check-input loan-input early-settlement-checkbox" value="1"/>
@@ -346,8 +371,8 @@
                                 <label class="form-check-label" for="include_special_loan_balance_${loanId}"><small>Include Special Loan Balance</small></label>
                             </div>
                         </div>
-                        
-                        <div class="col-md-6 d-flex align-items-end justify-content-end">
+
+                        <div class="col-md-4 d-flex align-items-end justify-content-end">
                             <div class="text-end mb-2">
                                 <small class="text-muted d-block">Loan Total Due:</small>
                                 <h5 class="mb-0 text-success" id="loan_total_due_display_${loanId}">0.00</h5>
@@ -428,13 +453,43 @@
             $principal.data('monthly-amortization', monthly_amortization);
             $principal.data('previous-interest-deficit', parsePHPNumber(feesResponse.previous_interest_deficit));
             $principal.data('current-interest', parsePHPNumber(feesResponse.current_interest));
-            
+
+            // Cache principal advance balance
+            let principal_advance = parsePHPNumber(feesResponse.principal_advance_balance);
+            $(`#principal_advance_${loanId}`).data('principal-advance-balance', principal_advance);
+
             $(`#membership_fee_${loanId}`).val(membership_fee.toLocaleString('en-PH', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }));
             $(`#insurance_month_${loanId}`).val(moment(feesResponse.interest_end_date).format('M'));
             $(`#insurance_year_${loanId}`).val(moment(feesResponse.interest_end_date).format('Y'));
+
+            // Initialize default principal if 0 or empty
+            let loanInfo = clientLoansMap[loanId];
+            let loan_type = loanInfo ? loanInfo.loan_type : '';
+            let currentPrincipalVal = parsePHPNumber($principal.val());
+            if (currentPrincipalVal === 0) {
+                let defaultPrincipal = 0;
+                if (loan_type === 'special-loan') {
+                    defaultPrincipal = parsePHPNumber(feesResponse.principal_balance);
+                } else {
+                    defaultPrincipal = monthly_amortization;
+                }
+                $principal.val(defaultPrincipal.toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
+            }
+
+            // Initialize default principal advance if 0 or empty
+            let currentPrincipalAdvanceVal = parsePHPNumber($(`#principal_advance_${loanId}`).val());
+            if (currentPrincipalAdvanceVal === 0) {
+                $(`#principal_advance_${loanId}`).val(principal_advance.toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
+            }
 
             const datenow = moment().format('YYYY-MM-DD');
             if (picker) {
@@ -444,16 +499,6 @@
                 picker.setEndDate(feesResponse.interest_end_date);
                 picker.updateView();
                 picker.updateCalendars();
-            }
-
-            // Calculate default allocated amount if not already set or if 0
-            let currentAllocated = parsePHPNumber($(`#loan_amount_${loanId}`).val());
-            if (currentAllocated === 0) {
-                let defaultAmount = interest + insurance + monthly_amortization + membership_fee;
-                $(`#loan_amount_${loanId}`).val(defaultAmount.toLocaleString('en-PH', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }));
             }
 
             calculateChange();
@@ -782,32 +827,10 @@
             $("[name='amount']").val(strTotal).trigger('change');
         }
 
-        $(document).on('input change', '.loan-amount-input', function() {
-            const elementChoices = document.querySelector('[name="transaction_code_select[]"]');
-            let hasSlips = false;
-            if (elementChoices && choicesTransactionCode) {
-                hasSlips = choicesTransactionCode.getValue().length > 0;
-            }
-
-            if (!hasSlips) {
-                let totalAllocated = 0;
-                $('.loan-amount-input').each(function() {
-                    let val = parsePHPNumber($(this).val());
-                    totalAllocated += val;
-                });
-                $("[name='amount']").val(totalAllocated.toLocaleString('en-PH', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }));
-            }
-            calculateChange();
-        });
-
         function calculateSingleLoanChange(loanId) {
             let $card = $(`#loan-card-${loanId}`);
             if ($card.length === 0) return { total_due: 0, amount: 0, principal: 0 };
 
-            var amount = parsePHPNumber($(`#loan_amount_${loanId}`).val());
             var interest = parsePHPNumber($(`#interest_${loanId}`).val());
             var data_interest = parsePHPNumber($(`#interest_${loanId}`).data('interest'));
             var monthly_amortization = parsePHPNumber($(`#principal_${loanId}`).data('monthly-amortization'));
@@ -815,70 +838,18 @@
             var membership_fee = parsePHPNumber($(`#membership_fee_${loanId}`).val());
             var $principal = $(`#principal_${loanId}`);
             var principal_amount = parsePHPNumber($(`#principal_${loanId}`).val());
-            
+
+            var $principalAdvance = $(`#principal_advance_${loanId}`);
+            var principal_advance_amount = parsePHPNumber($principalAdvance.val());
+
             let loanInfo = clientLoansMap[loanId];
             let loan_type = loanInfo ? loanInfo.loan_type : '';
-            let repayment_order = $card.data('repayment_order') || [];
-
-            const balances = {
-                Fees: insurance,
-                Interest: interest,
-                Principal: principal_amount,
-                Penalty: 0
-            };
-
-            const distributed = {
-                Fees: 0,
-                Interest: 0,
-                Principal: 0,
-                Penalty: 0
-            };
-
-            let remaining = amount;
-
-            repayment_order.forEach(type => {
-                let balance = balances[type] || 0;
-                if(type == 'Fees') {
-                    balance = balances[type] + membership_fee;
-                }
-
-                if (
-                    balance <= 0
-                    || remaining <= 0
-                ) {
-                    return;
-                }
-
-                let applied = Math.min(balance, remaining);
-                distributed[type] = applied;
-                remaining -= applied;
-            });
-
-            var deficit = distributed.Interest - data_interest;
-            let strDataInterest = distributed.Interest.toLocaleString('en-PH', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-
-            let strDeficit = deficit.toLocaleString('en-PH', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-
-            $(`#interest_${loanId}`).val(strDataInterest);
-            if(deficit > 0) {
-                $(`#interest_deficit_${loanId}`).val(0);
-            } else {
-                $(`#interest_deficit_${loanId}`).val(strDeficit);
-            }
 
             var principal = 0;
             if ($(`#is_early_settlement_${loanId}`).prop('checked')) {
                 principal = $principal.data('principal-balance') || 0;
                 if ($(`#include_special_loan_balance_${loanId}`).prop('checked')) {
                     principal = $principal.data('early-settlement-amount') || 0;
-                    $(`#interest_${loanId}`).val(strDataInterest);
-                    $(`#interest_deficit_${loanId}`).val(0);
                 }
             } else {
                 if (loan_type === 'open-term' || loan_type === 'loan-with-term') {
@@ -886,13 +857,12 @@
                 } else if (loan_type === 'special-loan') {
                     principal = $principal.data('principal-balance') || 0;
                 } else {
-                    let x_amount = amount - membership_fee;
-                    principal = x_amount - distributed.Interest - insurance;
+                    principal = principal_amount === 0 ? monthly_amortization : principal_amount;
                 }
+            }
 
-                if (principal < 0) {
-                    principal = 0;
-                }
+            if (principal < 0) {
+                principal = 0;
             }
 
             let strPrincipal = principal.toLocaleString('en-PH', {
@@ -900,23 +870,51 @@
                 maximumFractionDigits: 2
             });
 
-            $principal.val(strPrincipal);
-
-            let exclude_interest = $(`#exclude_interest_${loanId}`).prop('checked');
-            let total_due = 0;
-            if (exclude_interest) {
-                total_due = insurance + principal + membership_fee;
-            } else {
-                total_due = distributed.Interest + insurance + principal + membership_fee;
+            if (document.activeElement !== $principal[0]) {
+                $principal.val(strPrincipal);
             }
 
-            $(`#loan_total_due_display_${loanId}`).text(total_due.toLocaleString('en-PH', {
+            // Principal Advance
+            var principal_advance = principal_advance_amount;
+            if (principal_advance < 0) {
+                principal_advance = 0;
+            }
+            let strPrincipalAdvance = principal_advance.toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            if (document.activeElement !== $principalAdvance[0]) {
+                $principalAdvance.val(strPrincipalAdvance);
+            }
+
+            let exclude_interest = $(`#exclude_interest_${loanId}`).prop('checked');
+            let interestPaid = exclude_interest ? 0 : interest;
+            let amount = interestPaid + insurance + principal + principal_advance + membership_fee;
+
+            // Write the calculated allocated amount back to the hidden input field
+            $(`#loan_amount_${loanId}`).val(amount.toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            // Interest Deficit
+            let deficit = interestPaid - data_interest;
+            if (deficit > 0) {
+                deficit = 0;
+            }
+            let strDeficit = deficit.toLocaleString('en-PH', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            $(`#interest_deficit_${loanId}`).val(strDeficit);
+
+            $(`#loan_total_due_display_${loanId}`).text(amount.toLocaleString('en-PH', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }));
 
             return {
-                total_due: total_due,
+                total_due: amount,
                 amount: amount,
                 principal: principal
             };
@@ -946,6 +944,21 @@
                 }
             }
 
+            // Check if there are selected merchant slips
+            const elementChoices = document.querySelector('[name="transaction_code_select[]"]');
+            let hasSlips = false;
+            if (elementChoices && choicesTransactionCode) {
+                hasSlips = choicesTransactionCode.getValue().length > 0;
+            }
+
+            // If no slips, overall amount is exactly the sum of allocated amounts
+            if (!hasSlips) {
+                $("[name='amount']").val(total_allocated_all.toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
+            }
+
             let overall_amount = parsePHPNumber($("[name='amount']").val());
             let change = overall_amount - total_allocated_all;
 
@@ -961,7 +974,10 @@
                 $('.btnSubmit').attr('disabled', false);
                 $("[name='amount']").removeClass('is-invalid');
 
-                $("[name='due_change']").val(change).trigger('blur');
+                $("[name='due_change']").val(change.toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })).trigger('blur');
             }
 
             $('#change_container').toggleClass('d-none', change <= 0);
