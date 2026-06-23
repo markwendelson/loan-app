@@ -54,64 +54,11 @@
     <!-- table container -->
     <div class="card">
         <div class="card-header">
-            <form action="{{ url()->current() }}" method="GET">
-                <div class="d-flex justify-content-between gap-2">
-                    <div class="d-flex gap-2 align-items-center">
-                        <span>Show</span>
-                        <select name="entries" class="form-select">
-                            <option value="10" {{ isset($filterData['entries']) && $filterData['entries'] == 10 ? 'selected' : ''; }}>10</option>
-                            <option value="25" {{ isset($filterData['entries']) && $filterData['entries'] == 25 ? 'selected' : ''; }}>25</option>
-                            <option value="50" {{ isset($filterData['entries']) && $filterData['entries'] == 50 ? 'selected' : ''; }}>50</option>
-                            <option value="100" {{ isset($filterData['entries']) && $filterData['entries'] == 100 ? 'selected' : ''; }}>100</option>
-                        </select>
-                    </div>
-                    <!-- branch select -->
-                    <div class="d-flex justify-content-start align-items-center gap-2">
-                        <input type="search"
-                            class="form-control"
-                            placeholder="Search roles..."
-                            value="{{ $filterData['q'] ?? ''; }}"
-                            name="q"
-                        >
-                        <button type="submit" class="btn btn-success"><i class="fa fa-search"></i></button>
-                    </div>
-                </div>
-            </form>
+            <livewire:Role.FilterData />
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table id="tblRole" class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th class="text-center"  width="50"><i class="fa fa-cog"></i></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if(isset($roles) && $roles)
-                            @foreach($roles as $key => $val)
-                                <tr data-id="{{ $val->id }}">
-                                    <td>{{ $val->name }}</td>
-                                    <td class="d-flex justify-content-start gap-1">
-                                        @can('edit-role')
-                                        <button type="button" class="btn btn-primary btn-sm btnEdit" data-id="{{ $val->id }}"><i class="fa fa-pencil"></i></button>
-                                        @endcan
-                                        @can('delete-role')
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteData({{ $val->id }})"><i class="fa fa-trash"></i></button>
-                                        @endcan
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
-                    </tbody>
-                </table>
-            </div>
+            <livewire:Role.RoleData defer />
         </div>
-    </div>
-
-    <!-- pagination -->
-    <div class="d-flex justify-content-end">
-        {{ $roles->appends(request()->input())->onEachSide(0)->links('partials.pagination.default') }}
     </div>
 
     @include('role.modal')
@@ -158,9 +105,10 @@
                             $(this).hide();
                         });
                         if(response.status == 'success'){
+                            Livewire.dispatch('role-updated-permission');
+
                             hideModal('modalRole');
                             showToast.success(response.message)
-                            table.ajax.reload();
                         }else{
                             showToast.error(response.message)
                         }
@@ -176,7 +124,8 @@
             }
         });
 
-        $("#tblRole").on("click", ".btnEdit", function(){
+        $(document).on("click", "table tbody .btnEdit", function(){
+
             let id=$(this).attr("data-id");
 
             fetchRoleData(id).then((data) => {
@@ -262,7 +211,7 @@
                     },
                     success: function(response) {
                         showToast.success(response.message)
-                        $('#tblRole').DataTable().ajax.reload();
+                        Livewire.dispatch('role-updated-permission');
                     }
                 });
 

@@ -195,6 +195,9 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
     <script src="{{url('assets/js/script.js')}}"></script>
+
+    <livewire:scripts />
+
     <script>
         const showToast = {
             show(message, className = 'text-bg-primary', delay = 5000) {
@@ -363,7 +366,6 @@
 
     </script>
 
-    <livewire:scripts />
 
     @stack('js')
 </body>
