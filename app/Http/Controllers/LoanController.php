@@ -41,9 +41,9 @@ class LoanController extends Controller
 
             $loans = Loan::with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
                 ->whereNotNull('borrower_id')
-                ->when(!auth()->user()->hasRole('admin|super_admin'), function ($query) {
-                    // Apply filter only if the user is not an admin or super_admin
-                    $query->whereHas('borrower', function ($query) {
+                // Apply filter only if the user is not an admin or super_admin
+                ->whereHas('borrower', function ($query) {
+                    $query->when(!auth()->user()->hasRole('admin|super_admin'), function ($query) {
                         $query->where('branch_id', auth()->user()->current_branch_id);
                     });
                 })
