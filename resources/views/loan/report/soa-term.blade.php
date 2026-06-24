@@ -1,9 +1,9 @@
 
-@extends('layouts.app')
+@extends('layouts.pdf')
 
 @section('title') SOA With Term @endsection
-   
-   @php 
+
+   @php
     $mockData = [
             [
                 'month' => 'January 2024',
@@ -127,7 +127,7 @@
             ]
         ];
     @endphp
-    
+
     @section('content')
     <div class="container-fluid">
         <!-- report content goes here -->
@@ -192,7 +192,7 @@
                             $principalRunningBalanceTotal = 0;
                         @endphp
                         @foreach($mockData as $key => $val)
-                            @php 
+                            @php
                                 $insuranceTotal += floatval(str_replace(['₱', ','], '', $val['insurance']));
                                 $principalPaymentTotal += floatval(str_replace(['₱', ','], '', $val['principal_payment']));
                                 $principalRunningBalanceTotal -= floatval(str_replace(['₱', ','], '', $val['principal_running_balance']));
