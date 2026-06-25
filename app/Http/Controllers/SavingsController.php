@@ -113,6 +113,7 @@ class SavingsController extends Controller
 
             $str_balance = getClientBalance($client);
             $client_balance = (float) str_replace(',', '', $str_balance);
+            $amount = (float) str_replace(',', '', $request->amount);
 
             if($request->transaction_type == 'withdraw') {
                 $loan_ids = $request->loan_id;
@@ -129,7 +130,10 @@ class SavingsController extends Controller
 
                 $transaction_code = $request->transaction_code_select == null ? null : implode(",",$request->transaction_code_select);
 
-                if($client_balance<=0 || $request->amount > $client_balance) {
+                Log::info('client balance: '.$client_balance);
+                Log::info('amount: ' . $amount);
+                Log::info($client_balance<=0 || $amount > $client_balance);
+                if($client_balance<=0 || $amount > $client_balance) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Insufficient Balance',
@@ -144,7 +148,7 @@ class SavingsController extends Controller
                                     ->where('transaction_type', 'deposit')
                                     ->sum('amount');
 
-                    if($sumAmount !== $request->amount) {
+                    if (abs((float)$sumAmount - $amount) > 0.01) {
                         return response()->json([
                             'status' => 'error',
                             'message' => 'Invalid amount.',
@@ -178,7 +182,48 @@ class SavingsController extends Controller
 
                     $loan = Loan::where('id', $loan_id)->first();
                     $loan_balance = getLoanBalance($loan);
-                    $principal_balance = $loan_balance - $principal;
+
+                    $is_early_settlement = isset($request->is_early_settlement[$loan_id]);
+
+                    if (!$loan->is_special && $is_early_settlement) {
+                        $principal_submitted = $principal;
+                        $regular_principal = $loan_balance;
+                        $special_principal_total = $principal - $loan_balance;
+
+                        $principal = $regular_principal;
+                        $principal_balance = 0;
+
+                        if ($special_principal_total > 0) {
+                            $special_loans = Loan::specialLoan($client->id)->get();
+                            foreach ($special_loans as $special_loan) {
+                                $spec_loan_balance = $this->getPrincipalBalance($special_loan);
+                                $spec_allocated_principal = min($special_principal_total, $spec_loan_balance);
+                                $special_principal_total -= $spec_allocated_principal;
+
+                                if ($spec_allocated_principal > 0) {
+                                    $spec_tx = $request->except(['loan_id', 'interest', 'interest_deficit', 'insurance', 'principal', 'principal_advance', 'membership_fee', 'interest_start_date', 'interest_end_date', 'amount', 'insurance_month', 'insurance_year', 'due_change']);
+                                    $spec_tx['loan_id'] = $special_loan->id;
+                                    $spec_tx['interest'] = 0;
+                                    $spec_tx['interest_deficit'] = 0;
+                                    $spec_tx['interest_start_date'] = null;
+                                    $spec_tx['interest_end_date'] = null;
+                                    $spec_tx['insurance'] = 0;
+                                    $spec_tx['principal'] = $spec_allocated_principal;
+                                    $spec_tx['principal_advance'] = 0;
+                                    $spec_tx['membership_fee'] = 0;
+                                    $spec_tx['amount'] = $spec_allocated_principal;
+                                    $spec_tx['principal_balance'] = $spec_loan_balance - $spec_allocated_principal;
+                                    $spec_tx['transaction_code'] = $transaction_code;
+                                    $transactions_to_create[] = $spec_tx;
+                                    $total_requested_amount += $spec_allocated_principal;
+                                }
+                            }
+                        }
+
+                        $allocated_amount = $allocated_amount - ($principal_submitted - $regular_principal);
+                    } else {
+                        $principal_balance = $loan_balance - $principal;
+                    }
 
                     $total_requested_amount += $allocated_amount;
 
@@ -210,7 +255,7 @@ class SavingsController extends Controller
 
                 $due_change = isset($request->due_change) ? (float)str_replace(',', '', $request->due_change) : 0;
 
-                if (abs(($total_requested_amount + $due_change) - $request->amount) > 0.01) {
+                if (abs(($total_requested_amount + $due_change) - $amount) > 0.01) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'The sum of allocated loan payments and change must equal the total transaction amount.',
@@ -272,11 +317,11 @@ class SavingsController extends Controller
             }
 
             if($request->transaction_type == 'deposit') {
-                $remaining_balance = $client_balance + $request->amount;
+                $remaining_balance = $client_balance + $amount;
             }
 
             if($request->transaction_type == 'withdraw') {
-                $remaining_balance = $client_balance - $request->amount;
+                $remaining_balance = $client_balance - $amount;
             }
 
             DB::commit();

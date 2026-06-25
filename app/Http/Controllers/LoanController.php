@@ -1226,7 +1226,7 @@ class LoanController extends Controller
         ]);
     }
 
-    public function previewSoaTerm()
+    public function previewSoaTerm(int $id)
     {
         return view('loan.report.soa-term');
     }
