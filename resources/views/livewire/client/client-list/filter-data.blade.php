@@ -14,7 +14,7 @@
             <!-- search textbox -->
             <input type="search"
                 class="form-control"
-                wire:model.lazy="q"
+                wire:model.live.debounce.300ms="q"
                 placeholder="Search..."
             >
 

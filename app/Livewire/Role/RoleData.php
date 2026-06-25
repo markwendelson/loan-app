@@ -17,6 +17,11 @@ class RoleData extends Component
     public $q;
     public $entries = 10;
 
+    protected $queryString = [
+        'q',
+        'entries',
+    ];
+
     #[On('role-filter-updated')]
     public function filterUpdated($data)
     {

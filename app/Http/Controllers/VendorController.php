@@ -28,52 +28,13 @@ class VendorController extends Controller
         }
 
         //main query
-        $query = Vendor::select(
-                'vendors.*',
-                'country_codes.country_name'
-            )
-            ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id');
-
-        //soft delete
-        if(isset($filterData['is_deleted']) && $filterData['is_deleted']) {
-            $query->withTrashed();
-        }
-
-        //q
-        if (isset($filterData['q']) && $filterData['q']) {
-            $query->where(function($q) use ($filterData) {
-                $q->where('name', 'like', '%' . $filterData['q'] . '%')
-                ->orWhere('contact_no', $filterData['q'])
-                ->orWhere('email', $filterData['q'])
-                ->orWhere('website', $filterData['q']);
-            });
-        }
-
-        //vendor_type
-        if(isset($filterData['vendor_type']) && $filterData['vendor_type']) {
-            $query->where('vendor_type', $filterData['vendor_type']);
-        }
-
-        //author
-        if(isset($filterData['author']) && $filterData['author']) {
-            $query->where('created_by', $filterData['author']);
-        }
-
-        $vendorData = $query->paginate(10)->appends($filterData);
         $countryCode = CountryCode::getCountryCodes([
             'is_multiple' => 1,
         ]);
 
-        //users
-        $usersData = User::withTrashed()
-            ->where('status', 1)->get();
-
         return view('vendors.index', compact(
             'user',
-            'usersData',
-            'vendorData',
             'countryCode',
-            'filterData',
         ));
     }
 
@@ -85,7 +46,6 @@ class VendorController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:vendors,name,',
-            'tin' => 'required|string|unique:vendors,tin',
         ]);
 
         if($validator->fails()){
@@ -131,11 +91,6 @@ class VendorController extends Controller
                 'string',
                 'max:255',
                 Rule::unique('vendors', 'name')->ignore($inputData['vendor_id']),
-            ],
-            'tin' => [
-                'required',
-                'string',
-                Rule::unique('vendors', 'tin')->ignore($inputData['vendor_id']),
             ],
         ]);
 

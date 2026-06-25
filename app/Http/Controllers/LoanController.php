@@ -36,35 +36,10 @@ class LoanController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $search = $request->search['value'];
 
-            $loans = Loan::with('loanProduct', 'loanProduct.loanType', 'borrower.details')->filter($search)
-                ->whereNotNull('borrower_id')
-                // Apply filter only if the user is not an admin or super_admin
-                ->whereHas('borrower', function ($query) {
-                    $query->when(!auth()->user()->hasRole('admin|super_admin'), function ($query) {
-                        $query->where('branch_id', auth()->user()->current_branch_id);
-                    });
-                })
-                ->orderByDesc('loan_date')
-                ->orderByDesc('loan_no');
-
-            $start = $request->input('start', 0);
-            $length = $request->input('length', 5);
-            $totalRecords = $loans->count();
-            $loans = $loans->skip($start)
-            ->take($length)
-            ->get();
-
-            return response()->json([
-                'draw' => intval($request->draw), // Keep track of the request number
-                'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
-                'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
-                'data' => $loans  // The paginated and formatted data
-            ]);
+        if(!auth()->user()->can('view-loan')){
+            abort(403);
         }
-
         return view('loan.index');
     }
 

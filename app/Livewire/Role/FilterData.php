@@ -9,6 +9,11 @@ class FilterData extends Component
     public $q;
     public $entries = 10;
 
+    protected $queryString = [
+        'q',
+        'entries',
+    ];
+
     public function updated()
     {
         $this->dispatch('role-filter-updated', [

@@ -11,7 +11,7 @@
 
                     <div class="row">
                         <!-- name -->
-                        <div class="col-lg-8">
+                        <div class="col-lg-5">
                             <label class="w-100">
                                 Name <span class="text-danger">*</span>
                                 <input type="text" 
@@ -24,15 +24,22 @@
                         </div>
 
                         <!-- TIN -->
-                        <div class="col-lg-4">
+                        <div class="col-lg-7">
                             <label class="w-100">
-                                TIN <span class="text-danger">*</span>
-                                <input type="text"
-                                    class="form-control"
-                                    placeholder="000-000-000..."
-                                    name="tin"
-                                    required
-                                >
+                                TIN
+                                <div class="input-group">
+                                    <input type="text"
+                                        class="form-control"
+                                        placeholder="000-000-000..."
+                                        name="tin"
+                                    >
+                                    <select class="form-select" name="tax_classification">
+                                        <option value="">-- Tax Classification --</option>
+                                        <option value="VAT">VAT (Taxable)</option>
+                                        <option value="NVAT">Non-VAT (Non Taxable)</option>
+                                    </select>
+                                </div>
+                                
                             </label>
                         </div>
 
@@ -112,21 +119,21 @@
                             </label>
                         </div>
 
-                        <!-- billing address -->
+                        <!-- address -->
                         <div class="col-lg-12">
                             <label class="w-100">
-                                Billing Address
-                                <textarea class="form-control" name="billing_address" placeholder="House No., Street, Barangay, City/Municipality, Province, Postal Code"></textarea>
+                                Address
+                                <textarea class="form-control" name="address" placeholder="House No., Street, Barangay, City/Municipality, Province, Postal Code"></textarea>
                             </label>
                         </div>
 
                         <!-- shipping address -->
-                        <div class="col-lg-12">
+                        {{-- <div class="col-lg-12">
                             <label class="w-100">
                                 Shipping Address
                                 <textarea class="form-control" name="shipping_address" placeholder="House No., Street, Barangay, City/Municipality, Province, Postal Code"></textarea>
                             </label>
-                        </div>
+                        </div> --}}
                         
                     </div>
                 </form>

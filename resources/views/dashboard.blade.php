@@ -51,7 +51,9 @@
                 ->toArray();
         @endphp
 
+        @if($views)
         @includeFirst($views)
+        @endif
     </div>
     <!-- Container-fluid Ends-->
 
