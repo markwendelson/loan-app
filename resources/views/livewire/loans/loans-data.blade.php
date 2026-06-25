@@ -38,7 +38,9 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         @can('view-loan')
+                                            @if($current_module !== 'declined')
                                             <li><a class="dropdown-item" href="{{ url('loan/'  . $val->id) }}"><i class="fa fa-eye me-1"></i>View Loan</a></li>
+                                            @endif
                                             @if(!in_array($val->status, [0,2,3,4]) && !empty($val->disbursed_date))
                                             <li><a class="dropdown-item" href="{{ url('loan/'. $val->id . '/print' ) }}" target="_blank"><i class="fa fa-print me-1"></i>Print Receipt</a></li>
                                             @endif
@@ -55,11 +57,15 @@
                                             @endcan
                                         @endif
                                         @can('request-loan-cancellation')
-                                            @if($val->status == 1)
+                                            @if($val->status == 1 && $current_module !== 'disbursement')
                                             <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item btnWithdraw" data-id="{{ $val->id }}" href="#"><i class="fa fa-exchange me-1"></i>Withdraw Loan</a></li>
                                             @endcan
                                         @endcan
+                                        @if(empty($val->disbursement_date) && $current_module == 'disbursement')
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item btn-cash-out" href="#" data-id="{{ $val->id }}" data-amount="{{ $val->net_proceeds ?? ''; }}"><i class="fa fa-money me-1"></i>Disburse Loan</a></li>
+                                        @endif
                                     </ul>
                                 </div>
                             </td>

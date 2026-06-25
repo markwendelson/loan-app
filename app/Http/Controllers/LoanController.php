@@ -499,6 +499,10 @@ class LoanController extends Controller
 
     public function awaitingDisbursement(Request $request)
     {
+        if(!auth()->user()->can('view-awaiting-disbursement')){
+            abort(403);
+        }
+
         if ($request->ajax()) {
             $search = $request->search['value'];
 

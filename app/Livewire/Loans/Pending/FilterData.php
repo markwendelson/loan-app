@@ -31,7 +31,6 @@ class FilterData extends Component
         'to',
         'prod_id',
     ];
-    
 
     public function mount()
     {
