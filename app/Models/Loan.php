@@ -14,6 +14,7 @@ class Loan extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
+        'branch_id',
         'loan_date',
         'loan_no',
         'borrower_id',

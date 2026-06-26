@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Loans\All;
 
+use App\Enums\LoanStatus;
+
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;

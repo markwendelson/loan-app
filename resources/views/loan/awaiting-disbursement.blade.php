@@ -31,7 +31,8 @@
                                 <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
-                        <li class="breadcrumb-item">Loan</li>
+                        <li class="breadcrumb-item">Transaction</li>
+                        <li class="breadcrumb-item">Loans</li>
                         <li class="breadcrumb-item active">Awaiting Disbursement</li>
                     </ol>
                 </div>

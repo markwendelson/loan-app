@@ -171,6 +171,7 @@ class LoanController extends Controller
             }
 
             DB::transaction(function () use ($data) {
+                $data['branch_id'] = auth()->user()->current_branch_id; //insert loan processing branch
                 $loan = Loan::create($data);
 
                 $borrower = Client::findOrFail($data['borrower_id']);

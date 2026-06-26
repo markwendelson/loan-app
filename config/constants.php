@@ -72,8 +72,8 @@ return [
         1 => 'Active'
     ],
     'status_badge' => [
-        0 => 'badge badge-danger text-white',
-        1 => 'badge badge-success text-white'
+        0 => 'badge badge-danger text-white w-100',
+        1 => 'badge badge-success text-white w-100'
     ],
     'nationality_value' => [
         1 => 'Filipino',
