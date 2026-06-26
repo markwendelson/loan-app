@@ -199,6 +199,7 @@ return [
         1 => 'Approved',
         2 => 'Declined',
         3 => 'Withdrawn',
+        4 => 'Pending',
         5 => 'Closed',
     ],
     'loan_status_labels' => [
