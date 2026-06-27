@@ -29,6 +29,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+//reference no service
+use App\Services\ReferenceNumberService;   
+
 class LoanController extends Controller
 {
     /**
@@ -171,7 +174,13 @@ class LoanController extends Controller
             }
 
             DB::transaction(function () use ($data) {
-                $data['branch_id'] = auth()->user()->current_branch_id; //insert loan processing branch
+                $referenceNumberService = new ReferenceNumberService();
+
+                $referenceNumber = $referenceNumberService->generateReferenceNumber(Loan::class, auth()->user()->current_branch_id);
+
+                $data['branch_id'] = auth()->user()->current_branch_id;
+                $data['reference_no'] = $referenceNumber;
+
                 $loan = Loan::create($data);
 
                 $borrower = Client::findOrFail($data['borrower_id']);

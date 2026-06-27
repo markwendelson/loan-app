@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+//reference no service
+use App\Services\ReferenceNumberService;   
+
 class SavingsController extends Controller
 {
     /**
@@ -297,6 +300,12 @@ class SavingsController extends Controller
                         ], 500);
                     }
                 }
+
+                //insert reference_no
+                $referenceNumberService = new ReferenceNumberService();
+
+                $referenceNumber = $referenceNumberService->generateReferenceNumber(Savings::class, auth()->user()->current_branch_id);
+                $data['reference_no'] = $referenceNumber;
 
                 $savings = Savings::create($data);
             }
@@ -745,9 +754,13 @@ class SavingsController extends Controller
 
         if(isset($inputData) && $inputData) {
             foreach($inputData as $key => $val) {
+                $referenceNumberService = new ReferenceNumberService();
+
+                $referenceNumber = $referenceNumberService->generateReferenceNumber(Savings::class, auth()->user()->current_branch_id);
 
                 $processedData[] = [
                     'client_id' => $val['client_id'],
+                    'reference_no' => $referenceNumber,
                     'transaction_no' => Savings::generateTransactionNumber($val['date'], 'withdraw'),
                     'transaction_date' => $val['date'],
                     'description' => $val['description'],
