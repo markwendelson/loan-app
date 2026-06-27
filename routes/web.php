@@ -157,10 +157,10 @@ Route::middleware('auth')->group(function () {
             Route::post('get-reloan-deduction', 'getReloanDeduction')->name('loan.get-reloan-deduction');
             Route::get('{id}/print', 'printReceipt')->name('loan.print');
             Route::post('{id}/update-disbursement-reference', 'updateDisbursementReference')->name('loan.update-disbursement-reference');
-            Route::get('report/{id}/preview/soa-term', 'previewSoaTerm')->name('loan.preview-soa-term'); //mockup route for viewing soa
-            Route::get('report/{id}/download-pdf/soa-term', 'downloadSoaTerm')->name('loan.download-pdf-soa-term');
-            Route::get('report/{id}//preview/soa-no-term', 'previewSoaNoTerm')->name('loan.preview-soa-no-term');
-            Route::get('report/{id}/download-pdf/soa-no-term', 'downloadSoaNoTerm')->name('loan.download-pdf-soa-no-term');
+            Route::get('/report/{id}/preview/soa-term', 'previewSoaTerm')->name('loan.preview-soa-term'); //mockup route for viewing soa
+            Route::get('/report/{id}/download-pdf/soa-term', 'downloadSoaTerm')->name('loan.download-pdf-soa-term');
+            Route::get('/report/{id}//preview/soa-no-term', 'previewSoaNoTerm')->name('loan.preview-soa-no-term');
+            Route::get('/report/{id}/download-pdf/soa-no-term', 'downloadSoaNoTerm')->name('loan.download-pdf-soa-no-term');
 
 
         });

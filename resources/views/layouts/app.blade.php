@@ -195,6 +195,9 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
     <script src="{{url('assets/js/script.js')}}"></script>
+
+    <livewire:scripts />
+
     <script>
         const showToast = {
             show(message, className = 'text-bg-primary', delay = 5000) {
@@ -270,32 +273,94 @@
 
     <script>
 
-        // jQuery Combined Decimal Input Handler
+        // jQuery Combined Decimal Input Handler with Cursor Preservation
         $(document).on('input', '.decimal-only', function () {
-            let val = this.value;
+            let cursorPosition = this.selectionStart;
+            let originalValue = this.value;
 
-            // Remove all characters except digits and dot
-            val = val.replace(/[^0-9.]/g, '');
+            // Count non-comma characters before the cursor
+            let nonCommaCountBeforeCursor = 0;
+            for (let i = 0; i < cursorPosition; i++) {
+                if (originalValue[i] !== ',') {
+                    nonCommaCountBeforeCursor++;
+                }
+            }
 
-            // Prevent multiple dots
-            const parts = val.split('.');
+            // Clean the overall value (only allow digits and a single dot)
+            let cleaned = originalValue.replace(/[^0-9.]/g, '');
+            let parts = cleaned.split('.');
             if (parts.length > 2) {
-                val = parts[0] + '.' + parts[1];
+                cleaned = parts[0] + '.' + parts[1];
+                parts = cleaned.split('.');
             }
 
-            // Limit to 2 decimal places
-            if (parts[1]) {
-                parts[1] = parts[1].substring(0, 2);
-                val = parts[0] + '.' + parts[1];
+            // Limit to 2 decimal places if there is a decimal point
+            let hasDecimal = parts.length > 1;
+            let integerPart = parts[0];
+            let decimalPart = parts[1] || '';
+
+            if (decimalPart.length > 2) {
+                decimalPart = decimalPart.substring(0, 2);
             }
 
-            this.value = val;
+            // Format integer part with commas
+            let formattedInteger = '';
+            if (integerPart) {
+                formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
 
+            let newValue = formattedInteger;
+            if (hasDecimal) {
+                newValue += '.' + decimalPart;
+            }
+
+            this.value = newValue;
+
+            // Find new cursor position
+            let newCursorPosition = 0;
+            let nonCommaCount = 0;
+            for (let i = 0; i < newValue.length; i++) {
+                if (nonCommaCount === nonCommaCountBeforeCursor) {
+                    newCursorPosition = i;
+                    break;
+                }
+                if (newValue[i] !== ',') {
+                    nonCommaCount++;
+                }
+                if (i === newValue.length - 1) {
+                    newCursorPosition = newValue.length;
+                }
+            }
+
+            let input = this;
+            try {
+                input.setSelectionRange(newCursorPosition, newCursorPosition);
+                // Force cursor setting in a deferred execution to run after standard event loop cycles
+                setTimeout(function () {
+                    try {
+                        input.setSelectionRange(newCursorPosition, newCursorPosition);
+                    } catch (e) {}
+                }, 0);
+            } catch (e) {
+                // Ignore if not supported
+            }
         });
 
-        // Optional: prevent typing multiple dots directly
+        // Prevent typing non-decimal characters directly
         $(document).on('keypress', '.decimal-only', function (e) {
-            if (e.which === 46 && $(this).val().includes('.')) {
+            let charCode = (e.which) ? e.which : e.keyCode;
+
+            // Allow navigation and control keys (backspace, delete, arrows, etc.)
+            if (charCode < 32 || e.ctrlKey || e.metaKey) {
+                return;
+            }
+
+            // 46 is dot, 48-57 are numbers
+            if (charCode !== 46 && (charCode < 48 || charCode > 57)) {
+                e.preventDefault();
+            }
+            // Prevent multiple dots
+            if (charCode === 46 && $(this).val().includes('.')) {
                 e.preventDefault();
             }
         });
@@ -339,6 +404,19 @@
             e.value = amount;
         }
 
+        $(document).on("focus", ".decimal-only", function () {
+            if ($(this).prop('readonly')) return;
+
+            let val = this.value.trim();
+            if (val) {
+                let clean = val.replace(/,/g, '');
+                let parsed = parseFloat(clean);
+                if (parsed === 0) {
+                    this.value = '';
+                }
+            }
+        });
+
         $(document).on("blur", ".decimal-only", function () {
             numberFormat(this, 2);
         });
@@ -363,7 +441,6 @@
 
     </script>
 
-    <livewire:scripts />
 
     @stack('js')
 </body>

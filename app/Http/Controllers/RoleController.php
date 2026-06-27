@@ -13,43 +13,7 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $filterData = $request->all();
-        $query = Role::where('name', '!=', 'super_admin');
-
-        //q
-        if(isset($filterData['q']) && $filterData['q']) {
-            $query->where(function ($query) use ($filterData) {
-                $query->orWhere('roles.name', 'like', '%' . $filterData['q'] . '%');
-            });
-        }
-
-        $roles = $query->paginate($filterData['entries'] ?? 10)
-            ->appends($filterData);
-
-        if($request->ajax()) {
-            $search = $request->search['value'];
-
-            $roles = Role::where('name', '!=', 'super_admin');
-
-            $start = $request->input('start', 0);
-            $length = $request->input('length', 5);
-            $totalRecords = $roles->count();
-            $roles = $roles->skip($start)
-                            ->take($length)
-                            ->get();
-
-            return response()->json([
-                'draw' => intval($request->draw), // Keep track of the request number
-                'recordsTotal' => $totalRecords,  // Total records in the database (no filter)
-                'recordsFiltered' => $totalRecords, // Filtered records after applying the filters
-                'data' => $roles  // The paginated and formatted data
-            ]);
-        }
-
-        return view('role.index', compact(
-            'roles',
-            'filterData'
-        ));
+        return view('role.index');
     }
 
     /**
@@ -143,8 +107,30 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Role $role)
+    public function destroy($id)
     {
-        //
+        if(!auth()->user()->can('delete-role')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You do not have permission to delete this role.'
+            ], 403);
+        }
+
+        $role = Role::findById($id);
+
+        // optional protection
+        if (in_array($role->name, ['admin', 'super-admin'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This role cannot be deleted.'
+            ], 403);
+        }
+
+        $role->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role deleted successfully.'
+        ]);
     }
 }

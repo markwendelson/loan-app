@@ -21,6 +21,13 @@ class TableData extends Component
     public $branch_id = '';
     public $group_type= '';
 
+    protected $queryString= [
+        'entries',
+        'q',
+        'branch_id',
+        'group_type'
+    ];
+
     public $allowedBranches;
 
     #[On('client-list-filter-updated')]

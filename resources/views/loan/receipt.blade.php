@@ -70,6 +70,12 @@
         <div class="center bold">{{ $branchTitle }}</div>
         <hr>
 
+        @if(isset($loan->reference_no) && $loan->reference_no)
+        <div>
+            <span>Reference No: {{ $loan->reference_no }}</span>
+        </div>
+        @endif
+
         <!-- Transaction details -->
         <div class="label">
             <span>Date:</span>

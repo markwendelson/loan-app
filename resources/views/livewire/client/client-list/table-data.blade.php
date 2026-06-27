@@ -6,7 +6,7 @@
                     <th width="50"></th>
                     <th>Client</th>
                     <th>Address</th>
-                    <th class="text-center" width="120">Status</th>
+                    <th class="text-center" width="80">Status</th>
                     <th width="50" class="text-center"><i class="fa fa-cog"></i></th>
                 </tr>
             </thead>
@@ -42,9 +42,9 @@
                             <td class="align-center">{{ $val->details->present_full_address ?? '' }}</td>
                             <td class="text-center align-center">
                                 @if($val->status == 1)
-                                    <span class="badge badge-success">Active</span>
+                                    <span class="badge badge-success w-100">Active</span>
                                 @else
-                                    <span class="badge badge-danger">Inactive</span>
+                                    <span class="badge badge-danger w-100">Inactive</span>
                                 @endif
                             </td>
                             <td class="align-center">

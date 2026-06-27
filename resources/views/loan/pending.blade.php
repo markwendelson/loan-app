@@ -11,6 +11,10 @@
             color: white; /* Set white text for <th> elements */
             border: 1px solid white;
         }
+
+        .dropdown-menu .dropdown-item {
+            opacity: 0.95 !important;
+        }
     </style>
 @endpush
 
@@ -29,7 +33,8 @@
                                 <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
-                        <li class="breadcrumb-item">Loan</li>
+                        <li class="breadcrumb-item">Transaction</li>
+                        <li class="breadcrumb-item">Loans</li>
                         <li class="breadcrumb-item active">Pending</li>
                     </ol>
                 </div>
@@ -39,13 +44,24 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <a class="btn btn-primary float-end" href="{{route('loan.create')}}"><i class = "fa fa-plus"></i> New Loan</a>
+        <div class="card-body">
+            <a class="btn btn-primary float-end" href="{{route('loan.create')}}"><i class = "fa fa-plus"></i> New Loan</a>
+        </div>
     </div>
-    </div>
-
 
     <!-- table container -->
+    <div class="card">
+        <div class="card-header">
+            <livewire:Loans.Pending.FilterData />
+        </div>
+        <div class="card-body p-0">
+            <livewire:Loans.Pending.PendingData defer />
+        </div>
+    </div>
+
+
+
+    {{-- <!-- table container -->
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -63,54 +79,54 @@
                 </table>
             </div>
         </div>
-    </div>
+    </div> --}}
 
 @endsection
 
 @push('js')
 <script>
     $(document).ready(function () {
-        const table = $('#tblLoan').DataTable({
-            ordering: false,
-            processing: true,
-            serverSide: true,
-            stateSave: true,
-            searching: true,
-            ajax: {
-                url: "{{ route('loan.pending') }}",
-            },
-            columns: [
-                { data: 'loan_date', name: 'loan_date' },
-                { data: 'loan_no', name: 'loan_no' },
-                { data: 'loan_product.name', name: 'loan_product' },
-                { data: 'borrower.details.fullname', name: 'name' },
-                { data: 'status', name: 'status', render: function(data, type, row) {
-                    if (row.status == 1) {
-                        if(row.loan_withdraw_requests){
-                            return '<span class="badge badge-primary">Pending</span><span class="badge badge-danger">Withdraw Request</span>';
-                        } else {
-                            return '<span class="badge badge-success">Approved</span>';
-                        }
-                    } else {
-                        return '<span class="badge badge-primary">Pending</span>';
-                    }
-                } },
-                {
-                    data: null,
-                    name: 'actions',
-                    render: function(data, type, row) {
-                        return `
-                                <button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button>
-                                <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
-                                <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
-                            `;
-                    }
-                }
-            ],
-            columnDefs: [
-                { className: "text-center", targets: [4,5] },
-            ]
-        });
+        // const table = $('#tblLoan').DataTable({
+        //     ordering: false,
+        //     processing: true,
+        //     serverSide: true,
+        //     stateSave: true,
+        //     searching: true,
+        //     ajax: {
+        //         url: "{{ route('loan.pending') }}",
+        //     },
+        //     columns: [
+        //         { data: 'loan_date', name: 'loan_date' },
+        //         { data: 'loan_no', name: 'loan_no' },
+        //         { data: 'loan_product.name', name: 'loan_product' },
+        //         { data: 'borrower.details.fullname', name: 'name' },
+        //         { data: 'status', name: 'status', render: function(data, type, row) {
+        //             if (row.status == 1) {
+        //                 if(row.loan_withdraw_requests){
+        //                     return '<span class="badge badge-primary">Pending</span><span class="badge badge-danger">Withdraw Request</span>';
+        //                 } else {
+        //                     return '<span class="badge badge-success">Approved</span>';
+        //                 }
+        //             } else {
+        //                 return '<span class="badge badge-primary">Pending</span>';
+        //             }
+        //         } },
+        //         {
+        //             data: null,
+        //             name: 'actions',
+        //             render: function(data, type, row) {
+        //                 return `
+        //                         <button class="btn btn-primary btn-xs btnView" data-id="${row.id}"><i class="fa fa-eye"></i></button>
+        //                         <button class="btn btn-primary btn-xs btnEdit" data-id="${row.id}"><i class="fa fa-pencil"></i></button>
+        //                         <button class="btn btn-danger btn-xs" onclick="deleteData(${row.id})"><i class="fa fa-trash"></i></button>
+        //                     `;
+        //             }
+        //         }
+        //     ],
+        //     columnDefs: [
+        //         { className: "text-center", targets: [4,5] },
+        //     ]
+        // });
 
         $("#tblLoan").on("click", ".btnEdit", function(){
             let id = $(this).attr("data-id");

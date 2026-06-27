@@ -13,9 +13,33 @@ class Loan extends Model implements Auditable
 
     use \OwenIt\Auditing\Auditable;
 
-    protected $fillable = ['loan_date','loan_no','borrower_id','loan_product_id','loan_duration','interest_rate','applied_amount','principal','repayment_order','is_special','description','is_reloan','reference_loan_no','is_additional_loan', 'disbursement_reference'];
+    protected $fillable = [
+        'branch_id',
+        'loan_date',
+        'loan_no',
+        'borrower_id',
+        'loan_product_id',
+        'loan_duration',
+        'interest_rate',
+        'applied_amount',
+        'principal',
+        'repayment_order',
+        'is_special',
+        'description',
+        'is_reloan',
+        'reference_loan_no',
+        'is_additional_loan',
+        'disbursement_reference'
+    ];
 
-    protected $appends = ['final_principal','final_advance_interest','final_monthly_amortization','final_insurance_monthly','final_insurance_yearly','membership_fee'];
+    protected $appends = [
+        'final_principal',
+        'final_advance_interest',
+        'final_monthly_amortization',
+        'final_insurance_monthly',
+        'final_insurance_yearly',
+        'membership_fee'
+    ];
 
     protected $casts = [
         'repayment_order' => 'array',

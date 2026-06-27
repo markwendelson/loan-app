@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+//reference no service
+use App\Services\ReferenceNumberService;   
+
 class SavingsController extends Controller
 {
     /**
@@ -113,6 +116,7 @@ class SavingsController extends Controller
 
             $str_balance = getClientBalance($client);
             $client_balance = (float) str_replace(',', '', $str_balance);
+            $amount = (float) str_replace(',', '', $request->amount);
 
             if($request->transaction_type == 'withdraw') {
                 $loan_ids = $request->loan_id;
@@ -129,7 +133,10 @@ class SavingsController extends Controller
 
                 $transaction_code = $request->transaction_code_select == null ? null : implode(",",$request->transaction_code_select);
 
-                if($client_balance<=0 || $request->amount > $client_balance) {
+                Log::info('client balance: '.$client_balance);
+                Log::info('amount: ' . $amount);
+                Log::info($client_balance<=0 || $amount > $client_balance);
+                if($client_balance<=0 || $amount > $client_balance) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Insufficient Balance',
@@ -144,7 +151,7 @@ class SavingsController extends Controller
                                     ->where('transaction_type', 'deposit')
                                     ->sum('amount');
 
-                    if($sumAmount !== $request->amount) {
+                    if (abs((float)$sumAmount - $amount) > 0.01) {
                         return response()->json([
                             'status' => 'error',
                             'message' => 'Invalid amount.',
@@ -159,6 +166,7 @@ class SavingsController extends Controller
                     $interest = isset($request->interest[$loan_id]) ? (float)str_replace(',', '', $request->interest[$loan_id]) : 0;
                     $insurance = isset($request->insurance[$loan_id]) ? (float)str_replace(',', '', $request->insurance[$loan_id]) : 0;
                     $principal = isset($request->principal[$loan_id]) ? (float)str_replace(',', '', $request->principal[$loan_id]) : 0;
+                    $principal_advance = isset($request->principal_advance[$loan_id]) ? (float)str_replace(',', '', $request->principal_advance[$loan_id]) : 0;
                     $membership_fee = isset($request->membership_fee[$loan_id]) ? (float)str_replace(',', '', $request->membership_fee[$loan_id]) : 0;
                     $allocated_amount = isset($request->loan_amount[$loan_id]) ? (float)str_replace(',', '', $request->loan_amount[$loan_id]) : 0;
 
@@ -166,7 +174,7 @@ class SavingsController extends Controller
                     $interest_start_date = $exclude_interest ? null : ($request->interest_start_date[$loan_id] ?? null);
                     $interest_end_date = $exclude_interest ? null : ($request->interest_end_date[$loan_id] ?? null);
 
-                    $total_due = ($exclude_interest ? 0 : $interest) + $insurance + $principal + $membership_fee;
+                    $total_due = ($exclude_interest ? 0 : $interest) + $insurance + $principal + $principal_advance + $membership_fee;
 
                     if($allocated_amount < $total_due) {
                         return response()->json([
@@ -177,17 +185,62 @@ class SavingsController extends Controller
 
                     $loan = Loan::where('id', $loan_id)->first();
                     $loan_balance = getLoanBalance($loan);
-                    $principal_balance = $loan_balance - $principal;
+
+                    $is_early_settlement = isset($request->is_early_settlement[$loan_id]);
+
+                    if (!$loan->is_special && $is_early_settlement) {
+                        $principal_submitted = $principal;
+                        $regular_principal = $loan_balance;
+                        $special_principal_total = $principal - $loan_balance;
+
+                        $principal = $regular_principal;
+                        $principal_balance = 0;
+
+                        if ($special_principal_total > 0) {
+                            $special_loans = Loan::specialLoan($client->id)->get();
+                            foreach ($special_loans as $special_loan) {
+                                $spec_loan_balance = $this->getPrincipalBalance($special_loan);
+                                $spec_allocated_principal = min($special_principal_total, $spec_loan_balance);
+                                $special_principal_total -= $spec_allocated_principal;
+
+                                if ($spec_allocated_principal > 0) {
+                                    $spec_tx = $request->except(['loan_id', 'interest', 'interest_deficit', 'insurance', 'principal', 'principal_advance', 'membership_fee', 'interest_start_date', 'interest_end_date', 'amount', 'insurance_month', 'insurance_year', 'due_change']);
+                                    $spec_tx['loan_id'] = $special_loan->id;
+                                    $spec_tx['interest'] = 0;
+                                    $spec_tx['interest_deficit'] = 0;
+                                    $spec_tx['interest_start_date'] = null;
+                                    $spec_tx['interest_end_date'] = null;
+                                    $spec_tx['insurance'] = 0;
+                                    $spec_tx['principal'] = $spec_allocated_principal;
+                                    $spec_tx['principal_advance'] = 0;
+                                    $spec_tx['membership_fee'] = 0;
+                                    $spec_tx['amount'] = $spec_allocated_principal;
+                                    $spec_tx['principal_balance'] = $spec_loan_balance - $spec_allocated_principal;
+                                    $spec_tx['transaction_code'] = $transaction_code;
+                                    $transactions_to_create[] = $spec_tx;
+                                    $total_requested_amount += $spec_allocated_principal;
+                                }
+                            }
+                        }
+
+                        $allocated_amount = $allocated_amount - ($principal_submitted - $regular_principal);
+                    } else {
+                        $principal_balance = $loan_balance - $principal;
+                    }
 
                     $total_requested_amount += $allocated_amount;
 
-                    $tx_data = $request->except(['loan_id', 'interest', 'insurance', 'principal', 'membership_fee', 'interest_start_date', 'interest_end_date', 'amount', 'insurance_month', 'insurance_year']);
+                    $interest_deficit = isset($request->interest_deficit[$loan_id]) ? (float)str_replace(',', '', $request->interest_deficit[$loan_id]) : 0;
+
+                    $tx_data = $request->except(['loan_id', 'interest', 'interest_deficit', 'insurance', 'principal', 'principal_advance', 'membership_fee', 'interest_start_date', 'interest_end_date', 'amount', 'insurance_month', 'insurance_year', 'due_change']);
                     $tx_data['loan_id'] = $loan_id;
                     $tx_data['interest'] = $exclude_interest ? 0 : $interest;
+                    $tx_data['interest_deficit'] = $interest_deficit;
                     $tx_data['interest_start_date'] = $interest_start_date;
                     $tx_data['interest_end_date'] = $interest_end_date;
                     $tx_data['insurance'] = $insurance;
                     $tx_data['principal'] = $principal;
+                    $tx_data['principal_advance'] = $principal_advance;
                     $tx_data['membership_fee'] = $membership_fee;
                     $tx_data['amount'] = $allocated_amount;
                     $tx_data['principal_balance'] = $principal_balance;
@@ -203,15 +256,18 @@ class SavingsController extends Controller
                     $transactions_to_create[] = $tx_data;
                 }
 
-                if (abs($total_requested_amount - $request->amount) > 0.01) {
+                $due_change = isset($request->due_change) ? (float)str_replace(',', '', $request->due_change) : 0;
+
+                if (abs(($total_requested_amount + $due_change) - $amount) > 0.01) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'The sum of allocated loan payments must equal the total transaction amount.',
+                        'message' => 'The sum of allocated loan payments and change must equal the total transaction amount.',
                     ], 500);
                 }
 
                 $first_savings = null;
-                foreach ($transactions_to_create as $tx_data) {
+                foreach ($transactions_to_create as $index => $tx_data) {
+                    $tx_data['due_change'] = $index === 0 ? $due_change : 0;
                     $tx_data['transaction_no'] = Savings::generateTransactionNumber($request->transaction_date, 'withdraw');
                     $savings = Savings::create($tx_data);
                     if (!$first_savings) {
@@ -221,7 +277,12 @@ class SavingsController extends Controller
                 $savings = $first_savings;
 
             } else {
-                $data = $request->all();
+                $data = $request->except([
+                    'loan_id', 'interest', 'interest_deficit', 'insurance', 'insurance_month', 'insurance_year',
+                    'principal', 'principal_advance', 'membership_fee', 'loan_amount',
+                    'interest_start_date', 'interest_end_date', 'exclude_interest',
+                    'is_early_settlement', 'include_special_loan_balance'
+                ]);
                 $data['transaction_no'] = Savings::generateTransactionNumber($request->transaction_date, 'deposit');
 
                 if($request->transaction_code != null) {
@@ -239,6 +300,12 @@ class SavingsController extends Controller
                         ], 500);
                     }
                 }
+
+                //insert reference_no
+                $referenceNumberService = new ReferenceNumberService();
+
+                $referenceNumber = $referenceNumberService->generateReferenceNumber(Savings::class, auth()->user()->current_branch_id);
+                $data['reference_no'] = $referenceNumber;
 
                 $savings = Savings::create($data);
             }
@@ -259,11 +326,11 @@ class SavingsController extends Controller
             }
 
             if($request->transaction_type == 'deposit') {
-                $remaining_balance = $client_balance + $request->amount;
+                $remaining_balance = $client_balance + $amount;
             }
 
             if($request->transaction_type == 'withdraw') {
-                $remaining_balance = $client_balance - $request->amount;
+                $remaining_balance = $client_balance - $amount;
             }
 
             DB::commit();
@@ -423,13 +490,24 @@ class SavingsController extends Controller
         } else {
             $result = $this->getNumberOfDays($loan, $request->interest_period ?? '');
             $interest_rate = $loan->interest_rate / 100;
-            $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
-            $rounded_interest = round($interest - ($savings->interest_deficit ?? 0));
+
+            $start_date = Carbon::createFromFormat('m/d/Y', $result['start_date'])->startOfDay();
+            $end_date = Carbon::createFromFormat('m/d/Y', $result['end_date'])->startOfDay();
+
+            if ($start_date->gte($end_date)) {
+                $interest = 0;
+                $rounded_interest = 0;
+            } else {
+                $interest = ($interest_rate/30) * $result['number_of_days'] * $principal_balance;
+                $rounded_interest = round($interest - ($savings->interest_deficit ?? 0));
+            }
             $insurance_monthly_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_monthly * $result['insurance_month'] ,2) : 0;
             $insurance_annual_fee = $result['number_of_months'] >= 12 ? number_format($loan->final_insurance_yearly,2) : 0;
         }
 
         $membership_fee_balance = getMembershipFeeBalance($loan);
+        $total_principal_advance_payment = Savings::where('loan_id', $loan->id)->sum('principal_advance');
+        $principal_advance_balance = ($loan->loanCharges->principal_advance ?? 0) - $total_principal_advance_payment;
 
         $loan_product = LoanProduct::whereId($loan->loan_product_id)->first('repayment_order');
 
@@ -446,6 +524,7 @@ class SavingsController extends Controller
                 'special_loan_balance' => '0',
                 'early_settlement_amount' => number_format($principal_balance,2),
                 'membership_fee_balance' => $membership_fee_balance,
+                'principal_advance_balance' => number_format($principal_advance_balance, 2),
                 'previous_interest_deficit' => number_format($savings->interest_deficit ?? 0,2),
                 'current_interest' => number_format(0,2),
                 'repayment_order' => json_decode($loan_product->repayment_order),
@@ -463,6 +542,7 @@ class SavingsController extends Controller
                 'special_loan_balance' => number_format($special_loan_balance,2),
                 'early_settlement_amount' => number_format($principal_balance + $special_loan_balance,2),
                 'membership_fee_balance' => $membership_fee_balance,
+                'principal_advance_balance' => number_format($principal_advance_balance, 2),
                 'previous_interest_deficit' => number_format($savings->interest_deficit ?? 0,2),
                 'current_interest' => number_format($interest,2),
                 'repayment_order' =>  json_decode($loan_product->repayment_order),
@@ -544,12 +624,14 @@ class SavingsController extends Controller
     function getNumberOfDays(Loan $loan, string $interest_end_date = '')
     {
 
-        // interest
-        $savings = Savings::where('loan_id',$loan->id)->where([
-                                    ['transaction_type','=','withdraw'],
-                                    ['interest_start_date','!=',''],
-                                    ['interest_end_date','!=',''],
-                                ])->orderByDesc('transaction_date')->first();
+        $savings = Savings::where('loan_id',$loan->id)
+                            ->where([
+                                ['transaction_type','=','withdraw'],
+                                ['interest','>',0],
+                            ])
+                            ->whereNotNull('interest_end_date')
+                            ->orderByDesc('interest_end_date')
+                            ->first();
 
         $savings_insurance = Savings::where('loan_id',$loan->id)->where([
                                     ['transaction_type','=','withdraw'],
@@ -672,9 +754,13 @@ class SavingsController extends Controller
 
         if(isset($inputData) && $inputData) {
             foreach($inputData as $key => $val) {
+                $referenceNumberService = new ReferenceNumberService();
+
+                $referenceNumber = $referenceNumberService->generateReferenceNumber(Savings::class, auth()->user()->current_branch_id);
 
                 $processedData[] = [
                     'client_id' => $val['client_id'],
+                    'reference_no' => $referenceNumber,
                     'transaction_no' => Savings::generateTransactionNumber($val['date'], 'withdraw'),
                     'transaction_date' => $val['date'],
                     'description' => $val['description'],

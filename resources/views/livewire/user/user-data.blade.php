@@ -8,7 +8,7 @@
                     <th>Email</th>
                     <th width="250" class="text-center">Role</th>
                     <th>Branch</th>
-                    <th class="text-center" width="150">Status</th>
+                    <th class="text-center" width="80">Status</th>
                     <th width="50"></th>
                 </tr>
             </thead>

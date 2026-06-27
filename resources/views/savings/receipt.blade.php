@@ -37,6 +37,13 @@
             <span>{{ \Carbon\Carbon::parse($savings->transaction_date)->format('Y-m-d') }}</span>
         </div>
 
+        @if(isset($savings->reference_no) && $savings->reference_no)
+            <div class="label">
+                <span>Reference No:</span>
+                <span>{{ $savings->reference_no }}</span>
+            </div>
+        @endif
+
         <div class="label">
             <span>Client:</span>
             <span>{{ $savings->client->details->fullname ?? 'N/A' }}</span>
