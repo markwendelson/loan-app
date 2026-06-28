@@ -10,6 +10,7 @@
         </div>
         <div>
             {{-- <button type="button" class="btn btn-primary btn-sm"><i class="fa fa-download"></i> PDF</button> --}}
+            <a class="btn btn-primary btn-sm" href="{{ route('expense.download-expense-details-images', ['slug' => $expenseData['slug']]) }}" target="_blank"><i class="fa fa-download me-1"></i>Images</a>
             <a class="btn btn-primary btn-sm" href="{{ route('expense.download-expense-details-pdf', ['slug' => $expenseData['slug']]) }}" target="_blank"><i class="fa fa-download me-1"></i>PDF</a>
         </div>
     </div>
@@ -77,9 +78,9 @@
                                         <span><strong>TIN:</strong> {{ $val['vendor_tin'] }}</span>
                                     </div>
                                 </td>
-                                <td>{{ $val['description'] }}</td>
-                                <td>{{ $val['ref_no'] }}</td>
-                                <td class="text-end">{{ number_format($val['amount'], 2) }}</td>
+                                <td><span>{{ $val['description'] }}</span></td>
+                                <td><span>{{ $val['ref_no'] }}</span></td>
+                                <td class="text-end"><span>{{ number_format($val['amount'], 2) }}</span></td>
                             </tr>
                         @endforeach
                     @endif

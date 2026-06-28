@@ -190,6 +190,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('delete', 'deleteExpense')->name('expense.delete');
             Route::get('view-expense-data', 'viewExpenseData')->name('expense.view-expense-data');
             Route::get('download-expense-details-pdf', 'downloadExpenseDetailsPdf')->name('expense.download-expense-details-pdf');
+            Route::get('download-expense-details-images', 'downloadExpenseDetailsImages')->name('expense.download-expense-details-images');
             Route::get('report/download-pdf/{slug}', 'downloadPdf')->name('expense-category.download-pdf');
         });
     Route::resource('expenses',ExpenseController::class);

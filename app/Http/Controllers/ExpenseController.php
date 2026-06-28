@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+use ZipArchive;
+
 //models
 use App\Models\Attachment;
 use App\Models\Branch;
@@ -427,6 +429,45 @@ class ExpenseController extends Controller
         ))->setPaper('a4', 'portrait');
 
         return $pdf->download($expenseData['slug'] . '.pdf');
+    }
+
+    public function downloadExpenseDetailsImages(Request $request)
+    {
+        $attachmentsData = Attachment::where('file_reference', 'expenses')
+            ->where('transaction_no', $request->slug)
+            ->get();
+
+        $files = [];
+
+        if ($attachmentsData->isNotEmpty()) {
+            foreach ($attachmentsData as $val) {
+                // FIX 1: no nested array
+                $files[] = $val->file_path;
+            }
+        }
+
+        $zipName = $request->slug . '.zip';
+        $zipPath = storage_path("app/public/{$zipName}");
+
+        $zip = new ZipArchive();
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+
+            foreach ($files as $file) {
+
+                // FIX 2: correct full path
+                $filePath = storage_path("app/public/" . $file);
+
+                if (file_exists($filePath)) {
+                    // FIX 3: ensure basename uses string only
+                    $zip->addFile($filePath, basename($file));
+                }
+            }
+
+            $zip->close();
+        }
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
     public function deleteExpense(Request $request) 
