@@ -518,7 +518,7 @@ class SavingsController extends Controller
                 'principal_advance_balance' => number_format($principal_advance_balance, 2),
                 'previous_interest_deficit' => number_format($savings->interest_deficit ?? 0,2),
                 'current_interest' => number_format(0,2),
-                'repayment_order' => json_decode($loan_product->repayment_order),
+                'repayment_order' => $loan_product->repayment_order,
             ]);
         } else {
             return response()->json([
@@ -536,7 +536,7 @@ class SavingsController extends Controller
                 'principal_advance_balance' => number_format($principal_advance_balance, 2),
                 'previous_interest_deficit' => number_format($savings->interest_deficit ?? 0,2),
                 'current_interest' => number_format($interest,2),
-                'repayment_order' =>  json_decode($loan_product->repayment_order),
+                'repayment_order' => $loan_product->repayment_order,
             ]);
         }
 
