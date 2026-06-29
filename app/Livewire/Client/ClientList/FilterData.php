@@ -20,6 +20,13 @@ class FilterData extends Component
     public $allowedBranches;
     public $groupTypes;
 
+    protected $queryString= [
+        'entries',
+        'q',
+        'branch_id',
+        'group_type'
+    ];
+
     public function mount()
     {
         $this->branchData = Branch::all();

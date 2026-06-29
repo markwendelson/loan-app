@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
 
 //models
 use App\Models\Expense;
@@ -19,6 +20,11 @@ class ExpenseData extends Component
     public $branch_id;
     public $payment_method;
     public $author;
+
+    public function mount()
+    {
+        $this->branch_id = auth()->user()->current_branch_id;
+    }
 
     #[On('expense-filter-updated')]
     public function filterUpdated($data)
@@ -155,7 +161,6 @@ class ExpenseData extends Component
         }
 
         $expenses = $query->paginate($this->entries)->appends([
-            'q' => $this->q,
             'entries' => $this->entries,
             'branch_id' => $this->branch_id,
             'author' => $this->author, 

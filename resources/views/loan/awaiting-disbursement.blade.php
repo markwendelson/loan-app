@@ -11,11 +11,13 @@
             color: white; /* Set white text for <th> elements */
             border: 1px solid white;
         }
+        .dropdown-menu .dropdown-item {
+            opacity: 0.95 !important;
+        }
     </style>
 @endpush
 
 @section('content')
-
     <div class="container-fluid">
         <div class="page-title">
             <div class="row">
@@ -29,7 +31,8 @@
                                 <use href="{{url('assets/svg/icon-sprite.svg#stroke-home')}}"></use>
                             </svg></a>
                         </li>
-                        <li class="breadcrumb-item">Loan</li>
+                        <li class="breadcrumb-item">Transaction</li>
+                        <li class="breadcrumb-item">Loans</li>
                         <li class="breadcrumb-item active">Awaiting Disbursement</li>
                     </ol>
                 </div>
@@ -39,14 +42,23 @@
 
     <!-- button container -->
     <div class="card">
-    <div class="card-body">
-        <a class="btn btn-primary float-end" href="{{route('loan.create')}}"><i class = "fa fa-plus"></i> New Loan</a>
+        <div class="card-body">
+            <a class="btn btn-primary float-end" href="{{route('loan.create')}}"><i class = "fa fa-plus"></i> New Loan</a>
+        </div>
     </div>
-    </div>
-
 
     <!-- table container -->
     <div class="card">
+        <div class="card-header">
+            <livewire:Loans.Disbursement.FilterData />
+        </div>
+        <div class="card-body p-0">
+            <livewire:Loans.Disbursement.DisbursementData defer />
+        </div>
+    </div>
+
+    <!-- table container -->
+    {{-- <div class="card">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id = "tblLoan">
@@ -63,7 +75,7 @@
                 </table>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     @include('loan.modal-disbursement')
 
@@ -72,46 +84,46 @@
 @push('js')
 <script>
     $(document).ready(function () {
-        const canView = {{ auth()->user()->can('view-loan') ? 1 : 0 }};
+        // const canView = {{ auth()->user()->can('view-loan') ? 1 : 0 }};
 
-        const table = $('#tblLoan').DataTable({
-            ordering: false,
-            processing: true,
-            serverSide: true,
-            stateSave: true,
-            searching: true,
-            ajax: {
-                url: "{{ route('loan.awaiting-disbursement') }}",
-            },
-            columns: [
-                { data: 'loan_date', name: 'loan_date' },
-                { data: 'loan_no', name: 'loan_no' },
-                { data: 'loan_product.name', name: 'loan_product' },
-                { data: 'borrower.details.fullname', name: 'name' },
-                { data: 'status', name: 'status', render: function(data, type, row) {
-                        return '<span class="badge badge-success">Approved</span>';
-                } },
-                {
-                    data: null,
-                    name: 'actions',
-                    render: function(data, type, row) {
-                        let buttons = '';
-                        let amount = row.net_proceeds ? parseFloat(row.net_proceeds).toFixed(2) : '0.00';
+        // const table = $('#tblLoan').DataTable({
+        //     ordering: false,
+        //     processing: true,
+        //     serverSide: true,
+        //     stateSave: true,
+        //     searching: true,
+        //     ajax: {
+        //         url: "{{ route('loan.awaiting-disbursement') }}",
+        //     },
+        //     columns: [
+        //         { data: 'loan_date', name: 'loan_date' },
+        //         { data: 'loan_no', name: 'loan_no' },
+        //         { data: 'loan_product.name', name: 'loan_product' },
+        //         { data: 'borrower.details.fullname', name: 'name' },
+        //         { data: 'status', name: 'status', render: function(data, type, row) {
+        //                 return '<span class="badge badge-success">Approved</span>';
+        //         } },
+        //         {
+        //             data: null,
+        //             name: 'actions',
+        //             render: function(data, type, row) {
+        //                 let buttons = '';
+        //                 let amount = row.net_proceeds ? parseFloat(row.net_proceeds).toFixed(2) : '0.00';
 
-                        if (canView) {
-                            buttons += `<button class="btn btn-primary btn-xs btnView" data-id="${row.id}" title="View Loan"><i class="fa fa-eye"></i></button> `;
-                            buttons += `<button class="btn btn-primary btn-xs btn-cash-out" data-id="${row.id}" data-amount="${amount}"><i class="fa fa-money"></i></button> `;
-                        }
+        //                 if (canView) {
+        //                     buttons += `<button class="btn btn-primary btn-xs btnView" data-id="${row.id}" title="View Loan"><i class="fa fa-eye"></i></button> `;
+        //                     buttons += `<button class="btn btn-primary btn-xs btn-cash-out" data-id="${row.id}" data-amount="${amount}"><i class="fa fa-money"></i></button> `;
+        //                 }
 
-                        return buttons;
-                    }
-                },
-                { data: 'net_proceeds', name: 'net_proceeds', visible: false },
-            ],
-            columnDefs: [
-                { className: "text-center", targets: [4,5] },
-            ]
-        });
+        //                 return buttons;
+        //             }
+        //         },
+        //         { data: 'net_proceeds', name: 'net_proceeds', visible: false },
+        //     ],
+        //     columnDefs: [
+        //         { className: "text-center", targets: [4,5] },
+        //     ]
+        // });
 
         $("#modalDisbursement .btnSubmit").click(function (e) {
             e.preventDefault();
@@ -168,7 +180,7 @@
             }
         });
 
-        $("#tblLoan").on("click", ".btn-cash-out", function(){
+        $(document).on("click", "#tblLoan .btn-cash-out", function(){
             let id = $(this).attr("data-id");
             let amount = $(this).attr("data-amount"); // get amount
 

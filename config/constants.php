@@ -72,8 +72,8 @@ return [
         1 => 'Active'
     ],
     'status_badge' => [
-        0 => 'badge badge-danger text-white',
-        1 => 'badge badge-success text-white'
+        0 => 'badge badge-danger text-white w-100',
+        1 => 'badge badge-success text-white w-100'
     ],
     'nationality_value' => [
         1 => 'Filipino',
@@ -194,5 +194,19 @@ return [
         'Consultants',
         'Importers/Exporters',
         'Healthcare Providers'
+    ],
+    'loan_status' => [
+        1 => 'Approved',
+        2 => 'Declined',
+        3 => 'Withdrawn',
+        4 => 'Pending',
+        5 => 'Closed',
+    ],
+    'loan_status_labels' => [
+        1 => '<span class="badge badge-success w-100">Approved</span>',
+        2 => '<span class="badge badge-danger w-100">Declined</span>',
+        3 => '<span class="badge badge-warning w-100">Withdrawn</span>',
+        4 => '<span class="badge badge-primary w-100">Pending</span>',
+        5 => '<span class="badge badge-dark w-100">Closed</span>',
     ]
 ];

@@ -26,7 +26,7 @@
             </div>
 
             <div>
-                <select class="form-select"wire:model.live="payment_method">
+                <select class="form-select" wire:model.live="payment_method">
                     <option value="">-- All Payment Method --</option>
                     @foreach(config('constants.payment_methods') as $key => $val)
                         <option value="{{ $key }}">{{ $val }}</option>

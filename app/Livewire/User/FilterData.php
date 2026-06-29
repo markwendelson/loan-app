@@ -17,6 +17,12 @@ class FilterData extends Component
     public $branchData;
     public $allowedBranches;
 
+    protected $queryString = [
+        'q',
+        'entries',
+        'branch_id',
+    ];
+
     public function mount()
     {
         $this->branch_id = auth()->user()->current_branch_id;

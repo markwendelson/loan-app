@@ -17,6 +17,10 @@
                             <span class="vendorTin"></span>
                         </div>
                         <div class="d-flex justify-content-start gap-1 align-items-cneter">
+                            <span class="fw-semibold">Tax Classification:</span>
+                            <span class="vendorTaxClassification"></span>
+                        </div>
+                        <div class="d-flex justify-content-start gap-1 align-items-cneter">
                             <span class="fw-semibold">Type:</span>
                             <span class="vendorType"></span>
                         </div>
@@ -45,12 +49,7 @@
 
                     <div class="col-lg-12 d-flex flex-column mt-3">
                         <span class="fw-semibold">Billing Address:</span>
-                        <span class="vendorBillingAddress"></span>
-                    </div>
-
-                    <div class="col-lg-12 d-flex flex-column mt-3">
-                        <span class="fw-semibold">Shipping Address:</span>
-                        <span class="vendorShippingAddress"></span>
+                        <span class="vendorAddress"></span>
                     </div>
                 </div>
                 
