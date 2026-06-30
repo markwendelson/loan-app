@@ -436,6 +436,10 @@
                     success: function(response) {
                         showToast.success(response.message)
                         $('.loan-status-button').remove()
+
+                        setTimeout(() => {
+                            window.location.href= "/loan";
+                        },4000)
                     }
                 });
 

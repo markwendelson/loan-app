@@ -179,7 +179,7 @@ class LoanController extends Controller
                 $referenceNumber = $referenceNumberService->generateReferenceNumber(Loan::class, auth()->user()->current_branch_id);
 
                 $data['branch_id'] = auth()->user()->current_branch_id;
-                $data['reference_no'] = $referenceNumber;
+                $data['reference_no'] = $referenceNumber . 'L';
 
                 $loan = Loan::create($data);
 

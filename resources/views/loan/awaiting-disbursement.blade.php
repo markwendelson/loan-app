@@ -160,7 +160,6 @@
                         if(response.status == 'success'){
                             hideModal('modalDisbursement');
                             showToast.success(response.message)
-                            table.ajax.reload();
 
                             // Trigger print preview (open loan details/voucher in new tab)
                             // Assuming /loan/{id} is the printable view or voucher

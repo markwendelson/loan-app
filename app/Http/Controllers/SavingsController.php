@@ -305,7 +305,7 @@ class SavingsController extends Controller
                 $referenceNumberService = new ReferenceNumberService();
 
                 $referenceNumber = $referenceNumberService->generateReferenceNumber(Savings::class, auth()->user()->current_branch_id);
-                $data['reference_no'] = $referenceNumber;
+                $data['reference_no'] = $referenceNumber . 'S';
 
                 $savings = Savings::create($data);
             }
@@ -760,7 +760,7 @@ class SavingsController extends Controller
 
                 $processedData[] = [
                     'client_id' => $val['client_id'],
-                    'reference_no' => $referenceNumber,
+                    'reference_no' => $referenceNumber . 'S',
                     'transaction_no' => Savings::generateTransactionNumber($val['date'], 'withdraw'),
                     'transaction_date' => $val['date'],
                     'description' => $val['description'],

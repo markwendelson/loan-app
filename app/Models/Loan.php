@@ -17,6 +17,7 @@ class Loan extends Model implements Auditable
         'branch_id',
         'loan_date',
         'loan_no',
+        'reference_no',
         'borrower_id',
         'loan_product_id',
         'loan_duration',

@@ -29,48 +29,14 @@
 
     <!-- Table Card -->
     <div class="card d-none d-md-block">
-        <div class="card-body">
+        <div class="card-header">
+            @livewire('Walkin.FilterData')
+        </div>
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered table-fixed" id="walkinTable">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="text-center">
-                                <input type="checkbox" id="selectAll">
-                            </th>
-                            <th>Date</th>
-                            <th>Last Name</th>
-                            <th>First Name</th>
-                            <th>M.I</th>
-                            <th>Amount Withdrawn</th>
-                            <th>Charge</th>
-                            <th>Net Proceeds</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($walkins as $w)
-                        <tr>
-                            <td class="text-center"><input type="checkbox"></td>
-                            <td>{{ $w->date->format('M-d-Y') }}</td>
-                            <td>{{ $w->last_name }}</td>
-                            <td>{{ $w->first_name }}</td>
-                            <td class="text-center">{{ $w->middle_initial }}</td>
-                            <td class="text-end">{{ number_format($w->amount_withdrawn,2) }}</td>
-                            <td class="text-end">{{ number_format($w->charge,2) }}</td>
-                            <td class="text-end">{{ number_format($w->net_proceeds,2) }}</td>
-                            <td class="actions-cell text-center">
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-warning editBtn"><i class="fa fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-danger deleteBtn"><i class="fa fa-trash"></i></button>
-                                </div>
-                            </td>
-                                <!-- <button class="btn btn-sm btn-warning editBtn">Edit</button> -->
-                                <!-- <button class="btn btn-sm btn-danger deleteBtn">Delete</button> -->
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                @livewire('Walkin.WalkinData' ,[
+                    'defer' => true
+                ])
             </div>
         </div>
     </div>
