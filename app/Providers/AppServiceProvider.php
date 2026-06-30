@@ -6,6 +6,8 @@ use App\Models\Savings;
 use App\Observers\PaymentObserver;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // URL::forceScheme('https'); //for ngrok testing only 
+
         Gate::before(function ($user, $ability) {
             return $user->hasRole('super_admin') ? true : null;
         });

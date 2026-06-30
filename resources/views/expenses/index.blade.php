@@ -60,7 +60,8 @@
 
     @can('create-expense')
     <div class="card">
-        <div class="card-body d-flex justify-content-end">
+        <div class="card-body d-flex justify-content-end gap-2">
+            <button type="button" id="btnGenerateExpenseReport" class="btn btn-warning"><i class="fa fa-bar-chart-o"></i> Generate Report</button>
             <button type="button" id="btnAddExpense" class="btn btn-primary"><i class="fa fa-plus"></i> New Expense</button>
         </div>
     </div>
@@ -80,6 +81,8 @@
 
     {{-- Include Modal --}}
     @include('expenses.modal')
+
+    @include('expenses.modal.generate-report-option')
 
     <!-- edit modal -->
     <div class="modal fade" id="expenseEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -483,6 +486,45 @@
                     });
                 }
             });
+        });
+
+        //handle generate expense report button
+        $(document).on("click", "#btnGenerateExpenseReport", function(e) {
+            e.preventDefault();
+
+            $("#modalGenerateReportOptions").modal("show");
+        });
+
+        //handle modal generate options cancel button
+        $("#modalGenerateReportOptions .btnCancel").on("click", function(e) {
+            e.preventDefault();
+
+            $("#modalGenerateReportOptions").modal("hide");
+        })
+
+        //handles modal generates report options select
+        $(document).on("change","#modalGenerateReportOptions select[name='report_type']", function(e) {
+            e.preventDefault();
+            let reportType = $(this).val();
+
+            // hide all report forms first
+            $(".report-forms > div").removeClass("d-block").addClass("d-none");
+
+            // show selected report type
+            $(".report-forms ." + reportType)
+                .removeClass("d-none")
+                .addClass("d-block");
+        });
+
+        //handleles modal submit button click function
+        $(document).on("click", "#modalGenerateReportOptions .btnSubmit", function(e) {
+            e.preventDefault();
+
+            let formData = $("#modalGenerateReportOptions form").serialize();
+
+            let url = "{{ route('expense.generate-expense-report') }}";
+
+            window.open(url + "?" + formData, "_blank");
         });
 
         function initializeDropzone(target) {

@@ -470,6 +470,46 @@ class ExpenseController extends Controller
         return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
+    public function generateExpenseReport(Request $request)
+    {
+        $inputData = $request->all();
+
+        switch ($inputData['report_type'] ?? null) {
+            case 'daily':
+                $query = ExpenseItems::select(
+                    'expense_items.id',
+                    'expense_items.expense_id',
+                    'expense_items.description',
+                    'expense_items.ref_no',
+                    'expense_items.amount',
+                    'vendors.name as vendor_name',
+                    'vendors.tin',
+                    'vendors.tax_classification',
+                )
+                ->leftJoin('expenses', 'expenses.id', '=', 'expense_items.expense_id')
+                ->leftJoin('vendors', 'vendors.id', '=', 'expense_items.vendor_id')
+                ->where('expenses.branch_id', auth()->user()->current_branch_id)
+                ->where('expenses.expense_date', $inputData['daily']['date']);
+
+                $dailyReportData = $query->get();
+
+                return Pdf::loadView('expenses.report.daily-report', compact(
+                        'dailyReportData'
+                    ))
+                    ->setPaper('a4', 'landscape')
+                    ->stream('daily-report.pdf');
+
+                
+                break;
+
+            default:
+                
+                break;
+        }
+
+
+    }
+
     public function deleteExpense(Request $request) 
     {
         //response
@@ -587,85 +627,85 @@ class ExpenseController extends Controller
             ));
     }
 
-    public function generateExpenseReport(Request $request) 
-    {
-        $inputData = $request->all();
+    // public function generateExpenseReport(Request $request) 
+    // {
+    //     $inputData = $request->all();
         
-        $validator = Validator::make($request->all(), [
-            'expense_date' => 'required',
-            'expense_categories' => 'required|array',
-        ]);
+    //     $validator = Validator::make($request->all(), [
+    //         'expense_date' => 'required',
+    //         'expense_categories' => 'required|array',
+    //     ]);
 
-        if($validator->fails()){
-            $allErrors = implode(',', $validator->errors()->all());
-            $response = [
-                'status' => 'fail',
-                'message' => 'Validation Failed!: ' . $allErrors,
-            ];
+    //     if($validator->fails()){
+    //         $allErrors = implode(',', $validator->errors()->all());
+    //         $response = [
+    //             'status' => 'fail',
+    //             'message' => 'Validation Failed!: ' . $allErrors,
+    //         ];
 
-            return response()->json($response);
-        }
+    //         return response()->json($response);
+    //     }
 
-        try {
-            $dateValues = [];
-            //strip expense_date
-            if(isset($inputData['expense_date']) && $inputData['expense_date']) {
-                $expenseDateArr = explode('-', $inputData['expense_date']);
+    //     try {
+    //         $dateValues = [];
+    //         //strip expense_date
+    //         if(isset($inputData['expense_date']) && $inputData['expense_date']) {
+    //             $expenseDateArr = explode('-', $inputData['expense_date']);
 
-                $dateValues['from'] = date('Y-m-d', strtotime(trim($expenseDateArr[0])));
-                $dateValues['to'] = date('Y-m-d', strtotime(trim($expenseDateArr[1])));
-            }
+    //             $dateValues['from'] = date('Y-m-d', strtotime(trim($expenseDateArr[0])));
+    //             $dateValues['to'] = date('Y-m-d', strtotime(trim($expenseDateArr[1])));
+    //         }
 
-            //get expenses 
-            $expenses = Expense::select('expenses.expense_date', 
-                'expenses.category_id',
-                DB::raw('SUM(expenses.amount) AS total_amount')
-                )
-                ->whereIn('category_id', $inputData['expense_categories'])
-                ->whereBetween('expenses.expense_date', [
-                    $dateValues['from'],
-                    $dateValues['to']
-                ])
-                ->groupBy('expenses.expense_date', 'expenses.category_id')
-                ->orderBy('expenses.expense_date', 'ASC')
-                ->get();
+    //         //get expenses 
+    //         $expenses = Expense::select('expenses.expense_date', 
+    //             'expenses.category_id',
+    //             DB::raw('SUM(expenses.amount) AS total_amount')
+    //             )
+    //             ->whereIn('category_id', $inputData['expense_categories'])
+    //             ->whereBetween('expenses.expense_date', [
+    //                 $dateValues['from'],
+    //                 $dateValues['to']
+    //             ])
+    //             ->groupBy('expenses.expense_date', 'expenses.category_id')
+    //             ->orderBy('expenses.expense_date', 'ASC')
+    //             ->get();
 
-            $expenseData = [];
-            $totalAmount = 0;
-            if($expenses->isNotEmpty()) {
-                foreach($expenses as $key => $val){
-                    $totalAmount += (double)$val->total_amount;
-                    $expenseData[$val->expense_date][$val->category_id] = [
-                        'category_id' =>$val->category_id,
-                        'amount' => $val->total_amount
-                    ];
-                }
-            }
+    //         $expenseData = [];
+    //         $totalAmount = 0;
+    //         if($expenses->isNotEmpty()) {
+    //             foreach($expenses as $key => $val){
+    //                 $totalAmount += (double)$val->total_amount;
+    //                 $expenseData[$val->expense_date][$val->category_id] = [
+    //                     'category_id' =>$val->category_id,
+    //                     'amount' => $val->total_amount
+    //                 ];
+    //             }
+    //         }
 
-            ExpenseReport::create([
-                'user_id' => auth()->id(),
-                'date_from' => $dateValues['from'],
-                'date_to' => $dateValues['to'],
-                'description' => $inputData['description'],
-                'categories_data' => json_encode($inputData['expense_categories']),
-                'amount' => (double)$totalAmount,
-                'data' => json_encode($expenseData),
-                'slug' => \Str::slug('exp' . date('Ymd H:i:s'))
-            ]);
+    //         ExpenseReport::create([
+    //             'user_id' => auth()->id(),
+    //             'date_from' => $dateValues['from'],
+    //             'date_to' => $dateValues['to'],
+    //             'description' => $inputData['description'],
+    //             'categories_data' => json_encode($inputData['expense_categories']),
+    //             'amount' => (double)$totalAmount,
+    //             'data' => json_encode($expenseData),
+    //             'slug' => \Str::slug('exp' . date('Ymd H:i:s'))
+    //         ]);
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Expense report generated successfully.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error saving expense report: ' . $e->getMessage()
-            ], 500);
-        }
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Expense report generated successfully.'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Error saving expense report: ' . $e->getMessage()
+    //         ], 500);
+    //     }
 
         
-    }
+    // }
 
     public function viewExpenseReport($slug)
     {
