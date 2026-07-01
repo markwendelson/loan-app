@@ -4,15 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Walkin extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    // Optional if your table name follows Laravel convention (plural form)
     protected $table = 'walkins';
-
-    // Fields you can mass-assign (fillable)
     protected $fillable = [
         'branch_id',
         'date',
@@ -26,7 +24,6 @@ class Walkin extends Model
         'no_service_charge',
     ];
 
-     // Cast 'date' field to a Carbon instance
     protected $casts = [
         'date' => 'date',
         'no_service_charge' => 'boolean',

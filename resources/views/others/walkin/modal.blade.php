@@ -14,7 +14,7 @@
 
 					<input type="hidden" id="walkinId" name="id">
 
-					<div class="txt-primary fw-semibold bg-primary-subtle p-2 rounded"><i class="fa fa-calendar me-1"></i>PERSONAL INFORMATION</div>
+					<div class="txt-primary fw-semibold custom-bg-badge  p-2 rounded"><i class="fa fa-calendar me-1"></i>PERSONAL INFORMATION</div>
 
 					<div class="row mt-3">
 						<div class="col-lg-3">
@@ -30,7 +30,7 @@
 							</label>
 						</div>
 
-						<div class="col-lg-3">
+						<div class="col-lg-4">
 							<label class="w-100">
 								Last name <span class="txt-danger">*</span>
 								<input type="text" 
@@ -44,7 +44,7 @@
 							</label>
 						</div>
 
-						<div class="col-lg-3">
+						<div class="col-lg-4">
 							<label class="w-100">
 								First Name <span class="txt-danger">*</span>
 								<input type="text" 
@@ -58,21 +58,22 @@
 							</label>
 						</div>
 						
-						<div class="col-lg-2">
+						<div class="col-lg-1">
 							<label class="w-100">
 								M.I.
 							<input type="text" 
 								class="form-control" 
 								id="middle_initial" 
 								name="middle_initial"
-								placeholder="Enter M.I."
+								maxlength="1"
+								placeholder="M.I."
 							>
 
 							</label>
 						</div>
 					</div>
 
-					<div class="txt-primary fw-semibold bg-primary-subtle p-2 rounded my-3"><i class="fa fa-money me-1"></i>TRANSACTION DETAILS</div>
+					<div class="txt-primary fw-semibold custom-bg-badge  p-2 rounded my-3"><i class="fa fa-money me-1"></i>TRANSACTION DETAILS</div>
 
 					<div class="row">
 						<div class="col-lg-12">
@@ -93,7 +94,7 @@
 
 								<div class="col-lg-6">
 									<div class="form-check checkbox checkbox-primary mb-0">
-										<input class="form-check-input" id="no_service_charge" type="checkbox">
+										<input class="form-check-input" id="no_service_charge" name="no_service_charge" type="checkbox" value="1">
 										<label class="form-check-label mb-1" for="no_service_charge"><small>No Service Charge</small></label>
 									</div>
 								</div>
@@ -105,7 +106,7 @@
 								<div class="col-lg-6">
 									<label class="w-100">
 										Charge
-										<input type="number" 
+										<input type="text" 
 											class="form-control text-end" 
 											id="charge" 
 											name="charge" 
@@ -117,7 +118,7 @@
 								<div class="col-lg-6">
 									<label class="w-100">
 										Net Proceeds
-										<input type="number" 
+										<input type="text" 
 											class="form-control text-end" 
 											id="net_proceeds" 
 											name="net_proceeds"
@@ -135,7 +136,7 @@
 
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save me-1"></i>Submit Walkin</button>
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Cancel</button>
+				<button type="button" class="btn btn-secondary btnCancel" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Cancel</button>
 			</div>
 		</div>
     </div>
@@ -186,6 +187,5 @@
 		$("#net_proceeds").val(amount.toFixed(2));
 
 		$("#charge").prop("disabled", true);
-		chargeField.disabled = true;
 	}
 </script>

@@ -44,7 +44,7 @@ class WalkinController extends Controller
             'amount_withdrawn' => 'required|numeric',
             'charge' => 'nullable|numeric',
             'net_proceeds' => 'required|numeric',
-            'no_service_charge' => 'nullable|boolean',
+            'no_service_charge' => 'nullable|numeric',
         ]);
 
         if($validator->fails()){
@@ -55,12 +55,6 @@ class WalkinController extends Controller
             ];
 
             return response()->json($response);
-        }
-
-        if ($request->no_service_charge) {
-            $validated['charge'] = 0;
-            $validated['net_proceeds'] = $validated['amount_withdrawn'];
-
         }
 
         try {
@@ -101,88 +95,143 @@ class WalkinController extends Controller
 
     public function show($id)
     {
+        $response = [];
+
         $walkin = Walkin::find($id);
         if (!$walkin) {
-            return response()->json(['message' => 'Record not found'], 404);
+            $response = [
+                'status' => 'error',
+                'message' => 'Walk-in data not found.',
+            ];
+        }else{
+            $response = [
+                'status' => 'success',
+                'message' => 'Walk-in data retrieved successfully.',
+                'data' => [
+                    'id' => $walkin->id,
+                    'branch_id' => $walkin->branch_id,
+                    'date' => $walkin->date->format('Y-m-d'),
+                    'last_name' => $walkin->last_name,
+                    'first_name' => $walkin->first_name,
+                    'middle_initial' => $walkin->middle_initial,
+                    'amount_withdrawn' => $walkin->amount_withdrawn,
+                    'charge' => $walkin->charge,
+                    'net_proceeds' => $walkin->net_proceeds,
+                    'no_service_charge' => $walkin->no_service_charge,
+                ]
+            ];
         }
 
-        // Format date for modal (YYYY-MM-DD)
-        $walkin->date = $walkin->date->format('Y-m-d');
-
-           $walkin = Walkin::findOrFail($id);
-
-    return response()->json([
-        'id' => $walkin->id,
-        'date' => $walkin->date->format('Y-m-d'), // <- safe for <input type="date">
-        'last_name' => $walkin->last_name,
-        'first_name' => $walkin->first_name,
-        'middle_initial' => $walkin->middle_initial,
-        'amount_withdrawn' => $walkin->amount_withdrawn,
-        'charge' => $walkin->charge,
-        'net_proceeds' => $walkin->net_proceeds,
-        'no_service_charge' => $walkin->no_service_charge,
-    ]);
-
-
+        return response()->json($response);
     }
 
 
     public function printReceipt($id)
     {
-         $walkin = Walkin::findOrFail($id);
+        $walkin = Walkin::findOrFail($id);
 
-         $user = auth()->user();
-         $branchName = $user?->branch?->name ?? 'Unknown';
+        $user = auth()->user();
+        $branchName = $user?->branch?->name ?? 'Unknown';
 
-         $branchTitle = strcasecmp($branchName, 'Guiuan') === 0
-             ? 'Head Office'
-             : $branchName . ' Branch';
+        $branchTitle = strcasecmp($branchName, 'Guiuan') === 0
+            ? 'Head Office'
+            : $branchName . ' Branch';
 
-         return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
+        return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
     }
 
-   
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $walkin = Walkin::find($id);
-        if (!$walkin) {
-            return response()->json(['message' => 'Record not found'], 404);
+        $response = [];
+
+        $walkinData = Walkin::find($request->id);
+        if (!$walkinData) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Walk-in data not found.',
+            ];
+        }else{
+
+            $validator = Validator::make($request->all(), [
+                'date' => 'required|date',
+                'last_name' => 'required|string|max:100',
+                'first_name' => 'required|string|max:100',
+                'middle_initial' => 'nullable|string|max:5',
+                'amount_withdrawn' => 'required|numeric',
+                'charge' => 'nullable|numeric',
+                'net_proceeds' => 'required|numeric',
+                'no_service_charge' => 'nullable|numeric',
+            ]);
+
+            if($validator->fails()){
+                $allErrors = implode(',', $validator->errors()->all());
+                $response = [
+                    'status' => 'fail',
+                    'message' => 'Validation Failed!: ' . $allErrors,
+                ];
+
+                return response()->json($response);
+            }
+            try {
+                DB::beginTransaction();
+
+                $data = $request->all();
+
+                if(!isset($data['charge'])) {
+                    $data['charge'] = '0.00';
+                }
+
+                $walkinData->update($data);
+                DB::commit();
+
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Walk-in updated successfully.'
+                ];
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                \Log::error('Error updating walk-in record: ' . $e->getMessage());
+                $response = [
+                    'status' => 'error',
+                    'message' => 'Failed to update walk-in record. Please try again later.'
+                ];
+            }
         }
 
-        $validated = $request->validate([
-            'date' => 'required|date',
-            'last_name' => 'required|string|max:100',
-            'first_name' => 'required|string|max:100',
-            'middle_initial' => 'nullable|string|max:5',
-            'amount_withdrawn' => 'required|numeric',
-            'charge' => 'nullable|numeric',
-            'net_proceeds' => 'required|numeric',
-            'no_service_charge' => 'nullable|in:0,1',
-        ]);
-
-        if ($request->boolean('no_service_charge')) {
-            $validated['charge'] = 0;
-            $validated['net_proceeds'] = $validated['amount_withdrawn'];
-        }
-        $walkin->update($validated);
-
-        return response()->json([
-            'data' => $walkin,
-            'print_url' => route('walkin.receipt', $walkin->id),
-        ]);
-
+        return response()->json($response);
     }
 
 
     public function destroy($id)
     {
+        $response = [];
         $walkin = Walkin::find($id);
         if (!$walkin) {
-            return response()->json(['message' => 'Record not found'], 404);
+            $response = [
+                'status' => 'error',
+                'message' => 'Walk-in not found.'
+            ];
         }
 
-        $walkin->delete();
+        try {
+            DB::beginTransaction();
+            $walkin->delete();
+            DB::commit();
 
-        return response()->json(['message' => 'Record deleted successfully']);
+            $response = [
+                'status' => 'success',
+                'message' => 'Walk-in deleted successfully.'
+            ];
+        } catch (\Exception $e) {
+            DB::rollback();
+            \Log::error('Error deleting walk-in record: ' . $e->getMessage());
+            $response = [
+                'status' => 'error',
+                'message' => 'Failed to delete walk-in record. Please try again later.'
+            ];
+        }
+
+        return response()->json($response);
     }
 }

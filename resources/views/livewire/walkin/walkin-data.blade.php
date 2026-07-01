@@ -14,7 +14,7 @@
             <tbody>
                 @if(isset($walkins) && $walkins->isNotEmpty())
                     @foreach($walkins as $w)
-                    <tr>
+                    <tr wire:key="walkin{{ $w->id }}" data-id="{{ $w->id }}">
                         <td class="text-center">{{ $w->date->format('M-d-Y') }}</td>
                         <td>{{ Str::title($w->last_name . ' ' . $w->first_name . ', ' . $w->middle_initial) }}</td>
                         <td class="text-end">{{ number_format($w->amount_withdrawn,2) }}</td>
@@ -26,10 +26,10 @@
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#"><i class="fa fa-pencil me-1"></i>Edit</a></li>
+                                    <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-pencil me-1"></i>Edit</a></li>
                                     <li><a class="dropdown-item" href="{{ url('/walkin/'. $w->id .'/receipt') }}" target="_blank"><i class="fa fa-print me-1"></i>Print Receipt</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item txt-danger" href="#"><i class="fa fa-trash me-1"></i>Delete</a></li>
+                                    <li><a class="dropdown-item txt-danger btnDelete" href="#"><i class="fa fa-trash me-1"></i>Delete</a></li>
                                 </ul>
                             </div>
                             
