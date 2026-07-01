@@ -19,6 +19,17 @@
                 >
                 <span class="input-group-text"><i class="fa fa-search"></i></span>
             </div>
+
+            <select class="form-select" wire:model.live="branch_id">
+                <option value="">-- All Branch --</option>
+                @if($branches->isNotEmpty())
+                    @foreach($branches as $key => $val)
+                        @if(in_array($val->id, $allowed_branches))
+                        <option value="{{ $val->id }}">{{ Str::title($val->name) }}</option>
+                        @endif
+                    @endforeach
+                @endif
+            </select>
         </div>
     </div>
 </div>

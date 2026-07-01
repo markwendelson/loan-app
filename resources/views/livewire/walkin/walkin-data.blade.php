@@ -3,14 +3,12 @@
         <table class="table table-bordered table-hover" id="walkinTable">
             <thead>
                 <tr>
-                    <th width="150" class="text-center">Date</th>
-                    <th>Last Name</th>
-                    <th>First Name</th>
-                    <th>M.I</th>
-                    <th>Amount Withdrawn</th>
-                    <th>Charge</th>
-                    <th>Net Proceeds</th>
-                    <th width="50"></th>
+                    <th class="align-middle text-center" width="150">Date</th>
+                    <th class="align-middle">Name</th>
+                    <th class="align-middle text-center" width="150">Amount Withdrawn</th>
+                    <th class="align-middle text-center" width="150">Charge</th>
+                    <th class="align-middle text-center" width="150">Net Proceeds</th>
+                    <th class="align-middle" width="50"></th>
                 </tr>
             </thead>
             <tbody>
@@ -18,17 +16,23 @@
                     @foreach($walkins as $w)
                     <tr>
                         <td class="text-center">{{ $w->date->format('M-d-Y') }}</td>
-                        <td>{{ $w->last_name }}</td>
-                        <td>{{ $w->first_name }}</td>
-                        <td class="text-center">{{ $w->middle_initial }}</td>
+                        <td>{{ Str::title($w->last_name . ' ' . $w->first_name . ', ' . $w->middle_initial) }}</td>
                         <td class="text-end">{{ number_format($w->amount_withdrawn,2) }}</td>
                         <td class="text-end">{{ number_format($w->charge,2) }}</td>
                         <td class="text-end">{{ number_format($w->net_proceeds,2) }}</td>
-                        <td class="actions-cell text-center">
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-warning editBtn"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger deleteBtn"><i class="fa fa-trash"></i></button>
+                        <td class="text-center">
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#"><i class="fa fa-pencil me-1"></i>Edit</a></li>
+                                    <li><a class="dropdown-item" href="{{ url('/walkin/'. $w->id .'/receipt') }}" target="_blank"><i class="fa fa-print me-1"></i>Print Receipt</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item txt-danger" href="#"><i class="fa fa-trash me-1"></i>Delete</a></li>
+                                </ul>
                             </div>
+                            
                         </td>
                     </tr>
                     @endforeach

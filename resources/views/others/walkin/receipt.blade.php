@@ -78,7 +78,7 @@
 
         <div class="spaced label">
             <span>Reference No.:</span>
-            <span>WC-{{ str_pad($walkin->id, 6, '0', STR_PAD_LEFT) }}</span>
+            <span>{{ $walkin->reference_no ?? '' }}</span>
         </div>
 
         <hr>

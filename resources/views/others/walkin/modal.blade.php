@@ -1,144 +1,191 @@
 <!-- resources/views/others/walkin/modal.blade.php -->
 <div class="modal fade" id="walkinModal" tabindex="-1">
- <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="walkinForm">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="walkinModalLabel">Add Walk-in</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
 
-        <input type="hidden" id="service_charge_percent" value="{{ $serviceCharge }}">
-        <input type="hidden" name="no_service_charge" id="no_service_charge_value" value="0">
+			<div class="modal-body">
+				<form id="walkinForm">
+					<input type="hidden" id="service_charge_percent" value="{{ $serviceCharge }}">
+					<input type="hidden" name="no_service_charge" id="no_service_charge_value" value="0">
 
-        <div class="modal-header">
-          <h5 class="modal-title" id="walkinModalLabel">Add Walk-in</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
+					<input type="hidden" id="walkinId" name="id">
 
-        <div class="modal-body">
-          <input type="hidden" id="walkinId" name="id">
+					<div class="txt-primary fw-semibold bg-primary-subtle p-2 rounded"><i class="fa fa-calendar me-1"></i>PERSONAL INFORMATION</div>
 
-          <div class="mb-2">
-            <label>Date</label>
-            <input type="date" class="form-control" id="date" name="date" required>
-          </div>
+					<div class="row mt-3">
+						<div class="col-lg-3">
+							<label class="w-100">
+								Date <span class="txt-danger">*</span>
+								<input type="date" 
+									class="form-control" 
+									id="date" 
+									name="date" 
+									required
+								>
 
-          <div class="mb-2">
-            <label>Last Name</label>
-            <input type="text" class="form-control" id="last_name" name="last_name" required>
-          </div>
+							</label>
+						</div>
 
-          <div class="mb-2">
-            <label>First Name</label>
-            <input type="text" class="form-control" id="first_name" name="first_name" required>
-          </div>
+						<div class="col-lg-3">
+							<label class="w-100">
+								Last name <span class="txt-danger">*</span>
+								<input type="text" 
+									class="form-control" 
+									id="last_name" 
+									name="last_name" 
+									placeholder="Enter last name"
+									required
+								>
 
-          <div class="mb-2">
-            <label>M.I</label>
-            <input type="text" class="form-control" id="middle_initial" name="middle_initial">
-          </div>
+							</label>
+						</div>
 
-          <div class="mb-2">
-            <label>Amount Withdrawn</label>
-            <input type="number" class="form-control" id="amount_withdrawn" name="amount_withdrawn" required>
-          </div>
+						<div class="col-lg-3">
+							<label class="w-100">
+								First Name <span class="txt-danger">*</span>
+								<input type="text" 
+									class="form-control" 
+									id="first_name" 
+									name="first_name"
+									placeholder="Enter first name"
+									required
+								>
 
-          <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="no_service_charge">
-            <label class="form-check-label" for="no_service_charge">
-              No Service Charge
-            </label>
-          </div>
+							</label>
+						</div>
+						
+						<div class="col-lg-2">
+							<label class="w-100">
+								M.I.
+							<input type="text" 
+								class="form-control" 
+								id="middle_initial" 
+								name="middle_initial"
+								placeholder="Enter M.I."
+							>
 
-          <div class="mb-2">
-            <label>Charge</label>
-            <input type="number" class="form-control" id="charge" name="charge" readonly>
-          </div>
+							</label>
+						</div>
+					</div>
 
-          <div class="mb-2">
-            <label>Net Proceeds</label>
-            <input type="number" class="form-control" id="net_proceeds" name="net_proceeds" readonly>
-          </div>
-        </div>
+					<div class="txt-primary fw-semibold bg-primary-subtle p-2 rounded my-3"><i class="fa fa-money me-1"></i>TRANSACTION DETAILS</div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save</button>
-        </div>
+					<div class="row">
+						<div class="col-lg-12">
+							
+							<div class="row align-items-center">
+								<div class="col-lg-6">
+									<label class="w-100">
+										Amount Withdawn <span class="txt-danger">*</span>
+										<input type="number" 
+											class="form-control text-end" 
+											id="amount_withdrawn" 
+											name="amount_withdrawn" 
+											placeholder="0.00"
+											required
+										>
+									</label>
+								</div>
 
-      </form>
+								<div class="col-lg-6">
+									<div class="form-check checkbox checkbox-primary mb-0">
+										<input class="form-check-input" id="no_service_charge" type="checkbox">
+										<label class="form-check-label mb-1" for="no_service_charge"><small>No Service Charge</small></label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col">
+							<div class="row">
+								<div class="col-lg-6">
+									<label class="w-100">
+										Charge
+										<input type="number" 
+											class="form-control text-end" 
+											id="charge" 
+											name="charge" 
+											placeholder="0.00"
+											readonly
+										>
+									</label>
+								</div>
+								<div class="col-lg-6">
+									<label class="w-100">
+										Net Proceeds
+										<input type="number" 
+											class="form-control text-end" 
+											id="net_proceeds" 
+											name="net_proceeds"
+											placeholder="0.00"
+											readonly
+										>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save me-1"></i>Submit Walkin</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Cancel</button>
+			</div>
+		</div>
     </div>
-  </div>
 </div>
 
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+	
+	document.addEventListener('DOMContentLoaded', () => {
 
-   const amountField = document.getElementById('amount_withdrawn');
-    const chargeField = document.getElementById('charge');
-    const netField = document.getElementById('net_proceeds');
-    const noChargeCheckbox = document.getElementById('no_service_charge');
-    const noChargeValue = document.getElementById('no_service_charge_value');
+		$("#amount_withdrawn").on("change", function(e) {
+			$("#no_service_charge").is(":checked") ? recalcNoCharge() : recalcAutoCharge();
+		});
 
-    const percentField = document.getElementById('service_charge_percent');
-    const servicePercent = parseFloat(percentField.value) || 0;
+		$("charge").on("change", function(e) {
+			recalcFromCharge();
+		})
 
-    function recalcFromCharge() {
-        const amount = parseFloat(amountField.value) || 0;
-        const charge = parseFloat(chargeField.value) || 0;
-        netField.value = (amount - charge).toFixed(2);
-    }
+		//handle checkbox change event
+		$("#no_service_charge").change(function(e){
+			e.preventDefault();
 
-    function recalcAutoCharge() {
-        const amount = parseFloat(amountField.value) || 0;
-        const charge = amount * (servicePercent / 100);
-        chargeField.value = charge.toFixed(2);
-        recalcFromCharge();
-    }
+			if($(this).is(":checked")) {
+				recalcNoCharge();
+			}else{
+				$("#charge").prop("disabled", false);
+				recalcAutoCharge();
+			}
+		})
+	});
 
-    amountField.addEventListener('input', () => {
-        noChargeCheckbox.checked ? recalcNoCharge() : recalcAutoCharge();
-    });
+	function recalcFromCharge() {
+		const amount = parseFloat($("#amount_withdrawn").val()) || 0;
+		const charge = parseFloat($("#charge").val()) || 0;
+		$("#net_proceeds").val((amount - charge).toFixed(2));
+	}
 
-    chargeField.addEventListener('input', recalcFromCharge);
+	function recalcAutoCharge() {
+		const amount = parseFloat($("#amount_withdrawn").val()) || 0;
+		const charge = amount * ($("#service_charge_percent").val() / 100);
+		$("#charge").val(charge.toFixed(2));
+		recalcFromCharge();
+	}
 
-    function recalcNoCharge() {
-          const amount = parseFloat(amountField.value) || 0;
-    chargeField.value = '0.00';
-    netField.value = amount.toFixed(2);
-    chargeField.disabled = true;
-        // chargeField.value = '0.00';
-        // chargeField.disabled = true;
-        // recalcFromCharge();
-    }
+	function recalcNoCharge() {
+		const amount = parseFloat($("#amount_withdrawn").val()) || 0;
+		$("#charge").val("0.00")
+		$("#net_proceeds").val(amount.toFixed(2));
 
-    noChargeCheckbox.addEventListener('change', () => {
-        noChargeValue.value = noChargeCheckbox.checked ? 1 : 0;
-
-        if (noChargeCheckbox.checked) {
-            recalcNoCharge();
-        } else {
-            chargeField.disabled = false;
-            recalcAutoCharge();
-        }
-    });
-
-
-    // const amountField = document.getElementById('amount_withdrawn');
-    // const chargeField = document.getElementById('charge');
-    // const netField = document.getElementById('net_proceeds');
-
-    // amountField.addEventListener('input', () => {
-    //     const amount = parseFloat(amountField.value) || 0;
-
-        // Compute charge (3% of amount)
-        // const charge = amount * 0.03;
-
-        // Compute net proceeds
-        // const net = amount - charge;
-
-        // Update fields
-    //     chargeField.value = charge.toFixed(2);
-    //     netField.value = net.toFixed(2);
-    // });
-
-});
+		$("#charge").prop("disabled", true);
+		chargeField.disabled = true;
+	}
 </script>

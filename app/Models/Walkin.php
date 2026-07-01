@@ -14,7 +14,9 @@ class Walkin extends Model
 
     // Fields you can mass-assign (fillable)
     protected $fillable = [
+        'branch_id',
         'date',
+        'reference_no',
         'last_name',
         'first_name',
         'middle_initial',

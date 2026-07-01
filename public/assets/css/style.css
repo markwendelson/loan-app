@@ -49719,6 +49719,10 @@ body.dark-only .choices__item {
   background-color: rgb(26, 28, 35) !important;
   color: rgba(255, 255, 255, 0.6) !important;
 }
+
+table .dropdown-menu .dropdown-item {
+  opacity: 0.95 !important;
+}
 /**=====================
   5.9 Box-layout CSS Ends
 ==========================**/

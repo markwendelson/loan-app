@@ -20,7 +20,8 @@ class WalkinData extends Component
 
     protected $queryString = [
         'q',
-        'entries'
+        'entries',
+        'branch_id',
     ];
 
     public function placeholder()
@@ -30,7 +31,7 @@ class WalkinData extends Component
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>
+                        <th width="150">
                             <p class="placeholder-glow">
                                 <span class="placeholder col-12"></span>
                             </p>
@@ -40,27 +41,17 @@ class WalkinData extends Component
                                 <span class="placeholder col-12"></span>
                             </p>
                         </th>
-                        <th>
+                        <th class="text-center" width="150">
                             <p class="placeholder-glow">
                                 <span class="placeholder col-12"></span>
                             </p>
                         </th>
-                        <th>
+                        <th class="text-center" width="150">
                             <p class="placeholder-glow">
                                 <span class="placeholder col-12"></span>
                             </p>
                         </th>
-                        <th class="text-center" width="120">
-                            <p class="placeholder-glow">
-                                <span class="placeholder col-12"></span>
-                            </p>
-                        </th>
-                        <th class="text-center">
-                            <p class="placeholder-glow">
-                                <span class="placeholder col-12"></span>
-                            </p>
-                        </th>
-                        <th class="text-center">
+                        <th class="text-center" width="150">
                             <p class="placeholder-glow">
                                 <span class="placeholder col-12"></span>
                             </p>
@@ -75,16 +66,6 @@ class WalkinData extends Component
                 <tbody>
                     @for ($x = 1; $x < 10; $x++)
                         <tr>
-                            <td>
-                                <p class="placeholder-glow">
-                                    <span class="placeholder col-12"></span>
-                                </p>
-                            </td>
-                            <td>
-                                <p class="placeholder-glow">
-                                    <span class="placeholder col-12"></span>
-                                </p>
-                            </td>
                             <td>
                                 <p class="placeholder-glow">
                                     <span class="placeholder col-12"></span>
@@ -131,6 +112,12 @@ class WalkinData extends Component
         $this->entries = $data['entries'];
     }
 
+    #[On('refresh-walkin-data')]
+    public function updated()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = Walkin::orderBy('date', 'desc');
@@ -145,7 +132,11 @@ class WalkinData extends Component
             });
         }
 
-        
+        //branch_id
+        if($this->branch_id){
+            $query->where('branch_id', $this->branch_id);
+        }
+
         $walkins = $query->paginate($this->entries)->appends([
             'q' => $this->q,
             'entries' => $this->entries

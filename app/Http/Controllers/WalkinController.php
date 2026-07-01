@@ -4,6 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Validator;
+
+//reference no service
+use App\Services\ReferenceNumberService;   
+
+//models
 use App\Models\Walkin;
 
 class WalkinController extends Controller
@@ -27,7 +34,9 @@ class WalkinController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $response = [];
+
+        $validator = Validator::make($request->all(), [
             'date' => 'required|date',
             'last_name' => 'required|string|max:100',
             'first_name' => 'required|string|max:100',
@@ -38,19 +47,56 @@ class WalkinController extends Controller
             'no_service_charge' => 'nullable|boolean',
         ]);
 
-    if ($request->no_service_charge) {
-        $validated['charge'] = 0;
-        $validated['net_proceeds'] = $validated['amount_withdrawn'];
+        if($validator->fails()){
+            $allErrors = implode(',', $validator->errors()->all());
+            $response = [
+                'status' => 'fail',
+                'message' => 'Validation Failed!: ' . $allErrors,
+            ];
 
-    }
+            return response()->json($response);
+        }
 
-        $walkin = Walkin::create($validated);
+        if ($request->no_service_charge) {
+            $validated['charge'] = 0;
+            $validated['net_proceeds'] = $validated['amount_withdrawn'];
 
-          return response()->json([
-            'data' => $walkin,
-            'print_url' => route('walkin.receipt', $walkin->id),
-        ], 201);
-   
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $data = $request->except('id');
+
+            //insert processing branch
+            $data['branch_id'] = auth()->user()->current_branch_id;
+
+            $referenceNumberService = new ReferenceNumberService();
+
+            $referenceNumber = $referenceNumberService->generateReferenceNumber(Walkin::class, auth()->user()->current_branch_id);
+            $data['reference_no'] = $referenceNumber . 'W';
+            $result= Walkin::create($data);
+
+            DB::commit();
+            $response = [
+                'status' => 'success',
+                'message' => 'Walk-in created successfully.',
+                'data' => [
+                    'id' => $result->id
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            \Log::error('Error creating walk-in record: ' . $e->getMessage());
+            $response = [
+                'status' => 'error',
+                'message' => 'Failed to create walk-in record. Please try again later.'
+            ];
+        }
+
+        return response()->json($response);
     }
 
     public function show($id)

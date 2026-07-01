@@ -214,10 +214,10 @@ Route::middleware('auth')->group(function () {
     Route::get('walkin', [WalkinController::class, 'index'])->name('walkin.index');
 
     // CRUD endpoints (AJAX / fetch)
-    Route::post('walkin', [WalkinController::class, 'store'])->name('walkin.store');
-    Route::get('walkin/{id}', [WalkinController::class, 'show'])->name('walkin.show');
-    Route::put('walkin/{id}', [WalkinController::class, 'update'])->name('walkin.update');
-    Route::delete('walkin/{id}', [WalkinController::class, 'destroy'])->name('walkin.destroy');
+    Route::post('walkin/store', [WalkinController::class, 'store'])->name('walkin.store');
+    Route::get('walkin/show', [WalkinController::class, 'show'])->name('walkin.show');
+    Route::put('walkin/put', [WalkinController::class, 'update'])->name('walkin.update');
+    Route::delete('walkin/delete', [WalkinController::class, 'destroy'])->name('walkin.destroy');
 
     Route::get('/walkin/{id}/receipt', [WalkinController::class, 'printReceipt'])->name('walkin.receipt');
 
