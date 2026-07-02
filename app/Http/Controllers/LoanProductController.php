@@ -35,7 +35,7 @@ class LoanProductController extends Controller
 
         $loan_types = LoanType::all();
         $loan_products = LoanProduct::active()->get();
-        $repayment_order = ['Principal', 'Interest', 'Fees', 'Penalty'];
+        $repayment_order = ['Special Loan','Principal', 'Interest', 'Fees', 'Penalty'];
 
         return view('loan.product.index', compact('loan_types','repayment_order','loan_products'));
     }

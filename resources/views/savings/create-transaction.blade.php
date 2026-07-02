@@ -217,6 +217,7 @@
             @foreach($loans as $loan)
                 "{{ $loan->id }}": {
                     loan_type: "{{ Str::slug($loan->loanProduct->loanType->name) }}",
+                    is_special: {{ $loan->is_special ? 'true' : 'false' }},
                     text: "{{ $loan->is_special ? 'Special Loan | '.$loan->description .' | ' .$loan->loan_no : 'Principal Loan | '.$loan->loan_no }}"
                 },
             @endforeach
@@ -269,11 +270,10 @@
         document.querySelector('#loan_id').addEventListener('addItem', function(event) {
             let loanId = event.detail.value;
             let loanInfo = clientLoansMap[loanId];
-            let loanType = loanInfo ? loanInfo.loan_type : '';
             let loanText = event.detail.label;
-
+ 
             activeLoans.add(loanId);
-            renderLoanCard(loanId, loanText, loanType);
+            renderLoanCard(loanId, loanText, loanInfo);
         });
 
         document.querySelector('#loan_id').addEventListener('removeItem', function(event) {
@@ -283,7 +283,9 @@
             calculateChange('card');
         });
 
-        function renderLoanCard(loanId, loanText, loanType) {
+        function renderLoanCard(loanId, loanText, loanInfo) {
+            let isSpecial = loanInfo ? loanInfo.is_special : false;
+            let loanType = loanInfo ? loanInfo.loan_type : '';
             let insuranceDiv = `
                         <div class="col-md-4 form-group">
                             <label class="form-label" for="insurance_${loanId}">Insurance</label>
@@ -309,11 +311,11 @@
                                 <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-membership-fee-input" name="membership_fee[${loanId}]" id="membership_fee_${loanId}" placeholder="0.00"/>
                             </div>`;
 
-            if(loanType == 'special-loan' || loanType == 'mortgage-loan') {
+            if(isSpecial || loanType == 'mortgage-loan') {
                 membershipDiv = ``;
             }
 
-            if(loanType == 'special-loan') {
+            if(isSpecial) {
                 insuranceDiv = ``;
             }
 
@@ -354,7 +356,7 @@
                             <div class="row g-2 mb-2">
                                 <div class="col-6 form-group">
                                     <label class="form-label" for="principal_${loanId}">Principal</label>
-                                    <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-principal-input" name="principal[${loanId}]" id="principal_${loanId}" placeholder="0.00" readonly/>
+                                    <input type="text" class="form-control form-control-sm decimal-only text-end loan-input loan-principal-input" name="principal[${loanId}]" id="principal_${loanId}" placeholder="0.00"/>
                                 </div>
                                 <div class="col-6 form-group">
                                     <label class="form-label" for="principal_advance_${loanId}">Principal Advance</label>
@@ -404,11 +406,11 @@
                 autoclose: true
             });
 
-            if (loanType === 'open-term' || loanType === 'loan-with-term' || loanType === 'special-loan') {
-                $(`#principal_${loanId}`).prop('readonly', false);
-            } else {
-                $(`#principal_${loanId}`).prop('readonly', true);
-            }
+            // if (loanType === 'open-term' || loanType === 'loan-with-term' || loanType === 'special-loan') {
+            //     $(`#principal_${loanId}`).prop('readonly', false);
+            // } else {
+            //     $(`#principal_${loanId}`).prop('readonly', true);
+            // }
 
             getSingleLoanData(loanId);
         }
@@ -435,6 +437,7 @@
             var membership_fee = parsePHPNumber(feesResponse.membership_fee_balance);
             let principal_advance = parsePHPNumber(feesResponse.principal_advance_balance);
             let principal_balance = parsePHPNumber(feesResponse.principal_balance);
+            let special_loan_balance = parsePHPNumber(feesResponse.special_loan_balance) || 0;
             let early_settlement_amount = parsePHPNumber(feesResponse.early_settlement_amount);
 
             // Cache dues
@@ -442,11 +445,13 @@
             $card.data('insurance-due', insurance);
             $card.data('membership-fee-due', membership_fee);
             $card.data('principal-balance', principal_balance);
+            $card.data('special-loan-balance', special_loan_balance);
             $card.data('early-settlement-amount', early_settlement_amount);
             $card.data('principal-advance-due', principal_advance);
             $card.data('monthly-amortization', monthly_amortization);
             $card.data('previous-interest-deficit', parsePHPNumber(feesResponse.previous_interest_deficit));
             $card.data('current-interest', parsePHPNumber(feesResponse.current_interest));
+            $card.find('input').data('edited', false);
 
             $(`#insurance_month_${loanId}`).val(moment(feesResponse.interest_end_date).format('M'));
             $(`#insurance_year_${loanId}`).val(moment(feesResponse.interest_end_date).format('Y'));
@@ -482,11 +487,16 @@
             let is_early_settlement = $(`#is_early_settlement_${loanId}`).prop('checked');
             let defaultPrincipal = 0;
             if (is_early_settlement) {
-                defaultPrincipal = early_settlement_amount;
+                let earlySettlementAmount = early_settlement_amount;
+                let includeSpecial = $(`#include_special_loan_balance_${loanId}`).prop('checked');
+                if (!includeSpecial) {
+                    earlySettlementAmount -= special_loan_balance;
+                }
+                defaultPrincipal = earlySettlementAmount;
             } else {
                 let loanInfo = clientLoansMap[loanId];
-                let loan_type = loanInfo ? loanInfo.loan_type : '';
-                if (loan_type === 'special-loan') {
+                let isSpecial = loanInfo ? loanInfo.is_special : false;
+                if (isSpecial) {
                     defaultPrincipal = principal_balance;
                 } else {
                     defaultPrincipal = monthly_amortization;
@@ -608,6 +618,11 @@
         });
 
         $(document).on('input', ".loan-interest-input, .loan-principal-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
+            $(this).data('edited', true);
+            calculateChange('amount');
+        });
+
+        $(document).on('blur', ".loan-interest-input, .loan-principal-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
             calculateChange('amount');
         });
 
@@ -852,37 +867,72 @@
             let is_early_settlement = $(`#is_early_settlement_${loanId}`).prop('checked');
             let loanInfo = clientLoansMap[loanId];
             let loan_type = loanInfo ? loanInfo.loan_type : '';
+            let isSpecial = loanInfo ? loanInfo.is_special : false;
 
             let defaultInterest = $(`#exclude_interest_${loanId}`).prop('checked') ? 0 : (parsePHPNumber($card.data('interest-due')) || 0);
-            let defaultInsurance = parsePHPNumber($card.data('insurance-due')) || 0;
-            let defaultMembershipFee = parsePHPNumber($card.data('membership-fee-due')) || 0;
+            let defaultInsurance = isSpecial ? 0 : (parsePHPNumber($card.data('insurance-due')) || 0);
+            let defaultMembershipFee = isSpecial ? 0 : (parsePHPNumber($card.data('membership-fee-due')) || 0);
             let defaultPrincipalAdvance = parsePHPNumber($card.data('principal-advance-due')) || 0;
             let defaultPrincipal = 0;
             if (is_early_settlement) {
-                defaultPrincipal = parsePHPNumber($card.data('early-settlement-amount')) || 0;
+                let earlySettlementAmount = parsePHPNumber($card.data('early-settlement-amount')) || 0;
+                let includeSpecial = $(`#include_special_loan_balance_${loanId}`).prop('checked');
+                if (!includeSpecial) {
+                    let specialBalance = parsePHPNumber($card.data('special-loan-balance')) || 0;
+                    earlySettlementAmount -= specialBalance;
+                }
+                defaultPrincipal = earlySettlementAmount;
             } else {
-                if (loan_type === 'special-loan') {
+                let isSpecial = loanInfo ? loanInfo.is_special : false;
+                if (isSpecial) {
                     defaultPrincipal = parsePHPNumber($card.data('principal-balance')) || 0;
                 } else {
                     defaultPrincipal = parsePHPNumber($card.data('monthly-amortization')) || 0;
                 }
             }
 
-            if (useInputs) {
-                let rawInt = $(`#interest_${loanId}`).val();
-                let rawIns = $(`#insurance_${loanId}`).val();
-                let rawMem = $(`#membership_fee_${loanId}`).val();
-                let rawPrin = $(`#principal_${loanId}`).val();
-                let rawAdv = $(`#principal_advance_${loanId}`).val();
+            let isPrincipalEdited = $(`#principal_${loanId}`).data('edited') === true;
+            let isPrincipalExplicitlyZero = false;
 
-                interestDue = (rawInt === '' || rawInt === undefined) ? defaultInterest : (parsePHPNumber(rawInt) || 0);
-                insuranceDue = (rawIns === '' || rawIns === undefined) ? defaultInsurance : (parsePHPNumber(rawIns) || 0);
-                membershipFeeDue = (rawMem === '' || rawMem === undefined) ? defaultMembershipFee : (parsePHPNumber(rawMem) || 0);
-                principalDue = (rawPrin === '' || rawPrin === undefined) ? defaultPrincipal : (parsePHPNumber(rawPrin) || 0);
-                principalAdvanceDue = (rawAdv === '' || rawAdv === undefined) ? defaultPrincipalAdvance : (parsePHPNumber(rawAdv) || 0);
+            if (useInputs) {
+                let $interestInput = $(`#interest_${loanId}`);
+                let $insuranceInput = $(`#insurance_${loanId}`);
+                let $membershipFeeInput = $(`#membership_fee_${loanId}`);
+                let $principalInput = $(`#principal_${loanId}`);
+                let $principalAdvanceInput = $(`#principal_advance_${loanId}`);
+
+                let rawInt = $interestInput.val();
+                let rawIns = $insuranceInput.val();
+                let rawMem = $membershipFeeInput.val();
+                let rawPrin = $principalInput.val();
+                let rawAdv = $principalAdvanceInput.val();
+
+                interestDue = ($interestInput.data('edited') === true)
+                    ? ((rawInt === '' || rawInt === undefined) ? 0 : (parsePHPNumber(rawInt) || 0))
+                    : defaultInterest;
+
+                insuranceDue = ($insuranceInput.data('edited') === true)
+                    ? ((rawIns === '' || rawIns === undefined) ? 0 : (parsePHPNumber(rawIns) || 0))
+                    : defaultInsurance;
+
+                membershipFeeDue = ($membershipFeeInput.data('edited') === true)
+                    ? ((rawMem === '' || rawMem === undefined) ? 0 : (parsePHPNumber(rawMem) || 0))
+                    : defaultMembershipFee;
+
+                principalDue = ($principalInput.data('edited') === true)
+                    ? ((rawPrin === '' || rawPrin === undefined) ? 0 : (parsePHPNumber(rawPrin) || 0))
+                    : defaultPrincipal;
+
+                principalAdvanceDue = ($principalAdvanceInput.data('edited') === true)
+                    ? ((rawAdv === '' || rawAdv === undefined) ? 0 : (parsePHPNumber(rawAdv) || 0))
+                    : defaultPrincipalAdvance;
 
                 if ($(`#exclude_interest_${loanId}`).prop('checked')) {
                     interestDue = 0;
+                }
+
+                if (isPrincipalEdited && (rawPrin === '' || rawPrin === undefined || parsePHPNumber(rawPrin) === 0)) {
+                    isPrincipalExplicitlyZero = true;
                 }
             } else {
                 interestDue = defaultInterest;
@@ -901,7 +951,8 @@
                 insurance: insuranceDue,
                 membership_fee: membershipFeeDue,
                 principal: principalDue,
-                principal_advance: principalAdvanceDue
+                principal_advance: principalAdvanceDue,
+                isPrincipalExplicitlyZero: isPrincipalExplicitlyZero
             };
         }
 
@@ -919,7 +970,7 @@
             let $card = $(`#loan-card-${loanId}`);
             if ($card.length === 0) return;
 
-            let repaymentOrder = $card.data('repayment_order') || ["Fees", "Interest", "Principal"];
+            let repaymentOrder = $card.data('repayment_order') || ["Special Loan","Fees", "Interest", "Principal"];
             if (typeof repaymentOrder === 'string') {
                 try {
                     repaymentOrder = JSON.parse(repaymentOrder);
@@ -928,9 +979,10 @@
                 }
             }
             if (!Array.isArray(repaymentOrder)) {
-                repaymentOrder = ["Fees", "Interest", "Principal"];
+                repaymentOrder = ["Special Loan","Fees", "Interest", "Principal"];
             }
 
+            console.log(repaymentOrder)
             let allocatedInterest = 0;
             let allocatedInsurance = 0;
             let allocatedMembershipFee = 0;
@@ -941,31 +993,36 @@
 
             repaymentOrder.forEach(category => {
                 let catLower = (category || "").toString().toLowerCase();
+                console.log(catLower)
                 if (catLower === "interest") {
                     let val = Math.min(tempAllocated, dues.interest);
-                    allocatedInterest = val;
+                    allocatedInterest += val;
                     tempAllocated -= val;
                 } else if (catLower === "fees") {
                     let valMem = Math.min(tempAllocated, dues.membership_fee);
-                    allocatedMembershipFee = valMem;
+                    allocatedMembershipFee += valMem;
                     tempAllocated -= valMem;
 
                     let valIns = Math.min(tempAllocated, dues.insurance);
-                    allocatedInsurance = valIns;
+                    allocatedInsurance += valIns;
                     tempAllocated -= valIns;
-                } else if (catLower === "principal") {
+                } else if (catLower === "principal" || catLower === "special loan" || catLower === "special-loan") {
                     let valPrin = Math.min(tempAllocated, dues.principal);
-                    allocatedPrincipal = valPrin;
+                    allocatedPrincipal += valPrin;
                     tempAllocated -= valPrin;
 
                     let valAdv = Math.min(tempAllocated, dues.principal_advance);
-                    allocatedPrincipalAdvance = valAdv;
+                    allocatedPrincipalAdvance += valAdv;
                     tempAllocated -= valAdv;
                 }
             });
+            console.log(allocatedInterest)
+            console.log(allocatedMembershipFee)
+            console.log(allocatedInsurance)
+            console.log(allocatedPrincipal)
 
-            // Excess goes to principal
-            if (tempAllocated > 0) {
+            // Excess goes to principal only if not explicitly set to 0 by the user
+            if (tempAllocated > 0 && !dues.isPrincipalExplicitlyZero) {
                 allocatedPrincipal += tempAllocated;
                 tempAllocated = 0;
             }
@@ -1026,16 +1083,18 @@
             $(`#interest_deficit_${loanId}`).val(strDeficit);
 
             // Update card total due display
-            $(`#loan_total_due_display_${loanId}`).text(allocatedAmount.toLocaleString('en-PH', {
+            $(`#loan_total_due_display_${loanId}`).text((allocatedAmount - tempAllocated).toLocaleString('en-PH', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }));
 
             // Set the hidden input field loan_amount
-            $(`#loan_amount_${loanId}`).val(allocatedAmount.toLocaleString('en-PH', {
+            $(`#loan_amount_${loanId}`).val((allocatedAmount - tempAllocated).toLocaleString('en-PH', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }));
+
+            return allocatedAmount - tempAllocated;
         }
 
         async function calculateChange(mode = 'amount') {
@@ -1165,17 +1224,19 @@
                     }
                 }
 
-                // Sort loans: regular first, special last
+                // Sort loans: special first, regular last
                 let sortedLoans = [...selectedLoans].sort((a, b) => {
-                    let isSpecialA = (clientLoansMap[a]?.loan_type === 'special-loan');
-                    let isSpecialB = (clientLoansMap[b]?.loan_type === 'special-loan');
+                    let isSpecialA = (clientLoansMap[a]?.is_special === true);
+                    let isSpecialB = (clientLoansMap[b]?.is_special === true);
                     if (isSpecialA === isSpecialB) return 0;
-                    return isSpecialA ? 1 : -1;
+                    return isSpecialA ? -1 : 1;
                 });
 
                 let remainingAmount = overall_amount;
+                console.log(1189)
 
                 if (isSlipBased && overall_amount === 0) {
+                    console.log(1193)
                     // Do not distribute 0, keep loaded card dues
                     selectedLoans.forEach(loanId => {
                         let interest = parsePHPNumber($(`#interest_${loanId}`).val());
@@ -1191,15 +1252,30 @@
                         total_allocated_all += loanAmount;
                     });
                 } else {
-                    // Distribute amount to sorted loans
+                    console.log(1209)
                     let useInputsForTarget = (mode === 'amount');
+                    let loanTargetDues = {};
+                    let loanDefaultDues = {};
+                    let loanTotalDues = {};
+
+                    console.log(useInputsForTarget)
+                    console.log(loanTargetDues)
+                    console.log(loanDefaultDues)
+                    console.log(loanTotalDues)
+
+                    selectedLoans.forEach(loanId => {
+                        loanDefaultDues[loanId] = getLoanDues(loanId, false);
+                        loanTargetDues[loanId] = getLoanDues(loanId, useInputsForTarget);
+                        loanTotalDues[loanId] = Math.max(loanDefaultDues[loanId].total, loanTargetDues[loanId].total);
+                    });
+
+                    // First pass: distribute sequentially up to totalDue
                     for (let i = 0; i < sortedLoans.length; i++) {
                         let loanId = sortedLoans[i];
                         let isLastLoan = (i === sortedLoans.length - 1);
 
-                        let defaultDues = getLoanDues(loanId, false);
-                        let targetDues = getLoanDues(loanId, useInputsForTarget);
-                        let totalDue = Math.max(defaultDues.total, targetDues.total);
+                        let totalDue = loanTotalDues[loanId];
+                        let targetDues = loanTargetDues[loanId];
 
                         let allocatedToLoan = 0;
                         if (isLastLoan && !isSlipBased) {
@@ -1209,10 +1285,60 @@
                         }
 
                         remainingAmount -= allocatedToLoan;
+                        console.log('loanId: ' +loanId)
+                        console.log('allocatedToLoan: ' +allocatedToLoan)
+                        console.log('targetDues: ' +targetDues)
 
-                        // Distribute this loan's allocated amount to its fields using targetDues
-                        distributeLoanAmount(loanId, allocatedToLoan, targetDues);
-                        total_allocated_all += allocatedToLoan;
+                        console.log('1st iteration start')
+                        let actualAllocated = distributeLoanAmount(loanId, allocatedToLoan, targetDues);
+                        remainingAmount += (allocatedToLoan - actualAllocated);
+                        console.log('remainingAmount: ' +remainingAmount)
+                        total_allocated_all += actualAllocated;
+                    }
+
+                    // Second pass (Iterative): if there is still remainingAmount, distribute it to loans that can absorb more
+                    let iterations = 0;
+                    let maxIterations = sortedLoans.length * 2;
+                    console.log('2nd iteration start')
+                    while (remainingAmount > 0.01 && iterations < maxIterations) {
+                        let allocatedThisIteration = 0;
+                        for (let i = 0; i < sortedLoans.length; i++) {
+                            let loanId = sortedLoans[i];
+                            let isLastLoan = (i === sortedLoans.length - 1);
+
+                            let totalDue = loanTotalDues[loanId];
+                            let targetDues = loanTargetDues[loanId];
+                            let currentAllocated = parsePHPNumber($(`#loan_amount_${loanId}`).val()) || 0;
+
+                            let canAbsorb = 0;
+                            if (isLastLoan && !isSlipBased) {
+                                canAbsorb = remainingAmount;
+                            } else {
+                                canAbsorb = totalDue - currentAllocated;
+                            }
+
+                            if (canAbsorb <= 0.01) continue;
+
+                            let allocatedToLoan = Math.min(remainingAmount, canAbsorb);
+                            remainingAmount -= allocatedToLoan;
+
+                            console.log('loanId: ' +loanId)
+                            console.log('allocatedToLoan: ' +allocatedToLoan)
+                            console.log('currentAllocated: ' +currentAllocated)
+                            console.log('targetDues: ' +targetDues)
+                            let actualAllocated = distributeLoanAmount(loanId, currentAllocated + allocatedToLoan, targetDues);
+                            let unused = (currentAllocated + allocatedToLoan) - actualAllocated;
+
+                            remainingAmount += unused;
+                            allocatedThisIteration += (actualAllocated - currentAllocated);
+                            total_allocated_all += (actualAllocated - currentAllocated);
+                            console.log('i: ' + i)
+                            console.log('total_allocated_all: ' + total_allocated_all)
+                        }
+                        if (allocatedThisIteration <= 0.01) {
+                            break;
+                        }
+                        iterations++;
                     }
                 }
             }
@@ -1224,7 +1350,7 @@
                 if (is_early) {
                     let dues = getLoanDues(loanId);
                     let allocated = parsePHPNumber($(`#loan_amount_${loanId}`).val()) || 0;
-                    if (allocated < dues.total - 0.01) {
+                    if (Math.round(allocated * 100) < Math.round(dues.total * 100)) {
                         hasInsufficientEarlySettlement = true;
                         $(`#loan-card-${loanId}`).addClass('border-danger');
                         $(`#early_settlement_warning_${loanId}`).removeClass('d-none');
@@ -1240,6 +1366,7 @@
 
             // Update change
             let change = overall_amount - total_allocated_all;
+            console.log(overall_amount + '-' + total_allocated_all)
             if (change < 0) {
                 change = 0;
             }
@@ -1259,7 +1386,7 @@
                 $("[name='due_change']").val(change.toLocaleString('en-PH', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
-                })).trigger('blur');
+                })).trigger('change');
             }
 
             $('#change_container').toggleClass('d-none', change <= 0);
