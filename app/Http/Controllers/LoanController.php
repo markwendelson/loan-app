@@ -28,9 +28,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Resources\SoaTerm;
+use App\Http\Resources\SoaNoTerm;
 
 //reference no service
-use App\Services\ReferenceNumberService;   
+use App\Services\ReferenceNumberService;
 
 class LoanController extends Controller
 {
@@ -1242,27 +1244,47 @@ class LoanController extends Controller
 
     public function previewSoaTerm(int $id)
     {
-        return view('loan.report.soa-term');
+        $loan = Loan::with(['borrower.details', 'loanCharges', 'loanFees'])->findOrFail($id);
+        $data = (new SoaTerm($loan))->resolve();
+        $soaRows = $data['rows'];
+        $summary = $data['summary'];
+
+        return view('loan.report.soa-term', compact('loan', 'soaRows', 'summary'));
     }
 
     public function downloadSoaTerm(int $id)
     {
-        $pdf = Pdf::loadView('loan.report.soa-term-pdf')->setPaper('a4', 'landscape');
+        $loan = Loan::with(['borrower.details', 'loanCharges', 'loanFees'])->findOrFail($id);
+        $data = (new SoaTerm($loan))->resolve();
+        $soaRows = $data['rows'];
+        $summary = $data['summary'];
+
+        $pdf = Pdf::loadView('loan.report.soa-term-pdf', compact('loan', 'soaRows', 'summary'))
+            ->setPaper('a4', 'landscape');
 
         return $pdf->download(Str::random(40) . '.pdf');
     }
 
     public function previewSoaNoTerm(int $id)
     {
-        return view('loan.report.soa-no-term');
+        $loan = Loan::with(['borrower.details', 'loanCharges', 'loanFees'])->findOrFail($id);
+        $data = (new SoaNoTerm($loan))->resolve();
+        $soaRows = $data['rows'];
+        $summary = $data['summary'];
+
+        return view('loan.report.soa-no-term', compact('loan', 'soaRows', 'summary'));
     }
 
     public function downloadSoaNoTerm(int $id)
     {
-        $pdf = Pdf::loadView('loan.report.soa-no-term-pdf')->setPaper('legal', 'landscape');
+        $loan = Loan::with(['borrower.details', 'loanCharges', 'loanFees'])->findOrFail($id);
+        $data = (new SoaNoTerm($loan))->resolve();
+        $soaRows = $data['rows'];
+        $summary = $data['summary'];
+
+        $pdf = Pdf::loadView('loan.report.soa-no-term-pdf', compact('loan', 'soaRows', 'summary'))
+            ->setPaper('legal', 'landscape');
 
         return $pdf->download(Str::random(40) . '.pdf');
     }
-
-
 }

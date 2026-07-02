@@ -561,10 +561,14 @@
                     }).then((value) => {
                         $('.early-settlement-checkbox:checked').each(function() {
                             let loanId = $(this).attr('id').split('_').pop();
+                            let loanInfo = clientLoansMap[loanId];
+                            let isNoTerm = loanInfo && (loanInfo.loan_type === 'open-term');
+                            let reportType = isNoTerm ? 'soa-no-term' : 'soa-term';
+
                             if (value === 'download') {
                                 let iframe = document.createElement('iframe');
                                 iframe.style.display = 'none';
-                                iframe.src = baseUrl + '/loan/report/' + loanId + '/download-pdf/soa-term';
+                                iframe.src = baseUrl + '/loan/report/' + loanId + '/download-pdf/' + reportType;
                                 document.body.appendChild(iframe);
                                 iframe.onload = function () {
                                     iframe.contentWindow.focus();
@@ -575,7 +579,7 @@
                             if (value === 'print') {
                                 let iframe = document.createElement('iframe');
                                 iframe.style.display = 'none';
-                                iframe.src = baseUrl + '/loan/report/' + loanId + '/preview/soa-term';
+                                iframe.src = baseUrl + '/loan/report/' + loanId + '/preview/' + reportType;
                                 document.body.appendChild(iframe);
                                 iframe.onload = function () {
                                     iframe.contentWindow.focus();

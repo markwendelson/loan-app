@@ -159,7 +159,7 @@ Route::middleware('auth')->group(function () {
             Route::post('{id}/update-disbursement-reference', 'updateDisbursementReference')->name('loan.update-disbursement-reference');
             Route::get('/report/{id}/preview/soa-term', 'previewSoaTerm')->name('loan.preview-soa-term'); //mockup route for viewing soa
             Route::get('/report/{id}/download-pdf/soa-term', 'downloadSoaTerm')->name('loan.download-pdf-soa-term');
-            Route::get('/report/{id}//preview/soa-no-term', 'previewSoaNoTerm')->name('loan.preview-soa-no-term');
+            Route::get('/report/{id}/preview/soa-no-term', 'previewSoaNoTerm')->name('loan.preview-soa-no-term');
             Route::get('/report/{id}/download-pdf/soa-no-term', 'downloadSoaNoTerm')->name('loan.download-pdf-soa-no-term');
 
 
@@ -191,7 +191,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('delete', 'deleteExpense')->name('expense.delete');
             Route::get('view-expense-data', 'viewExpenseData')->name('expense.view-expense-data');
             Route::get('download-expense-details-pdf', 'downloadExpenseDetailsPdf')->name('expense.download-expense-details-pdf');
-            Route::get('download-expense-details-images', 'downloadExpenseDetailsImages')->name('expense.download-expense-details-images');  
+            Route::get('download-expense-details-images', 'downloadExpenseDetailsImages')->name('expense.download-expense-details-images');
             Route::get('report/download-pdf/{slug}', 'downloadPdf')->name('expense-category.download-pdf');
         });
     Route::resource('expenses',ExpenseController::class);

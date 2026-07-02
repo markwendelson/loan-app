@@ -640,30 +640,33 @@
                     <div class="col-lg-4">
                         <div class="d-flex justify-content-between flex-wrap">
                             <span class="fw-semibold font-12">NAME: * </span>
-                            <span class="fw-semibold font-12">DELLEVA, MELDRID</span>
+                            <span class="fw-semibold font-12">{{ strtoupper($loan->borrower->details->lastname) }}, {{ strtoupper($loan->borrower->details->firstname) }} {{ strtoupper($loan->borrower->details->middlename) }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="fw-semibold font-12">HOME ADDRESS: * </span>
-                            <span class="fw-semibold font-12">BRGY. 09, GUIUAN EASTERN SAMAR</span>
+                            <span class="fw-semibold font-12">{{ $loan->borrower->details->present_full_address ?? 'N/A' }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="fw-semibold font-12">WORK ADDRESS: * </span>
-                            <span class="fw-semibold font-12">MERCEDES NATIONAL HIGH SCHOOL</span>
+                            <span class="fw-semibold font-12">{{ $loan->borrower->jobs->first()->office_name ?? 'N/A' }}</span>
                         </div>
                     </div>
 
                     <div class="col-lg-4">
+                        @php
+                            $coMaker = $loan->borrower->coMakers()->wherePivot('loan_id', $loan->id)->first();
+                        @endphp
                         <div class="d-flex justify-content-between flex-wrap">
                             <span class="fw-semibold font-12">CO MAKER: * </span>
-                            <span class="fw-semibold font-12"></span>
+                            <span class="fw-semibold font-12">{{ $coMaker ? strtoupper($coMaker->details->fullname) : '' }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="fw-semibold font-12">HOME ADDRESS: * </span>
-                            <span class="fw-semibold font-12"></span>
+                            <span class="fw-semibold font-12">{{ $coMaker ? $coMaker->details->present_full_address : '' }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="fw-semibold font-12">WORK ADDRESS: * </span>
-                            <span class="fw-semibold font-12"></span>
+                            <span class="fw-semibold font-12">{{ $coMaker ? ($coMaker->jobs->first()->office_name ?? 'N/A') : '' }}</span>
                         </div>
                     </div>
                 </div>
@@ -696,30 +699,61 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($mockData as $key => $val)
+                        @php
+                            $total_principal_loan = 0;
+                            $total_advance_interest = 0;
+                            $total_deducted_to_loan_renewal = 0;
+                            $total_interest = 0;
+                            $total_payment_principal = 0;
+                            $total_ins = 0;
+                            $total_savings = 0;
+                            $total_service_fee = 0;
+                        @endphp
+                        @foreach($soaRows as $row)
+                            @php
+                                $total_principal_loan += (float)$row['principal_loan'];
+                                $total_advance_interest += (float)$row['advance_interest'];
+                                $total_deducted_to_loan_renewal += (float)$row['deducted_to_loan_renewal'];
+                                $total_interest += (float)$row['interest'];
+                                $total_payment_principal += (float)$row['payment_principal'];
+                                $total_ins += (float)$row['ins'];
+                                $total_savings += (float)$row['savings'];
+                                $total_service_fee += (float)$row['service_fee'];
+                            @endphp
                             <tr>
-                                <td class="font-12">{{ $val['date'] ?? ''; }}</td>
-                                <td class="font-12">{{ $val['salary_date'] ?? ''; }}</td>
-                                <td class="text-center font-12">{{ $val['number_of_days'] }}</td>
-                                <td class="{{ isset($val['principal_loan']) && $val['principal_loan'] !=0 ? 'text-end' : 'text-center' }}">{{ $val['principal_loan'] != 0 ? number_format($val['principal_loan'], 2) : '-' }}</td>
-                                <td class="font-12">{{ $val['interest_charge'] }}</td>
-                                <td class="font-12">{{ $val['advance_interest'] }}</td>
-                                <td class="font-12">{{ $val['deducted_to_loan_renewal'] ?? '-' }}</td>
-                                <td class="font-12">{{ $val['interest'] }}</td>
-                                <td class="font-12">{{ $val['payment_principal'] }}</td>
-                                <td class="font-12">{{ $val['ins'] ?? ''; }}</td>
-                                <td class="font-12">{{ $val['savings'] }}</td>
-                                <td class="font-12">{{ $val['principal_balance'] }}</td>
-                                <td class="font-12">{{ $val['remarks'] }}</td>
-                                <td class="font-12">{{ $val['service_fee'] }}</td>
+                                <td class="font-12">{{ $row['date'] }}</td>
+                                <td class="font-12">{{ $row['salary_date'] }}</td>
+                                <td class="text-center font-12">{{ $row['number_of_days'] }}</td>
+                                <td class="text-end font-12">{{ $row['principal_loan'] > 0 ? number_format($row['principal_loan'], 2) : '-' }}</td>
+                                <td class="text-center font-12">{{ $row['interest_charge'] }}</td>
+                                <td class="text-end font-12">{{ $row['advance_interest'] > 0 ? number_format($row['advance_interest'], 2) : '-' }}</td>
+                                <td class="text-end font-12">{{ $row['deducted_to_loan_renewal'] > 0 ? number_format($row['deducted_to_loan_renewal'], 2) : '-' }}</td>
+                                <td class="text-end font-12">{{ $row['interest'] > 0 ? number_format($row['interest'], 2) : '-' }}</td>
+                                <td class="text-end font-12">{{ $row['payment_principal'] > 0 ? number_format($row['payment_principal'], 2) : '-' }}</td>
+                                <td class="text-end font-12">{{ $row['ins'] > 0 ? number_format($row['ins'], 2) : '-' }}</td>
+                                <td class="text-end font-12">{{ $row['savings'] > 0 ? number_format($row['savings'], 2) : '-' }}</td>
+                                <td class="text-end font-12">{{ $row['principal_balance'] > 0 ? number_format($row['principal_balance'], 2) : '-' }}</td>
+                                <td class="font-12">{{ $row['remarks'] }}</td>
+                                <td class="text-end font-12">{{ $row['service_fee'] > 0 ? number_format($row['service_fee'], 2) : '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                     <tfoot class="bg-secondary-subtle">
-
                         <tr>
-                            <td class="text-center fw-semibold">Total</td>
-                            <td colspan="13"></td>
+                            <td class="text-center fw-semibold font-12">Total</td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-end fw-semibold font-12">{{ $total_principal_loan > 0 ? number_format($total_principal_loan, 2) : '-' }}</td>
+                            <td></td>
+                            <td class="text-end fw-semibold font-12">{{ $total_advance_interest > 0 ? number_format($total_advance_interest, 2) : '-' }}</td>
+                            <td class="text-end fw-semibold font-12">{{ $total_deducted_to_loan_renewal > 0 ? number_format($total_deducted_to_loan_renewal, 2) : '-' }}</td>
+                            <td class="text-end fw-semibold font-12">{{ $total_interest > 0 ? number_format($total_interest, 2) : '-' }}</td>
+                            <td class="text-end fw-semibold font-12">{{ $total_payment_principal > 0 ? number_format($total_payment_principal, 2) : '-' }}</td>
+                            <td class="text-end fw-semibold font-12">{{ $total_ins > 0 ? number_format($total_ins, 2) : '-' }}</td>
+                            <td class="text-end fw-semibold font-12">{{ $total_savings > 0 ? number_format($total_savings, 2) : '-' }}</td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-end fw-semibold font-12">{{ $total_service_fee > 0 ? number_format($total_service_fee, 2) : '-' }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -744,15 +778,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($mockOthersData as $key => $val)
+                            @foreach($summary['special_loans'] as $special_loan)
                                 <tr>
-                                    <td class="font-12">{{ $val['type'] }}</td>
-                                    <td class="text-center font-12">{{ $val['days'] }}</td>
-                                    <td class="text-end font-12">{{ $val['amount'] }}</td>
-                                    <td class="text-end font-12">{{ $val['advance_interest'] }}</td>
-                                    <td class="text-end font-12">{{ $val['actual_interest'] }}</td>
-                                    <td class="text-end font-12">{{ $val['rebates'] }}</td>
-                                    <td class="text-end font-12">{{ $val['still_due'] }}</td>
+                                    <td class="font-12">{{ $special_loan['type'] }}</td>
+                                    <td class="text-center font-12">{{ $special_loan['days'] }}</td>
+                                    <td class="text-end font-12">{{ number_format($special_loan['amount'], 2) }}</td>
+                                    <td class="text-end font-12">-</td>
+                                    <td class="text-end font-12">-</td>
+                                    <td class="text-end font-12">-</td>
+                                    <td class="text-end font-12">{{ number_format($special_loan['still_due'], 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -763,19 +797,19 @@
                         <tbody>
                             <tr>
                                 <td class="fw-semibold font-12">TOTAL INTEREST CHARGED</td>
-                                <td class="text-end font-12">260,586.00</td>
+                                <td class="text-end font-12">{{ number_format($summary['total_interest_charged'], 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-semibold font-12">LESS : ADVANCE INTEREST </td>
-                                <td class="text-end font-12">8,850.00 </td>
+                                <td class="text-end font-12">{{ number_format($summary['less_advance_interest'], 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-semibold font-12">TOTAL INTEREST COLLECTED</td>
-                                <td class="text-end font-12"> 251,808.00</td>
+                                <td class="text-end font-12">{{ number_format($summary['total_interest_collected'], 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-semibold text-danger font-12">REBATES</td>
-                                <td class="text-end font-12">(72.00)</td>
+                                <td class="text-end font-12">{{ number_format($summary['rebates'], 2) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -784,27 +818,25 @@
                         <tbody>
                             <tr>
                                 <td class="fw-semibold font-12">PRINCIPAL AMOUNT STILL DUE</td>
-                                <td class="text-end font-12">209,277.00</td>
+                                <td class="text-end font-12">{{ number_format($summary['principal_due'], 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-semibold font-12">LESS: REBATES</td>
-                                <td class="text-end font-12">(72.00)</td>
+                                <td class="text-end font-12">{{ number_format($summary['rebates'], 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold font-12">TOTAL AMOUNT DUE</td>
-                                <td class="text-end font-12">209,205.00</td>
+                                <td class="text-end font-12">{{ number_format($summary['total_amount_due'], 2) }}</td>
                             </tr>
-                            <tr>
-                                <td class="fw-semibold font-12">CLOTH 2026</td>
-                                <td class="text-end font-12">4,550.00</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold font-12">MYB 2026</td>
-                                <td class="text-end font-12">12,975.00</td>
-                            </tr>
+                            @foreach($summary['special_loans'] as $special_loan)
+                                <tr>
+                                    <td class="fw-semibold font-12">{{ strtoupper($special_loan['type']) }}</td>
+                                    <td class="text-end font-12">{{ number_format($special_loan['still_due'], 2) }}</td>
+                                </tr>
+                            @endforeach
                             <tr>
                                 <td class="fw-bold font-12">TOTAL AMOUNT DUE</td>
-                                <td class="text-end font-12">226,730.00 </td>
+                                <td class="text-end font-12">{{ number_format($summary['final_total_due'], 2) }}</td>
                             </tr>
                         </tbody>
                     </table>
