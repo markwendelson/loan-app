@@ -271,7 +271,7 @@
             let loanId = event.detail.value;
             let loanInfo = clientLoansMap[loanId];
             let loanText = event.detail.label;
- 
+
             activeLoans.add(loanId);
             renderLoanCard(loanId, loanText, loanInfo);
         });
@@ -539,72 +539,64 @@
             transaction_type = $("[name='transaction_type']").find('option:selected').val();
             if(transaction_type == 'withdraw') {
                 calculateChange('card');
-
-                let hasEarlySettlement = $('.early-settlement-checkbox:checked').length > 0;
-
-                if(hasEarlySettlement) {
-                    const baseUrl = `{{ env('APP_URL') }}`;
-                    swal({
-                        title: 'Select Action',
-                        text: 'Choose whether to download or print SOA.',
-                        icon: 'info',
-                        buttons: {
-                            download: {
-                                text: 'Download',
-                                value: 'download',
-                            },
-                            print: {
-                                text: 'Print',
-                                value: 'print',
-                            }
-                        }
-                    }).then((value) => {
-                        $('.early-settlement-checkbox:checked').each(function() {
-                            let loanId = $(this).attr('id').split('_').pop();
-                            let loanInfo = clientLoansMap[loanId];
-                            let isNoTerm = loanInfo && (loanInfo.loan_type === 'open-term');
-                            let reportType = isNoTerm ? 'soa-no-term' : 'soa-term';
-
-                            if (value === 'download') {
-                                let iframe = document.createElement('iframe');
-                                iframe.style.display = 'none';
-                                iframe.src = baseUrl + '/loan/report/' + loanId + '/download-pdf/' + reportType;
-                                document.body.appendChild(iframe);
-                                iframe.onload = function () {
-                                    iframe.contentWindow.focus();
-                                    iframe.contentWindow.print();
-                                };
-                            }
-
-                            if (value === 'print') {
-                                let iframe = document.createElement('iframe');
-                                iframe.style.display = 'none';
-                                iframe.src = baseUrl + '/loan/report/' + loanId + '/preview/' + reportType;
-                                document.body.appendChild(iframe);
-                                iframe.onload = function () {
-                                    iframe.contentWindow.focus();
-                                    iframe.contentWindow.print();
-                                };
-                            }
-                        });
-
-                        submitTransaction()
-                    });
-
-                    setTimeout(() => {
-                        $('.swal-footer').css({
-                            display: 'flex',
-                            justifyContent: 'center',
-                            gap: '10px'
-                        });
-                    }, 10);
-                } else {
-                    submitTransaction()
-                }
+                submitTransaction();
             } else {
-                submitTransaction()
+                submitTransaction();
             }
         });
+
+        function triggerSoaPrompt(loanId) {
+            const baseUrl = `{{ env('APP_URL') }}`;
+            swal({
+                title: 'Select Action',
+                text: 'Choose whether to download or print SOA.',
+                icon: 'info',
+                buttons: {
+                    download: {
+                        text: 'Download',
+                        value: 'download',
+                    },
+                    print: {
+                        text: 'Print',
+                        value: 'print',
+                    }
+                }
+            }).then((value) => {
+                let loanInfo = clientLoansMap[loanId];
+                let isNoTerm = loanInfo && (loanInfo.loan_type === 'open-term');
+                let reportType = isNoTerm ? 'soa-no-term' : 'soa-term';
+
+                if (value === 'download') {
+                    let iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = baseUrl + '/loan/report/' + loanId + '/download-pdf/' + reportType;
+                    document.body.appendChild(iframe);
+                    iframe.onload = function () {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    };
+                }
+
+                if (value === 'print') {
+                    let iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = baseUrl + '/loan/report/' + loanId + '/preview/' + reportType;
+                    document.body.appendChild(iframe);
+                    iframe.onload = function () {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    };
+                }
+            });
+
+            setTimeout(() => {
+                $('.swal-footer').css({
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '10px'
+                });
+            }, 10);
+        }
 
         $(document).on('input', "[name='amount']", function () {
             calculateChange('amount');
@@ -641,6 +633,10 @@
                 $(`#interest_${loanId}`).prop('readonly', false);
             }
             getSingleLoanData(loanId);
+
+            if (is_early_settlement) {
+                triggerSoaPrompt(loanId);
+            }
         });
 
         $(document).on('change', '.my-insurance', async function () {
