@@ -164,7 +164,7 @@ class PendingData extends Component
                 ->orWhere('loans.status', LoanStatus::REQUEST_APPROVE);
             });
         }else{
-            $query->where('loans.status'. LoanStatus::PENDING)
+            $query->where('loans.status', LoanStatus::PENDING)
                 ->orWhere('loan_withdraw_requests.status', 'pending');
         }
 
