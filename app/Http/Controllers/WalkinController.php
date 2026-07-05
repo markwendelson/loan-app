@@ -68,7 +68,7 @@ class WalkinController extends Controller
             $referenceNumberService = new ReferenceNumberService();
 
             $referenceNumber = $referenceNumberService->generateReferenceNumber(Walkin::class, auth()->user()->current_branch_id);
-            $data['reference_no'] = $referenceNumber . 'W';
+            $data['reference_no'] = $referenceNumber . '-WK';
             $result= Walkin::create($data);
 
             DB::commit();
