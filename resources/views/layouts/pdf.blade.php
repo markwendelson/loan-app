@@ -9,7 +9,7 @@
         <link rel="shortcut icon" href="{{url('assets/images/favicon.png')}}" type="image/x-icon">
         <style>
             body {
-                font-family: Arial, sans-serif;
+                font-family: "DejaVu Sans", sans-serif;
                 font-size: 10px;
                 margin: 0;
                 padding: 0;
@@ -101,6 +101,25 @@
             }
             .justify-content-between {
                 justify-content: space-between !important;
+            }
+            .mt-3 {
+                margin-top: 30px;
+            }
+
+            @font-face {
+                font-family: 'Copperplate CC';
+                src: url("{{ asset('assets/fonts/copperplate-cc.bold.ttf') }}")
+                    format('truetype');
+                font-weight: bold;
+                font-style: normal;
+            }
+
+            .soa-title {
+                font-family: 'Copperplate CC', serif;
+                font-size: 16px;
+                font-weight: bold;
+                margin: 0;
+                text-transform: uppercase;
             }
         </style>
     </head>

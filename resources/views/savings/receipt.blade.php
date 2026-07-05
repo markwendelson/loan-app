@@ -26,7 +26,7 @@
 </head>
 <body>
     <div class="receipt">
-
+        @dump($savings->toArray())
         <!-- DYNAMIC HEADER -->
         <div class="center bold">{{ $branchTitle }}</div>
         <hr>
@@ -62,15 +62,13 @@
         </div>
         @endif
 
-        @if($savings->transaction_code)
-        <div class="label">
-            <span>Code:</span>
-            <span>{{ $savings->transaction_code }}</span>
-        </div>
-        @endif
+       
 
         <br>
-
+        <div class="label">
+            <span>Total:</span>
+            <span class="bold">{{ number_format($savings->amount, 2) }}</span>
+        </div>
         @if($savings->transaction_type == 'deposit')
         <div class="label">
             <span>Amount:</span>
@@ -95,14 +93,18 @@
             <span>Membership Fee:</span>
             <span class="bold">{{ number_format($savings->membership_fee, 2) }}</span>
         </div>
-        <div class="label">
-            <span>Total:</span>
-            <span class="bold">{{ number_format($savings->amount, 2) }}</span>
-        </div>
+        
         <div class="label">
             <span>Due Change:</span>
             <span class="bold">{{ number_format($savings->due_change, 2) }}</span>
         </div>
+
+            @if($savings->mode_of_payment)
+            <div class="label">
+                <span>Code:</span>
+                <span>{{ $savings->mode_of_payment }}</span>
+            </div>
+            @endif
         @endif
 
         @if($savings->description)

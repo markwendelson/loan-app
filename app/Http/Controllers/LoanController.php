@@ -1244,10 +1244,20 @@ class LoanController extends Controller
 
     public function previewSoaTerm(int $id)
     {
-        $loan = Loan::with(['borrower.details', 'loanCharges', 'loanFees'])->findOrFail($id);
+        $loan = Loan::with(['borrower.details', 'loanCharges', 'loanFees'])->find($id);
+
         $data = (new SoaTerm($loan))->resolve();
         $soaRows = $data['rows'];
         $summary = $data['summary'];
+
+        // $pdf = Pdf::loadView('loan.report.soa-term', compact(
+        //     'loan',
+        //     'soaRows',
+        //     'summary',
+        // ))
+        // ->setPaper('a4', 'landscape');
+        
+        // return $pdf->stream('test.pdf');
 
         return view('loan.report.soa-term', compact('loan', 'soaRows', 'summary'));
     }

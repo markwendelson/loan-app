@@ -8,12 +8,22 @@
         <!-- report content goes here -->
         <div class="card">
             <div class="card-body">
-                <div class="row justify-content-center mt-5">
-                    <div class="col-lg-4 text-center">
-                        <h3 class="card-title txt-primary mb-0 text-uppercase">Statement of Account</h3>
-                        <span class="text-uppercase"> as of {{ date('F d, Y') }}</span>
-                    </div>
-                </div>
+                <table style="width: 100%; margin-top: 40px;">
+                    <tr>
+                        <td style="text-align: center;">
+                            <h3 class="soa-title">
+                                Statement of Account
+                            </h3>
+
+                            <span style="text-transform: uppercase;">
+                                As of
+                                {{ isset($transactionDate) && $transactionDate
+                                    ? date('F d, Y', strtotime($transactionDate))
+                                    : date('F d, Y') }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
 
                 <!-- loan information table -->
                 <table class="" width="100%" cellspacing="0" cellpadding="5">
@@ -28,7 +38,7 @@
                                     </tr>
                                     <tr>
                                         <td class="text-start"><strong>Loan Amount</strong></td>
-                                        <td class="text-start">₱{{ number_format($loan->principal, 2) }}</td>
+                                        <td class="text-end">₱{{ number_format($loan->principal, 2) }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -100,7 +110,7 @@
 
                 <!-- Other Charges Section -->
                 <div class="mt-3">
-                    <span>Other Charges</span>
+                    <span>Special Loans</span>
                 </div>
                 <table width="100%" cellpadding="5" cellspacing="0" border="0">
                     <tr valign="top">
@@ -112,9 +122,9 @@
                                         <th>Type</th>
                                         <th>Days</th>
                                         <th>Amount</th>
-                                        <th>Advance Interest</th>
-                                        <th>Actual Interest</th>
-                                        <th>Rebates</th>
+                                        <th>Add : Actual Interest</th>
+                                        <th>Less : Advance Interest</th>
+                                        {{-- <th>Rebates</th> --}}
                                         <th>Still Due</th>
                                     </tr>
                                 </thead>
@@ -126,7 +136,7 @@
                                         <td align="right">₱{{ number_format($special_loan['amount'], 2) }}</td>
                                         <td align="right">-</td>
                                         <td align="right">-</td>
-                                        <td align="right">-</td>
+                                        {{-- <td align="right">-</td> --}}
                                         <td align="right">₱{{ number_format($special_loan['still_due'], 2) }}</td>
                                     </tr>
                                     @endforeach

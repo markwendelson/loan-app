@@ -3,17 +3,27 @@
 
 @section('title') SOA With Term @endsection
 
-   @section('content')
+    @section('content')
     <div class="container-fluid">
         <!-- report content goes here -->
         <div class="card">
             <div class="card-body">
-                <div class="row justify-content-center mt-5">
-                    <div class="col-lg-4 text-center">
-                        <h3 class="card-title txt-primary mb-0 text-uppercase">Statement of Account</h3>
-                        <span class="text-uppercase"> as of {{ date('F d, Y') }}</span>
-                    </div>
-                </div>
+                <table style="width: 100%; margin-top: 40px;">
+                    <tr>
+                        <td style="text-align: center;">
+                            <h3 style="margin: 0; text-transform: uppercase; font-size: 16px !important;">
+                                Statement of Account
+                            </h3>
+
+                            <span style="text-transform: uppercase; font-size: 14px;">
+                                As of
+                                {{ isset($transactionDate) && $transactionDate
+                                    ? date('F d, Y', strtotime($transactionDate))
+                                    : date('F d, Y') }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
 
                 <!-- loan information table -->
                 <div class="d-flex justify-content-between mt-4">
@@ -53,7 +63,7 @@
                     <thead>
                         <tr>
                             <th class="align-middle text-center" width="50">Month</th>
-                            <th></th>
+                            <th>Transaction Date</th>
                             <th></th>
                             <th class="text-center align-middle" width="180">Insurance</th>
                             <th class="text-center align-middle" width="180">Principal Payment</th>
@@ -94,7 +104,7 @@
 
                 <!-- Other Charges Section -->
                 <div class="mt-3">
-                    <span>Other Charges</span>
+                    <span>Special Loans</span>
                 </div>
                 <div class="row justify-content-between">
                     <div class="col-lg-8">
@@ -104,9 +114,9 @@
                                     <th class="align-middle">Type</th>
                                     <th class="align-middle">Days</th>
                                     <th class="align-middle">Amount</th>
-                                    <th class="align-middle">Advance Interest</th>
-                                    <th class="align-middle">Actual Interest</th>
-                                    <th class="align-middle">Rebates</th>
+                                    <th class="align-middle">Add : Actual Interest</th>
+                                    <th class="align-middle">Less : Advance Interest</th>
+                                    {{-- <th class="align-middle">Rebates</th> --}}
                                     <th class="align-middle">Still Due</th>
                                 </tr>
                             </thead>
@@ -118,7 +128,7 @@
                                         <td class="text-end">₱{{ number_format($special_loan['amount'], 2) }}</td>
                                         <td class="text-end">-</td>
                                         <td class="text-end">-</td>
-                                        <td class="text-end">-</td>
+                                        {{-- <td class="text-end">-</td> --}}
                                         <td class="text-end">₱{{ number_format($special_loan['still_due'], 2) }}</td>
                                     </tr>
                                 @endforeach
