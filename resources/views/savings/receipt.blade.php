@@ -26,7 +26,7 @@
 </head>
 <body>
     <div class="receipt">
-        @dump($savings->toArray())
+
         <!-- DYNAMIC HEADER -->
         <div class="center bold">{{ $branchTitle }}</div>
         <hr>

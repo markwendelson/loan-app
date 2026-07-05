@@ -1250,15 +1250,6 @@ class LoanController extends Controller
         $soaRows = $data['rows'];
         $summary = $data['summary'];
 
-        // $pdf = Pdf::loadView('loan.report.soa-term', compact(
-        //     'loan',
-        //     'soaRows',
-        //     'summary',
-        // ))
-        // ->setPaper('a4', 'landscape');
-        
-        // return $pdf->stream('test.pdf');
-
         return view('loan.report.soa-term', compact('loan', 'soaRows', 'summary'));
     }
 

@@ -38,7 +38,7 @@
                     <tr>
                         <!-- Left Column -->
                         <td valign="top" width="15%">
-                            <table class="table" width="100%" cellspacing="0" cellpadding="3">
+                            <table class="table" width="30%" cellspacing="0" cellpadding="3">
                                 <tr>
                                     <td><strong>NAME: *</strong></td>
                                     <td>{{ strtoupper($loan->borrower->details->lastname) }}, {{ strtoupper($loan->borrower->details->firstname) }} {{ strtoupper($loan->borrower->details->middlename) }}</td>

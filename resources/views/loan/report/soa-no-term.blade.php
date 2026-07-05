@@ -150,7 +150,7 @@
                             <td class="text-end fw-semibold font-12">{{ $total_ins > 0 ? number_format($total_ins, 2) : '-' }}</td>
                             <td class="text-end fw-semibold font-12">{{ $total_savings > 0 ? number_format($total_savings, 2) : '-' }}</td>
                             <td></td>
-                            <td></td>
+                            {{-- <td></td> --}}
                             {{-- <td class="text-end fw-semibold font-12">{{ $total_service_fee > 0 ? number_format($total_service_fee, 2) : '-' }}</td> --}}
                         </tr>
                     </tfoot>
