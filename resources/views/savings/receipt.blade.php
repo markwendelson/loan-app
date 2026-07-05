@@ -37,10 +37,10 @@
             <span>{{ \Carbon\Carbon::parse($savings->transaction_date)->format('Y-m-d') }}</span>
         </div>
 
-        @if(isset($savings->reference_no) && $savings->reference_no)
+        @if(isset($savings->transaction_no) && $savings->transaction_no)
             <div class="label">
                 <span>Reference No:</span>
-                <span>{{ $savings->reference_no }}</span>
+                <span>{{ $savings->transaction_no }}</span>
             </div>
         @endif
 
@@ -62,11 +62,9 @@
         </div>
         @endif
 
-       
-
         <br>
         <div class="label">
-            <span>Total:</span>
+            <span>Total Amount:</span>
             <span class="bold">{{ number_format($savings->amount, 2) }}</span>
         </div>
         @if($savings->transaction_type == 'deposit')
