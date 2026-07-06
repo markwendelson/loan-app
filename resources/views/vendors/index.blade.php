@@ -32,21 +32,98 @@
             </div>
         </div>
 
-        @can('create-vendors')
-        <div class="card">
-            <div class="card-body d-flex justify-content-end align-items-center">
-                <button type="button" class="btn btn-primary btnNewVendor"><i class="fa fa-plus"></i> New Vendor</button>
+        <div class="row project-cards">
+            <div class="col-md-12 project-list">
+                <div class="card">
+                    <div class="row">
+                        <ul class="nav nav-tabs border-tab" id="top-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active"
+                                    id="vendors-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#vendors"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="vendors"
+                                    aria-selected="true">
+                                    <i data-feather="truck"></i> Vendors
+                                </button>
+                            </li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link"
+                                    id="vendor-types-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#vendor-types"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="vendor-types"
+                                    aria-selected="false">
+                                    <i data-feather="box"></i> Vendor Types
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-        @endcan
 
-        <div class="card">
-            <div class="card-header">
-                <livewire:Vendors.FilterData />
+        <div class="tab-content" id="top-tabContent">
+
+            <!-- Vendors -->
+            <div class="tab-pane fade show active"
+                id="vendors"
+                role="tabpanel"
+                aria-labelledby="vendors-tab">
+
+                @can('create-vendors')
+                <div class="card">
+                    <div class="card-body d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary btnNewVendor">
+                            <i class="fa fa-plus"></i> New Vendor
+                        </button>
+                    </div>
+                </div>
+                @endcan
+
+                <div class="card">
+                    <div class="card-header">
+                        <livewire:Vendors.FilterData />
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <livewire:Vendors.VendorData defer />
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div class="card-body p-0">
-                <livewire:Vendors.VendorData defer />
+
+            <!-- Vendor Types -->
+            <div class="tab-pane fade"
+                id="vendor-types"
+                role="tabpanel"
+                aria-labelledby="vendor-types-tab">
+
+                <div class="card">
+                    <div class="card-body d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary btnNewVendorType">
+                            <i class="fa fa-plus"></i> New Vendor Type
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        @livewire('Vendors.VendorType.FilterData')
+                    </div>
+                    <div class="card-body p-0">
+                        @livewire('Vendors.VendorType.VendorTypeData', ['defer' => true])
+                    </div>
+                </div>
+
             </div>
+
         </div>
     </div>
 
@@ -54,6 +131,8 @@
     @include('vendors.modal.vendorModal')
 
     @include('vendors.modal.view-vendor')
+
+    @include('vendors.vendor-type.modal.create')
 @endsection
 
 @push('js')
@@ -313,6 +392,88 @@
 
                 $("#viewVendorModal").modal("hide");
             })
+
+            //handle new vendor type button click function
+            $(".btnNewVendorType").on("click", function(e) {
+                e.preventDefault();
+
+                $("#modalVendorType").modal("show");
+            })
+
+            //handle vendor type cancel button click function
+            $("#modalVendorType .btnCancel").on("click", function(e){
+                e.preventDefault();
+                $("#modalVendorType").modal("hide");
+            })
+
+            //handle vendor type modal submit button click
+            $("#modalVendorType").on("click", ".btnSubmit", function(e) {
+                e.preventDefault();
+
+                let submitUrl = $(this).data("submit-url");
+                let method = $(this).data("method");
+                let formData = $("#modalVendorType #form").serializeArray();
+
+                //show loading modal
+                $(".loader-wrapper").fadeIn("slow");
+
+                $.ajax({
+                    type: method,
+                    url: submitUrl,
+                    data: formData,
+                    dataType: "json",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        //hide loading form
+                        $(".loader-wrapper").fadeOut("slow", function () {
+                            $(this).hide();
+                        });
+
+                        if(typeof response.status !== 'undefined' && response.status == 'success') {
+                            swal({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                            }).then((willClose) => {
+                                if (willClose) {
+                                    //reload page
+                                    Livewire.dispatch("refresh-vendor-data");
+                                    $("#vendorModal").modal("hide");
+                                }
+                            });
+                        }else{
+                            swal({
+                                title: 'Error',
+                                text: response.message,
+                                icon: 'warning',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                                dangerMode: true,
+                            });
+                        }
+                    }
+                });
+            });
+
+            
 
             function clearVendorModalForm() {
                 $("#vendorModal input").val("");

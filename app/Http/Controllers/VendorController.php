@@ -217,6 +217,47 @@ class VendorController extends Controller
         }
 
         return response()->json($response);
+    }
 
+    public function createVendorType(Request $request) 
+    {
+        $response = [];
+
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:vendor_types,name,',
+            ]);
+
+            if($validator->fails()){
+                $allErrors = implode(',', $validator->errors()->all());
+                $response = [
+                    'status' => 'error',
+                    'message' => 'Validation Failed!: ' . $allErrors,
+                ];
+
+                return response()->json($response);
+            }
+            DB::beginTransaction();
+
+            $result = VendorType::create($request->all());
+
+            if($result){
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Vendor Type Created Successfully.',
+                ];
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            $response = [
+                'status' => 'error',
+                'message' => 'Failed to create vendor type,  Please try again.'
+            ];
+        }
+
+        return response()->json($response);
     }
 }
