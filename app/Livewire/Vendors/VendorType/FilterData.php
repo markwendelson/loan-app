@@ -9,7 +9,18 @@ class FilterData extends Component
 
     public $q;
     public $entries = 10;
-    public $status = 1;
+    public $status;
+
+    protected $queryString = [
+        'q',
+        'entries',
+        'status'
+    ];
+
+    public function mount()
+    {
+        
+    }
 
     public function updated(){
         $this->dispatch('vendor-type-filter-updated', [

@@ -118,7 +118,8 @@
                         @livewire('Vendors.VendorType.FilterData')
                     </div>
                     <div class="card-body p-0">
-                        @livewire('Vendors.VendorType.VendorTypeData', ['defer' => true])
+                        {{-- @livewire('Vendors.VendorType.VendorTypeData', ['defer' => true]) --}}
+                        <livewire:Vendors.VendorType.VendorTypeData defer />
                     </div>
                 </div>
 
@@ -403,55 +404,42 @@
             //handle vendor type cancel button click function
             $("#modalVendorType .btnCancel").on("click", function(e){
                 e.preventDefault();
+
+                clearVendorTypesForm();
                 $("#modalVendorType").modal("hide");
             })
 
-            //handle vendor type modal submit button click
-            $("#modalVendorType").on("click", ".btnSubmit", function(e) {
+            //handles vendor types edit button click function
+            $(document).on("click", "#tblVendorTypes tbody tr .btnEdit", function(e) {
                 e.preventDefault();
 
-                let submitUrl = $(this).data("submit-url");
-                let method = $(this).data("method");
-                let formData = $("#modalVendorType #form").serializeArray();
+                let vendorTypeId = $(this).closest("tr").data("id");
 
-                //show loading modal
+                //show loading form
                 $(".loader-wrapper").fadeIn("slow");
 
+                //fetch data from table
                 $.ajax({
-                    type: method,
-                    url: submitUrl,
-                    data: formData,
+                    type: "get",
+                    url: `{{ url('vendors/get-vendor-type-data') }}/${vendorTypeId}`,
+                    data: {},
                     dataType: "json",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
                     success: function (response) {
                         //hide loading form
                         $(".loader-wrapper").fadeOut("slow", function () {
                             $(this).hide();
                         });
 
-                        if(typeof response.status !== 'undefined' && response.status == 'success') {
-                            swal({
-                                title: 'Success!',
-                                text: response.message,
-                                icon: 'success',
-                                buttons: {
-                                    confirm: {
-                                        text: "OK",
-                                        value: true,
-                                        visible: true,
-                                        className: "btn btn-primary",
-                                        closeModal: true
-                                    }
-                                },
-                            }).then((willClose) => {
-                                if (willClose) {
-                                    //reload page
-                                    Livewire.dispatch("refresh-vendor-data");
-                                    $("#vendorModal").modal("hide");
-                                }
-                            });
+                        if(typeof response !== 'undefined' && response.status =='success') {
+                            //adjust modal header title
+                            $("#modalVendorType .modal-title").html("Edit Vendor Type");
+
+                            $("#modalVendorType form input[name='id']").val(response.data.id);
+                            $("#modalVendorType form input[name='name']").val(response.data.name);
+                            $("#modalVendorType form select[name='status']").val(response.data.status);
+                            $("#modalVendorType form textarea[name='description']").val(response.data.description);
+
+                            $("#modalVendorType").modal("show");
                         }else{
                             swal({
                                 title: 'Error',
@@ -471,7 +459,124 @@
                         }
                     }
                 });
-            });
+
+            })
+
+            //handle vendor type modal submit button click
+            $(document).on("click", "#modalVendorType .btnSubmit", function(e) {
+                e.preventDefault();
+
+                let modal = $(this).closest(".modal-content");
+
+                let vendorTypeId = $(modal).find(`input[name='id']`).val();
+                
+                let submitType = 'POST';
+                let submitUrl = vendorTypeId ? "{{ route('vendor.update-vendor-type') }}" : "{{ route('vendor.create-vendor-type') }}";
+
+                let formElement =  $(modal).find("form")[0];
+                let formData = new FormData(formElement);
+
+                if(vendorTypeId){
+                    formData.append('_method', 'PUT');
+                }
+
+                if (!$(modal).find("#frmVendorType")[0].checkValidity()) {
+                    swal({
+                        title: 'Error',
+                        text: 'Please fill all required fields',
+                        icon: 'warning',
+                        buttons: {
+                            confirm: {
+                                text: "OK",
+                                value: true,
+                                visible: true,
+                                className: "btn btn-primary",
+                                closeModal: true
+                            }
+                        },
+                        dangerMode: true,
+                    });
+                }else{
+                    //show loading form
+                    $(".loader-wrapper").fadeIn("slow");
+
+                    $.ajax({
+                        type: submitType,
+                        url: submitUrl,
+                        data: formData,
+                        dataType: "json",
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            //hide loading form
+                            $(".loader-wrapper").fadeOut("slow", function () {
+                                $(this).hide();
+                            });
+
+                            if(response.status !== 'undifined' && response.status == 'success') {
+                                swal({
+                                    title: 'Success!',
+                                    text: response.message,
+                                    icon: 'success',
+                                    buttons: {
+                                        confirm: {
+                                            text: "OK",
+                                            value: true,
+                                            visible: true,
+                                            className: "btn btn-primary",
+                                            closeModal: true
+                                        }
+                                    },
+                                }).then((willClose) => {
+                                    if (willClose) {
+                                        Livewire.dispatch('vendor-type-refresh');
+
+                                        clearVendorTypesForm();
+
+                                        $("#modalVendorType").modal("hide");
+                                    }
+                                });
+                            }else{
+                                swal({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'warning',
+                                    buttons: {
+                                        confirm: {
+                                            text: "OK",
+                                            value: true,
+                                            visible: true,
+                                            className: "btn btn-primary",
+                                            closeModal: true
+                                        }
+                                    },
+                                    dangerMode: true,
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            swal({
+                                title: 'Error',
+                                text: error,
+                                icon: 'warning',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                                dangerMode: true,
+                            });
+                        }
+                    });
+                }
+            })
 
             
 
@@ -481,6 +586,10 @@
                 $("#vendorModal textarea").val("");
 
                 $("#vendorModal select[name='country_id']").val("{{ config('constants.default_country_id') }}").trigger("change");
+            }
+
+            function clearVendorTypesForm() {
+                $("#modalVendorType form")[0].reset();
             }
         });
     </script>

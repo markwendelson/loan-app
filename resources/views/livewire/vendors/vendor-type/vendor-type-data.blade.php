@@ -1,6 +1,6 @@
 <div>
     <div class="position-relative">
-        <table class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover" id="tblVendorTypes">
             <thead>
                 <tr>
                     <th>Type</th>
@@ -17,7 +17,17 @@
                             <td>{{ $val->description }}</td>
                             <td><span class="{{ config('constants.status_badge')[$val->status] }} }}">{{ config('constants.status_value')[$val->status] }}</span></td>
                             <td>
-                                <button type="button" class="btn btn-light btn-sm"><i class="fa fa-ellipsis-v"></i></button>
+                                <div class="dropdown">
+                                    <button class="btn btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-edit me-1"></i>Edit</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fa fa-trash txt-danger me-1"></i>Delete</a></li>
+                                        
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

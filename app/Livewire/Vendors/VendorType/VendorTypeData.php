@@ -32,6 +32,83 @@ class VendorTypeData extends Component
         $this->status = $data['status'];
     }
 
+    #[On('vendor-type-refresh')]
+    public function refreshVendorTypes()
+    {
+        // $this->resetPage();
+    }
+
+    public function placeholder()
+    {
+        return <<<'HTML'
+        <div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            <p class="placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                            </p>
+                        </th>
+                        <th colspan="2">
+                            <p class="placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                            </p>
+                        </th>
+                        <th width="120">
+                            <p class="placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                            </p>
+                        </th>
+                        <th width="50" colspan="2" class="text-center">
+                            <p class="placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                            </p>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for ($x = 1; $x < 10; $x++)
+                        <tr>
+                            <td>
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                            <td>
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                            <td>
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                            <td>
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                            <td width="120">
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                            <td width="50">
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                        </tr>
+                    @endfor
+                </tbody>
+
+            </table>
+        </div>
+        HTML;
+    }
+
     public function render()
     {
         $query = VendorType::where('status', 1)
@@ -48,7 +125,7 @@ class VendorTypeData extends Component
             'status' => $this->status
         ]);
 
-        return view('livewire.vendors.vendor-type.vendor-data', compact(
+        return view('livewire.vendors.vendor-type.vendor-type-data', compact(
             'vendorTypes'
         ));
     }
