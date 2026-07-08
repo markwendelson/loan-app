@@ -39,9 +39,11 @@
 
             >
                 <option value="">-- All Types --</option>
-                @foreach(config('constants.vendor_types') as $key => $val)
-                    <option value="{{ $key }}" {{ isset($filterData['vendor_type']) && $filterData['vendor_type'] == $key ? 'selected' : ''; }}>{{ $val }}</option>
-                @endforeach
+                @if($vendorTypes)
+                    @foreach($vendorTypes as $key => $val)
+                        <option value="{{ $val->id }}">{{ $val->name }}</option>
+                    @endforeach
+                @endif
             </select>
 
             @if(auth()->user()->hasRole(['admin', 'super-admin']) && (isset($usersData) && $usersData))

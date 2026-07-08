@@ -24,8 +24,7 @@
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-edit me-1"></i>Edit</a></li>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fa fa-trash txt-danger me-1"></i>Delete</a></li>
-                                        
+                                        <li><a class="dropdown-item btnDelete" href="#"><i class="fa fa-trash txt-danger me-1"></i>Delete</a></li>
                                     </ul>
                                 </div>
                             </td>

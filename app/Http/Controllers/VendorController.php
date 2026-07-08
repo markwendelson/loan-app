@@ -29,14 +29,19 @@ class VendorController extends Controller
             abort(403);
         }
 
-        //main query
         $countryCode = CountryCode::getCountryCodes([
             'is_multiple' => 1,
         ]);
 
+        //get vendor types
+        $vendorType = VendorType::where('status', 1)
+            ->orderBy('name', 'ASC')
+            ->get();
+
         return view('vendors.index', compact(
             'user',
             'countryCode',
+            'vendorType'
         ));
     }
 
@@ -130,11 +135,13 @@ class VendorController extends Controller
 
         $vendorData = Vendor::select(
                 'vendors.*',
-                'country_codes.country_name'
+                'country_codes.country_name',
+                'vendor_types.name as vendor_type_name'
             )
             ->withTrashed()
             ->where('vendors.id', $request['vendor_id'])
             ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id')
+            ->leftJoin('vendor_types', 'vendor_types.id', '=', 'vendors.vendor_type')
             ->first()
             ->toArray();
 
@@ -336,6 +343,31 @@ class VendorController extends Controller
             $response = [
                 'status' => 'error',
                 'message' => 'Failed to update vendor type,  Please try again.'
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function destroyVendorType($id)
+    {
+        $response = [];
+
+        try {
+            DB::beginTransaction();
+
+            VendorType::find($id)->delete();
+
+            DB::commit();
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Vendor Type deleted successfully.'
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => 'Failed to delete vendor type,  Please try again.'
             ];
         }
 

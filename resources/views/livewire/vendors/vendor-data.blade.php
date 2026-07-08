@@ -19,7 +19,7 @@
                             <td>{{ $val->name }}</td>
                             <td>{{ $val->tin }}</td>
                             <td class="text-center">{{ $val->tax_classification ?? '-'}}</td>
-                            <td>{{ (config('constants.vendor_types')[$val->vendor_type]) ?? '' }}</td>
+                            <td>{{ $val->vendor_type_name }}</td>
                             <td>{{ $val->contact_no }}</td>
                             <td>{{ $val->email }}</td>
                             <td>{{ $val->website }}</td>

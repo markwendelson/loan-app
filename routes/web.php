@@ -267,6 +267,7 @@ Route::middleware('auth')->group(function () {
         Route::post('new-vendor-type', [VendorController::class, 'createVendorType'])->name('vendor.create-vendor-type');
         Route::get('get-vendor-type-data/{id}', [VendorController::class, 'getVendorTypeData'])->name('vendor.get-vendor-type-data');
         Route::put('update-vendor-type', [VendorController::class, 'updateVendorType'])->name('vendor.update-vendor-type');
+        Route::delete('delete-vendor-type/{id}', [VendorController::class, 'destroyVendorType'])->name('vendor.delete-vendor-type');
     });
 
     include_once(__DIR__ . '/ajax.php');

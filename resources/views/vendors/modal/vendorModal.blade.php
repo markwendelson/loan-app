@@ -49,9 +49,11 @@
                                 Type
                                 <select class="form-select" name="vendor_type">
                                     <option value=""  selected hidden disabled>-- Type --</option>
-                                    @foreach(config('constants.vendor_types') as $key => $val)
-                                        <option value="{{ $key }}">{{ $val }}</option>
-                                    @endforeach
+                                    @if(isset($vendorType) && $vendorType)
+                                        @foreach($vendorType as $key => $val)
+                                            <option value="{{ $val->id }}">{{ $val->name }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </label>
                         </div>

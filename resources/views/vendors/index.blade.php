@@ -118,7 +118,6 @@
                         @livewire('Vendors.VendorType.FilterData')
                     </div>
                     <div class="card-body p-0">
-                        {{-- @livewire('Vendors.VendorType.VendorTypeData', ['defer' => true]) --}}
                         <livewire:Vendors.VendorType.VendorTypeData defer />
                     </div>
                 </div>
@@ -372,7 +371,7 @@
                             $("#viewVendorModal .vendorName").html(response.data.name);
                             $("#viewVendorModal .vendorTin").html(response.data.tin);
                             $("#viewVendorModal .vendorTaxClassification").html(response.data.tax_classification);
-                            $("#viewVendorModal .vendorType").html(response.data.vendor_type);
+                            $("#viewVendorModal .vendorType").html(response.data.vendor_type_name);
                             $("#viewVendorModal .vendorCountry").html(response.data.country_name);
                             $("#viewVendorModal .vendorEmail").html(response.data.email);
                             $("#viewVendorModal .vendorFax").html(response.data.fax);
@@ -578,7 +577,49 @@
                 }
             })
 
-            
+            //handle delete button for vendor types
+            $(document).on("click", "#tblVendorTypes tbody tr .btnDelete", function(e) {
+                e.preventDefault();
+
+                let vendorTypeId = $(this).closest("tr").data("id");
+
+                swal({
+                    title: 'Are you sure?',
+                    text: "This action cannot be undone. All associated data will be permanently removed.",
+                    icon: 'warning',
+                    buttons: true,
+                    dangerMode: true,
+                }).then(function (willDelete) {
+                    if (!willDelete) return;
+
+                    $.ajax({
+                        url: `{{ url('vendors/delete-vendor-type') }}/${vendorTypeId}`,
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            swal({
+                                title: 'Success!',
+                                text: response.message,
+                                icon: 'success',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                                dangerMode: true,
+                            });
+                            
+                            Livewire.dispatch("vendor-type-refresh");
+                        }
+                    });
+                });
+            })
 
             function clearVendorModalForm() {
                 $("#vendorModal input").val("");

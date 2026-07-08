@@ -6,6 +6,7 @@ use Livewire\Component;
 
 //models
 use App\Models\User;
+use App\Models\VendorType;
 
 class FilterData extends Component
 {
@@ -17,6 +18,7 @@ class FilterData extends Component
     public $author;
 
     public $usersData;
+    public $vendorTypes;
 
     protected $queryString = [
         'q',
@@ -30,6 +32,9 @@ class FilterData extends Component
     {
         $this->usersData = User::withTrashed()
             ->where('status', 1)->get();
+        $this->vendorTypes = VendorType::where('status', 1)
+            ->orderBy('name', 'ASC')
+            ->get();
     }
 
     public function updated()
