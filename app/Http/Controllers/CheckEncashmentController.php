@@ -6,22 +6,27 @@ use Illuminate\Support\Facades\DB;
 use App\Models\CheckEncashment;
 use Illuminate\Http\Request;
 
+//model
+use App\Models\Bank;
+
 class CheckEncashmentController extends Controller
-{
-  
+{ 
+
     public function index()
     {
-         $checks = CheckEncashment::all();
-
         // Get all active percentages for 'check'
-         $serviceCharges = DB::table('service_charges')
-             ->where('is_active', 1)
-             ->where('fee_type', 'check')
-             ->get(); 
+        $serviceCharges = DB::table('service_charges')
+            ->where('is_active', 1)
+            ->where('fee_type', 'check')
+            ->get(); 
 
-        // dd($serviceCharges);
-         return view('others.check-encashments.index', compact('checks', 'serviceCharges'));
-        //  return view('others.check-encashments.index', compact('checks'));
+        //get all bank data
+        $banks = Bank::where('status', 1)->orderBy('name', 'ASC')->get();
+
+        return view('others.check-encashments.index', compact(
+            'serviceCharges',
+            'banks'
+        ));
     }
 
 
