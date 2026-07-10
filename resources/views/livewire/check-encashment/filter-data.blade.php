@@ -9,7 +9,7 @@
                 <option value="10">10</option>
             </select>
         </div>
-        <div class="d-flex justify-content-end gap-1">
+        <div class="d-flex justify-content-end gap-2">
             <div class="input-group">
                 <input type="search"
                     class="form-control"
