@@ -39,7 +39,7 @@
             <livewire:CheckEncashment.FilterData />
         </div>
         <div class="card-body p-0">
-            <livewire:CheckEnCashment.EncashmentData  defer />
+            <livewire:CheckEncashment.EncashmentData  defer />
         </div>
     </div>
 
