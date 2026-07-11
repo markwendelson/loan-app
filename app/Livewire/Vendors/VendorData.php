@@ -152,9 +152,11 @@ class VendorData extends Component
     {
         $query = Vendor::select(
                 'vendors.*',
+                'vendor_types.name AS vendor_type_name',
                 'country_codes.country_name'
             )
-            ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id');
+            ->leftJoin('country_codes', 'country_codes.id', '=', 'vendors.country_id')
+            ->leftJoin('vendor_types', 'vendor_types.id', '=', 'vendors.vendor_type');
 
         //soft delete
         if($this->is_deleted) {

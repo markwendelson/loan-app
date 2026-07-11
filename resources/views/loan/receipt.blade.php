@@ -70,9 +70,10 @@
         <div class="center bold">{{ $branchTitle }}</div>
         <hr>
 
-        @if(isset($loan->reference_no) && $loan->reference_no)
-        <div>
-            <span>Reference No: {{ $loan->reference_no }}</span>
+        @if(isset($loan->loan_no) && $loan->loan_no)
+        <div class="label">
+            <span>Reference No:</span>
+            <span>{{ $loan->loan_no }}</span>
         </div>
         @endif
 
@@ -87,10 +88,10 @@
             <span>{{ $loan->borrower->details->fullname ?? 'N/A' }}</span>
         </div>
 
-        <div class="label">
+        {{-- <div class="label">
             <span>Loan No.:</span>
             <span>{{ $loan->loan_no }}</span>
-        </div>
+        </div> --}}
 
         <div class="label">
             <span>Principal:</span>
