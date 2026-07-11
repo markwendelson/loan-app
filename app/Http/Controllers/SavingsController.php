@@ -161,8 +161,13 @@ class SavingsController extends Controller
 
                 $total_requested_amount = 0;
                 $transactions_to_create = [];
+                $total_loans = count($loan_ids);
+                $current_index = 0;
+
+                $due_change = isset($request->due_change) ? (float)str_replace(',', '', $request->due_change) : 0;
 
                 foreach ($loan_ids as $loan_id) {
+                    $current_index++;
                     $interest = isset($request->interest[$loan_id]) ? (float)str_replace(',', '', $request->interest[$loan_id]) : 0;
                     $insurance = isset($request->insurance[$loan_id]) ? (float)str_replace(',', '', $request->insurance[$loan_id]) : 0;
                     $principal = isset($request->principal[$loan_id]) ? (float)str_replace(',', '', $request->principal[$loan_id]) : 0;
@@ -228,7 +233,18 @@ class SavingsController extends Controller
                         $principal_balance = $loan_balance - $principal;
                     }
 
+                    if (!$loan->is_special && !$is_early_settlement) {
+                        $allocated_amount = $allocated_amount + $due_change;
+                    }
+
                     $total_requested_amount += $allocated_amount;
+
+                    if ($total_loans == 1) {
+                        $allocated_amount = $amount;
+                    }
+
+                    Log::info('loan_id:'.$loan_id);
+                    Log::info('allocated_amount:'.$allocated_amount);
 
                     $interest_deficit = isset($request->interest_deficit[$loan_id]) ? (float)str_replace(',', '', $request->interest_deficit[$loan_id]) : 0;
 
@@ -256,9 +272,8 @@ class SavingsController extends Controller
                     $transactions_to_create[] = $tx_data;
                 }
 
-                $due_change = isset($request->due_change) ? (float)str_replace(',', '', $request->due_change) : 0;
-
-                if (abs(($total_requested_amount + $due_change) - $amount) > 0.01) {
+                if (abs($total_requested_amount - $amount) > 0.01) {
+                    Log::info( $total_requested_amount."|".$due_change."|".$amount);
                     return response()->json([
                         'status' => 'error',
                         'message' => 'The sum of allocated loan payments and change must equal the total transaction amount.',
@@ -578,7 +593,16 @@ class SavingsController extends Controller
     function getPrincipalBalance(Loan $loan)
     {
         $total_principal_payment = Savings::where('loan_id',$loan->id)->sum('principal');
-        $principal_balance = $loan->final_principal - $total_principal_payment;
+        $loan_type = Str::slug($loan->loanProduct->loanType->name);
+        
+        $principal_balance = $loan->final_principal
+            - $total_principal_payment
+            - (
+                in_array($loan_type, ['loan-with-term', 'auto-debit', 'mortgage-loan'])
+                    ? $loan->loanCharges->advance_interest
+                    : 0
+            );
+
         return $principal_balance;
     }
 

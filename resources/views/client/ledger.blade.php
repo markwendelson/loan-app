@@ -116,7 +116,7 @@
                                             <th colspan="5">Deduction</th>
                                             <th rowspan="3">Net Proceed</th>
                                             <th></th>
-                                            <th colspan="10" style="border-right-width:1px;">Applied to</th>
+                                            <th colspan="11" style="border-right-width:1px;">Applied to</th>
                                         </tr>
                                         <tr>
                                             <th rowspan="2">Transaction Date</th>
@@ -132,6 +132,7 @@
                                             <th colspan="2">Interest</th>
                                             <th colspan="2">Insurance</th>
                                             <th rowspan="2">Principal</th>
+                                            <th rowspan="2">Principal Advance</th>
                                             <th rowspan="2">Interest Deficit</th>
                                             <th rowspan="2">Change</th>
                                             <th rowspan="2">Change - Transaction Code</th>
@@ -308,6 +309,7 @@
                 { data: 'payment_insurance', name: 'payment_insurance' },
                 { data: 'payment_insurance_month', name: 'payment_insurance_month' },
                 { data: 'payment_principal', name: 'payment_principal' },
+                { data: 'principal_advance', name: 'principal_advance' },
                 { data: 'interest_deficit', name: 'Deficit' },
                 { data: 'change', name: 'change' },
                 { data: 'change_mop', name: 'change_mop', render: function(data,type,row) {
