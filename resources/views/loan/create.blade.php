@@ -332,7 +332,7 @@
             calculateLoan();
         })
 
-        $("[name='principal'],[name='interest_rate'],[name='principal_advance'],[name='interest_advance'],[name='redeem_charges']").on('change', function() {
+        $("[name='principal'],[name='interest_rate'],[name='principal_advance'],[name='interest_advance'],[name='redeem_charges'],[name='membership_fee']").on('change', function() {
             calculateLoan();
         })
 
