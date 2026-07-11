@@ -613,13 +613,26 @@
             }
         });
 
-        $(document).on('input', ".loan-interest-input, .loan-principal-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
+        $(document).on('input', ".loan-principal-input", function() {
             $(this).data('edited', true);
-            calculateChange('amount');
+            calculateChange('card');
         });
 
-        $(document).on('blur', ".loan-interest-input, .loan-principal-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
-            calculateChange('amount');
+
+        $(document).on('blur', ".loan-principal-input", function() {
+            $(this).data('edited', true);
+            calculateChange('card');
+        });
+
+
+        $(document).on('input', ".loan-interest-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
+            $(this).data('edited', true);
+            calculateChange('card');
+        });
+
+        $(document).on('blur', ".loan-interest-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
+            $(this).data('edited', true);
+            calculateChange('card');
         });
 
         $(document).on('change', '.early-settlement-checkbox', function () {
