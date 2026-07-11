@@ -226,9 +226,9 @@ Route::middleware('auth')->group(function () {
     Route::get('check-encashments', [CheckEncashmentController::class, 'index'])->name('check-encashments.index');
 
     // CRUD endpoints
-    Route::post('check-encashments', [CheckEncashmentController::class, 'store'])->name('check-encashments.store');
-    Route::get('check-encashments/{id}', [CheckEncashmentController::class, 'show'])->name('check-encashments.show');
-    Route::put('check-encashments/{id}', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');
+    Route::post('check-encashments/store', [CheckEncashmentController::class, 'store'])->name('check-encashments.store');
+    Route::get('check-encashments/{id}/get', [CheckEncashmentController::class, 'show'])->name('check-encashments.show');
+    Route::put('check-encashments/update', [CheckEncashmentController::class, 'update'])->name('check-encashments.update');
     Route::delete('check-encashments/{id}', [CheckEncashmentController::class, 'destroy'])->name('check-encashments.destroy');
 
     Route::get('/check-encashments/{id}/receipt', [CheckEncashmentController::class, 'printReceipt'])->name('check-encashments.receipt');

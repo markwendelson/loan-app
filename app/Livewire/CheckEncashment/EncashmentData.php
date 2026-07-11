@@ -137,6 +137,12 @@ class EncashmentData extends Component
         HTML;
     }
 
+    #[On('refresh-check-encashment-data')]
+    public function updated()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $query = CheckEncashment::select(

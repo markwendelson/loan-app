@@ -89,7 +89,7 @@
                         <div class="col-lg-6">
                             <label class="w-100">
                                 Bank Name <span class="txt-danger">*</span>
-                                <select class="form-select" id="bankName" name="bankName">
+                                <select class="form-select" name="bank_id">
                                     <option value="">-- Select Bank --</option>
                                     @if(isset($banks) && $banks)
                                         @foreach($banks as $key => $val)
@@ -213,7 +213,7 @@
             </div>
             
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-save me-1"></i>Submit Check</button>
+                <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save me-1"></i>Submit Check</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Cancel</button>
             </div>
         </div>
