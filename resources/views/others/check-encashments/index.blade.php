@@ -117,7 +117,15 @@
         function editCheck(id) {
             if (!id) return;
 
+            //show loading form
+            $(".loader-wrapper").fadeIn("slow");
+
             $.get(`{{ url('check-encashments/${id}/get') }}`, function(data){
+
+            //hide loading form
+            $(".loader-wrapper").fadeOut("slow", function () {
+                $(this).hide();
+            });
             console.log("FULL DATA:", data);
             console.log("checkAmount:", data.checkAmount);
             console.log("charge:", data.charge);
@@ -254,7 +262,7 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(data) {
-                        $('#checkRow' + id).remove();
+                        Livewire.dispatch('refresh-check-encashment-data');
                     },
                     error: function(err) {
                         alert('Error deleting check');
@@ -361,6 +369,10 @@
                 }else{
                     method = "POST";
                     submitUrl = '{{ route('check-encashments.store') }}';
+                }
+
+                if(checkEncashmentId){
+                    formData.append('_method', 'PUT');
                 }
 
                 if (!$(modal).find("#checkForm")[0].checkValidity()) {

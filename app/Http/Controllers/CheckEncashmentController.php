@@ -86,8 +86,6 @@ class CheckEncashmentController extends Controller
                 'net_proceeds' => str_replace(',', '', $request->net_proceeds),
             ]);
 
-           
-
             $check = CheckEncashment::create($request->all());
 
             $response = [
@@ -159,54 +157,77 @@ class CheckEncashmentController extends Controller
         return view('others.check-encashments.receipt', compact('check', 'branchTitle'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $check = CheckEncashment::find($id);
+        $response = [];
 
-        if (!$check) {
-            return response()->json(['message' => 'Record not found'], 404);
-        }
+        try {
+            DB::beginTransaction();
 
-        // dd($request->all());
+            $check = CheckEncashment::find($request->id);
 
-        $validated = $request->validate([
-            'transDate'       => 'sometimes|date',
-            'checkNo'         => 'sometimes|string|max:50',
-            'last_name'        => 'sometimes|string|max:100',
-            'first_name'        => 'sometimes|string|max:100',
-            'middle_name'        => 'sometimes|string|max:100',
-            'bankName'        => 'sometimes|string|max:100',
-            'checkAmount'     => 'sometimes|numeric',
-            'charge'          => 'nullable|numeric',
-            'no_service_charge' => 'nullable|boolean',
-            'net_proceeds'    => 'sometimes|numeric',
-            'id_type'         => 'nullable|string|max:50',
-            'id_number'       => 'nullable|string|max:50',
-            'id_picture'      => 'nullable|image|max:5120', // <-- file input
-        ]);
+            $validator = Validator::make($request->all(), [
+                'transDate'       => 'required|date',
+                'checkNo'         => 'required|string|max:50',
+                'last_name'       => 'required|string|max:100',
+                'first_name'      => 'required|string|max:100',
+                'middle_name'     => 'required|string|max:100',
+                'bank_id'        => 'required',
+                'checkAmount'     => 'required',
+                'charge'          => 'nullable',
+                'net_proceeds'    => 'required',
+                'id_type'         => 'nullable|string|max:50',
+                'id_number'       => 'nullable|string|max:50',
+                'id_picture'      => 'nullable|image|max:2048', 
+            ]);
 
-        if ($request->boolean('no_service_charge')) {
-            $validated['charge'] = 0;
-            $validated['net_proceeds'] = $request->input('checkAmount');
-        }
+            if($validator->fails()){
+                $allErrors = implode(',', $validator->errors()->all());
 
-        // Handle file upload
-        if ($request->hasFile('id_picture')) {
-            // Optionally delete old file
-            if ($check->id_picture_path && \Storage::disk('public')->exists($check->id_picture_path)) {
-                \Storage::disk('public')->delete($check->id_picture_path);
+                DB::rollback();
+
+                $response = [
+                    'status' => 'fail',
+                    'message' => 'Validation Failed!: ' . $allErrors,
+                ];
+
+                return response()->json($response);
             }
 
-            $validated['id_picture_path'] = $request->file('id_picture')
-                ->store('id_pictures', 'public');
+            // Handle file upload
+            if ($request->hasFile('id_picture')) {
+                // Optionally delete old file
+                if ($check->id_picture_path && \Storage::disk('public')->exists($check->id_picture_path)) {
+                    \Storage::disk('public')->delete($check->id_picture_path);
+                }
+
+                $request['id_picture_path'] = $request->file('id_picture')
+                    ->store('id_pictures', 'public');
+            }
+
+            //remove number formatting for values
+            $request->merge([
+                'checkAmount' => str_replace(',', '', $request->checkAmount),
+                'charge' => str_replace(',', '', $request->charge),
+                'net_proceeds' => str_replace(',', '', $request->net_proceeds),
+            ]);
+
+            $check->update($request->all());
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Check encashment updated successfully.'
+            ];
+
+            DB::commit();
+        } catch (\Exception $e) {
+            $response = [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         }
 
-        $check->update($validated);
-
-        return response()->json([
-            'data' => $check,
-            'print_url' => route('check-encashments.receipt', $check->id),
-        ]);
+        return response()->json($response);
     }
 
     
