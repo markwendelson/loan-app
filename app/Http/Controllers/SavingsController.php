@@ -239,7 +239,7 @@ class SavingsController extends Controller
 
                     $total_requested_amount += $allocated_amount;
 
-                    if ($total_loans == 1) {
+                    if ($total_loans == 1 && !($is_early_settlement && !$loan->is_special)) {
                         $allocated_amount = $amount;
                     }
 

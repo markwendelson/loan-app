@@ -478,7 +478,7 @@
                 maximumFractionDigits: 2
             }) : '');
 
-            $(`#membership_fee_${loanId}`).val(membership_fee.toLocaleString('en-PH', {
+            $(`#membership_fee_${loanId}`).val(Math.max(0, membership_fee).toLocaleString('en-PH', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }));
@@ -507,7 +507,7 @@
                 maximumFractionDigits: 2
             }));
 
-            $(`#principal_advance_${loanId}`).val(principal_advance.toLocaleString('en-PH', {
+            $(`#principal_advance_${loanId}`).val(Math.max(0, principal_advance).toLocaleString('en-PH', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }));
@@ -884,8 +884,8 @@
 
             let defaultInterest = $(`#exclude_interest_${loanId}`).prop('checked') ? 0 : (parsePHPNumber($card.data('interest-due')) || 0);
             let defaultInsurance = isSpecial ? 0 : (parsePHPNumber($card.data('insurance-due')) || 0);
-            let defaultMembershipFee = isSpecial ? 0 : (parsePHPNumber($card.data('membership-fee-due')) || 0);
-            let defaultPrincipalAdvance = parsePHPNumber($card.data('principal-advance-due')) || 0;
+            let defaultMembershipFee = isSpecial ? 0 : Math.max(0, parsePHPNumber($card.data('membership-fee-due')) || 0);
+            let defaultPrincipalAdvance = Math.max(0, parsePHPNumber($card.data('principal-advance-due')) || 0);
             let defaultPrincipal = 0;
             if (is_early_settlement) {
                 let earlySettlementAmount = parsePHPNumber($card.data('early-settlement-amount')) || 0;
