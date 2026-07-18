@@ -738,16 +738,21 @@
                         $(this).hide();
                     });
 
-                    if (mode_of_payment === 'cash') {
-                        calculateChange('reset');
-                    } else {
-                        calculateChange('amount');
-                    }
+                    calculateChange('reset');
                 }
             });
 
-            elementChoices.addEventListener('addItem', () => calculateChange('amount'));
-            elementChoices.addEventListener('removeItem', () => calculateChange('amount'));
+            function updateAmountFromSlips() {
+                let total = calculateTotalSlipsAmount();
+                $("[name='amount']").val(total.toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }));
+                calculateChange('amount');
+            }
+
+            elementChoices.addEventListener('addItem', updateAmountFromSlips);
+            elementChoices.addEventListener('removeItem', updateAmountFromSlips);
         });
 
         $("#change_mop").on("change", function() {
@@ -1115,15 +1120,7 @@
 
             let selectedLoans = $("#loan_id").val() || [];
             if (selectedLoans.length === 0) {
-                let isSlipBased = ($("#mode_of_payment").val() !== 'cash');
-                let overall_amount = 0;
-                if (isSlipBased) {
-                    overall_amount = calculateTotalSlipsAmount();
-                }
-                $("[name='amount']").val(overall_amount.toLocaleString('en-PH', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }));
+                let overall_amount = parsePHPNumber($("[name='amount']").val()) || 0;
                 $("[name='due_change']").val(overall_amount.toLocaleString('en-PH', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
@@ -1202,39 +1199,18 @@
                     total_allocated_all += loanAmount;
                 });
 
-                if (isSlipBased) {
-                    overall_amount = calculateTotalSlipsAmount();
-                    $("[name='amount']").val(overall_amount.toLocaleString('en-PH', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }));
-                } else {
-                    overall_amount = total_allocated_all;
-                    if (document.activeElement !== $("[name='amount']")[0]) {
-                        $("[name='amount']").val(overall_amount.toLocaleString('en-PH', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }));
-                    }
+                overall_amount = total_allocated_all;
+                if (document.activeElement !== $("[name='amount']")[0]) {
+                    // $("[name='amount']").val(overall_amount.toLocaleString('en-PH', {
+                    //     minimumFractionDigits: 2,
+                    //     maximumFractionDigits: 2
+                    // }));
                 }
             } else {
-                // Sequential allocation modes ('amount' or 'reset')
-                if (isSlipBased) {
-                    overall_amount = calculateTotalSlipsAmount();
-                    $("[name='amount']").val(overall_amount.toLocaleString('en-PH', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }));
+                if (mode === 'reset') {
+                    overall_amount = calculateTotalDuesAllSelected();
                 } else {
-                    if (mode === 'reset') {
-                        overall_amount = calculateTotalDuesAllSelected();
-                        $("[name='amount']").val(overall_amount.toLocaleString('en-PH', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }));
-                    } else {
-                        overall_amount = parsePHPNumber($("[name='amount']").val()) || 0;
-                    }
+                    overall_amount = parsePHPNumber($("[name='amount']").val()) || 0;
                 }
 
                 // Sort loans: special first, regular last
