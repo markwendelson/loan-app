@@ -1041,8 +1041,15 @@
 
             // Excess goes to principal only if not explicitly set to 0 by the user
             if (tempAllocated > 0 && !dues.isPrincipalExplicitlyZero) {
-                allocatedPrincipal += tempAllocated;
-                tempAllocated = 0;
+                let loanInfo = clientLoansMap[loanId];
+                let loanType = loanInfo ? loanInfo.loan_type : '';
+                
+                // For termed loans, do not dump excess into principal. 
+                // The principal payment should be capped at monthly_amortization.
+                if (loanType !== 'loan-with-term') {
+                    allocatedPrincipal += tempAllocated;
+                    tempAllocated = 0;
+                }
             }
 
             // Write values back to inputs
