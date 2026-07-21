@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BankController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ChargeController;
 use App\Http\Controllers\CityController;
@@ -268,6 +269,11 @@ Route::middleware('auth')->group(function () {
         Route::get('get-vendor-type-data/{id}', [VendorController::class, 'getVendorTypeData'])->name('vendor.get-vendor-type-data');
         Route::put('update-vendor-type', [VendorController::class, 'updateVendorType'])->name('vendor.update-vendor-type');
         Route::delete('delete-vendor-type/{id}', [VendorController::class, 'destroyVendorType'])->name('vendor.delete-vendor-type');
+    });
+
+
+    Route::prefix('bank')->group(function(){
+        Route::get('/', [BankController::class, 'index'])->name('bank.index');
     });
 
     include_once(__DIR__ . '/ajax.php');
