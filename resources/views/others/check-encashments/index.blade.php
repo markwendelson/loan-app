@@ -3,7 +3,6 @@
 @section('title') Check Encashments @endsection
 
 @section('content')
-
     <div class="container-fluid">
         <div class="page-title">
             <div class="row">
@@ -43,8 +42,9 @@
             <livewire:CheckEncashment.EncashmentData  defer />
         </div>
     </div>
-{{-- Include modal --}}
-@include('others.check-encashments.modal')
+
+    {{-- Include modal --}}
+    @include('others.check-encashments.modal')
 @endsection
 
 @push('js')
@@ -117,7 +117,15 @@
         function editCheck(id) {
             if (!id) return;
 
-            $.get('{{ url("check-encashments") }}/' + id, function(data){
+            //show loading form
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.get(`{{ url('check-encashments/${id}/get') }}`, function(data){
+
+            //hide loading form
+            $(".loader-wrapper").fadeOut("slow", function () {
+                $(this).hide();
+            });
             console.log("FULL DATA:", data);
             console.log("checkAmount:", data.checkAmount);
             console.log("charge:", data.charge);
@@ -126,7 +134,7 @@
                 $('#checkId').val(data.id);
                 $('#transDate').val(data.transDate);
                 $('#checkNo').val(data.checkNo);
-                $('#bankName').val(data.bankName);
+                $('select[name="bank_id"]').val(data.bank_id);
                 $('#checkAmount').val(formatNumberWithCommas(data.checkAmount));
                 $('#charge').val(formatNumberWithCommas(data.charge));
                 $('#netProceeds').val(formatNumberWithCommas(data.net_proceeds));
@@ -254,7 +262,7 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(data) {
-                        $('#checkRow' + id).remove();
+                        Livewire.dispatch('refresh-check-encashment-data');
                     },
                     error: function(err) {
                         alert('Error deleting check');
@@ -341,6 +349,140 @@
                 calculateCharges();
             });
 
+            //handle checkModal submit button
+            $("#checkModal").on("click", ".btnSubmit", function(e) {
+                e.preventDefault();
+                
+                let submitUrl;
+                let method;
+
+                let modal = $(this).closest(".modal-content");
+
+                let formElement =  $(modal).find("form")[0];
+                let formData = new FormData(formElement);
+
+                let checkEncashmentId = $("#checkModal input[name='id']").val();
+                
+                if(checkEncashmentId){
+                    method = "POST";
+                    submitUrl = '{{ route('check-encashments.update') }}';
+                }else{
+                    method = "POST";
+                    submitUrl = '{{ route('check-encashments.store') }}';
+                }
+
+                if(checkEncashmentId){
+                    formData.append('_method', 'PUT');
+                }
+
+                if (!$(modal).find("#checkForm")[0].checkValidity()) {
+                    swal({
+                        title: 'Error',
+                        text: 'Please fill all required fields',
+                        icon: 'warning',
+                        buttons: {
+                            confirm: {
+                                text: "OK",
+                                value: true,
+                                visible: true,
+                                className: "btn btn-primary",
+                                closeModal: true
+                            }
+                        },
+                        dangerMode: true,
+                    });
+                }else{
+                    //show loading form
+                    $(".loader-wrapper").fadeIn("slow");
+
+                    $.ajax({
+                        type: method,
+                        url: submitUrl,
+                        data: formData,
+                        dataType: "json",
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            //hide loading form
+                            $(".loader-wrapper").fadeOut("slow", function () {
+                                $(this).hide();
+                            });
+
+                            if(response.status !== 'undifined' && response.status == 'success') {
+                                swal({
+                                    title: 'Success!',
+                                    text: response.message,
+                                    icon: 'success',
+                                    buttons: {
+                                        confirm: {
+                                            text: "OK",
+                                            value: true,
+                                            visible: true,
+                                            className: "btn btn-primary",
+                                            closeModal: true
+                                        }
+                                    },
+                                }).then((willClose) => {
+                                    if (willClose) {
+                                        Livewire.dispatch('refresh-check-encashment-data');
+
+                                        $("#checkModal").modal("hide");
+
+                                        resetForm();
+                                        
+                                        if(!checkEncashmentId) {
+                                            window.open(`/check-encashments/${response.data.id}/receipt`, '_blank');
+                                        }
+                                    }
+                                });
+                            }else{
+                                swal({
+                                    title: 'Error',
+                                    text: response.message,
+                                    icon: 'warning',
+                                    buttons: {
+                                        confirm: {
+                                            text: "OK",
+                                            value: true,
+                                            visible: true,
+                                            className: "btn btn-primary",
+                                            closeModal: true
+                                        }
+                                    },
+                                    dangerMode: true,
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            swal({
+                                title: 'Error',
+                                text: error,
+                                icon: 'warning',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                                dangerMode: true,
+                            });
+                        }
+                    });
+                }
+            })
+
         });
+
+        function resetForm() {
+            $("#checkModal form")[0].reset();
+        }
     </script>
 @endpush

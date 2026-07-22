@@ -38,6 +38,13 @@
             <span>Transaction Date:</span>
             <span>{{ $check->transDate->format('Y-m-d') }}</span>
         </div>
+        
+        @if(isset($check->reference_no) && $check->reference_no)
+        <div class="label">
+            <span>Reference no:</span>
+            <span>{{ $check->reference_no }}</span>
+        </div>
+        @endif
 
            <div class="label">
             <span>Customer Name:</span>
