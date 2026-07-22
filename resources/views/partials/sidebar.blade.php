@@ -200,6 +200,7 @@
         @can('view-branch')
         <li><a href="/branches">Branch</a></li>
         @endcan
+        <li><a href="/bank">Bank</a></li>
         @can('view-document-type')
         <li><a href="{{ route('document-type.index') }}">Document Types</a></li>
         @endcan
