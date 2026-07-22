@@ -48,22 +48,51 @@ class AjaxController extends Controller
 
     public function getAvailableMerchantSlipNo(Request $request)
     {
-        $withdrawnCodes = Savings::where('client_id', $request->client_id)
-            ->where('mode_of_payment', $request->mode_of_payment)
-            ->where('transaction_type', 'withdraw')
-            ->whereNull('deleted_at')
-            ->pluck('transaction_code')
-            ->flatMap(fn($codes) => explode(',', $codes))
-            ->toArray();
-
-        $data = Savings::where('client_id', $request->client_id)
+        // Sum all deposits per transaction_code
+        $deposits = Savings::where('client_id', $request->client_id)
             ->where('mode_of_payment', $request->mode_of_payment)
             ->where('transaction_type', 'deposit')
-            ->whereNotIn('transaction_code', $withdrawnCodes)
+            ->whereNotNull('transaction_code')
+            ->whereNull('deleted_at')
+            ->selectRaw('transaction_code, SUM(amount) as total_deposit')
+            ->groupBy('transaction_code')
+            ->get()
+            ->keyBy('transaction_code');
+
+        // Sum all withdrawn amounts per transaction_code
+        // A withdraw row stores the codes it consumed as a comma-separated string
+        $withdrawRows = Savings::where('client_id', $request->client_id)
+            ->where('mode_of_payment', $request->mode_of_payment)
+            ->where('transaction_type', 'withdraw')
+            ->whereNotNull('transaction_code')
+            ->whereNull('deleted_at')
             ->get(['transaction_code', 'amount']);
 
-        return $data;
+        $withdrawn = [];
+        foreach ($withdrawRows as $row) {
+            $codes = array_filter(array_map('trim', explode(',', $row->transaction_code)));
+            // Distribute the withdrawn amount evenly across the codes on this row
+            $codeCount = count($codes);
+            if ($codeCount === 0) continue;
+            $perCode = (float) $row->amount / $codeCount;
+            foreach ($codes as $code) {
+                $withdrawn[$code] = ($withdrawn[$code] ?? 0) + $perCode;
+            }
+        }
 
+        // Build result: only codes with remaining balance > 0
+        $result = [];
+        foreach ($deposits as $code => $deposit) {
+            $remaining = (float) $deposit->total_deposit - ($withdrawn[$code] ?? 0);
+            if ($remaining > 0.01) {
+                $result[] = [
+                    'transaction_code' => $code,
+                    'amount'           => round($remaining, 2),
+                ];
+            }
+        }
+
+        return response()->json($result);
     }
 
     public function clientIncentives(Request $request, Client $client)

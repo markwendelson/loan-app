@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 //reference no service
-use App\Services\ReferenceNumberService;   
+use App\Services\ReferenceNumberService;
 
 class SavingsController extends Controller
 {
@@ -239,7 +239,7 @@ class SavingsController extends Controller
 
                     $total_requested_amount += $allocated_amount;
 
-                    if ($total_loans == 1) {
+                    if ($total_loans == 1 && !($is_early_settlement && !$loan->is_special)) {
                         $allocated_amount = $amount;
                     }
 
@@ -594,7 +594,7 @@ class SavingsController extends Controller
     {
         $total_principal_payment = Savings::where('loan_id',$loan->id)->sum('principal');
         $loan_type = Str::slug($loan->loanProduct->loanType->name);
-        
+
         $principal_balance = $loan->final_principal
             - $total_principal_payment
             - (
@@ -785,10 +785,11 @@ class SavingsController extends Controller
                 $processedData[] = [
                     'client_id' => $val['client_id'],
                     'reference_no' => $referenceNumber . 'S',
-                    'transaction_no' => Savings::generateTransactionNumber($val['date'], 'withdraw'),
+                    'transaction_no' => Savings::generateTransactionNumber($val['date'], 'deposit'),
                     'transaction_date' => $val['date'],
                     'description' => $val['description'],
-                    'transaction_type' => 'withdraw',
+                    'transaction_type' => 'deposit',
+                    'mode_of_payment' => $val['transaction_type'],
                     'transaction_code' => $val['transaction_code'],
                     'amount' => $val['amount_withdrawn'],
                     'classifications' => $val['classifications'],
