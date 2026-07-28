@@ -28,7 +28,7 @@
     <!--button container -->
     <div class="card">
         <div class="card-body">
-            <button type="button" class="btn btn-primary btn-sm float-end"><i class="fa fa-plus me-1"></i> New Bank</button>
+            <button type="button" class="btn btn-primary btnNewBank btn-sm float-end"><i class="fa fa-plus me-1"></i> New Bank</button>
         </div>
     </div>
 
@@ -41,4 +41,22 @@
             <livewire:Bank.BankData defer />
         </div>
     </div>
+
+    <!-- modal here -->
+    @include('bank.modal.modal')
 @endsection
+
+@push('js')
+    <script>
+        $(document).ready(function() {
+            //handle show new bank modal
+            $(".btnNewBank").on("click", function(e) {
+                e.preventDefault();
+
+                $("#bankModal .modal-title").text("New Bank");
+
+                $("#bankModal").modal("show");
+            })
+        });
+    </script>
+@endpush
