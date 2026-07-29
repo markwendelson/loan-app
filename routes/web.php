@@ -274,6 +274,11 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('bank')->group(function(){
         Route::get('/', [BankController::class, 'index'])->name('bank.index');
+        Route::get('get-bank-data/{id}', [BankController::class, 'getBankData'])->name('bank.get-data');
+        Route::post('store', [BankController::class, 'store'])->name('bank.store');
+        Route::put('put', [BankController::class, 'put'])->name('bank.put');
+        Route::delete('delete/{id}', [BankController::class, 'delete'])->name('bank.delete');
+
     });
 
     include_once(__DIR__ . '/ajax.php');

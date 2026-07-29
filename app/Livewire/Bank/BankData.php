@@ -29,6 +29,12 @@ class BankData extends Component
         $this->q = $data['q'];
     }
 
+    #[On('refresh-bank-data')]
+    public function refreshBankData()
+    {
+        
+    }
+
     public function placeholder()
     {
         return <<<'HTML'

@@ -43,6 +43,9 @@
                                 Status <span class="txt-danger">*</span>
                                 <select class="form-select" name="status" required>
                                     <option>-- Status --</option>
+                                    @foreach(config('constants.status_value') as $key => $val)
+                                        <option value="{{ $key }}">{{ $val }}</option>
+                                    @endforeach
                                 </select>
                             </label>
                         </div>
@@ -50,7 +53,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary"><i class="fa fa-save me-1"></i>Save changes</button>
+                <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save me-1"></i>Save changes</button>
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Cancel</button>
             </div>
         </div>
