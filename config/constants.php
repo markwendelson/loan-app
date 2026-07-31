@@ -23,11 +23,12 @@ return [
     'civil_status' => [
         1 => 'Single',
         2 => 'Married',
-        3 => 'Divorced',
+        // 3 => 'Divorced',
         4 => 'Widowed',
-        5 => 'Separated',
-        6 => 'Annuled',
-        7 => 'Engaged'
+        // 5 => 'Separated',
+        // 6 => 'Annuled',
+        // 7 => 'Engaged'
+        8 => 'Windower'
     ],
     'common_document_type' => [
         'jpg',

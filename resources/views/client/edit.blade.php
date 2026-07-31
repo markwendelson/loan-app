@@ -10,14 +10,15 @@
 </style>
 @endpush
 
-@section('content')
+@section('title') Update Client Details @endsection
 
+@section('content')
 
     <div class="container-fluid">
         <div class="page-title">
             <div class="row">
                 <div class="col-6">
-                    <h4>Client Registration </h4>
+                    <h4>Update Client Details</h4>
                 </div>
                 <div class="col-6">
                     <ol class="breadcrumb">
@@ -27,7 +28,7 @@
                             </svg></a>
                         </li>
                         <li class="breadcrumb-item">Client</li>
-                        <li class="breadcrumb-item active">Client Register</li>
+                        <li class="breadcrumb-item active">Update Client Details</li>
                     </ol>
                 </div>
             </div>
@@ -343,12 +344,22 @@
                             "<input type='hidden' name='"+ field +"[bank_id][]' value='"+ params.bankId +"'>" +
                             "<input type='hidden' name='"+ field +"[account_no][]' value='"+ params.accountNo +"'>" +
                             "<input type='hidden' name='"+ field +"[account_name][]' value='"+ params.accountName +"'>" +
+                            "<input type='hidden' name='"+ field +"[account_expiry][]' value='"+ params.accountExpiry +"'>" +
+                            "<input type='hidden' name='"+ field +"[is_primary][]' value='"+ params.isPrimary +"'>" +
                             "<input type='hidden' name='"+ field +"[is_active][]' value='"+ params.status +"'>" +
 
                             "<button type='button' class='btn btn-danger btn-xs float-end btnRemovePayrollAccount'><i class='fa fa-times'></i></button>" +
                             "<h5><strong>"+ params.bankName +"</strong></h5>" +
                             "<p class='mb-0'>Account No: " + params.accountNo + "</p>" +
-                            "<p>Account Name: "+ params.accountName +"</p>" +
+                            "<p class='mb-0'>Account Name: "+ params.accountName +"</p>" +
+                            "<p class='mb-0'>Account Expiry: " +
+                                new Date(params.accountExpiry).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                }) +
+                            "</p>" + 
+                            "<p class='mb-0'>Account: " + (params.isPrimary == 1 ? "Primary" : "Secondary") + "</p>" +
                         "</div>" +
                         "<div class= 'card-footer'>" +
                             "<p>"+ payrollAccountStatus[params.status] +"</p>" +
@@ -379,6 +390,8 @@
                 'bankName' : $("#modalPayrollAccount #bank_id option:selected").text(),
                 'accountNo' : $("#modalPayrollAccount #account_no").val(),
                 'accountName' : $("#modalPayrollAccount #account_name").val(),
+                'accountExpiry' : $("#modalPayrollAccount input[name='account_expiry']").val(),
+                'isPrimary' : $("#modalPayrollAccount input[name='is_primary']").val(),
                 'status' : $("#modalPayrollAccount #status").val()
             };
 
@@ -392,6 +405,19 @@
         })
 
         $(document).on("click", ".btnRemovePayrollAccount", function() {
+            let clientPayrollAccountId = $(this).closest(".card").data("id");
+
+            let $deletedInput = $('input[name="client_payroll_account[deleted_id]"]');
+            let currentValue = $deletedInput.val();
+
+            if (clientPayrollAccountId) {
+                if (currentValue) {
+                    $deletedInput.val(currentValue + "," + clientPayrollAccountId);
+                } else {
+                    $deletedInput.val(clientPayrollAccountId);
+                }
+            }
+            
             $(this).closest('.client-payroll-items').fadeOut(300, function() {
                 $(this).remove();
             });
@@ -411,6 +437,8 @@
             $("#modalPayrollAccount #bank_id").val(""),
             $("#modalPayrollAccount #account_no").val(""),
             $("#modalPayrollAccount #account_name").val(""),
+            $("#modalPayrollAccount input[name='account_expiry']").val("");
+            $("#modalPayrollAccount input[name='is_primary']").val("");
             $("#modalPayrollAccount #status").val("")
         }
 
@@ -429,6 +457,13 @@
                 $('[name="client_details[permanent_address]"]').attr('required', true);
             }
         }).trigger('change')
+
+        //handle remove button for payroll account
+        $(document).on("click", ".client-payroll-accounts .btnRemove", function(e) {
+            e.preventDefault();
+
+            alert("Hello world");
+        });
     </script>
 @endpush
 

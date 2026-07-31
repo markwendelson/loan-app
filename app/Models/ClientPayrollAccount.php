@@ -17,7 +17,9 @@ class ClientPayrollAccount extends Model {
         'client_id', 
         'account_no', 
         'account_name', 
+        'account_expiry',
         'is_active',
+        'is_primary',
         'created_at',
         'updated_at'
     ];
