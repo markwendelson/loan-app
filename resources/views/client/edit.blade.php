@@ -13,7 +13,6 @@
 @section('title') Update Client Details @endsection
 
 @section('content')
-
     <div class="container-fluid">
         <div class="page-title">
             <div class="row">
@@ -395,8 +394,6 @@
                 'status' : $("#modalPayrollAccount #status").val()
             };
 
-
-
             addPayrollAccount(params);
         })
 
@@ -458,12 +455,6 @@
             }
         }).trigger('change')
 
-        //handle remove button for payroll account
-        $(document).on("click", ".client-payroll-accounts .btnRemove", function(e) {
-            e.preventDefault();
-
-            alert("Hello world");
-        });
     </script>
 @endpush
 

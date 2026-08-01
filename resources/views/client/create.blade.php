@@ -323,12 +323,22 @@
                             "<input type='hidden' name='"+ field +"[bank_id][]' value='"+ params.bankId +"'>" +
                             "<input type='hidden' name='"+ field +"[account_no][]' value='"+ params.accountNo +"'>" +
                             "<input type='hidden' name='"+ field +"[account_name][]' value='"+ params.accountName +"'>" +
+                            "<input type='hidden' name='"+ field +"[account_expiry][]' value='"+ params.accountExpiry +"'>" +
+                            "<input type='hidden' name='"+ field +"[is_primary][]' value='"+ params.isPrimary +"'>" +
                             "<input type='hidden' name='"+ field +"[is_active][]' value='"+ params.status +"'>" +
 
                             "<button type='button' class='btn btn-danger btn-xs float-end btnRemovePayrollAccount'><i class='fa fa-times'></i></button>" +
                             "<h5><strong>"+ params.bankName +"</strong></h5>" +
                             "<p class='mb-0'>Account No: " + params.accountNo + "</p>" +
-                            "<p>Account Name: "+ params.accountName +"</p>" +
+                            "<p class='mb-0'>Account Name: "+ params.accountName +"</p>" +
+                            "<p class='mb-0'>Account Expiry: " +
+                                new Date(params.accountExpiry).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                }) +
+                            "</p>" + 
+                            "<p class='mb-0'>Account: " + (params.isPrimary == 1 ? "Primary" : "Secondary") + "</p>" +
                         "</div>" +
                         "<div class= 'card-footer'>" +
                             "<p>"+ payrollAccountStatus[params.status] +"</p>" +
@@ -359,10 +369,10 @@
                 'bankName' : $("#modalPayrollAccount #bank_id option:selected").text(),
                 'accountNo' : $("#modalPayrollAccount #account_no").val(),
                 'accountName' : $("#modalPayrollAccount #account_name").val(),
+                'accountExpiry' : $("#modalPayrollAccount input[name='account_expiry']").val(),
+                'isPrimary' : $("#modalPayrollAccount input[name='is_primary']").val(),
                 'status' : $("#modalPayrollAccount #status").val()
             };
-
-
 
             addPayrollAccount(params);
         })
@@ -391,6 +401,8 @@
             $("#modalPayrollAccount #bank_id").val(""),
             $("#modalPayrollAccount #account_no").val(""),
             $("#modalPayrollAccount #account_name").val(""),
+            $("#modalPayrollAccount input[name='account_expiry']").val("");
+            $("#modalPayrollAccount input[name='is_primary']").val("");
             $("#modalPayrollAccount #status").val("")
         }
 

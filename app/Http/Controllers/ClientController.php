@@ -54,7 +54,17 @@ class ClientController extends Controller
         $nationalities = $this->nationalities;
         $banks = $this->banks;
 
-        return view('client.create', compact('branches', 'provinces', 'job_titles', 'nationalities', 'banks'));
+        //for edit mode
+        $editMode = 1;
+
+        return view('client.create', compact(
+            'branches',
+            'provinces',
+            'job_titles',
+            'nationalities',
+            'banks',
+            'editMode'
+        ));
     }
 
     /**
@@ -112,9 +122,19 @@ class ClientController extends Controller
         $job_titles = $this->job_titles;
         $nationalities = $this->nationalities;
         $banks = $this->banks;
-        // dd($client->details()->get());
+        
+        //edit mode
+        $editMode=1;
 
-        return view('client.edit', compact('client', 'branches', 'provinces', 'job_titles', 'nationalities', 'banks'));
+        return view('client.edit', compact(
+            'client',
+            'branches',
+            'provinces',
+            'job_titles',
+            'nationalities',
+            'banks',
+            'editMode'
+        ));
     }
 
     /**
@@ -667,5 +687,42 @@ class ClientController extends Controller
     {
         $balance = getClientBalance($client);
         return response()->json(['balance' => $balance]);
+    }
+
+    public function getCoMaker($id)
+    {
+        $response = [];
+
+        try {
+            $coMakerData = DB::table("client_co_makers")
+                ->select(
+                    'client_co_makers.id',
+                    'client_co_makers.client_id',
+                    'client_co_makers.co_maker_id',
+                    'client_co_makers.loan_id',
+                    'client_details.firstname',
+                    'client_details.lastname',
+                    'client_details.middlename',
+                    'client_details.present_address'
+                )
+                ->leftJoin('client_details', 'client_details.client_id', '=', 'client_co_makers.co_maker_id')
+                ->where('client_co_makers.client_id', $id)
+                ->get();
+            if($coMakerData) {
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Co-maker data retrieved successfully.',
+                    'data' => $coMakerData->toArray()
+                ];
+            }
+        } catch (\Exception $e) {
+            // handle exception here
+            $response = [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
     }
 }

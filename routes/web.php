@@ -113,6 +113,7 @@ Route::middleware('auth')->group(function () {
             Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
             Route::get('{client}/loan-history-details', 'loanHistoryDetails')->name('client.loan-history-details');
             Route::get('{client}/partial-ledger', 'partialLedger')->name('client.partial-ledger');
+            Route::get('{id}/get-co-makers', 'getCoMaker')->name('client.get_co_makers');
         });
 
         Route::get('user/{user}/branch/{branch}/permission', [UserController::class, 'getBranchPermission'])->name('user.get-branch-permission');

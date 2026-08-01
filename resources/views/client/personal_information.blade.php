@@ -389,7 +389,9 @@
                             <div class="col-sm-12 col-md-4 col-lg-3 client-payroll-items">
                                 <div class="card" data-id="{{$account->id}}">
                                     <div class="card-body">
+                                        @if(isset($editMode) && $editMode)
                                         <button type="button" class="btn btn-danger btn-xs float-end btnRemovePayrollAccount"><i class="fa fa-times"></i></button>
+                                        @endif
 
                                         <h5><strong>{{$account->bank->name}}</strong></h5>
                                         <p class="mb-0">Account No: {{$account->account_no}}</p>
