@@ -209,5 +209,7 @@ return [
         3 => '<span class="badge badge-warning w-100">Withdrawn</span>',
         4 => '<span class="badge badge-primary w-100">Pending</span>',
         5 => '<span class="badge badge-dark w-100">Closed</span>',
-    ]
+    ],
+    'monthly_amort_dropdown' => [1, 4], //specific for this loan products only
+    'principal_adv_dropdown' => [1,2,4,6] //specific for this loan products only
 ];

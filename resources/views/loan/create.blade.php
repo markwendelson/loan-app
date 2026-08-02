@@ -57,6 +57,7 @@
                 <div class="form-group">
                     <label for="borrower_id">Borrower</label>
                     <select name="borrower_id" id="borrower_id" class="borrowerSelect">
+                        <option value="">-- Borrower --</option>
                         @foreach ($clients as $client)
                             <option value="{{$client->id}}" data-bid="{{$previous_loan?->borrower_id}}" {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}>{{ Str::title($client->details->fullname)}}</option>
                         @endforeach
@@ -273,6 +274,8 @@
 
         initializeSelect2();
 
+        var monthlyAmortizationDropdown = @json(config('constants.monthly_amort_dropdown'));
+        var principalAdvDropdown = @json(config('constants.principal_adv_dropdown'));
         var loan_type;
         var interest_rate;
 
@@ -331,7 +334,8 @@
             }
 
             calculateLoan();
-
+            toggleMonthlyAmortizationDropdown(Number($(this).val()));
+            togglePrincipalAdvDropdown(Number($(this).val()));
         })
 
         $("[name='term']").on("change", function() {
@@ -784,6 +788,8 @@
 
             let borrowerId = $(this).val();
 
+            $("#client_comaker tbody").empty();
+
             $.ajax({
                 type: "GET",
                 url: `{{ url('client/${borrowerId}/get-co-makers') }}`,
@@ -811,12 +817,31 @@
                                 `;
                             })
 
-                            $("#client_comaker").append(trData);
+                            $("#client_comaker tbody").append(trData);
                         }
                     }
                 }
             });
         })
+
+        toggleMonthlyAmortizationDropdown(Number($("#loan_product_id").val()));
+        togglePrincipalAdvDropdown(Number($("#loan_product_id").val()));
+
+        function toggleMonthlyAmortizationDropdown(id) {
+            if(monthlyAmortizationDropdown.includes(id)) {
+                $("#monthly_amortization").closest("li").removeClass("d-none").addClass("d-block");
+            }else{
+                $("#monthly_amortization").closest("li").removeClass("d-block").addClass("d-none");
+            }
+        }
+
+        function togglePrincipalAdvDropdown(id){
+            if(principalAdvDropdown.includes(id)) {
+                $("#principal_advance").closest("li").removeClass("d-none").addClass("d-block");
+            }else{
+                $("#principal_advance").closest("li").removeClass("d-block").addClass("d-none");
+            }
+        }
 
         function initializeSelect2() {
             $(".borrowerSelect").select2({
@@ -824,7 +849,6 @@
                 // dropdownParent: '#modalMultipleEntries'
             });
         }
-
-    })
+    })    
 </script>
 @endpush
