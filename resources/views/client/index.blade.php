@@ -43,8 +43,9 @@
 
     <!-- button container -->
     <div class="card">
-        <div class="card-body">
-            <a href="{{route('client.registration')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
+        <div class="card-body d-flex justify-content-end gap-2 align-items-center flex-wrap">
+            <a href="#" class="btn btn-light btnColor"><i class="fa fa-paint-brush me-1"></i>Color Coding</a>
+            <a href="{{route('client.registration')}}" class="btn btn-primary"><i class="fa fa-plus"></i> New Client</a>
         </div>
     </div>
 
@@ -60,6 +61,9 @@
     <!-- job modal -->
     @include('insurance-fee-schedule.modal')
 
+    <!-- color coding modal -->
+    @include('client.modal.color_coding')
+
 @endsection
 
 @push('js')
@@ -67,6 +71,20 @@
 <script>
     $(document).ready(function () {
         const canDelete = {{ auth()->user()->can('delete-client') ? 1 : 0 }};
+
+        //handle show color coding modal
+        $(".btnColor").click(function(e) {
+            e.preventDefault();
+
+            $("#modalColor").modal("show");
+        })
+
+        //handle modal color cancel button
+        $("#modalColor .btnCancel").on("click", function(e) {
+            e.preventDefault();
+
+            $("#modalColor").modal("hide");
+        })
     });
 
 
