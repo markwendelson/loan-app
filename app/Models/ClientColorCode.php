@@ -11,8 +11,6 @@ class ClientColorCode extends Model
         'color_name',
         'color_description',
         'color_code',
-        'status',
-        'created_at',
-        'updated_at',
+        'status'
     ];
 }

@@ -10,6 +10,9 @@
             <!-- Modal Body -->
             <div class="modal-body">
                 <form id="frmColor">
+                    <!-- color coding id -->
+                    <input type="hidden" name="id">
+
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
@@ -51,7 +54,7 @@
                                     <label class="w-100">
                                         Description (optional)
                                         <textarea class="form-control"
-                                            name="description"
+                                            name="color_description"
                                             placeholder="Description"
                                         ></textarea>
                                     </label>
@@ -59,12 +62,14 @@
 
                                 <!-- button container -->
                                 <div class="col-12">
-                                    <button type="button" class="btn btn-primary float-end"><i class="fa fa-plus me-1"></i>Add Label</button>
+                                    <button type="button" class="btn btn-primary float-end btnAddColorCode"><i class="fa fa-plus me-1"></i>Submit Color Coding</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </form>
+
+                <livewire:Client.ClientList.ColorCode.ColorCodeData defer />
             </div>
 
             <!-- Modal Footer -->

@@ -7,6 +7,7 @@
                         <th width="50"></th>
                         <th>Client</th>
                         <th>Address</th>
+                        <th></th>
                         <th class="text-center" width="80">Status</th>
                         <th width="50" class="text-center"><i class="fa fa-cog"></i></th>
                     </tr>
@@ -14,7 +15,7 @@
                 <tbody>
                     @if(isset($clientData) && $clientData)
                         @foreach($clientData as $key => $val)
-                            <tr>
+                            <tr {!! $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . ';background-color:'. hexToRgba($val->color_code, .2) .'"' : '' !!}>
                                 <td>
                                     @php
                                         $photo = $val->details?->photo;
@@ -41,6 +42,15 @@
                                     </div>
                                 </td>
                                 <td class="align-center">{{ $val->details->present_full_address ?? '' }}</td>
+                                <td>
+                                    <select class="form-select" wire:change="updateClientColorTag({{$val->id}}, $event.target.value)">
+                                        @if(isset($colorCodes) && $colorCodes)
+                                            @foreach($colorCodes as $key2 => $valColor)
+                                                <option value="{{$valColor->id}}" {{ isset($val->color_id) && $val->color_id == $valColor->id ? 'selected' : '' }}>{{$valColor->color_name ?? ''}}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </td>
                                 <td class="text-center align-center">
                                     @if($val->status == 1)
                                         <span class="badge badge-success w-100">Active</span>
@@ -86,7 +96,7 @@
                 @if($clientData->hasPages())
                 <tfoot>
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <div class="d-flex justify-content-end">
                                 {{ $clientData->links('partials.pagination.default-livewire') }}
                             </div>
