@@ -538,7 +538,7 @@
             e.preventDefault();
             transaction_type = $("[name='transaction_type']").find('option:selected').val();
             if(transaction_type == 'withdraw') {
-                calculateChange('card');
+                // calculateChange('card');
                 submitTransaction();
             } else {
                 submitTransaction();
@@ -615,24 +615,24 @@
 
         $(document).on('input', ".loan-principal-input", function() {
             $(this).data('edited', true);
-            calculateChange('card');
+            calculateChange('amount');
         });
 
 
         $(document).on('blur', ".loan-principal-input", function() {
             $(this).data('edited', true);
-            calculateChange('card');
+            calculateChange('amount');
         });
 
 
         $(document).on('input', ".loan-interest-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
             $(this).data('edited', true);
-            calculateChange('card');
+            calculateChange('amount');
         });
 
         $(document).on('blur', ".loan-interest-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
             $(this).data('edited', true);
-            calculateChange('card');
+            calculateChange('amount');
         });
 
         $(document).on('change', '.early-settlement-checkbox', function () {
