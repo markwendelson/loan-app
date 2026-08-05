@@ -16,12 +16,13 @@ class CheckEncashment extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'reference_no',
         'transDate',
         'checkNo',
         'last_name',
         'first_name',
         'middle_name',
-        'bankName',
+        'bank_id',
         'checkAmount',
         'charge',
         'net_proceeds',
@@ -46,11 +47,5 @@ class CheckEncashment extends Model
         $middleInitial = $this->middle_name ? strtoupper($this->middle_name[0]) . '.' : '';
         return "{$this->last_name}, {$this->first_name} {$middleInitial}";
     }
-
-    // Example relationship (if you later link to a Customer table)
-//     public function customer()
-//     {
-//         return $this->belongsTo(Customer::class);
-//     }
 
 }
