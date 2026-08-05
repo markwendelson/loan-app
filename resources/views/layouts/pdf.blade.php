@@ -122,6 +122,8 @@
                 text-transform: uppercase;
             }
         </style>
+
+        @stack('css')
     </head>
     <body>
         @yield('content')

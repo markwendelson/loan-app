@@ -44,6 +44,7 @@
                                 <td class="align-center">{{ $val->details->present_full_address ?? '' }}</td>
                                 <td>
                                     <select class="form-select" wire:change="updateClientColorTag({{$val->id}}, $event.target.value)">
+                                        <option value="">-- Select --</option>
                                         @if(isset($colorCodes) && $colorCodes)
                                             @foreach($colorCodes as $key2 => $valColor)
                                                 <option value="{{$valColor->id}}" {{ isset($val->color_id) && $val->color_id == $valColor->id ? 'selected' : '' }}>{{$valColor->color_name ?? ''}}</option>
@@ -60,7 +61,7 @@
                                 </td>
                                 <td class="align-center">
                                     <div class="dropdown">
-                                        <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn {{ isset($val->color_code) && $val->color_code ? 'btn-outline-primary' : 'btn-outline-light' }} btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu">                                                

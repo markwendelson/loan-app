@@ -181,16 +181,17 @@ class TableData extends Component
         $this->resetPage();
     }
 
-    public function updateClientColorTag(int $id, int $colorId) {
+    public function updateClientColorTag(int $id, string $colorId) {
+
+        $colorId = $colorId === '' ? null : (int) $colorId;
+
         $client = Client::find($id);
+
         $client->update([
-            'color_id' => $colorId
+            'color_id' => $colorId,
         ]);
     }
 
     #[On("refresh-client-list")]
-    public function refreshClientList()
-    {
-        
-    }
+    public function refreshClientList(){}
 }
