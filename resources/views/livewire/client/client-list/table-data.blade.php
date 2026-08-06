@@ -15,7 +15,7 @@
                 <tbody>
                     @if(isset($clientData) && $clientData)
                         @foreach($clientData as $key => $val)
-                            <tr {!! $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . ';background-color:'. hexToRgba($val->color_code, .2) .'"' : '' !!}>
+                            <tr {!! $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
                                 <td>
                                     @php
                                         $photo = $val->details?->photo;
@@ -61,7 +61,7 @@
                                 </td>
                                 <td class="align-center">
                                     <div class="dropdown">
-                                        <button class="btn {{ isset($val->color_code) && $val->color_code ? 'btn-outline-primary' : 'btn-outline-light' }} btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu">                                                
