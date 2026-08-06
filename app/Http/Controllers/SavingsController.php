@@ -272,13 +272,13 @@ class SavingsController extends Controller
                     $transactions_to_create[] = $tx_data;
                 }
 
-                if (abs($total_requested_amount - $amount) > 0.01) {
-                    Log::info( $total_requested_amount."|".$due_change."|".$amount);
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'The sum of allocated loan payments and change must equal the total transaction amount.',
-                    ], 500);
-                }
+                // if (abs($total_requested_amount - $amount) > 0.01) {
+                //     Log::info( $total_requested_amount."|".$due_change."|".$amount);
+                //     return response()->json([
+                //         'status' => 'error',
+                //         'message' => 'The sum of allocated loan payments and change must equal the total transaction amount.',
+                //     ], 500);
+                // }
 
                 $first_savings = null;
                 foreach ($transactions_to_create as $index => $tx_data) {
