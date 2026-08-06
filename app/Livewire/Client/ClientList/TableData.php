@@ -11,6 +11,7 @@ use Livewire\WithPagination;
 //models
 use App\Models\BranchUser;
 use App\Models\Client;
+use App\Models\ClientColorCode;
 
 class TableData extends Component
 {
@@ -121,7 +122,17 @@ class TableData extends Component
 
     public function render()
     {
-        $query = Client::with('details','clientGroupTagging');
+
+        $colorCodes = ClientColorCode::where('status', 1)->get();
+        $query = Client::select(
+            'clients.id',
+            'clients.branch_id',
+            'clients.client_code',
+            'clients.status',
+            'clients.color_id',
+            'client_color_codes.color_code'
+        )->with('details','clientGroupTagging')
+            ->leftJoin('client_color_codes', 'client_color_codes.id', '=', 'clients.color_id');
 
         //q
         if($this->q) {
@@ -160,7 +171,8 @@ class TableData extends Component
         ]);
 
         return view('livewire.client.client-list.table-data', compact(
-            'clientData'
+            'clientData',
+            'colorCodes'
         ));
     }
 
@@ -168,4 +180,18 @@ class TableData extends Component
     {
         $this->resetPage();
     }
+
+    public function updateClientColorTag(int $id, string $colorId) {
+
+        $colorId = $colorId === '' ? null : (int) $colorId;
+
+        $client = Client::find($id);
+
+        $client->update([
+            'color_id' => $colorId,
+        ]);
+    }
+
+    #[On("refresh-client-list")]
+    public function refreshClientList(){}
 }

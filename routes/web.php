@@ -113,6 +113,9 @@ Route::middleware('auth')->group(function () {
             Route::get('{client}/ledger/special', 'ledgerSpecial')->name('client.ledger.special');
             Route::get('{client}/loan-history-details', 'loanHistoryDetails')->name('client.loan-history-details');
             Route::get('{client}/partial-ledger', 'partialLedger')->name('client.partial-ledger');
+            Route::get('{id}/get-co-makers', 'getCoMaker')->name('client.get_co_makers');
+            Route::post('color-code/create', 'createColorCoding')->name('client.create-color-coding');
+            Route::get('color-code/get-data/{id}', 'getColorCodingData')->name('client.get-color-coding-data');
         });
 
         Route::get('user/{user}/branch/{branch}/permission', [UserController::class, 'getBranchPermission'])->name('user.get-branch-permission');
@@ -274,6 +277,11 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('bank')->group(function(){
         Route::get('/', [BankController::class, 'index'])->name('bank.index');
+        Route::get('get-bank-data/{id}', [BankController::class, 'getBankData'])->name('bank.get-data');
+        Route::post('store', [BankController::class, 'store'])->name('bank.store');
+        Route::put('put', [BankController::class, 'put'])->name('bank.put');
+        Route::delete('delete/{id}', [BankController::class, 'delete'])->name('bank.delete');
+
     });
 
     include_once(__DIR__ . '/ajax.php');

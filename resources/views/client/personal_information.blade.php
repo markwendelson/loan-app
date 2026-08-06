@@ -187,7 +187,10 @@
                             <select class="form-select" name="client_details[nationality]" required>
                                 <option value="" selected hidden disabled>-- Select --</option>
                                     @foreach($nationalities as $nationality)
-                                        <option value="{{$nationality->id}}" {{ (string) old('client_details.nationality',$client->details->nationality ?? '') == (string) $nationality->id ? 'selected' : ''}}>{{$nationality->nationality}}</option>
+                                        <option value="{{ $nationality->id }}" 
+                                            {{ (string) old('client_details.nationality', $client->details->nationality ?? config('constants.default_country_id')) == (string) $nationality->id ? 'selected' : '' }}>
+                                            {{ $nationality->nationality }}
+                                        </option>
                                     @endforeach
                             </select>
                         </label>
@@ -380,16 +383,27 @@
             </div>
             <div class="card-body">
                 <div class="row client-payroll-accounts">
+                    <input type="hidden" value="" name="client_payroll_account[deleted_id]">
                     @isset($client)
                         @foreach($client->bankAccount as $account)
                             <div class="col-sm-12 col-md-4 col-lg-3 client-payroll-items">
-                                <div class="card">
+                                <div class="card" data-id="{{$account->id}}">
                                     <div class="card-body">
-                                        <button type="button" class="btn btn-danger btn-xs float-end"><i class="fa fa-times"></i></button>
+                                        @if(isset($editMode) && $editMode)
+                                        <button type="button" class="btn btn-danger btn-xs float-end btnRemovePayrollAccount"><i class="fa fa-times"></i></button>
+                                        @endif
 
                                         <h5><strong>{{$account->bank->name}}</strong></h5>
                                         <p class="mb-0">Account No: {{$account->account_no}}</p>
-                                        <p>Account Name: {{$account->account_name}}</p>
+                                        <p class="mb-0">Account Name: {{$account->account_name}}</p>
+
+                                        @if(isset($account->account_expiry) && $account->account_expiry)
+                                        <p class="mb-0">Account Expiry: {{ date('M d, Y', strtotime($account->account_expiry)) }}</p>
+                                        @endif
+
+                                        @if(isset($account->is_primary))
+                                        <p>Account: {{ $account->is_primary === 1 ? 'Primary' : 'Secondary' }}</p>
+                                        @endif
                                     </div>
                                     <div class= "card-footer">
                                         <p>{{$account->is_active === 1 ? 'Active' : 'Inactive'}}</p>

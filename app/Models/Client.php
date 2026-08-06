@@ -14,7 +14,13 @@ class Client extends Model implements Auditable
     use SoftDeletes;
     use \OwenIt\Auditing\Auditable;
 
-    protected $fillable = ['branch_id','client_code','status', 'created_by'];
+    protected $fillable = [
+        'branch_id',
+        'client_code',
+        'status',
+        'color_id',
+        'created_by'
+    ];
 
     protected static function boot()
     {

@@ -163,21 +163,30 @@ class ClientUpdateService
             return;
         }
 
-        ClientPayrollAccount::where('client_id', $this->client->id)->delete();
-
-        $payrollAccountData = [];
-        foreach ($payrollAccounts['bank_id'] as $key => $val) {
-            $payrollAccountData[] = [
-                'client_id' => $this->client->id,
-                'bank_id' => $payrollAccounts['bank_id'][$key],
-                'account_no' => $payrollAccounts['account_no'][$key],
-                'account_name' => $payrollAccounts['account_name'][$key],
-                'is_active' => $payrollAccounts['is_active'][$key],
-            ];
+        if(isset($payrollAccounts['deleted_id']) && $payrollAccounts['deleted_id']){
+            $ids = explode(',', $payrollAccounts['deleted_id']);
+            ClientPayrollAccount::where('client_id', $this->client->id)
+                ->whereIn('id', $ids)
+                ->delete();
         }
 
-        if ($payrollAccountData) {
-            ClientPayrollAccount::insert($payrollAccountData);
+        if(isset($payrollAccounts['bank_id']) && $payrollAccounts['bank_id']){
+            $payrollAccountData = [];
+            foreach ($payrollAccounts['bank_id'] as $key => $val) {
+                $payrollAccountData[] = [
+                    'client_id' => $this->client->id,
+                    'bank_id' => $payrollAccounts['bank_id'][$key],
+                    'account_no' => $payrollAccounts['account_no'][$key],
+                    'account_name' => $payrollAccounts['account_name'][$key],
+                    'account_expiry' => $payrollAccounts['account_expiry'][$key],
+                    'is_active' => $payrollAccounts['is_active'][$key],
+                    'is_primary' => $payrollAccounts['is_primary'][$key],
+                ];
+            }
+
+            if ($payrollAccountData) {
+                ClientPayrollAccount::insert($payrollAccountData);
+            }
         }
     }
 

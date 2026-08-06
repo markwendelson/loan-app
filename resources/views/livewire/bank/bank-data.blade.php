@@ -1,7 +1,7 @@
 <div>
     <div class="position-relative">
         
-        <table class="table table-bordered table-hover">
+        <table id="bankTable" class="table table-bordered table-hover">
             <thead>
                 <tr>
                     <th width="150" class="text-center">Bank Code</th>
@@ -13,12 +13,21 @@
             <tbody>
                 @if($banks && $banks->isNotEmpty())
                     @foreach($banks as $key => $val)
-                        <tr wire:key="{{ $val->bank_code }}">
+                        <tr wire:key="{{ $val->bank_code }}" data-id="{{ $val->id }}">
                             <td class="text-center">{{ $val->bank_code }}</td>
                             <td>{{ $val->name }}</td>
                             <td class="text-center"><span class="{{ config('constants.status_badge')[$val->status] }}">{{ config('constants.status_value')[$val->status] }}</span></td>
                             <td>
-                                <button type="button" class="btn btn-light btn-sm"><i class="fa fa-ellipsis-v"></i></button>
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item btnEdit" href="#"><i class="fa fa-pencil me-1"></i>Edit</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item txt-danger btnDelete" href="#"><i class="fa fa-trash me-1"></i>Delete</a></li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

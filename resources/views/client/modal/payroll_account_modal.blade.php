@@ -50,6 +50,17 @@
                         </label>
                     </div>
 
+                    <!-- account expiery -->
+                    <div class="col-12">
+                        <label class="w-100">
+                            Expiry Date <span class="txt-danger">*</span>
+                            <input type="date"
+                                class="form-control"
+                                name="account_expiry"
+                            >
+                        </label>
+                    </div>
+
                     <!-- status -->
                     <div class="col-12">
                         <label class="w-100">
@@ -61,6 +72,14 @@
                                 @endforeach
                             </select>
                         </label>
+                    </div>
+
+                    <!-- is primary -->
+                    <div class="col-12">
+                        <div class="form-check checkbox checkbox-primary mb-0">
+                            <input class="form-check-input" type="checkbox" value="1" id="checkIsPrimary" name="is_primary">
+                            <label class="form-check-label mb-1" for="checkIsPrimary"><small>Primary</small></label>
+                        </div>
                     </div>
                 </div>
             </div>

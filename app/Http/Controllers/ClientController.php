@@ -9,9 +9,11 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 //models
 use App\Models\Client;
+use App\Models\ClientColorCode;
 use App\Models\ClientDocument;
 use App\Models\ClientGroupType;
 use App\Models\DocumentType;
@@ -54,7 +56,17 @@ class ClientController extends Controller
         $nationalities = $this->nationalities;
         $banks = $this->banks;
 
-        return view('client.create', compact('branches', 'provinces', 'job_titles', 'nationalities', 'banks'));
+        //for edit mode
+        $editMode = 1;
+
+        return view('client.create', compact(
+            'branches',
+            'provinces',
+            'job_titles',
+            'nationalities',
+            'banks',
+            'editMode'
+        ));
     }
 
     /**
@@ -112,9 +124,19 @@ class ClientController extends Controller
         $job_titles = $this->job_titles;
         $nationalities = $this->nationalities;
         $banks = $this->banks;
-        // dd($client->details()->get());
+        
+        //edit mode
+        $editMode=1;
 
-        return view('client.edit', compact('client', 'branches', 'provinces', 'job_titles', 'nationalities', 'banks'));
+        return view('client.edit', compact(
+            'client',
+            'branches',
+            'provinces',
+            'job_titles',
+            'nationalities',
+            'banks',
+            'editMode'
+        ));
     }
 
     /**
@@ -667,5 +689,123 @@ class ClientController extends Controller
     {
         $balance = getClientBalance($client);
         return response()->json(['balance' => $balance]);
+    }
+
+    public function getCoMaker($id)
+    {
+        $response = [];
+
+        try {
+            $coMakerData = DB::table("client_co_makers")
+                ->select(
+                    'client_co_makers.id',
+                    'client_co_makers.client_id',
+                    'client_co_makers.co_maker_id',
+                    'client_co_makers.loan_id',
+                    'client_details.firstname',
+                    'client_details.lastname',
+                    'client_details.middlename',
+                    'client_details.present_address'
+                )
+                ->leftJoin('client_details', 'client_details.client_id', '=', 'client_co_makers.co_maker_id')
+                ->where('client_co_makers.client_id', $id)
+                ->get();
+            if($coMakerData) {
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Co-maker data retrieved successfully.',
+                    'data' => $coMakerData->toArray()
+                ];
+            }
+        } catch (\Exception $e) {
+            // handle exception here
+            $response = [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function createColorCoding(Request $request)
+    {
+        $response = [];
+
+        try {
+
+            $inputData = $request->all();
+            $condition = [
+                'color_name' => 'required|string|max:255|unique:client_color_codes,color_name,',
+            ];
+
+            if(isset($inputData['id']) && $inputData['id']) {
+                $condition = [
+                    'color_name' => 'required|string|max:255|unique:client_color_codes,color_name,' . $inputData['id'],
+                ];
+            }
+
+            $validator = Validator::make($request->all(), $condition);
+
+            if($validator->fails()){
+                $allErrors = implode(',', $validator->errors()->all());
+                $response = [
+                    'status' => 'error',
+                    'message' => 'Validation Failed!: ' . $allErrors,
+                ];
+
+                return response()->json($response);
+            }
+
+            DB::beginTransaction();
+
+            if(isset($inputData['id']) && $inputData['id']) {
+                $clientColorCode = ClientColorCode::find($inputData['id'])->update([
+                    'color_name' => $inputData['color_name'],
+                    'color_description' => $inputData['color_description'],
+                    'color_code' => $inputData['color_code']
+                ]);
+
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Client color coding updated successfully.'
+                ];
+            }else{
+                ClientColorCode::insert($inputData);
+
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Client color coding created successfully.'
+                ];
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            $response = [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function getColorCodingData(int $id)
+    {
+        $response = [];
+
+        $colorCodingData = ClientColorCode::find($id);
+
+        if(!empty($colorCodingData)) {
+            $response = [
+                'status' => 'success',
+                'message' => 'Data retrieved successfully.',
+                'data' => $colorCodingData->toArray()
+            ];
+        }
+
+        return response()->json($response);
     }
 }

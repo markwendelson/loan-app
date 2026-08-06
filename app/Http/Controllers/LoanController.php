@@ -802,7 +802,15 @@ class LoanController extends Controller
             $branchTitle = $branchName . ' Branch';
         }
 
-        return view('loan.receipt', compact('loan', 'branchTitle', 'net_proceeds'));
+        // return view('loan.receipt', compact('loan', 'branchTitle', 'net_proceeds'));
+        $pdf = Pdf::loadView('loan.receipt2', compact(
+            'loan',
+            'branchTitle',
+            'net_proceeds',
+        ))
+        ->setPaper([0, 0, 226.77, 600], 'portrait');
+
+        return $pdf->stream('receipt.pdf');
     }
 
     public function processReloan($data)

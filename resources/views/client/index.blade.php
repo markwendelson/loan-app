@@ -43,8 +43,9 @@
 
     <!-- button container -->
     <div class="card">
-        <div class="card-body">
-            <a href="{{route('client.registration')}}" class="btn btn-primary float-end"><i class="fa fa-plus"></i> New Client</a>
+        <div class="card-body d-flex justify-content-end gap-2 align-items-center flex-wrap">
+            <a href="#" class="btn btn-light btnColor"><i class="fa fa-paint-brush me-1"></i>Color Coding</a>
+            <a href="{{route('client.registration')}}" class="btn btn-primary"><i class="fa fa-plus"></i> New Client</a>
         </div>
     </div>
 
@@ -60,6 +61,9 @@
     <!-- job modal -->
     @include('insurance-fee-schedule.modal')
 
+    <!-- color coding modal -->
+    @include('client.modal.color_coding')
+
 @endsection
 
 @push('js')
@@ -67,6 +71,121 @@
 <script>
     $(document).ready(function () {
         const canDelete = {{ auth()->user()->can('delete-client') ? 1 : 0 }};
+
+        //handle show color coding modal
+        $(".btnColor").click(function(e) {
+            e.preventDefault();
+
+            $("#modalColor").modal("show");
+        })
+
+        //handle modal color cancel button
+        $("#modalColor .btnCancel").on("click", function(e) {
+            e.preventDefault();
+
+            $("#modalColor").modal("hide");
+        })
+
+        //handle color modal add color code button
+        $(document).on("click", "#modalColor .btnAddColorCode", function(e) {
+            e.preventDefault();
+
+            let formElement =  $("#modalColor").find("form")[0];
+            let formData = new FormData(formElement);
+
+            if (!$("#modalColor").find("#frmColor")[0].checkValidity()) {
+                swal({
+                    title: 'Error',
+                    text: 'Please fill all required fields',
+                    icon: 'warning',
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            value: true,
+                            visible: true,
+                            className: "btn btn-primary",
+                            closeModal: true
+                        }
+                    },
+                    dangerMode: true,
+                });
+            }else{
+                //show loading form
+                $(".loader-wrapper").fadeIn("slow");
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('client.create-color-coding')}}",
+                    data: formData,
+                    dataType: "json",
+                    processData: false,
+                    contentType: false, 
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        //hide loading form
+                        $(".loader-wrapper").fadeOut("slow", function () {
+                            $(this).hide();
+                        });
+
+                        if(typeof response !== 'undefeined' && response.status == 'success') {
+                            swal({
+                                title: 'Success',
+                                text: response.message,
+                                icon: 'success',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                },
+                            }).then((value) => {
+                                resetColorForm();
+                                Livewire.dispatch('refresh-color-code');
+                                Livewire.dispatch('refresh-client-list');
+                            });
+                        }
+                    }
+                });
+            }
+
+            
+        })
+
+        //handle modal color edit button
+        $(document).on("click", "#modalColor .btnEdit", function(e) {
+            e.preventDefault();
+
+            let colorCodeId = $(this).data("id");
+
+            //show loading form
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "GET",
+                url: `{{url('client/color-code/get-data')}}/${colorCodeId}`,
+                data: [],
+                dataType: "json",
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(typeof response !== 'undefined' && response.status == 'success') {
+                        $("#modalColor input[name='id']").val(response.data.id);
+                        $("#modalColor input[name='color_name']").val(response.data.color_name);
+                        $("#modalColor select[name='status']").val(response.data.status);
+                        $("#modalColor input[name='color_code']").val(response.data.color_code);
+                        $("#modalColor textarea[name='color_description']").val(response.data.color_description);
+                    }
+                }
+            });
+        })
     });
 
 
@@ -128,10 +247,12 @@
                     }
                 });
             }
-            else{
-                alert("haha");
-            }
         })
+    }
+
+    function resetColorForm()
+    {
+        $("#modalColor #frmColor")[0].reset();
     }
 
     </script>

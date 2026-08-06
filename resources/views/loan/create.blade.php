@@ -3,9 +3,22 @@
 @section('title')New Loan @endsection
 
 @push('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <style>
     ul > li > span {
         float: right;
+    }
+
+    .select2-selection__arrow {
+        display: none !important; /* Hide the dropdown arrow */
+    }
+    
+    .select2-container--default .select2-selection--single {
+        height: 38px !important;
+        line-height: 36px !important;  /* Slightly smaller line-height to compensate for borders */
+        padding-top: 5px !important;
+        border-color: #dee2e6 !important;
     }
 </style>
 @endpush
@@ -43,11 +56,10 @@
                 </div>
                 <div class="form-group">
                     <label for="borrower_id">Borrower</label>
-                    <select name="borrower_id" id="borrower_id" class="form-control form-control-sm">
-                        <option value="" disabled>-Select-</option>
-
+                    <select name="borrower_id" id="borrower_id" class="borrowerSelect">
+                        <option value="">-- Borrower --</option>
                         @foreach ($clients as $client)
-                            <option value="{{$client->id}}" data-bid="{{$previous_loan?->borrower_id}}" {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}>{{$client->details->fullname}}</option>
+                            <option value="{{$client->id}}" data-bid="{{$previous_loan?->borrower_id}}" {{$previous_loan?->borrower_id==$client->id ? 'selected' : ''}}>{{ Str::title($client->details->fullname)}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -252,12 +264,18 @@
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
 
     const urlParams = new URLSearchParams(window.location.search);
 
     $(document).ready(function () {
 
+        initializeSelect2();
+
+        var monthlyAmortizationDropdown = @json(config('constants.monthly_amort_dropdown'));
+        var principalAdvDropdown = @json(config('constants.principal_adv_dropdown'));
         var loan_type;
         var interest_rate;
 
@@ -316,7 +334,8 @@
             }
 
             calculateLoan();
-
+            toggleMonthlyAmortizationDropdown(Number($(this).val()));
+            togglePrincipalAdvDropdown(Number($(this).val()));
         })
 
         $("[name='term']").on("change", function() {
@@ -763,6 +782,73 @@
 
         }
 
-    })
+        //handle borrower select change function
+        $(document).on("change", "#borrower_id", function(e) {
+            e.preventDefault();
+
+            let borrowerId = $(this).val();
+
+            $("#client_comaker tbody").empty();
+
+            $.ajax({
+                type: "GET",
+                url: `{{ url('client/${borrowerId}/get-co-makers') }}`,
+                data: [],
+                dataType: "json",
+                success: function (response) {
+                    if(response !== 'undefined' && response.status == 'success') {
+                        if(response.data) {
+                            let trData = ``;
+                            response.data.forEach(val=> {
+                                trData +=  `
+                                    <tr data-id="${val.id}" data-client-id="${val.client_id}" data-loan-id="${val.loan_id}">
+                                        <td>${val.firstname ?? ''} ${val.middlename ?? ''} ${val.lastname ?? ''}</td>
+                                        <td>${val.present_address ?? ''}</td>
+                                        <td class="text-center" width="10">
+                                            <button type="button" 
+                                                class="btn btn-sm btn-danger  btn-remove" 
+                                                data-id="${val.id}"
+                                                data-client-id="${val.client_id}"
+                                                data-loan-id="${val.loan_id}"
+                                                style="width: 67.44px !important"
+                                            ><i class="fa fa-trash text-white"></i></button>
+                                        </td>
+                                    </tr>
+                                `;
+                            })
+
+                            $("#client_comaker tbody").append(trData);
+                        }
+                    }
+                }
+            });
+        })
+
+        toggleMonthlyAmortizationDropdown(Number($("#loan_product_id").val()));
+        togglePrincipalAdvDropdown(Number($("#loan_product_id").val()));
+
+        function toggleMonthlyAmortizationDropdown(id) {
+            if(monthlyAmortizationDropdown.includes(id)) {
+                $("#monthly_amortization").closest("li").removeClass("d-none").addClass("d-block");
+            }else{
+                $("#monthly_amortization").closest("li").removeClass("d-block").addClass("d-none");
+            }
+        }
+
+        function togglePrincipalAdvDropdown(id){
+            if(principalAdvDropdown.includes(id)) {
+                $("#principal_advance").closest("li").removeClass("d-none").addClass("d-block");
+            }else{
+                $("#principal_advance").closest("li").removeClass("d-block").addClass("d-none");
+            }
+        }
+
+        function initializeSelect2() {
+            $(".borrowerSelect").select2({
+                placeholder : '-- Borrower --',
+                // dropdownParent: '#modalMultipleEntries'
+            });
+        }
+    })    
 </script>
 @endpush
