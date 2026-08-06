@@ -88,12 +88,10 @@
     </head>
 
     <body>
-
         <table>
-
             <tr>
                 <td colspan="4" class="title">
-                    BORONGAN BRANCH
+                    {{strtoupper($branchTitle)}}
                 </td>
             </tr>
 
@@ -102,19 +100,19 @@
             <tr>
                 <td class="label">DATE</td>
                 <td class="colon">:</td>
-                <td colspan="2">August 05, 2026</td>
+                <td colspan="2">{{ $loan->disbursed_date ? \Carbon\Carbon::parse($loan->disbursed_date)->format('Y-m-d') : date('Y-m-d') }}</td>
             </tr>
 
             <tr>
                 <td class="label">NAME</td>
                 <td class="colon">:</td>
-                <td colspan="2">AL MAUSISA</td>
+                <td colspan="2">{{ strtoupper($loan->borrower->details->fullname) ?? 'N/A' }}</td>
             </tr>
 
             <tr>
                 <td class="label">CLIENT NO</td>
                 <td class="colon">:</td>
-                <td colspan="2">BOR-123456789</td>
+                <td colspan="2">{{$loan->borrower->client_code ?? ''}}</td>
             </tr>
 
             <tr>
@@ -126,13 +124,13 @@
             <tr>
                 <td class="label">LOAN NO.</td>
                 <td class="colon">:</td>
-                <td colspan="2">LN-00000125</td>
+                <td colspan="2">{{$loan->loan_no}}</td>
             </tr>
 
             <tr>
                 <td class="label">REFERENCE NO.</td>
                 <td class="colon">:</td>
-                <td colspan="2">BOR-000000001L</td>
+                <td colspan="2">{{$loan->reference_no ?? ''}}</td>
             </tr>
 
         </table>
@@ -151,7 +149,7 @@
                 <td class="label bold">PRINCIPAL LOAN</td>
                 <td class="colon">:</td>
                 <td></td>
-                <td class="amount">50,000.00</td>
+                <td class="amount">{{ number_format($loan->principal, 2) }}</td>
             </tr>
         </table>
 
@@ -163,50 +161,59 @@
             <tr>
                 <td style="width:40px !important;"></td>
                 <td colspan="2" class="indent">Advance Interest</td>
-                <td class="amount">5,000.00</td>
+                <td class="amount">{{ number_format($loan->loanCharges->advance_interest ?? 0, 2) }}</td>
             </tr>
 
             <tr>
                 <td></td>
                 <td colspan="2" class="indent">Service Fee</td>
-                <td class="amount">500.00</td>
+                <td class="amount">{{ number_format($loan->loanCharges->service_fee ?? 0, 2) }}</td>
             </tr>
 
             <tr>
                 <td></td>
                 <td colspan="2" class="indent">Insurance</td>
-                <td class="amount">300.00</td>
+                <td class="amount">{{ number_format($loan->loanCharges->insurance_fee ?? 0, 2) }}</td>
             </tr>
 
             <tr>
                 <td></td>
                 <td colspan="2" class="indent">Notary</td>
-                <td class="amount">200.00</td>
+                <td class="amount">{{ number_format($loan->loanCharges->notary_fee ?? 0, 2) }}</td>
             </tr>
 
+            @if(($loan->loanCharges->membership_fee ?? 0) > 0)
             <tr>
                 <td></td>
                 <td colspan="2" class="indent">Membership Fee</td>
-                <td class="amount">100.00</td>
+                <td class="amount">{{ number_format($loan->loanCharges->membership_fee_paid, 2) }}</td>
             </tr>
+            @endif
 
             <tr>
                 <td></td>
                 <td colspan="2" class="indent">Principal Advance</td>
-                <td class="amount">1,000.00</td>
+                <td class="amount">{{ number_format($loan->loanCharges->principal_advance, 2) }}</td>
             </tr>
 
             <tr>
                 <td></td>
                 <td colspan="2" class="indent">Redeem</td>
-                <td class="amount">500.00</td>
+                <td class="amount">{{ number_format($loan->loanCharges->redeem_charges, 2) }}</td>
             </tr>
 
+            @if($loan->is_reloan)
             <tr>
                 <td></td>
                 <td colspan="2" class="indent">Old Loan</td>
-                <td class="amount">2,500.00</td>
+                <td>{{ number_format($loan->loanCharges->reloan_deduction ?? 0, 2) }}</td>
             </tr>
+            <tr>
+                <td></td>
+                <td colspan="2" class="indent">Special Balance</td>
+                <td class="amount">{{ number_format($loan->loanCharges->special_loan_balance, 2) }}</td>
+            </tr>
+            @endif
 
             <tr class="line">
                 <td colspan="4"></td>
@@ -216,23 +223,23 @@
                 <td class="label" style="width: 100px !important">NET PROCEEDS</td>
                 <td>:</td>
                 <td></td>
-                <td class="amount">39,900.00</td>
+                <td class="amount">{{ number_format($net_proceeds, 2) }}</td>
             </tr>
         </table>
 
         <table class="section">
 
             <tr>
-                <td class="label" style="width: 170px !important">MODE OF DISBURSEMENT</td>
+                <td class="label" style="width: 170px !important;height:70px !important">MODE OF DISBURSEMENT</td>
                 <td class="colon">:</td>
-                <td align="right">CASH</td>
+                <td align="right">{{strtoupper($loan->mode_of_payment ?? '')}}</td>
             </tr>
 
         </table>
 
-        <table class="section">
+        {{-- <table class="section">
             <tr class="line">
-                <td class="label" style="width:130px !important" >DESCRIPTION</td>
+                <td class="label" style="width:130px !important;" >DESCRIPTION</td>
                 <td class="colon">:</td>
                 <td align="right">Sample Description</td>
             </tr>
@@ -246,7 +253,7 @@
                 <td></td>
                 <td></td>
             </tr>
-        </table>
+        </table> --}}
 
         <table width="100%" cellspacing="0" cellpadding="0">
             <tr>
