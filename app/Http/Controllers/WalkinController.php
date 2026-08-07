@@ -137,7 +137,14 @@ class WalkinController extends Controller
             ? 'Head Office'
             : $branchName . ' Branch';
 
-        return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
+        // return view('others.walkin.receipt', compact('walkin', 'branchTitle'));
+        $pdf = Pdf::loadView('others.walkin.receipt2', compact(
+            'walkin',
+            'branchTitle',
+        ))
+        ->setPaper([0, 0, 226.77, 600], 'portrait');
+
+        return $pdf->stream('receipt.pdf');
     }
 
     public function update(Request $request)

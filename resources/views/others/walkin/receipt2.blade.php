@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Walk-in Receipt</title>
+    <style>
+        @page {
+            margin: 6px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 2px;
+            vertical-align: middle;
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .heading {
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .border-top {
+            border-top: 1px dotted #000;
+        }
+
+        .border-bottom {
+            border-bottom: 1px dotted #000;
+        }
+
+        .signature {
+            border-top: 1px solid #000;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .footer {
+            font-size: 9px;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<table>
+
+    <!-- Branch -->
+    <tr>
+        <td colspan="3" class="title border-bottom">
+            BORONGAN BRANCH
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="3" style="height:10px;"></td>
+    </tr>
+
+    <!-- Details -->
+
+    <tr>
+        <td width="48%" class="bold">DATE</td>
+        <td width="4%" class="center bold">:</td>
+        <td width="48%">August 07, 2026</td>
+    </tr>
+
+    <tr>
+        <td class="bold">NAME</td>
+        <td class="center bold">:</td>
+        <td>JUAN DELA CRUZ</td>
+    </tr>
+
+    <tr>
+        <td class="bold border-bottom">REFERENCE NO</td>
+        <td class="center bold border-bottom">:</td>
+        <td class="border-bottom">BOR-000000001W</td>
+    </tr>
+
+    <tr>
+        <td colspan="3" style="height:12px;"></td>
+    </tr>
+
+    <!-- Transaction -->
+
+    <tr>
+        <td colspan="3" class="heading border-top border-bottom">
+            WALK-IN TRANSACTION
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="3" style="height:12px;"></td>
+    </tr>
+
+    <!-- Total -->
+
+    <tr>
+        <td class="bold">TOTAL WITHDRAWN</td>
+        <td class="center bold">:</td>
+        <td class="right">25,000.00</td>
+    </tr>
+
+    <tr>
+        <td colspan="3" style="height:8px;"></td>
+    </tr>
+
+    <!-- Less -->
+
+    <tr>
+        <td class="bold">LESS :</td>
+        <td class="center">SERVICE FEE</td>
+        <td class="right">100.00</td>
+    </tr>
+
+    <tr>
+        <td colspan="3" style="height:10px;"></td>
+    </tr>
+
+    <!-- Net -->
+
+    <tr>
+        <td class="bold border-top" colspan="2" style="font-size:12px;">
+            NET PROCEEDS
+        </td>
+
+        <td class="right border-top">
+            24,900.00
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="3" style="height:10px;"></td>
+    </tr>
+
+    <!-- Mode -->
+
+    <tr>
+        <td class="bold">Mode of Disbursement</td>
+        <td class="center bold">:</td>
+        <td>CASH</td>
+    </tr>
+
+    <tr>
+        <td colspan="3" style="height:75px;"></td>
+    </tr>
+
+    <!-- Signature -->
+
+    <tr>
+        <td></td>
+
+        <td colspan="2">
+
+            <table style="width:180px; margin:auto;">
+
+                <tr>
+
+                    <td class="signature">
+                        Signature
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+
+    <tr>
+
+        <td colspan="3" style="height:15px;"></td>
+
+    </tr>
+
+    <tr>
+
+        <td colspan="3" class="footer">
+            <strong>**Merchant's Copy**</strong>
+        </td>
+
+    </tr>
+
+</table>
+
+</body>
+
+</html>

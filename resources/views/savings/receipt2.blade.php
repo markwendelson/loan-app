@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Savings Receipt</title>
+
+        <link rel="icon" href="{{url('assets/images/favicon.png')}}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{url('assets/images/favicon.png')}}" type="image/x-icon">
         <style>
             @page {
                 margin: 5px;
@@ -107,64 +113,71 @@
             <tr>
                 {{-- <td class="bold">TOTAL WITHDRAWN</td> --}}
                 <td class="bold">TOTAL {{ strtoupper($savings->transaction_type) }}</td>
-                <td class="right">₱ 25,000.00</td>
+                <td class="right">{{ number_format($savings->amount, 2) }}</td>
             </tr>
 
             <!-- Less -->
-            <tr>
-                <td class="bold">LESS :</td>
-                <td></td>
-            </tr>
+            @if($savings->transaction_type == 'withdraw')
+                <tr>
+                    <td class="bold">LESS :</td>
+                    <td></td>
+                </tr>   
 
-            <tr>
-                <td>&nbsp;&nbsp;&nbsp;MEMBERSHIP FEE</td>
-                <td class="right">₱ 500.00</td>
-            </tr>
+                <tr>
+                    <td>&nbsp;&nbsp;&nbsp;MEMBERSHIP FEE</td>
+                    <td class="right">{{ number_format($savings->membership_fee, 2) }}</td>
+                </tr>
 
-            <tr>
-                <td>&nbsp;&nbsp;&nbsp;INSURANCE</td>
-                <td class="right">₱ 300.00</td>
-            </tr>
+                <tr>
+                    <td>&nbsp;&nbsp;&nbsp;INSURANCE</td>
+                    <td class="right">{{ number_format($savings->insurance, 2) }}</td>
+                </tr>
 
-            <tr>
-                <td>&nbsp;&nbsp;&nbsp;INTEREST</td>
-                <td class="right">₱ 1,500.00</td>
-            </tr>
+                <tr>
+                    <td>&nbsp;&nbsp;&nbsp;INTEREST</td>
+                    <td class="right">{{ number_format($savings->interest, 2) }}</td>
+                </tr>
 
-            <tr>
-                <td>&nbsp;&nbsp;&nbsp;PRINCIPAL</td>
-                <td class="right">₱ 5,000.00</td>
-            </tr>
+                <tr>
+                    <td>&nbsp;&nbsp;&nbsp;PRINCIPAL</td>
+                    <td class="right">{{ number_format($savings->principal, 2) }}</td>
+                </tr>
 
-            <tr>
-                <td>&nbsp;&nbsp;&nbsp;OTHER LOAN</td>
-                <td class="right">₱ 1,000.00</td>
-            </tr>
+                {{-- <tr>
+                    <td>&nbsp;&nbsp;&nbsp;OTHER LOAN</td>
+                    <td class="right">₱ 1,000.00</td>
+                </tr> --}}
 
-            <tr>
-                <td class="bold border-top">CHANGE :</td>
-                <td class="right bold border-top">₱ 16,700.00</td>
-            </tr>
+                <tr>
+                    <td class="bold border-top">CHANGE :</td>
+                    <td class="right bold border-top">{{ number_format($savings->due_change, 2) }}</td>
+                </tr>
 
-            <!-- Mode -->
-            <tr>
-                <td class="bold">Mode of Disbursement</td>
-                <td>: CASH</td>
-            </tr>
+
+                <!-- Mode -->
+                @if(isset($savings->mode_of_payment) && $savings->mode_of_payment)
+                <tr>
+                    <td class="bold">Mode of Disbursement</td>
+                    <td>: {{ strtoupper(config('settings.mode_of_payment.'.$savings->mode_of_payment, $savings->mode_of_payment)) }}</td>
+                </tr>
+                @endif
+            @endif
 
             <tr class="space">
                 <td colspan="2">&nbsp;</td>
             </tr>
 
             <!-- Description -->
+            @if(isset($savings->description) && $savings->description)
             <tr>
                 <td class="bold">Description</td>
-                <td>: Loan Release</td>
+                <td>: {{ $savings->description }}</td>
             </tr>
+            @endif
 
             <tr>
                 <td class="bold">Principal Balance</td>
-                <td>: ₱ 45,000.00</td>
+                <td>: {{ number_format($savings->principal_balance, 2) }}</td>
             </tr>
 
             <tr>
@@ -190,7 +203,7 @@
 
             <tr>
                 <td colspan="2" class="center small">
-                    **Thanks You**
+                    **Thank You**
                 </td>
             </tr>
 

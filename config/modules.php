@@ -135,6 +135,10 @@ return [
             ['name' => 'create-client-group','label' => 'Create Client Group'],
             ['name' => 'update-client-group','label' => 'Update Client Group'],
             ['name' => 'delete-client-group','label' => 'Delete Client Group'],
+            ['name' => 'view-color-coding', 'label' => 'View Color Coding'],
+            ['name' => 'create-color-coding', 'label' => 'Create Color Coding'],
+            ['name' => 'edit-color-coding', 'label' => 'Edit Color Coding'],
+            ['name' => 'delete-color-coding', 'label' => 'Delete Color Coding'],
         ]
     ],
     'Reports' => [
