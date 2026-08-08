@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\CheckEncashment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 //reference no service
 use App\Services\ReferenceNumberService;  
@@ -154,7 +155,15 @@ class CheckEncashmentController extends Controller
         } else {
             $branchTitle = $branchName . ' Branch';
         }
-        return view('others.check-encashments.receipt', compact('check', 'branchTitle'));
+
+        // return view('others.check-encashments.receipt', compact('check', 'branchTitle'));
+        $pdf = Pdf::loadView('others.check-encashments.receipt2', compact(
+            'check',
+            'branchTitle',
+        ))
+        ->setPaper([0, 0, 226.77, 600], 'portrait');
+
+        return $pdf->stream('receipt.pdf');
     }
 
     public function update(Request $request)

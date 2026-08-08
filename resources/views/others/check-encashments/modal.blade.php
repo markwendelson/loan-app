@@ -15,6 +15,9 @@
                         <input type="hidden" id="checkId" name="id">
                         <input type="hidden" id="oldPicture" name="oldPicture">
 
+                        <!-- branch_id -->
+                        <input type="hidden" name="branch_id" value="{{ auth()->user()->current_branch_id }}">
+
                         <!-- Date -->
                         <div class="col-lg-4">
                             <label class="w-100">

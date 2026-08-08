@@ -50,7 +50,7 @@
         </div>
 
         <!-- Less: Service Fee -->
-         <div class="spaced">
+        <div class="spaced">
             <div class="bold">Less:</div>
             <div class="label" style="margin-left:10px;">
                 <span>Service Fee:</span>
