@@ -81,7 +81,7 @@ class CheckEncashmentController extends Controller
 
             //remove number formatting for values
             $request->merge([
-                'reference_no' => $referenceNumber . '-CHK',
+                'reference_no' => $referenceNumber . 'C',
                 'checkAmount' => str_replace(',', '', $request->checkAmount),
                 'charge' => str_replace(',', '', $request->charge),
                 'net_proceeds' => str_replace(',', '', $request->net_proceeds),
