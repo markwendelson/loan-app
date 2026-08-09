@@ -17,7 +17,7 @@
                 <tbody>
                     @if(isset($clientData) && $clientData)
                         @foreach($clientData as $key => $val)
-                            <tr {!!  auth()->user()->can('view-color-code') && $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
+                            <tr {!!  auth()->user()->can('view-color-coding') && $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
                                 <td>
                                     @php
                                         $photo = $val->details?->photo;
