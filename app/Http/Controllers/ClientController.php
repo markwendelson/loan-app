@@ -39,7 +39,7 @@ class ClientController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {   
+    {
         if(!auth()->user()->can('view-client')) {
             abort(403, 'Unauthorized action.');
         }

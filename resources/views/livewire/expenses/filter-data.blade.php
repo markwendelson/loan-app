@@ -17,9 +17,7 @@
                     <option value="">-- All Branch --</option>
                     @if(isset($branches) && $branches)
                         @foreach($branches as $key => $val)
-                            @if(in_array($val->id, $allowedBranches))
                             <option value="{{ $val->id }}">{{ Str::title($val->name) }}</option>
-                            @endif
                         @endforeach
                     @endif
                 </select>
