@@ -8,6 +8,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientGroupsController;
 use App\Http\Controllers\ClientIDsController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DatabaseController;
 // use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ExpenseController;
@@ -282,6 +283,12 @@ Route::middleware('auth')->group(function () {
         Route::put('put', [BankController::class, 'put'])->name('bank.put');
         Route::delete('delete/{id}', [BankController::class, 'delete'])->name('bank.delete');
 
+    });
+
+    Route::prefix('database')->group(function() {
+        Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
+        Route::get('create', [DatabaseController::class, 'create'])->name('database.create');
+        Route::get('download/{filename}', [DatabaseController::class, 'download'])->name('databse.download');
     });
 
     include_once(__DIR__ . '/ajax.php');

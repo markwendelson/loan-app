@@ -26,24 +26,15 @@
 
     <div class="card">
         <div class="card-body d-flex justify-content-end align-items-center">
+            @can('create-database-backup')
             <button type="button" class="btn btn-primary btnGenerateBackup"><i class="fa fa-plus me-1"></i>Generate Backup</button>
+            @endcan
         </div>
     </div>
 
     <div class="card">
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>File Name</th>
-                            <th>Created By</th>
-                            <th>Date Created</th>
-                            <th width="50"></th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+            <livewire:Database.DatabaseData defer />
         </div>
     </div>
 @endsection
@@ -80,8 +71,11 @@
                                     className: "btn btn-primary",
                                     closeModal: true
                                 }
-                            },
-                            dangerMode: true,
+                            }
+                        }).then(function(value) {
+                            if (value) {
+                                Livewire.dispatch('refresh-database-data');
+                            }
                         });
                     }
                 }

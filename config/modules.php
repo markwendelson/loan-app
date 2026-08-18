@@ -139,6 +139,10 @@ return [
             ['name' => 'create-color-coding', 'label' => 'Create Color Coding'],
             ['name' => 'edit-color-coding', 'label' => 'Edit Color Coding'],
             ['name' => 'delete-color-coding', 'label' => 'Delete Color Coding'],
+            ['name' => 'view-database-backups', 'label' => 'View Database Backups'],
+            ['name' => 'create-database-backup', 'label' => 'Create Database Backup'],
+            ['name' => 'download-database-backup', 'label' => 'Download Database Backup'],
+            // ['name' => 'delete-database-backup', 'label' => 'Delete Database Backup'],
         ]
     ],
     'Reports' => [

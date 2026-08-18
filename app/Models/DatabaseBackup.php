@@ -9,6 +9,7 @@ class DatabaseBackup extends Model
     protected $table = 'database_backup';
     protected $fillable = [
         'file_name',
+        'file_path',
         'created_by'
     ];
 }

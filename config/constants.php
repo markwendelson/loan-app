@@ -211,7 +211,6 @@ return [
         5 => '<span class="badge badge-dark w-100">Closed</span>',
     ],
     'monthly_amort_dropdown' => [1, 4], //specific for this loan products only
-<<<<<<< HEAD
     'principal_adv_dropdown' => [1,2,4,6], //specific for this loan products only
     'quarter_value' => [
         'q1' => '1st Quarter',
@@ -237,7 +236,4 @@ return [
             'to'   => 'December 31',
         ],
     ],
-=======
-    'principal_adv_dropdown' => [1,2,4,6] //specific for this loan products only
->>>>>>> b17a79587ed752373c3cbdcef644e8e4b62207ab
 ];

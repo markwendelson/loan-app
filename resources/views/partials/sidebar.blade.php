@@ -1,8 +1,8 @@
 <li class="sidebar-main-title">
     <div>
-      <h6>General</h6>
+        <h6>General</h6>
     </div>
-  </li>
+</li>
 @can('view-dashboard')
 <li class="sidebar-list">
     <i class="fa fa-thumb-tack"></i>
@@ -237,3 +237,12 @@
         {{-- <li><a href="#">Repayment Methods</a></li> --}}
     </ul>
 </li>
+@can('view-database-backups')
+<li class="sidebar-list">
+    <i class="fa fa-thumb-tack"></i>
+    <a class="sidebar-link sidebar-title link-nav" href="{{route('database.index')}}">
+        <i class="fa fa-database txt-light"></i>
+        <span>Database Backup</span>
+    </a>
+</li>
+@endcan
