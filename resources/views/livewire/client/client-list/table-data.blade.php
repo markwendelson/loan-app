@@ -7,9 +7,13 @@
                         <th width="50"></th>
                         <th>Client</th>
                         <th>Address</th>
+<<<<<<< HEAD
                         @can('edit-color-coding')
                         <th></th>
                         @endcan
+=======
+                        <th></th>
+>>>>>>> b17a79587ed752373c3cbdcef644e8e4b62207ab
                         <th class="text-center" width="80">Status</th>
                         <th width="50" class="text-center"><i class="fa fa-cog"></i></th>
                     </tr>
@@ -17,7 +21,11 @@
                 <tbody>
                     @if(isset($clientData) && $clientData)
                         @foreach($clientData as $key => $val)
+<<<<<<< HEAD
                             <tr {!!  auth()->user()->can('view-color-coding') && $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
+=======
+                            <tr {!! $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
+>>>>>>> b17a79587ed752373c3cbdcef644e8e4b62207ab
                                 <td>
                                     @php
                                         $photo = $val->details?->photo;
@@ -44,7 +52,10 @@
                                     </div>
                                 </td>
                                 <td class="align-center">{{ $val->details->present_full_address ?? '' }}</td>
+<<<<<<< HEAD
                                 @can('edit-color-coding')
+=======
+>>>>>>> b17a79587ed752373c3cbdcef644e8e4b62207ab
                                 <td>
                                     <select class="form-select" wire:change="updateClientColorTag({{$val->id}}, $event.target.value)">
                                         <option value="">-- Select --</option>
@@ -55,7 +66,10 @@
                                         @endif
                                     </select>
                                 </td>
+<<<<<<< HEAD
                                 @endcan
+=======
+>>>>>>> b17a79587ed752373c3cbdcef644e8e4b62207ab
                                 <td class="text-center align-center">
                                     @if($val->status == 1)
                                         <span class="badge badge-success w-100">Active</span>
