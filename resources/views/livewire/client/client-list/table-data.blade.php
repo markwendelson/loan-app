@@ -10,6 +10,7 @@
                         @can('edit-color-coding')
                         <th></th>
                         @endcan
+                        <th class="text-center">Payroll/ATM</th>
                         <th class="text-center" width="80">Status</th>
                         <th width="50" class="text-center"><i class="fa fa-cog"></i></th>
                     </tr>
@@ -17,7 +18,7 @@
                 <tbody>
                     @if(isset($clientData) && $clientData)
                         @foreach($clientData as $key => $val)
-                            <tr {!!  auth()->user()->can('view-color-coding') && $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
+                            <tr data-id="{{$val->id}}" {!!  auth()->user()->can('view-color-coding') && $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
                                 <td>
                                     @php
                                         $photo = $val->details?->photo;
@@ -56,6 +57,10 @@
                                     </select>
                                 </td>
                                 @endcan
+                                <!-- payroll / atm -->
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-light btn-xs btnPayrollAtm"><i class="fa fa-credit-card me-1"></i> {{count($val->bankAccount) ?? 0}}</button>
+                                </td>
                                 <td class="text-center align-center">
                                     @if($val->status == 1)
                                         <span class="badge badge-success w-100">Active</span>

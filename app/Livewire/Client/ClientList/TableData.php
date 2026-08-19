@@ -71,6 +71,18 @@ class TableData extends Component
                                 <span class="placeholder col-12"></span>
                             </p>
                         </th>
+                        <th>
+                            <p class="placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                            </p>
+                        </th>
+                        @can('edit-color-coding')
+                        <th width="150">
+                            <p class="placeholder-glow">
+                                <span class="placeholder col-12"></span>
+                            </p>
+                        </th>
+                        @endcan
                         <th class="text-center" width="120">
                             <p class="placeholder-glow">
                                 <span class="placeholder col-12"></span>
@@ -96,6 +108,18 @@ class TableData extends Component
                                     <span class="placeholder col-12"></span>
                                 </p>
                             </td>
+                            <td>
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                            @can('edit-color-coding')
+                            <td>
+                                <p class="placeholder-glow">
+                                    <span class="placeholder col-12"></span>
+                                </p>
+                            </td>
+                            @endcan
                             <td>
                                 <p class="placeholder-glow">
                                     <span class="placeholder col-12"></span>
@@ -131,7 +155,7 @@ class TableData extends Component
             'clients.status',
             'clients.color_id',
             'client_color_codes.color_code'
-        )->with('details','clientGroupTagging')
+        )->with('details','clientGroupTagging', 'bankAccount')
             ->leftJoin('client_color_codes', 'client_color_codes.id', '=', 'clients.color_id');
 
         //q

@@ -66,6 +66,8 @@
     <!-- color coding modal -->
     @include('client.modal.color_coding')
 
+    <!-- payroll / atm modal -->
+    @include('client.modal.payroll_atm')
 @endsection
 
 @push('js')
@@ -187,6 +189,13 @@
                     }
                 }
             });
+        })
+
+        //handle payroll atm button click function
+        $(document).on("click", ".btnPayrollAtm", function(e) {
+            e.preventDefault();
+
+            $("#modalPayrollATM").modal("show");
         })
     });
 
