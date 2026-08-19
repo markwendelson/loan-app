@@ -17,6 +17,7 @@
 
             table {
                 width: 100%;
+                table-layout: fixed;
                 border-collapse: collapse;
             }
 
@@ -74,7 +75,6 @@
 
     <body>
         <table>
-
             <!-- Branch -->
             <tr>
                 <td colspan="3" class="title border-bottom">
@@ -85,28 +85,35 @@
             <tr>
                 <td colspan="3" style="height:10px;"></td>
             </tr>
+        </table>
 
+        <table>
             <!-- Details -->
             <tr>
-                <td width="48%" class="bold">DATE</td>
-                <td width="4%" class="center bold">:</td>
-                <td width="48%">{{ $walkin->date->format('Y-m-d') }}</td>
+                <td class="bold">DATE</td>
+                <td width="10" class="center bold">:</td>
+                <td >{{ $walkin->date->format('Y-m-d') }}</td>
             </tr>
 
             <tr>
                 <td class="bold">NAME</td>
-                <td class="center bold">:</td>
+                <td width="10" class="center bold">:</td>
                 <td>{{ strtoupper($walkin->last_name) }}, {{ strtoupper($walkin->first_name) }} {{ strtoupper($walkin->middle_initial) }}</td>
             </tr>
 
             <tr>
                 <td class="bold border-bottom">REFERENCE NO</td>
-                <td class="center bold border-bottom">:</td>
+                <td width="50" class="center bold border-bottom">:</td>
                 <td class="border-bottom">{{$walkin->reference_no}}</td>
             </tr>
+        </table>
 
+        <table>
             <tr>
-                <td colspan="3" style="height:12px;"></td>
+                
+                <td style="height:12px;"></td>
+                <td></td>
+                <td></td>
             </tr>
 
             <!-- Transaction -->
@@ -137,11 +144,14 @@
                 <td class="center">SERVICE FEE</td>
                 <td class="right">{{ number_format($walkin->charge, 2) }}</td>
             </tr>
-
+        </table>
+        <table>
             <tr>
                 <td colspan="3" style="height:10px;"></td>
             </tr>
+        </table>
 
+        <table>
             <!-- Net -->
             <tr>
                 <td class="bold border-top" colspan="2" style="font-size:12px;">
@@ -152,39 +162,47 @@
                     {{ number_format($walkin->net_proceeds, 2) }}
                 </td>
             </tr>
+        </table>
 
+        <table>
             <tr>
                 <td colspan="3" style="height:10px;"></td>
             </tr>
+        </table>
 
+        <table>
             <!-- Mode -->
             <tr>
                 <td class="bold">Mode of Disbursement</td>
                 <td class="center bold">:</td>
                 <td>CASH</td>
             </tr>
+        </table>
 
+        <table>
             <tr>
                 <td colspan="3" style="height:75px;"></td>
             </tr>
+        </table>
 
+        <table>
             <!-- Signature -->
             <tr>
                 <td></td>
                 <td align="center" class="signature" style="width:150px !important">Signature</td>
                 <td></td>
             </tr>
+        </table>
 
+        <table>
             <tr>
                 <td colspan="3" style="height:15px;"></td>
             </tr>
-
             <tr>
                 <td colspan="3" class="footer">
                     <strong>**Merchant's Copy**</strong>
                 </td>
             </tr>
-
         </table>
     </body>
 </html>
