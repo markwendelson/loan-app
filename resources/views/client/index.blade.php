@@ -195,7 +195,36 @@
         $(document).on("click", ".btnPayrollAtm", function(e) {
             e.preventDefault();
 
-            $("#modalPayrollATM").modal("show");
+            let clientId = $(this).closest("tr").data("id");
+
+            //show loading form
+            $(".loader-wrapper").fadeIn("slow");
+
+            $.ajax({
+                type: "GET",
+                url: `{{ url('client/payroll-accounts') }}/${clientId}`,
+                data: {},
+                dataType: "json",
+                success: function (response) {
+                    //hide loading form
+                    $(".loader-wrapper").fadeOut("slow", function () {
+                        $(this).hide();
+                    });
+
+                    if(typeof response !== 'undefined' && response.status == 'success') {
+
+                        populatePayrollAccountModal(response.data);
+                        $("#modalPayrollATM").modal("show");
+                    }
+                }
+            });
+        })
+
+        //handle payroll modal cancel button 
+        $("#modalPayrollATM .btnCancel").click(function(e) {
+            e.preventDefault();
+
+            $("#modalPayrollATM").modal("hide");
         })
     });
 
@@ -261,9 +290,35 @@
         })
     }
 
-    function resetColorForm()
-    {
+    function resetColorForm(){
         $("#modalColor #frmColor")[0].reset();
+    }
+
+    function populatePayrollAccountModal(data) {
+        let el = '';
+        data.forEach(function(val, index) {
+            let border = '';
+
+            if (val.payroll_account_borrowings !== null) {
+                border = `border border-warning`;
+
+                el += `
+                    <div class="card">
+                        <div class="card-body ${border}">
+                            ${val.account_name}
+                            <div>
+                                <button type="button" class="btn btn-light float-end"><i class="fa fa-reply me-1"></i>Mark as Returned</button>
+                            </div>
+                        </div>
+                    </div>
+
+                `;
+            }else{
+
+            }
+        });
+
+        $("#modalPayrollATM .modal-body").html(el);
     }
 
     </script>

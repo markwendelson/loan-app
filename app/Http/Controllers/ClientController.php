@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\ClientColorCode;
 use App\Models\ClientDocument;
 use App\Models\ClientGroupType;
+use App\Models\ClientPayrollAccount;
 use App\Models\DocumentType;
 use App\Models\Loan;
 
@@ -803,6 +804,30 @@ class ClientController extends Controller
                 'status' => 'success',
                 'message' => 'Data retrieved successfully.',
                 'data' => $colorCodingData->toArray()
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    public function getPayrollAccounts($id)
+    {
+        $response = [];
+
+        try {
+            $payrollAccounts = ClientPayrollAccount::with('payrollAccountBorrowings')
+                ->where('client_id', $id)->get()->toArray();
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Payroll accounts retrieved successfully.',
+                'data' => $payrollAccounts
+            ];
+        } catch (\Exception $e) {
+            // Handle exception here
+            $response = [
+                'status' => 'error',
+                'message' => 'An error occurred while retrieving payroll accounts.'
             ];
         }
 

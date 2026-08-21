@@ -117,6 +117,7 @@ Route::middleware('auth')->group(function () {
             Route::get('{id}/get-co-makers', 'getCoMaker')->name('client.get_co_makers');
             Route::post('color-code/create', 'createColorCoding')->name('client.create-color-coding');
             Route::get('color-code/get-data/{id}', 'getColorCodingData')->name('client.get-color-coding-data');
+            Route::get('payroll-accounts/{id}', 'getPayrollAccounts')->name('client.get-payroll-account');
         });
 
         Route::get('user/{user}/branch/{branch}/permission', [UserController::class, 'getBranchPermission'])->name('user.get-branch-permission');
