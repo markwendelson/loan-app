@@ -816,7 +816,13 @@ class ClientController extends Controller
 
         try {
             $payrollAccounts = ClientPayrollAccount::with('payrollAccountBorrowings')
-                ->where('client_id', $id)->get()->toArray();
+                ->select(
+                    'client_payroll_account.*',
+                    'bank.name AS bank_name'
+                )
+                ->leftJoin('bank', 'bank.id', '=', 'client_payroll_account.bank_id')
+                ->where('client_id', $id)
+                ->get()->toArray();
 
             $response = [
                 'status' => 'success',
