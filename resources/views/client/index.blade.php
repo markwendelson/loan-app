@@ -310,97 +310,115 @@
 
     function populatePayrollAccountModal(data) {
         let el = '';
-        data.forEach(function(val, index) {
-            let border = '';
 
-            if (val.payroll_account_borrowings !== null) {
-                border = `border border-warning`;
-                let primary = val.is_primary ? '<span class="badge badge-info">Primary</span>' : '';
-                let isChecked = val.payroll_account_borrowings !== null ? 'checked' : '';
-                el += `
-                    <div class="card">
-                        <div class="card-body ${border}">
-                            <div class="d-flex justify-content-start align-items-center gap-2">
-                                <span class="fw-semibold">${val.bank_name}</span>
-                                <span class="badge badge-light text-dark">ATM Card</span>
-                                ${primary}
-                            </div>
-                            <div class="d-flex justify-content-start align-items-center gap-2">
-                                <span>${val.account_no}</span>
-                                <span>- ${val.account_name}</span>
-                            </div>
-                            <div class="card">
-                                <div class="card-body bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="fw-semibold txt-dark">Borrowed by another branch</span>
-                                            <p class="txt-dark">New loans are blocked while primary account is borrowed.</p>
-                                        </div>
-                                        <div>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input swtchBorrowed" type="checkbox" role="switch" ${isChecked} value="1">
-                                            </div>  
-                                        </div>
-                                    </div>
-                                    <div class="inputForm">
-                                        <form>
-                                            <div class="row">
-                                                <div class="col-lg-6">
-                                                    <label class="w-100 txt-dark">
-                                                        Borrowing Branch
-                                                        <select class="form-select">
-                                                        </select>
-                                                    </label>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <label class="w-100 txt-dark">
-                                                        Borrowed By
-                                                        <select class="form-select"></select>
-                                                    </label>
-                                                </div>
-                                                
-                                                <div class="col-lg-6">
-                                                    <label class="w-100 txt-dark">
-                                                        Borrowed At
-                                                        <input type="date"
-                                                            class="form-control"
-                                                        >
-                                                    </label>
-                                                </div>
+        //get users list
+        let users = '';
+        data.users.forEach(function(val, index) {
+            users += `<option value="${val.id}">${val.name}</option>`;
+        })
 
-                                                <div class="col-lg-6">
-                                                    <label class="w-100 txt-dark">
-                                                        Expected Return At
-                                                        <input type="date"
-                                                            class="form-control"
-                                                        >
-                                                    </label>
-                                                </div>
+        //get branches
+        let branches = '';
+        data.branches.forEach(function(val, index) {
+            branches += `
+                <option value="${val.id}">${val.name}</option>
+            `;
+        })
 
-                                                <div class="col-12">
-                                                    <label class="w-100 txt-dark">
-                                                        Borrower Remarks
-                                                        <textarea class="form-control"></textarea>
-                                                    </label>
-                                                </div>
-                                            </div>  
-                                        </form>
+        data.payroll_accounts.forEach(function(val, index) {            
+            let border = val.payroll_account_borrowings !== null ? `border border-warning` : '';
 
-                                        <div>
-                                            <button type="button" class="btn btn-light float-end"><i class="fa fa-reply me-1"></i>Mark as Returned</button>
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                            
+            let primary = val.is_primary ? '<span class="badge badge-info">Primary</span>' : '';
+            let isChecked = val.payroll_account_borrowings !== null ? 'checked' : '';
+
+            el += `
+                <div class="card">
+                    <div class="card-body ${border}">
+                        <div class="d-flex justify-content-start align-items-center gap-2">
+                            <span class="fw-semibold">${val.bank_name}</span>
+                            <span class="badge badge-light text-dark">ATM Card</span>
+                            ${primary}
                         </div>
+                        <div class="d-flex justify-content-start align-items-center gap-2">
+                            <span>${val.account_no}</span>
+                            <span>- ${val.account_name}</span>
+                        </div>
+                        <div class="card">
+                            <div class="card-body bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="fw-semibold txt-dark">Borrowed by another branch</span>
+                                        <p class="txt-dark">New loans are blocked while primary account is borrowed.</p>
+                                    </div>
+                                    <div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input swtchBorrowed" type="checkbox" role="switch" ${isChecked} value="1">
+                                        </div>  
+                                    </div>
+                                </div>
+                                <div class="inputForm ${isChecked ? '' : 'd-none'}">
+                                    <form>
+                                        <input type="hidden" name="payroll_account_id" value="${val.id}">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <label class="w-100 txt-dark">
+                                                    Borrowing Branch
+                                                    <select class="form-select" name="borrowing_branch_id">
+                                                        <option value="" selected hidden disabled></option>
+                                                        ${branches}
+                                                    </select>
+                                                </label>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <label class="w-100 txt-dark">
+                                                    Borrowed By
+                                                    <select class="form-select" name="borrowed_by">
+                                                        <option value="" selected hidden disabled></option>
+                                                        ${users}
+                                                    </select>
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="col-lg-6">
+                                                <label class="w-100 txt-dark">
+                                                    Borrowed At
+                                                    <input type="date"
+                                                        class="form-control"
+                                                        name="borrowed_at"
+                                                    >
+                                                </label>
+                                            </div>
+
+                                            <div class="col-lg-6">
+                                                <label class="w-100 txt-dark">
+                                                    Expected Return At
+                                                    <input type="date"
+                                                        class="form-control"
+                                                        name="expected_return_at"
+                                                    >
+                                                </label>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label class="w-100 txt-dark">
+                                                    Borrower Remarks
+                                                    <textarea class="form-control" name="borrow_remarks"></textarea>
+                                                </label>
+                                            </div>
+                                        </div>  
+                                    </form>
+
+                                    <div>
+                                        <button type="button" class="btn btn-light float-end"><i class="fa fa-reply me-1"></i>Mark as Returned</button>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
                     </div>
-
-                `;
-            }else{
-
-            }
+                </div>
+            `;
         });
 
         $("#modalPayrollATM .modal-body").html(el);

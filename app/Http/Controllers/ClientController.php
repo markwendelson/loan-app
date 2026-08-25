@@ -19,6 +19,7 @@ use App\Models\ClientGroupType;
 use App\Models\ClientPayrollAccount;
 use App\Models\DocumentType;
 use App\Models\Loan;
+use App\Models\User;
 
 class ClientController extends Controller
 {
@@ -815,6 +816,9 @@ class ClientController extends Controller
         $response = [];
 
         try {
+            $users = User::where('status', 1)
+                ->where('id', '!=', auth()->user()->id)->get()->toArray();
+
             $payrollAccounts = ClientPayrollAccount::with('payrollAccountBorrowings')
                 ->select(
                     'client_payroll_account.*',
@@ -827,7 +831,11 @@ class ClientController extends Controller
             $response = [
                 'status' => 'success',
                 'message' => 'Payroll accounts retrieved successfully.',
-                'data' => $payrollAccounts
+                'data' => [
+                    'payroll_accounts' => $payrollAccounts,
+                    'branches' => $this->branches,
+                    'users' => $users
+                ]
             ];
         } catch (\Exception $e) {
             // Handle exception here
