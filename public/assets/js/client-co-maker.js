@@ -10,25 +10,39 @@ $(function () {
         serverSide: true,
         searching: true,
         deferLoading: 0, // Prevent initial load
-        ajax: {
-            url: '/ajax/clients',
-            data: function (d) {
-                // Only load if there's a search value
-                var searchValue = $('#comaker_search').val();
-                if (!searchValue || searchValue.length === 0) {
-                    $(".comaker-search-section .table-responsive").addClass("d-none");
-
-                    return false; // Cancel the request
-                }
-
-                var $borrower = $('#borrower_id');
-                // Check element exists AND has value
-                if ($borrower.length && $borrower.val()) {
-                    d.borrower_id = $borrower.val();
-                }
-
-                $(".comaker-search-section .table-responsive").removeClass("d-none");
+        ajax: function (data, callback, settings) {
+            var searchValue = $('#comaker_search').val();
+            if (!searchValue || searchValue.length === 0) {
+                $(".comaker-search-section .table-responsive").addClass("d-none");
+                callback({
+                    draw: data.draw,
+                    recordsTotal: 0,
+                    recordsFiltered: 0,
+                    data: []
+                });
+                return;
             }
+
+            var $borrower = $('#borrower_id');
+            if ($borrower.length && $borrower.val()) {
+                data.borrower_id = $borrower.val();
+            }
+
+            // Display loading indicator
+            $('#comaker_table tbody').html('<tr><td class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</td></tr>');
+            $(".comaker-search-section .table-responsive").removeClass("d-none");
+
+            $.ajax({
+                url: '/ajax/clients',
+                data: data,
+                success: function (response) {
+                    $('#comaker_table tbody').empty();
+                    callback(response);
+                },
+                error: function() {
+                    $('#comaker_table tbody').html('<tr><td class="text-center text-danger">Failed to load co-makers</td></tr>');
+                }
+            });
         },
         columns: [
             {
@@ -80,6 +94,11 @@ $(function () {
     });
 
     table.on('click', '.register-comaker', function () {
+        if ($('#client_comaker tbody tr').length >= 1) {
+            showToast.error('Only 1 co-maker is allowed per client.');
+            return;
+        }
+
         const id = 'tmp_' + $(this).data('id');
         const borrower_id = $("#client_id").val() || $('#borrower_id').val();
         const loan_id = $("#principal_loan_id").val() || '';

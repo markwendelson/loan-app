@@ -161,7 +161,9 @@
                         $net_proceeds = $principal - $total_deductions;
                     @endphp
                     <li class="mt-3 mb-3">Net Proceeds <span class="net_proceeds">{{ number_format($net_proceeds,2) }}</span></li>
+                    @if(in_array(Str::slug($loan->loanProduct->loanType->name), ['loan-with-term', 'auto-debit']))
                     <li class="mt-3 mb-3">Monthly Amortization <span class="monthly_amortization">{{ number_format($loan->loanFees->monthly_amortization,2) }}</span></li>
+                    @endif
                 </ul>
             </div>
         </div>

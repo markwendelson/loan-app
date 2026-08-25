@@ -22,14 +22,32 @@ class LoanRequest extends FormRequest
      */
     public function rules(Request $request): array
     {
-        return [
+        $rules = [
             'loan_product_id' => 'required',
             'loan_date' => 'required|date',
             'applied_amount' => 'required',
             'net_proceeds' => 'numeric|min:0',
             'client_comaker' => 'required_unless:loan_type,mortgage-loan',
-            'client_documents' => 'required',
         ];
+
+        $isAdditional = filter_var($request->is_additional_loan ?? false, FILTER_VALIDATE_BOOLEAN);
+        $isSpecial = false;
+        if ($request->loan_product_id) {
+            $product = \App\Models\LoanProduct::with('prerequisite')->find($request->loan_product_id);
+            if ($product && $product->prerequisite->isNotEmpty()) {
+                $isSpecial = true;
+            }
+        }
+        $hasPriorLoans = false;
+        if ($request->borrower_id) {
+            $hasPriorLoans = \App\Models\Loan::where('borrower_id', $request->borrower_id)->exists();
+        }
+
+        if (!$isAdditional && !$isSpecial && !$hasPriorLoans) {
+            $rules['client_documents'] = 'required';
+        }
+
+        return $rules;
     }
 
     public function messages(): array
@@ -55,6 +73,8 @@ class LoanRequest extends FormRequest
             'insurance_fee'     => str_replace(',', '', $this->insurance_fee),
             'notary_fee'        => str_replace(',', '', $this->notary_fee),
             'membership_fee'    => str_replace(',', '', $this->membership_fee),
+            'principal_advance_monthly' => str_replace(',', '', $this->principal_advance_monthly) == "" ? 0 : str_replace(',', '', $this->principal_advance_monthly),
+            'principal_advance_duration' => $this->principal_advance_duration == "" ? 0 : (int)$this->principal_advance_duration,
             'principal_advance'    => str_replace(',', '', $this->principal_advance) == "" ? 0 : str_replace(',', '', $this->principal_advance),
             'paid_interest_advance'    => str_replace(',', '', $this->paid_interest_advance),
             'loan_no'           => \App\Models\Loan::generateLoanNumber($this->loan_date),

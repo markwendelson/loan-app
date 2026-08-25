@@ -13,7 +13,7 @@
     .select2-selection__arrow {
         display: none !important; /* Hide the dropdown arrow */
     }
-    
+
     .select2-container--default .select2-selection--single {
         height: 38px !important;
         line-height: 36px !important;  /* Slightly smaller line-height to compensate for borders */
@@ -194,6 +194,7 @@
                         <li class="mt-3 mb-3" id="principal_advance_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
+                                <input type="number" class="form-control form-control-sm w-25 text-end" name="principal_advance_duration" id="principal_advance_duration" min="0" placeholder="# of Months"/>
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" placeholder="0.00"/>
                             </div>
                         </li>
@@ -629,7 +630,6 @@
             })
         }
 
-
         function getInsuranceFee(principal) {
             return $.ajax({
                 type: 'GET',
@@ -637,7 +637,6 @@
                 data: {amount:principal},
             })
         }
-
 
         $('.btn-add-loan').on('click', function() {
             $(this).attr("disabled", true);
@@ -805,8 +804,8 @@
                                         <td>${val.firstname ?? ''} ${val.middlename ?? ''} ${val.lastname ?? ''}</td>
                                         <td>${val.present_address ?? ''}</td>
                                         <td class="text-center" width="10">
-                                            <button type="button" 
-                                                class="btn btn-sm btn-danger  btn-remove" 
+                                            <button type="button"
+                                                class="btn btn-sm btn-danger  btn-remove"
                                                 data-id="${val.id}"
                                                 data-client-id="${val.client_id}"
                                                 data-loan-id="${val.loan_id}"
@@ -849,6 +848,6 @@
                 // dropdownParent: '#modalMultipleEntries'
             });
         }
-    })    
+    })
 </script>
 @endpush

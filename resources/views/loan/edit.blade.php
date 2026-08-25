@@ -172,6 +172,7 @@
                         <li class="mt-3 mb-3" id="principal_advance_container">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label for="principal_advance">Principal Advance</label>
+                                <input type="number" class="form-control form-control-sm w-25 text-end" name="principal_advance_duration" id="principal_advance_duration" min="0" value="{{ $loan->loanCharges->principal_advance_duration ?? 0 }}" placeholder="# of Months"/>
                                 <input type="text" class="form-control form-control-sm w-25 text-end decimal-only" name="principal_advance" id="principal_advance" value="{{ number_format($loan->loanCharges->principal_advance,2) }}" placeholder="0.00"/>
                             </div>
                         </li>
@@ -281,6 +282,8 @@
             }
 
             calculateLoan();
+            toggleMonthlyAmortizationDropdown(Number($(this).val()));
+            togglePrincipalAdvDropdown(Number($(this).val()));
 
         })
 
@@ -297,7 +300,15 @@
             calculateLoan();
         })
 
-        $("[name='principal'],[name='interest_rate'],[name='principal_advance'],[name='interest_advance'],[name='redeem_charges']").on('change', function() {
+        $(document).on('change', '#principal_advance_monthly, #principal_advance_duration', function() {
+            let monthly = parseFloat($('#principal_advance_monthly').val().replace(/,/g, '')) || 0;
+            let duration = parseInt($('#principal_advance_duration').val()) || 0;
+            let total = monthly * duration;
+            $('#principal_advance').val(currencyFormat(total));
+            calculateLoan();
+        });
+
+        $("[name='principal'],[name='interest_rate'],[name='principal_advance_monthly'],[name='principal_advance_duration'],[name='interest_advance'],[name='redeem_charges']").on('change', function() {
             calculateLoan();
         })
 
@@ -342,7 +353,8 @@
             if(loan_type == 'loan-with-term') {
                 capital_amount = principal / interest_term_value;
                 advance_interest = principal - capital_amount;
-                monthly_amortization = principal / term;
+                let monthly_adv = parseFloat($('#principal_advance_monthly').val().replace(/,/g, '')) || 0;
+                monthly_amortization = (principal / term) + monthly_adv;
                 service_fee = capital_amount * (5/100);
                 insurance_fee = principal * (2.5/100);
                 notary_fee = principal * (3/100);
@@ -584,6 +596,25 @@
                     $('.btn-update-loan').prop('disabled', false);
                 }
             })
+        }
+
+        toggleMonthlyAmortizationDropdown(Number($("#loan_product_id").val()));
+        togglePrincipalAdvDropdown(Number($("#loan_product_id").val()));
+
+        function toggleMonthlyAmortizationDropdown(id) {
+            if(monthlyAmortizationDropdown.includes(id)) {
+                $("#monthly_amortization").closest("li").removeClass("d-none").addClass("d-block");
+            }else{
+                $("#monthly_amortization").closest("li").removeClass("d-block").addClass("d-none");
+            }
+        }
+
+        function togglePrincipalAdvDropdown(id){
+            if(principalAdvDropdown.includes(id)) {
+                $("#principal_advance").closest("li").removeClass("d-none").addClass("d-block");
+            }else{
+                $("#principal_advance").closest("li").removeClass("d-block").addClass("d-none");
+            }
         }
 
     })
