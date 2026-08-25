@@ -93,7 +93,7 @@
                             <th rowspan="2" class="align-middle font-12">DEDUCTED TO LOAN RENEWAL</th>
 
                             <th colspan="4" class="align-middle text-center font-12">PAYMENTS</th>
-                            
+
                             <th rowspan="2" class="align-middle font-12">PRINCIPAL BALANCE</th>
                             {{-- <th rowspan="2" class="align-middle font-12">REMARKS</th> --}}
                             {{-- <th rowspan="2" class="align-middle font-12">SERVICE FEE</th> --}}
@@ -115,7 +115,7 @@
                             $total_ins = 0;
                             $total_savings = 0;
                             $total_service_fee = 0;
-                        @endphp 
+                        @endphp
                         @foreach($soaRows as $row)
                             @php
                                 $total_principal_loan += (float)$row['principal_loan'];
@@ -167,13 +167,17 @@
             </div>
 
             <!-- Other Charges Section -->
+            @if(filled($summary['special_loans']))
             <div class="mt-3">
                 <span>Special Loan</span>
             </div>
+            @endif
+
             <table width="100%" cellspacing="0" cellpadding="5">
                 <tr>
                     <!-- Left Column: Main Table -->
                     <td valign="top" width="60%">
+                        @if(filled($summary['special_loans']))
                         <table class="table table-bordered" cellspacing="0" cellpadding="5" width="100%">
                             <thead>
                                 <tr>
@@ -200,6 +204,8 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        @endif
+
                     </td>
                     <td width="10%"></td>
 

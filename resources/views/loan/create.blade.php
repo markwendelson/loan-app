@@ -74,7 +74,10 @@
                                 value="{{$loan_product->id}}"
                                 data-loan-type={{Str::slug($loan_product->loanType->name)}}
                                 data-interest-rate="{{$loan_product->loanType->interest_rate}}"
-                                @if(filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN)) selected @endif
+                                @selected(
+                                    filter_var(request('additional_loan'), FILTER_VALIDATE_BOOLEAN)
+                                    || request('loan_type') === Str::slug($loan_product->loanType->name)
+                                )
                             >{{$loan_product->name}}</option>
                         @endforeach
                     </select>

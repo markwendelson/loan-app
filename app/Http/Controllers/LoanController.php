@@ -76,6 +76,12 @@ class LoanController extends Controller
             $loan_products = LoanProduct::where('id', $previous_loan->loan_product_id)->get();
         } else {
             $loan_products = LoanProduct::active()->get();
+
+            if ($request->loan_type !== null) {
+                $loan_products = $loan_products->filter(function ($loan_product) use ($request) {
+                    return Str::slug($loan_product->loanType->name) === $request->loan_type;
+                });
+            }
         }
 
         // $loan_co_makers = [];

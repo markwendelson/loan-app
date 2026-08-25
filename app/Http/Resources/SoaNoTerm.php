@@ -46,24 +46,27 @@ class SoaNoTerm extends JsonResource
             'payment_principal' => 0.0,
             'ins' => $insurance_fee,
             'savings' => $membership_fee,
-            'principal_balance' => (float)$loan->principal,
+            'principal_balance' => (float)$loan->final_principal,
             'remarks' => 'RELEASE',
             'service_fee' => $service_fee
         ];
 
-        $prev_date = Carbon::parse($loan->disbursed_date ?? $loan->loan_date)->startOfDay();
-        $prev_balance = (float)$loan->principal;
+        // $prev_date = Carbon::parse($loan->disbursed_date ?? $loan->loan_date)->startOfDay();
+        $prev_balance = (float)$loan->final_principal;
         $total_interest_charged = 0.0;
         $total_interest_collected = 0.0;
         $total_principal_payment = 0.0;
         $total_ins = $insurance_fee;
         $total_savings = $membership_fee;
 
-        foreach ($payments as $payment) {
-            $curr_date = Carbon::parse($payment->transaction_date)->startOfDay();
-            $days = $prev_date->diffInDays($curr_date);
-            $interest_rate_percent = ($loan->interest_rate / 30) * $days;
-            $interest_charge_amount = ($loan->interest_rate / 100 / 30) * $days * $prev_balance;
+        foreach ($payments as $k => $payment) {
+            $start_date = Carbon::parse($payment->interest_start_date)->startOfDay();
+            $end_date = Carbon::parse($payment->interest_end_date)->startOfDay();
+            $days = $start_date->diffInDays($end_date);
+            $interest_rate = (float)$loan->interest_rate / 100;
+            $interest_charge_amount = round(($interest_rate / 30) * $days * $prev_balance);
+            // $interest_rate_percent = ($loan->interest_rate / 30) * $days;
+            // $interest_charge_amount = ($loan->interest_rate / 100 / 30) * $days * $prev_balance;
             $total_interest_charged += $interest_charge_amount;
 
             $interest_paid = (float)$payment->interest;
@@ -83,7 +86,7 @@ class SoaNoTerm extends JsonResource
                 'salary_date' => Carbon::parse($payment->transaction_date)->format('M d, Y'),
                 'number_of_days' => $days,
                 'principal_loan' => 0.0,
-                'interest_charge' => number_format($interest_rate_percent, 2) . '%',
+                'interest_charge' => number_format($interest_charge_amount, 2),
                 'advance_interest' => 0.0,
                 'deducted_to_loan_renewal' => 0.0,
                 'interest' => $interest_paid,
@@ -95,9 +98,41 @@ class SoaNoTerm extends JsonResource
                 'service_fee' => 0.0
             ];
 
-            $prev_date = $curr_date;
             $prev_balance = $curr_balance;
         }
+
+
+        // last row
+        $today = Carbon::today();
+
+        $last_payment = $payments->last();
+
+        $last_date = $last_payment
+            ? Carbon::parse($last_payment->interest_end_date)->addDay()
+            : Carbon::parse($loan->disbursed_date ?? $loan->loan_date)->addDay();
+
+        $days = $last_date->diffInDays($today);
+
+        $interest_rate = (float)$loan->interest_rate / 100;
+        $interest_charge_amount = round(($interest_rate / 30) * $days * $prev_balance);
+        $total_interest_charged += $interest_charge_amount;
+
+        $rows[] = [
+            'date' => '',
+            'salary_date' => $today->format('M d, Y'),
+            'number_of_days' => $days,
+            'principal_loan' => 0.0,
+            'interest_charge' => number_format($interest_charge_amount, 2),
+            'advance_interest' => 0.0,
+            'deducted_to_loan_renewal' => 0.0,
+            'interest' => $interest_charge_amount,
+            'payment_principal' => $prev_balance,
+            'ins' => 0.0,
+            'savings' => 0.0,
+            'principal_balance' => 0.0,
+            'remarks' => 'Current Balance',
+            'service_fee' => 0.0,
+        ];
 
         $specialLoans = Loan::specialLoan($loan->borrower_id)->get();
         $special_loans_due = [];
@@ -126,8 +161,8 @@ class SoaNoTerm extends JsonResource
         $principal_due = getLoanBalance($loan);
         $total_interest_collected_total = $total_interest_collected + $advance_interest;
         $total_interest_charged_total = $total_interest_charged + $advance_interest;
-        $rebates = 0.0; 
-        
+        $rebates = 0.0;
+
         $interest_deficit = max(0, $total_interest_charged_total - $total_interest_collected_total);
         $total_amount_due = $principal_due + $interest_deficit;
         $final_total_due = $total_amount_due + $total_special_balance;
