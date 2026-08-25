@@ -142,6 +142,7 @@ return [
             ['name' => 'view-database-backups', 'label' => 'View Database Backups'],
             ['name' => 'create-database-backup', 'label' => 'Create Database Backup'],
             ['name' => 'download-database-backup', 'label' => 'Download Database Backup'],
+            ['name' => 'restore-database-backup', 'label' => 'Restore Database Backup'],
             // ['name' => 'delete-database-backup', 'label' => 'Delete Database Backup'],
         ]
     ],
