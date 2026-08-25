@@ -61,6 +61,11 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
                 PDO::ATTR_TIMEOUT => env('DB_HEALTH_CHECK_TIMEOUT', 3),
             ]) : [],
+            'dump' => [
+                'dump_binary_path' => env('DB_DUMP_BINARY_PATH'), // only the path, so without `mysqldump` or `pg_dump`
+                'use_single_transaction' => true,
+                'timeout' => 60 * 5, // 5 minute timeout
+            ]
         ],
 
         'mysql_local' => [

@@ -14,6 +14,33 @@
             <div class="modal-body">
                 <form id="frmGenerateExpensesReport">
                     <div class="row">
+
+                        <div class="col-lg-12">
+                            Branches <span class="txt-danger">*</span>
+                            <div class="card">
+                                <div class="card-body row">
+                                    @if(isset($branches) && $branches)
+                                        @foreach($branches as $key => $val)
+                                            @if(in_array($val->id, $allowedBranches))
+                                                <div class="col-lg-6">
+                                                    <div class="form-check checkbox checkbox-primary mb-0">
+                                                        <input class="form-check-input" 
+                                                            type="checkbox"
+                                                            id="branch{{$val->id}}" 
+                                                            name="branch[]"
+                                                            value="{{$val->id}}"
+                                                            checked
+                                                        >
+                                                        <label class="form-check-label mb-1" for="branch{{$val->id}}"><small>{{$val->name}}</small></label>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="col-lg-12">
                             <label class="w-100">
                                 Report Type <span class="txt-danger">*</span>

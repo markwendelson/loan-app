@@ -71,8 +71,6 @@
             preview.style.display = "none";
         }
 
-
-
         // Format a number with commas
         function formatNumberWithCommas(num) {
             if (!num) return '';

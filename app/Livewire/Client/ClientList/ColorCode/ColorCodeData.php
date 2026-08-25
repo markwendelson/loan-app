@@ -26,7 +26,9 @@ class ColorCodeData extends Component
 
     public function render()
     {
-        $colorCodes = ClientColorCode::where('status', 1)->paginate($this->entries);
+        $colorCodes = ClientColorCode::where('status', 1)
+            ->where('client_id', auth()->user()->id)
+            ->paginate($this->entries);
 
         return view('livewire.client.client-list.color-code.color-code-data', compact(
             'colorCodes'

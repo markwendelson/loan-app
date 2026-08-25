@@ -8,6 +8,7 @@ class ClientColorCode extends Model
 {
     protected $table = 'client_color_codes';
     protected $fillable = [
+        'client_id',
         'color_name',
         'color_description',
         'color_code',

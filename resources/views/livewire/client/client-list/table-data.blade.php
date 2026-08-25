@@ -7,7 +7,9 @@
                         <th width="50"></th>
                         <th>Client</th>
                         <th>Address</th>
+                        @can('edit-color-coding')
                         <th></th>
+                        @endcan
                         <th class="text-center" width="80">Status</th>
                         <th width="50" class="text-center"><i class="fa fa-cog"></i></th>
                     </tr>
@@ -15,7 +17,7 @@
                 <tbody>
                     @if(isset($clientData) && $clientData)
                         @foreach($clientData as $key => $val)
-                            <tr {!! $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
+                            <tr {!!  auth()->user()->can('view-color-coding') && $val->color_code ? 'style="border-left:3px solid ' . $val->color_code . '"' : '' !!}>
                                 <td>
                                     @php
                                         $photo = $val->details?->photo;
@@ -42,6 +44,7 @@
                                     </div>
                                 </td>
                                 <td class="align-center">{{ $val->details->present_full_address ?? '' }}</td>
+                                @can('edit-color-coding')
                                 <td>
                                     <select class="form-select" wire:change="updateClientColorTag({{$val->id}}, $event.target.value)">
                                         <option value="">-- Select --</option>
@@ -52,6 +55,7 @@
                                         @endif
                                     </select>
                                 </td>
+                                @endcan
                                 <td class="text-center align-center">
                                     @if($val->status == 1)
                                         <span class="badge badge-success w-100">Active</span>

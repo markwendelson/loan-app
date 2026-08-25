@@ -14,6 +14,7 @@ use ZipArchive;
 //models
 use App\Models\Attachment;
 use App\Models\Branch;
+use App\Models\BranchUser;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\ExpenseItems;
@@ -35,6 +36,12 @@ class ExpenseController extends Controller
         $branches = Branch::where('status', 1)
             ->orderBy('branch.name', 'ASC')
             ->get();
+
+        $allowedBranches = BranchUser::where('user_id', auth()->user()->id)
+            ->where('is_active', 1)
+            ->pluck('branch_id')
+            ->toArray();
+
         $categories = ExpenseCategory::all();
 
         //vendors
@@ -45,6 +52,7 @@ class ExpenseController extends Controller
             'categories',
             'branches',
             'vendorsData',
+            'allowedBranches',
         ));
     }
 
@@ -473,41 +481,79 @@ class ExpenseController extends Controller
     public function generateExpenseReport(Request $request)
     {
         $inputData = $request->all();
+        $reportType = $inputData['report_type'];
+        $reportTypeDate = '';
+        $reportTypeYear = '';
 
-        switch ($inputData['report_type'] ?? null) {
+        $query = ExpenseItems::select(
+                'expense_items.id',
+                'expense_items.expense_id',
+                'expense_items.description',
+                'expense_items.ref_no',
+                'expense_items.amount',
+                'expense_items.created_at',
+                'vendors.name as vendor_name',
+                'vendors.tin',
+                'vendors.tax_classification',
+                'branch.name as branch_name',
+                'expense_categories.name AS category_name',
+            )
+            ->leftJoin('expenses', 'expenses.id', '=', 'expense_items.expense_id')
+            ->leftJoin('expense_categories', 'expense_categories.id', '=', 'expenses.category_id')
+            ->leftJoin('branch', 'branch.id', '=', 'expenses.branch_id')
+            ->leftJoin('vendors', 'vendors.id', '=', 'expense_items.vendor_id')
+            ->whereIn('expenses.branch_id', $inputData['branch']);
+
+        switch ($inputData['report_type']) {
             case 'daily':
-                $query = ExpenseItems::select(
-                    'expense_items.id',
-                    'expense_items.expense_id',
-                    'expense_items.description',
-                    'expense_items.ref_no',
-                    'expense_items.amount',
-                    'vendors.name as vendor_name',
-                    'vendors.tin',
-                    'vendors.tax_classification',
-                )
-                ->leftJoin('expenses', 'expenses.id', '=', 'expense_items.expense_id')
-                ->leftJoin('vendors', 'vendors.id', '=', 'expense_items.vendor_id')
-                ->where('expenses.branch_id', auth()->user()->current_branch_id)
-                ->where('expenses.expense_date', $inputData['daily']['date']);
+                $reportTypeDate = date('M d, Y', strtotime($inputData['daily']['date']));
+                $reportTypeYear = date('Y', strtotime($inputData['daily']['date']));
 
-                $dailyReportData = $query->get();
-
-                return Pdf::loadView('expenses.report.daily-report', compact(
-                        'dailyReportData'
-                    ))
-                    ->setPaper('a4', 'landscape')
-                    ->stream('daily-report.pdf');
-
-                
+                $query->where('expenses.branch_id', auth()->user()->current_branch_id)
+                    ->where('expenses.expense_date', $inputData['daily']['date']);
                 break;
+            case 'monthly':
+                $reportTypeDate = date('M d', strtotime($inputData['monthly']['month_from'])) . ' - ' . date('M d', strtotime($inputData['monthly']['month_to']));
 
-            default:
+                $monthFromYear = date('Y', strtotime($inputData['monthly']['month_from']));
+                $monthToYear = date('Y', strtotime($inputData['monthly']['month_to']));
+
+
+                if($monthFromYear === $monthToYear) {
+                    $reportTypeYear = $monthFromYear;
+
+                }else{
+                    $reportTypeYear = $monthFromYear . '-' . $monthToYear;
+                }
+
+                $query->whereBetween('created_at', date('Y-m-d', strtotime($inputData['monthly']['month_from'])), date('Y-m-d', strtotime($inputData['monthly']['month_to'])));
+            break;
+            case 'quarterly':
+                $reportTypeDate = config('constants.quarter_value')[$inputData['quarterly']['quarter']];
+                $reportTypeYear = $inputData['quarterly']['year'];
+
+                $from = config('constants.quarter_date_value')[$inputData['quarterly']['quarter']]['from'] . ' ' . $inputData['quarterly']['year'];
+                $to = config('constants.quarter_date_value')[$inputData['quarterly']['quarter']]['to'] . ' ' . $inputData['quarterly']['year'];
                 
-                break;
+                $query->whereBetween('expense_items.created_at', [date('Y-m-d', strtotime($from)), date('Y-m-d', strtotime($to))]);
+            break;
+
+            case 'yearly':
+                $reportTypeYear = $inputData['yearly']['year'];
+
+                $query->whereYear('expense_items.created_at', '=', $reportTypeYear);
+            break;
         }
+        $reportData = $query->get();
 
-
+        return Pdf::loadView('expenses.report.daily-report', compact(
+                'reportData',
+                'reportType',
+                'reportTypeDate',
+                'reportTypeYear',
+            ))
+            ->setPaper('legal', 'landscape')
+            ->stream('daily-report.pdf');
     }
 
     public function deleteExpense(Request $request) 

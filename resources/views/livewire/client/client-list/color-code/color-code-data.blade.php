@@ -12,8 +12,12 @@
 
                     </div>
                     <div class="d-flex justify-content-start align-items-center gap-3 pr-2">
+                        @can('edit-color-coding')
                         <a href="#" class="txt-primary fs-6 mx-2 btnEdit" data-id="{{$val->id}}"><i class="fa fa-pencil"></i></a>
+                        @endcan
+                        @can('delete-color-coding')
                         <a href="#" class="txt-danger fs-6 mx-2" wire:click="removeColorCode({{$val->id}})"><i class="fa fa-trash"></i></a>
+                        @endcan
                     </div>
                 </div> 
             @endforeach

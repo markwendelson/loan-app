@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 //reference no service
 use App\Services\ReferenceNumberService;
@@ -754,7 +755,14 @@ class SavingsController extends Controller
             $branchTitle = $branchName . ' Branch';
         }
 
-        return view('savings.receipt', compact('savings', 'branchTitle'));
+        // return view('savings.receipt', compact('savings', 'branchTitle'));
+        $pdf = Pdf::loadView('savings.receipt2', compact(
+            'savings',
+            'branchTitle',
+        ))
+        ->setPaper([0, 0, 226.77, 600], 'portrait');
+
+        return $pdf->stream('receipt.pdf');
     }
 
     public function updateTransactionCode(Request $request, int $id)

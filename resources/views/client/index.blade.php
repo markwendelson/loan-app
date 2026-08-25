@@ -44,7 +44,9 @@
     <!-- button container -->
     <div class="card">
         <div class="card-body d-flex justify-content-end gap-2 align-items-center flex-wrap">
+            @can('view-color-coding')
             <a href="#" class="btn btn-light btnColor"><i class="fa fa-paint-brush me-1"></i>Color Coding</a>
+            @endcan
             <a href="{{route('client.registration')}}" class="btn btn-primary"><i class="fa fa-plus"></i> New Client</a>
         </div>
     </div>
