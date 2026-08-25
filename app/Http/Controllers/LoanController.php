@@ -202,6 +202,7 @@ class LoanController extends Controller
                     'membership_fee_paid' => $data['membership_fee'],
                     'redeem_charges' => $data['redeem_charges'],
                     'principal_advance' => $data['principal_advance'],
+                    'principal_advance_duration' => $data['principal_advance_duration'] ?? 0,
                     'interest_advance' => $data['interest_advance'],
                     'paid_interest_advance' => $data['paid_interest_advance'],
                 ]);
@@ -319,6 +320,7 @@ class LoanController extends Controller
                     'membership_fee' => str_replace(',', '', $request->membership_fee),
                     'redeem_charges' => str_replace(',', '', $request->redeem_charges),
                     'principal_advance' => str_replace(',', '', $request->principal_advance),
+                    'principal_advance_duration' => $request->principal_advance_duration,
                     'paid_interest_advance' => str_replace(',', '', $request->paid_interest_advance),
                     'monthly_amortization' => str_replace(',', '', $request->monthly_amortization),
                     // 'loan_no' => Loan::generateLoanNumber($request->loan_date) // Don't regenerate loan no on edit
@@ -339,6 +341,7 @@ class LoanController extends Controller
                 $loan->loanCharges->membership_fee = config('settings.membership_fee');
                 $loan->loanCharges->redeem_charges = $request->redeem_charges;
                 $loan->loanCharges->principal_advance = $request->principal_advance;
+                $loan->loanCharges->principal_advance_duration = $request->principal_advance_duration;
                 $loan->loanCharges->membership_fee_paid = $request->membership_fee;
                 $loan->loanCharges->interest_advance = $request->interest_advance;
                 $loan->loanCharges->paid_interest_advance = $request->paid_interest_advance;
@@ -982,6 +985,13 @@ class LoanController extends Controller
 
                 $loan = Loan::create($data);
 
+                $borrower = Client::findOrFail($data['borrower_id']);
+                if(isset($data['client_comaker'])) {
+                    $borrower->coMakers()->syncWithoutDetaching(
+                        array_fill_keys($data['client_comaker'], ['loan_id' => $loan->id])
+                    );
+                }
+
                 LoanCharge::create([
                     'loan_id' => $loan->id,
                     'advance_interest' => $data['advance_interest'],
@@ -1029,7 +1039,7 @@ class LoanController extends Controller
         }
     }
 
-    public function processAdditionalLoan($data)
+    public function processAdditionalLoan(array $data)
     {
         try {
 
@@ -1043,6 +1053,13 @@ class LoanController extends Controller
                 $principal_balance = $previous_loan_principal - $total_loan_payment;
 
                 $loan = Loan::create($data);
+
+                $borrower = Client::findOrFail($data['borrower_id']);
+                if(isset($data['client_comaker'])) {
+                    $borrower->coMakers()->syncWithoutDetaching(
+                        array_fill_keys($data['client_comaker'], ['loan_id' => $loan->id])
+                    );
+                }
 
                 LoanCharge::create([
                     'loan_id' => $loan->id,

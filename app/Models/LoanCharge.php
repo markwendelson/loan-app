@@ -18,6 +18,7 @@ class LoanCharge extends Model
         'membership_fee_paid',
         'redeem_charges',
         'principal_advance',
+        'principal_advance_duration',
         'interest_advance',
         'paid_interest_advance'
     ];
