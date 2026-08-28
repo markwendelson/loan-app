@@ -170,7 +170,7 @@
                                     <div>Remarks: <p></p></div>
                                 </div>
                                 <div class="col-md-4 float-end">
-                                    <a href="{{route('loan.create', ['loan_no_reference' => $loan['special_loan_no'], 'reloan'=>true])}}" class="btn btn-sm btn-success mx-auto">Reloan</a>
+                                    <a href="{{route('loan.create',['loan_type' => 'special-loan'])}}" class="btn btn-sm btn-success mx-auto">Add Loan</a>
                                 </div>
                             </div>
                         </div>

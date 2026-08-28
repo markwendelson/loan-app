@@ -291,6 +291,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
         Route::get('create', [DatabaseController::class, 'create'])->name('database.create');
         Route::get('download/{filename}', [DatabaseController::class, 'download'])->name('databse.download');
+        Route::post('restore/{filename}', [DatabaseController::class, 'restore'])->name('database.restore');
     });
 
     Route::prefix('ledger')->group(function(){

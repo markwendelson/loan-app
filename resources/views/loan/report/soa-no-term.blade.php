@@ -157,12 +157,12 @@
                 </table>
             </div>
 
-            <!-- Other Charges Section -->
-            <div class="mt-3">
-                <span>Special Loan</span>
-            </div>
-            <div class="row justify-content-between">
+
+            <div class="row justify-content-between mt-3">
                 <div class="col-lg-8">
+                    @if(filled($summary['special_loans']))
+                    <!-- Other Charges Section -->
+                    <span>Special Loan</span>
                     <table class="table table-sm table-bordered border-bottom">
                         <thead>
                             <tr>
@@ -190,6 +190,7 @@
                         </tbody>
                     </table>
                 </div>
+                @endif
                 <div class="col-lg-4">
                     <table class="table table-sm table-bordered border-bottom">
                         <tbody>

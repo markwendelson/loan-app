@@ -619,10 +619,10 @@
         });
 
 
-        $(document).on('blur', ".loan-principal-input", function() {
-            $(this).data('edited', true);
-            calculateChange('amount');
-        });
+        // $(document).on('blur', ".loan-principal-input", function() {
+        //     $(this).data('edited', true);
+        //     calculateChange('amount');
+        // });
 
 
         $(document).on('input', ".loan-interest-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
@@ -630,10 +630,10 @@
             calculateChange('amount');
         });
 
-        $(document).on('blur', ".loan-interest-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
-            $(this).data('edited', true);
-            calculateChange('amount');
-        });
+        // $(document).on('blur', ".loan-interest-input, .loan-principal-advance-input, .loan-insurance-input, .loan-membership-fee-input", function () {
+        //     $(this).data('edited', true);
+        //     calculateChange('amount');
+        // });
 
         $(document).on('change', '.early-settlement-checkbox', function () {
             let loanId = $(this).attr('id').split('_').pop();
@@ -906,6 +906,9 @@
                     defaultPrincipal = parsePHPNumber($card.data('principal-balance')) || 0;
                 } else {
                     defaultPrincipal = parsePHPNumber($card.data('monthly-amortization')) || 0;
+                    if(loan_type === 'open-term') {
+                        defaultPrincipal = 0;
+                    }
                 }
             }
 
@@ -1043,10 +1046,10 @@
             if (tempAllocated > 0 && !dues.isPrincipalExplicitlyZero) {
                 let loanInfo = clientLoansMap[loanId];
                 let loanType = loanInfo ? loanInfo.loan_type : '';
-                
-                // For termed loans, do not dump excess into principal. 
+
+                // For termed loans, do not dump excess into principal.
                 // The principal payment should be capped at monthly_amortization.
-                if (loanType !== 'loan-with-term') {
+                if (loanType !== 'loan-with-term' && loanType !== 'open-term') {
                     allocatedPrincipal += tempAllocated;
                     tempAllocated = 0;
                 }
@@ -1229,10 +1232,10 @@
                 });
 
                 let remainingAmount = overall_amount;
-                console.log(1189)
+                console.log('Line 1235')
 
                 if (isSlipBased && overall_amount === 0) {
-                    console.log(1193)
+                    console.log('Line 1238')
                     // Do not distribute 0, keep loaded card dues
                     selectedLoans.forEach(loanId => {
                         let interest = parsePHPNumber($(`#interest_${loanId}`).val());
@@ -1248,7 +1251,7 @@
                         total_allocated_all += loanAmount;
                     });
                 } else {
-                    console.log(1209)
+                    console.log('Line: 1254')
                     let useInputsForTarget = (mode === 'amount');
                     let loanTargetDues = {};
                     let loanDefaultDues = {};

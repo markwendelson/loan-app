@@ -30,6 +30,9 @@
                                             @can('download-database-backup')
                                             <li><a class="dropdown-item" href="{{url('database/download/' . $val->file_name)}}" target="_blank"><i class="fa fa-download me-1"></i>Download</a></li>
                                             @endcan
+                                            @can('restore-database-backup')
+                                            <li><a class="dropdown-item txt-warning btnRestore" href="#" data-filename="{{ $val->file_name }}"><i class="fa fa-undo me-1"></i>Restore</a></li>
+                                            @endcan
                                             {{-- <li><hr class="dropdown-divider"></li>
                                             <li><a class="dropdown-item txt-danger" href="#"><i class="fa fa-trash me-1"></i>Delete</a></li> --}}
                                         </ul>

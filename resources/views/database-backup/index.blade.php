@@ -82,5 +82,105 @@
             });
         })
 
+        //handle restore backup button
+        $(document).on('click', '.btnRestore', function(e) {
+            e.preventDefault();
+            var filename = $(this).data('filename');
+
+            swal({
+                title: 'Are you sure?',
+                text: 'This will overwrite the current database with the backup: ' + filename + '. This action cannot be undone!',
+                icon: 'warning',
+                buttons: {
+                    cancel: {
+                        text: "Cancel",
+                        value: null,
+                        visible: true,
+                        className: "btn btn-secondary",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "Yes, Restore",
+                        value: true,
+                        visible: true,
+                        className: "btn btn-danger",
+                        closeModal: true
+                    }
+                },
+                dangerMode: true,
+            }).then(function(value) {
+                if (value) {
+                    // Show loading
+                    $(".loader-wrapper").fadeIn("slow");
+
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url('database/restore') }}/" + filename,
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        dataType: "json",
+                        success: function (response) {
+                            $(".loader-wrapper").fadeOut("slow", function () {
+                                $(this).hide();
+                            });
+
+                            if(response.status == 'success') {
+                                swal({
+                                    title: 'Restored!',
+                                    text: response.message,
+                                    icon: 'success',
+                                    buttons: {
+                                        confirm: {
+                                            text: "OK",
+                                            value: true,
+                                            visible: true,
+                                            className: "btn btn-primary",
+                                            closeModal: true
+                                        }
+                                    }
+                                });
+                            } else {
+                                swal({
+                                    title: 'Error!',
+                                    text: response.message,
+                                    icon: 'error',
+                                    buttons: {
+                                        confirm: {
+                                            text: "OK",
+                                            value: true,
+                                            visible: true,
+                                            className: "btn btn-primary",
+                                            closeModal: true
+                                        }
+                                    }
+                                });
+                            }
+                        },
+                        error: function () {
+                            $(".loader-wrapper").fadeOut("slow", function () {
+                                $(this).hide();
+                            });
+
+                            swal({
+                                title: 'Error!',
+                                text: 'An error occurred while restoring the database.',
+                                icon: 'error',
+                                buttons: {
+                                    confirm: {
+                                        text: "OK",
+                                        value: true,
+                                        visible: true,
+                                        className: "btn btn-primary",
+                                        closeModal: true
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
     </script>
 @endpush
