@@ -505,6 +505,7 @@ class ClientController extends Controller
 
         // Step 3: Sort again to DESCENDING if needed for display
         $mappedData = $balancedRows->sortByDesc([
+            ['description', 'asc'],
             ['order_date', 'asc'],
             ['index', 'asc'],
         ])->values();

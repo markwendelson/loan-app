@@ -15,6 +15,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
 
 if (!function_exists('getProvinces')) {
     function getProvinces()
@@ -105,16 +106,29 @@ if (!function_exists('getClientBalance')) {
 }
 
 if (!function_exists('getLoanBalance')) {
-    function getLoanBalance(Loan $loan)
+    function getLoanBalance(Loan $loan, bool $early_loan_settlement = false) : float
     {
         $principal = $loan->final_principal;
         $payment = Savings::where('loan_id', $loan->id)->where('transaction_type', 'withdraw')->sum('principal');
         $balance = $principal - $payment;
 
+        if ($early_loan_settlement) {
+            $loan_type = Str::slug($loan->loanProduct->loanType->name);
+    
+            $balance = $principal
+                - $payment
+                - (
+                    in_array($loan_type, ['loan-with-term', 'auto-debit', 'mortgage-loan'])
+                        ? $loan->loanCharges->advance_interest
+                        : 0
+                );    
+        }
+
         Log::info('loan_id:' . $loan->id);
         Log::info('principal:' . $principal);
         Log::info('payment:' . $payment);
         Log::info('balance:' . $balance);
+        
         return $balance;
     }
 }
@@ -233,5 +247,14 @@ if (!function_exists('hexToRgba')) {
         $opacity = max(0, min(1, $opacity));
 
         return "rgba($r, $g, $b, $opacity)";
+    }
+}
+
+if (!function_exists('calculateInterest')) {
+    function calculateInterest(float $principal, float $interest_rate, int $days) : float
+    {
+        $interest_rate_decimal = (float)$interest_rate / 100;
+        $interest_charge_amount = round(($interest_rate_decimal / 30) * $days * $principal, 2);
+        return round($interest_charge_amount);
     }
 }

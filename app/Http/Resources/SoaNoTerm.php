@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\Savings;
 use App\Models\Loan;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class SoaNoTerm extends JsonResource
 {
@@ -117,13 +118,22 @@ class SoaNoTerm extends JsonResource
         $interest_charge_amount = round(($interest_rate / 30) * $days * $prev_balance);
         $total_interest_charged += $interest_charge_amount;
 
+        $loan_type = Str::slug($loan->loanProduct->loanType->name);
+
+        if(in_array($loan_type, ['loan-with-term', 'auto-debit', 'mortgage-loan'])) {
+            $prev_balance -= $loan->loanCharges->advance_interest;
+            $advance_interest = $loan->loanCharges->advance_interest;
+        } else {
+            $advance_interest = 0.0;
+        }
+
         $rows[] = [
             'date' => '',
             'salary_date' => $today->format('M d, Y'),
             'number_of_days' => $days,
             'principal_loan' => 0.0,
             'interest_charge' => number_format($interest_charge_amount, 2),
-            'advance_interest' => 0.0,
+            'advance_interest' => $advance_interest,
             'deducted_to_loan_renewal' => 0.0,
             'interest' => $interest_charge_amount,
             'payment_principal' => $prev_balance,

@@ -126,8 +126,8 @@
                                         <td>{{ $special_loan['type'] }}</td>
                                         <td class="text-center">{{ $special_loan['days'] }}</td>
                                         <td class="text-end">₱{{ number_format($special_loan['amount'], 2) }}</td>
-                                        <td class="text-end">-</td>
-                                        <td class="text-end">-</td>
+                                        <td class="text-end">₱{{ number_format($special_loan['actual_interest'], 2) }}</td>
+                                        <td class="text-end">₱{{ number_format($special_loan['advance_interest'], 2) }}</td>
                                         {{-- <td class="text-end">-</td> --}}
                                         <td class="text-end">₱{{ number_format($special_loan['still_due'], 2) }}</td>
                                     </tr>

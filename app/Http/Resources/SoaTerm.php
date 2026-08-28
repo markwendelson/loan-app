@@ -26,7 +26,7 @@ class SoaTerm extends JsonResource
             ->get();
 
         $rows = [];
-        $running_balance = (float)$loan->principal;
+        $running_balance = (float)$loan->final_principal;
 
         foreach ($payments as $payment) {
             $running_balance = (float)$payment->principal_balance;
@@ -37,6 +37,17 @@ class SoaTerm extends JsonResource
                 'principal_running_balance' => $running_balance,
             ];
         }
+
+        // last row — current balance as of today
+        $today = Carbon::today();
+
+        $rows[] = [
+            'month' => $today->format('F Y'),
+            'insurance' => 0.0,
+            'principal_payment' => $running_balance,
+            'principal_running_balance' => 0.0,
+            'is_last_row' => true,
+        ];
 
         $specialLoans = Loan::specialLoan($loan->borrower_id)->get();
         $special_loans_due = [];
@@ -49,12 +60,20 @@ class SoaTerm extends JsonResource
                 $today = Carbon::now()->startOfDay();
                 $special_days = $release_date->diffInDays($today);
 
+                $advance_interest = $specialLoan->loanCharges->advance_interest ?? 0.0;
+                $actual_interest = 0.0;
+
+                if($specialLoan->interest_rate == 5) {
+                    $actual_interest = calculateInterest($special_balance, $specialLoan->interest_rate, $special_days);
+                    $special_balance += $actual_interest - $advance_interest;
+                }
+
                 $special_loans_due[] = [
                     'type' => $specialLoan->description ?? $specialLoan->loanProduct->name,
                     'days' => $special_days,
                     'amount' => $specialLoan->principal,
-                    'advance_interest' => 0.0,
-                    'actual_interest' => 0.0,
+                    'advance_interest' => $advance_interest,
+                    'actual_interest' => $actual_interest,
                     'rebates' => 0.0,
                     'still_due' => $special_balance
                 ];

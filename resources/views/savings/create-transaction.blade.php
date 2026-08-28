@@ -364,7 +364,7 @@
                                 </div>
                                 `+membershipDiv+`
                             </div>
-                            <div class="form-check">
+                            <div class="form-check" style="${loanType === 'special-loan' ? 'display: none;' : ''}">
                                 <input type="checkbox" name="is_early_settlement[${loanId}]" id="is_early_settlement_${loanId}" class="form-check-input loan-input early-settlement-checkbox" value="1"/>
                                 <label class="form-check-label" for="is_early_settlement_${loanId}"><small>Early Settlement</small></label>
                             </div>
