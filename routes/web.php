@@ -18,6 +18,7 @@ use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LoanProductController;
 use App\Http\Controllers\LoanTypeController;
+use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\NotaryFeeScheduleController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\RoleController;
@@ -117,6 +118,7 @@ Route::middleware('auth')->group(function () {
             Route::get('{id}/get-co-makers', 'getCoMaker')->name('client.get_co_makers');
             Route::post('color-code/create', 'createColorCoding')->name('client.create-color-coding');
             Route::get('color-code/get-data/{id}', 'getColorCodingData')->name('client.get-color-coding-data');
+            Route::get('payroll-accounts/{id}', 'getPayrollAccounts')->name('client.get-payroll-account');
         });
 
         Route::get('user/{user}/branch/{branch}/permission', [UserController::class, 'getBranchPermission'])->name('user.get-branch-permission');
@@ -290,6 +292,10 @@ Route::middleware('auth')->group(function () {
         Route::get('create', [DatabaseController::class, 'create'])->name('database.create');
         Route::get('download/{filename}', [DatabaseController::class, 'download'])->name('databse.download');
         Route::post('restore/{filename}', [DatabaseController::class, 'restore'])->name('database.restore');
+    });
+
+    Route::prefix('ledger')->group(function(){
+        Route::get('/', [LedgerController::class, 'index'])->name('ledger.index');
     });
 
     include_once(__DIR__ . '/ajax.php');

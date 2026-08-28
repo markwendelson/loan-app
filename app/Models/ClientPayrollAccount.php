@@ -29,6 +29,9 @@ class ClientPayrollAccount extends Model {
         return $this->belongsTo(Bank::class);
     }
 
-
-
+    public function payrollAccountBorrowings()
+    {
+        return $this->hasOne(ClientPayrollAccountBorrowing::class, 'payroll_account_id')
+            ->where('status', 'borrowed');
+    }
 }
