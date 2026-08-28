@@ -89,6 +89,19 @@
 </li>
 @endcan
 
+@can('view-ledger')
+<li class="sidebar-list">
+    <i class="fa fa-thumb-tack"></i>
+    <a class="sidebar-link sidebar-title link-nav" href="{{route('ledger.index')}}">
+        {{-- <i class="text-white fa fa- me-1"></i> --}}
+        <svg class="stroke-icon">
+            <use href="{{url('assets/svg/icon-sprite.svg#stroke-calendar')}}"></use>
+        </svg>
+        <span>Ledger</span>
+    </a>
+</li>
+@endcan
+
 @can('view-savings')
 <li class="sidebar-list">
     <i class="fa fa-thumb-tack"></i>

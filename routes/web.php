@@ -18,6 +18,7 @@ use App\Http\Controllers\JobTitleController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\LoanProductController;
 use App\Http\Controllers\LoanTypeController;
+use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\NotaryFeeScheduleController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\RoleController;
@@ -290,6 +291,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DatabaseController::class, 'index'])->name('database.index');
         Route::get('create', [DatabaseController::class, 'create'])->name('database.create');
         Route::get('download/{filename}', [DatabaseController::class, 'download'])->name('databse.download');
+    });
+
+    Route::prefix('ledger')->group(function(){
+        Route::get('/', [LedgerController::class, 'index'])->name('ledger.index');
     });
 
     include_once(__DIR__ . '/ajax.php');
