@@ -150,7 +150,11 @@ return [
         'permissions' => [
             ['name' => 'view-expense-report','label' => 'View Expense Report'],
             ['name' => 'create-expense-report','label' => 'Create Expense Report'],
-
+            ['name' => 'view-reports', 'label' => 'View General Reports'],
+            ['name' => 'view-loan-report', 'label' => 'View Loan Report'],
+            ['name' => 'view-petty-cash-report', 'label' => 'View Petty Cash Report'],
+            ['name' => 'view-payment-report', 'label' => 'View Payment Report'],
+            ['name' => 'view-cash-request-report', 'label' => 'View Cash Request Report'],
         ]
     ],
 ];

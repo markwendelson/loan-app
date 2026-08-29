@@ -438,6 +438,73 @@
             });
         }
 
+        function restoreForm($form) {
+            if ($form.data('is-submitting')) {
+                $form.data('is-submitting', false);
+                $form.find('button[type="submit"], input[type="submit"]').each(function() {
+                    let $btn = $(this);
+                    $btn.prop('disabled', false);
+                    if ($btn.is('button') && $btn.data('original-text')) {
+                        $btn.html($btn.data('original-text'));
+                    }
+                });
+            }
+        }
+
+        // Global handler to prevent multiple form submissions
+        $(document).on('submit', 'form', function(e) {
+            let $form = $(this);
+            
+            // Allow bypassing this check for specific forms if needed
+            if ($form.hasClass('allow-multiple')) {
+                return;
+            }
+
+            if ($form.data('is-submitting')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            $form.data('is-submitting', true);
+            
+            let isGet = ($form.attr('method') || 'GET').toUpperCase() === 'GET';
+
+            // Short timeout ensures the button value is still included in the form payload
+            setTimeout(function() {
+                $form.find('button[type="submit"], input[type="submit"]').each(function() {
+                    let $btn = $(this);
+                    $btn.prop('disabled', true);
+                    if ($btn.is('button')) {
+                        if (!$btn.data('original-text')) {
+                            $btn.data('original-text', $btn.html());
+                        }
+                        $btn.html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                    }
+                });
+
+                // For GET requests (like exports/downloads), the page often doesn't reload.
+                // Automatically restore the button after 3 seconds so it doesn't get stuck.
+                if (isGet) {
+                    setTimeout(function() {
+                        restoreForm($form);
+                    }, 3000);
+                }
+            }, 10);
+        });
+
+        // Re-enable form buttons if an AJAX request completes
+        $(document).ajaxComplete(function() {
+            $('form').each(function() {
+                restoreForm($(this));
+            });
+        });
+
+        // Re-enable form buttons if the window regains focus (common after file downloads)
+        $(window).on('focus', function() {
+            $('form').each(function() {
+                restoreForm($(this));
+            });
+        });
 
     </script>
 

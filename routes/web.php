@@ -35,6 +35,7 @@ use App\Http\Controllers\CheckController;
 use App\Http\Controllers\IncentiveController;
 use App\Http\Controllers\ServiceChargeController;
 use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -185,6 +186,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('loan-type', LoanTypeController::class);
     Route::resource('loan-product', LoanProductController::class);
     Route::resource('charge', ChargeController::class);
+    Route::controller(ReportController::class)->prefix("reports")->group(function() {
+        Route::get("/", "index")->name("report.index");
+        Route::get("/generate", "generate")->name("report.generate");
+    });
 
     Route::controller(ExpenseController::class)
         ->prefix('expenses')

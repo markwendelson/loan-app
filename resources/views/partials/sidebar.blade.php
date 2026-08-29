@@ -156,11 +156,21 @@
     </ul>
 </li>
 
+@can('view-reports')
 <li class="sidebar-main-title">
     <div>
         <h6 class="">Reports</h6>
     </div>
 </li>
+<li class="sidebar-list">
+    <a class="sidebar-link sidebar-title link-nav" href="{{route("report.index")}}">
+        <svg class="stroke-icon">
+            <use href="{{url("assets/svg/icon-sprite.svg#stroke-project")}}"></use>
+        </svg>
+        <span>Reports</span>
+    </a>
+</li>
+@endcan
 <li class="sidebar-list">
 
     {{-- @can('view-expense-report')
