@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title') Manage Notary Fee Schedule
+@section('title') Manage Notary Fee Schedule @endsection
 
 @push('css')
 <style>
