@@ -208,8 +208,14 @@ class ReportController extends Controller
         }
 
         if ($type == 'cash_request') {
-            // Currently no Cash Request logic exists in the backend, return an empty array of records.
-            $records = [];
+            $query = \App\Models\CashRequest::with(['employee', 'branch', 'approver'])
+                ->whereBetween('created_at', [$startDate, $endDate]);
+                
+            if ($branchId && $branchId != 'all') {
+                $query->where('branch_id', $branchId);
+            }
+
+            $records = $query->orderBy('created_at', 'ASC')->get();
             
             if ($action == 'pdf') {
                 $pdf = Pdf::loadView('report.cash_request_export', compact('records', 'branchName', 'dateLabel'))

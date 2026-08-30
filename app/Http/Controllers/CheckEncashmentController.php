@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 //reference no service
-use App\Services\ReferenceNumberService;  
+use App\Services\ReferenceNumberService;
 
 //model
 use App\Models\Bank;
@@ -23,7 +23,7 @@ class CheckEncashmentController extends Controller
         $serviceCharges = DB::table('service_charges')
             ->where('is_active', 1)
             ->where('fee_type', 'check')
-            ->get(); 
+            ->get();
 
         //get all bank data
         $banks = Bank::where('status', 1)->orderBy('name', 'ASC')->get();
@@ -42,18 +42,18 @@ class CheckEncashmentController extends Controller
             DB::beginTransaction();
 
             $validator = Validator::make($request->all(), [
-                'transDate'       => 'required|date',
-                'checkNo'         => 'required|string|max:50',
+                'transaction_date'       => 'required|date',
+                'check_no'         => 'required|string|max:50',
                 'last_name'       => 'required|string|max:100',
                 'first_name'      => 'required|string|max:100',
                 'middle_name'     => 'required|string|max:100',
                 'bank_id'        => 'required',
-                'checkAmount'     => 'required',
+                'check_amount'     => 'required',
                 'charge'          => 'nullable',
                 'net_proceeds'    => 'required',
                 'id_type'         => 'nullable|string|max:50',
                 'id_number'       => 'nullable|string|max:50',
-                'id_picture'      => 'nullable|image|max:2048', 
+                'id_picture'      => 'nullable|image|max:2048',
             ]);
 
             if($validator->fails()){
@@ -72,7 +72,7 @@ class CheckEncashmentController extends Controller
             // Handle file upload
             if ($request->hasFile('id_picture')) {
                 $request->id_picture_path = $request->file('id_picture')
-                    ->store('id_pictures', 'public'); 
+                    ->store('id_pictures', 'public');
             }
 
             $referenceNumberService = new ReferenceNumberService();
@@ -82,7 +82,7 @@ class CheckEncashmentController extends Controller
             //remove number formatting for values
             $request->merge([
                 'reference_no' => $referenceNumber . 'C',
-                'checkAmount' => str_replace(',', '', $request->checkAmount),
+                'check_amount' => str_replace(',', '', $request->check_amount),
                 'charge' => str_replace(',', '', $request->charge),
                 'net_proceeds' => str_replace(',', '', $request->net_proceeds),
             ]);
@@ -96,14 +96,14 @@ class CheckEncashmentController extends Controller
 
             DB::commit();
         } catch (\Exception $e) {
-            
+
             DB::rollback();
 
             $response = [
                 'status' => 'error',
                 'message' => $e->getMessage()
             ];
-            
+
         }
 
         return response()->json($response);
@@ -116,22 +116,22 @@ class CheckEncashmentController extends Controller
             return response()->json(['message' => 'Record not found'], 404);
         }
 
-        // format transDate
-        $check->transDate = $check->transDate->format('Y-m-d');
+        // format transaction_date
+        $check->transaction_date = $check->transaction_date->format('Y-m-d');
 
         // Log the formatted check data
         logger('Formatted Check Data:', $check->toArray());
 
-        return response()->json([ 
+        return response()->json([
             'id' => $check->id,
-            'transDate' => $check->transDate->format('Y-m-d'),
-            'checkNo' => $check->checkNo,
+            'transaction_date' => $check->transaction_date->format('Y-m-d'),
+            'check_no' => $check->check_no,
             'last_name' => $check->last_name,
             'first_name' => $check->first_name,
             'middle_name' => $check->middle_name,
             'customer_name' => $check->customer_name,
             'bank_id' => $check->bank_id,
-            'checkAmount' => $check->checkAmount,
+            'check_amount' => $check->check_amount,
             'charge' => $check->charge,
             'net_proceeds' => $check->net_proceeds,
             'id_type' => $check->id_type,
@@ -146,7 +146,7 @@ class CheckEncashmentController extends Controller
         $check = CheckEncashment::findOrFail($id);
         // Get authenticated user
         $user = auth()->user();
-        
+
         // Get branch name
         $branchName = $user->branch ? $user->branch->name : 'Unknown';
         // Custom title rules
@@ -176,18 +176,18 @@ class CheckEncashmentController extends Controller
             $check = CheckEncashment::find($request->id);
 
             $validator = Validator::make($request->all(), [
-                'transDate'       => 'required|date',
-                'checkNo'         => 'required|string|max:50',
+                'transaction_date'       => 'required|date',
+                'check_no'         => 'required|string|max:50',
                 'last_name'       => 'required|string|max:100',
                 'first_name'      => 'required|string|max:100',
                 'middle_name'     => 'required|string|max:100',
                 'bank_id'        => 'required',
-                'checkAmount'     => 'required',
+                'check_amount'     => 'required',
                 'charge'          => 'nullable',
                 'net_proceeds'    => 'required',
                 'id_type'         => 'nullable|string|max:50',
                 'id_number'       => 'nullable|string|max:50',
-                'id_picture'      => 'nullable|image|max:2048', 
+                'id_picture'      => 'nullable|image|max:2048',
             ]);
 
             if($validator->fails()){
@@ -216,7 +216,7 @@ class CheckEncashmentController extends Controller
 
             //remove number formatting for values
             $request->merge([
-                'checkAmount' => str_replace(',', '', $request->checkAmount),
+                'check_amount' => str_replace(',', '', $request->check_amount),
                 'charge' => str_replace(',', '', $request->charge),
                 'net_proceeds' => str_replace(',', '', $request->net_proceeds),
             ]);
@@ -239,7 +239,7 @@ class CheckEncashmentController extends Controller
         return response()->json($response);
     }
 
-    
+
     public function destroy($id)
     {
         $check = CheckEncashment::find($id);

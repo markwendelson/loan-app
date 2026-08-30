@@ -153,6 +153,11 @@
                 <i class="fa fa-money-check-alt me-2"></i> Expenses
             </a>
         </li>
+        <li>
+            <a href="{{ route('cash-requests.index') }}">
+                <i class="fa fa-money-bill me-2"></i> Cash Requests
+            </a>
+        </li>
     </ul>
 </li>
 

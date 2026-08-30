@@ -148,12 +148,12 @@ class EncashmentData extends Component
         $query = CheckEncashment::select(
             'check_encashment.id',
             'check_encashment.reference_no',
-            'check_encashment.transDate',
+            'check_encashment.transaction_date',
             'check_encashment.last_name',
             'check_encashment.first_name',
             'check_encashment.middle_name',
-            'check_encashment.checkNo',
-            'check_encashment.checkAmount',
+            'check_encashment.check_no',
+            'check_encashment.check_amount',
             'check_encashment.charge',
             'check_encashment.net_proceeds',
             'check_encashment.id_picture_path',
@@ -165,12 +165,12 @@ class EncashmentData extends Component
             $query->where('check_encashment.last_name', 'like', '%'. $this->q .'%')
                 ->orWhere('check_encashment.first_name', 'like', '%'. $this->q .'%')
                 ->orWhere('check_encashment.middle_name', 'like', '%'. $this->q .'%')
-                ->orWhere('check_encashment.checkNo', $this->q);
+                ->orWhere('check_encashment.check_no', $this->q);
         })
         ->when($this->bank, function($query) {
             $query->where('bank.bank_code', $this->bank);
         });
-        $query->orderBy('transDate', 'DESC');
+        $query->orderBy('transaction_date', 'DESC');
 
         $checks = $query->paginate($this->entries)
             ->appends([

@@ -65,6 +65,15 @@ return [
             ['name' => 'delete-check-encashment','label' => 'Delete Check Encashment'],
         ]
     ],
+    'cash-request' => [
+        'permissions' => [
+            ['name' => 'view-cash-request','label' => 'View Cash Request'],
+            ['name' => 'create-cash-request','label' => 'Create Cash Request'],
+            ['name' => 'edit-cash-request','label' => 'Edit Cash Request'],
+            ['name' => 'delete-cash-request','label' => 'Delete Cash Request'],
+            ['name' => 'approve-cash-request','label' => 'Approve Cash Request'],
+        ]
+    ],
     'incentives' => [
         'permissions' => [
             ['name' => 'view-incentives','label' => 'View Incentives'],

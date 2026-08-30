@@ -90,7 +90,7 @@
             <tr>
                 <td width="48%" class="bold">DATE</td>
                 <td width="4%" class="center bold">:</td>
-                <td width="48%">{{ $check->transDate->format('Y-m-d') }}</td>
+                <td width="48%">{{ $check->transaction_date->format('Y-m-d') }}</td>
             </tr>
 
             <tr>

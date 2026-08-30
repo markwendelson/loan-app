@@ -17,25 +17,25 @@ class CheckEncashment extends Model
 
     protected $fillable = [
         'reference_no',
-        'transDate',
-        'checkNo',
+        'transaction_date',
+        'check_no',
         'last_name',
         'first_name',
         'middle_name',
         'bank_id',
-        'checkAmount',
+        'check_amount',
         'charge',
         'net_proceeds',
-        'id_type',          
-        'id_number',        
-        'id_picture_path', 
+        'id_type',
+        'id_number',
+        'id_picture_path',
         'no_service_charge',
     ];
 
     // Casts for automatic type conversion
     protected $casts = [
-        'transDate'     => 'date',
-        'checkAmount'   => 'decimal:2',
+        'transaction_date'     => 'date',
+        'check_amount'   => 'decimal:2',
         'charge'        => 'decimal:2',
         'net_proceeds'  => 'decimal:2',
         'no_service_charge' => 'boolean',

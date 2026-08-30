@@ -2,7 +2,7 @@
 <div class="modal fade" id="checkModal" tabindex="-1" aria-labelledby="checkModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-        
+
             <div class="modal-header">
             <h5 class="modal-title" id="checkModalLabel">Add Check</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -23,10 +23,10 @@
                             <label class="w-100">
                                 Date <span class="txt-danger">*</span>
                             </label>
-                            <input type="date" 
-                                id="transDate" 
-                                name="transDate" 
-                                class="form-control" 
+                            <input type="date"
+                                id="transaction_date"
+                                name="transaction_date"
+                                class="form-control"
                                 required
                             >
                         </div>
@@ -37,10 +37,10 @@
                         <div class="col-lg-4">
                             <label class="w-100">
                                 Last Name <span class="txt-danger">*</span>
-                                <input type="text" 
+                                <input type="text"
                                     id="lastName"
                                     name="last_name"
-                                    class="form-control" 
+                                    class="form-control"
                                     placeholder="Enter last name"
                                     required
                                 >
@@ -51,9 +51,9 @@
                         <div class="col-lg-4">
                             <label class="w-100">
                                 First Name <span class="txs-danger">*</span>
-                                <input type="text" 
-                                    id="firstName" 
-                                    name="first_name" 
+                                <input type="text"
+                                    id="firstName"
+                                    name="first_name"
                                     class="form-control"
                                     placeholder="Enter first name"
                                     required
@@ -64,27 +64,27 @@
                         <div class="col-lg-4">
                             <label class="w-100">
                                 M.I
-                                <input type="text" 
-                                    id="middleName" 
-                                    name="middle_name" 
+                                <input type="text"
+                                    id="middleName"
+                                    name="middle_name"
                                     class="form-control"
                                     placeholder="e.g D"
                                     maxlength="1"
                                 >
                             </label>
                         </div>
-                        
+
                         <div class="col-lg-6">
                             <label class="w-100">
                                 Check No <span class="txt-danger">*</span>
-                                <input type="text" 
-                                    id="checkNo" 
-                                    name="checkNo" 
+                                <input type="text"
+                                    id="check_no"
+                                    name="check_no"
                                     class="form-control"
                                     placeholder="Enter check no"
                                     required
 
-                                    
+
                                 >
                             </label>
                         </div>
@@ -112,23 +112,23 @@
                         <div class="col-lg-4">
                             <label class="w-100">
                                 Check Amount <span class="txt-danger">*</span>
-                                <input type="text" 
+                                <input type="text"
                                     id="checkAmount"
                                     name="checkAmount"
-                                    class="form-control text-end" 
+                                    class="form-control text-end"
                                     placeholder="0.00"
                                     required
                                 >
-                                
+
                             </label>
                         </div>
 
                         <div class="col-lg-4">
                             <label class="w-100">
                                 Charge
-                                <input type="text" 
-                                    id="charge" 
-                                    name="charge" 
+                                <input type="text"
+                                    id="charge"
+                                    name="charge"
                                     class="form-control text-end"
                                     placeholder="0.00"
                                 >
@@ -138,9 +138,9 @@
                         <div class="col-lg-4">
                             <label class="w-100">
                                 Net Proceeds <span class="txt-danger">*</span>
-                                <input type="text" 
-                                    id="netProceeds" 
-                                    name="net_proceeds" 
+                                <input type="text"
+                                    id="netProceeds"
+                                    name="net_proceeds"
                                     class="form-control text-end"
                                     placeholder="0.00"
                                     required
@@ -152,9 +152,9 @@
                         {{-- <div class="row mb-3">
                             <div class="col-12">
                                 <div class="form-check">
-                                    <input class="form-check-input" 
+                                    <input class="form-check-input"
                                         type="checkbox"
-                                        id="noServiceCharge" 
+                                        id="noServiceCharge"
                                         name="no_service_charge"
                                     >
                                     <label class="form-check-label fw-semibold" for="noServiceCharge">
@@ -177,7 +177,7 @@
                                     <option value="UMID">UMID</option>
                                 </select>
                             </label>
-                            
+
                         </div>
 
                         <div class="col-lg-6">
@@ -196,8 +196,8 @@
                         <div class="col-lg-12">
                             <label class="w-100">
                                 ID Picture
-                                <input type="file" 
-                                    id="idPicture" 
+                                <input type="file"
+                                    id="idPicture"
                                     name="id_picture"
                                     class="form-control" accept="image/*"
                                 >
@@ -214,7 +214,7 @@
                     </div>
                 </form>
             </div>
-            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btnSubmit"><i class="fa fa-save me-1"></i>Submit Check</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-1"></i>Cancel</button>
@@ -227,7 +227,7 @@
     // Set default date to today
     document.addEventListener("DOMContentLoaded", function() {
         const today = new Date().toISOString().split('T')[0]; // format: YYYY-MM-DD
-        document.getElementById("transDate").value = today;
+        document.getElementById("transaction_date").value = today;
     });
 
     // Show image preview when a new file is selected

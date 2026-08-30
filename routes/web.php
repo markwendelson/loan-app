@@ -207,6 +207,10 @@ Route::middleware('auth')->group(function () {
             Route::get('report/download-pdf/{slug}', 'downloadPdf')->name('expense-category.download-pdf');
         });
     Route::resource('expenses',ExpenseController::class);
+    
+    Route::resource('cash-requests', App\Http\Controllers\CashRequestController::class);
+    Route::post('cash-requests/{id}/approve', [App\Http\Controllers\CashRequestController::class, 'approve'])->name('cash-requests.approve');
+
 
     Route::controller(ExpenseCategoryController::class)
         ->prefix('expense-category')

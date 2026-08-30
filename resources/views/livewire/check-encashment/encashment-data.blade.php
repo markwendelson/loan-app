@@ -26,9 +26,9 @@
                         @foreach($checks as $check)
                         <tr id="checkRow{{ $check->id }}">
                             <td class="d-none">{{ $check->id }}</td>
-                            <td>{{ $check->transDate->format('M-d-Y') }}</td>
+                            <td>{{ $check->transaction_date->format('M-d-Y') }}</td>
                             <td>{{ $check->customer_name }}</td>
-                            <td>{{ $check->checkNo }}</td>
+                            <td>{{ $check->check_no }}</td>
                             <td>{{ $check->bank_name }}</td>
                             <td class="text-end">{{ number_format($check->checkAmount, 2) }}</td>
                             <td class="text-end">{{ number_format($check->charge, 2) }}</td>
@@ -85,7 +85,7 @@
             class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-50 d-none"
             style="z-index: 10;"
         >
-        
+
             <div class="card shadow-sm border-0">
                 <div class="card-body py-3 px-4">
                     <div class="d-flex align-items-center gap-2">
@@ -96,5 +96,5 @@
             </div>
         </div>
     </div>
-    
+
 </div>

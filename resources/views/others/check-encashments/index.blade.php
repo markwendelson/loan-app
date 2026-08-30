@@ -63,7 +63,7 @@
 
             // Set default date to today
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById("transDate").value = today;
+            document.getElementById("transaction_date").value = today;
 
             // Reset image preview
             const preview = document.getElementById("idPicturePreview");
@@ -130,8 +130,8 @@
             console.log("net_proceeds:", data.net_proceeds);
 
                 $('#checkId').val(data.id);
-                $('#transDate').val(data.transDate);
-                $('#checkNo').val(data.checkNo);
+                $('#transaction_date').val(data.transaction_date);
+                $('#check_no').val(data.check_noo);
                 $('select[name="bank_id"]').val(data.bank_id);
                 $('#checkAmount').val(formatNumberWithCommas(data.checkAmount));
                 $('#charge').val(formatNumberWithCommas(data.charge));
@@ -350,7 +350,7 @@
             //handle checkModal submit button
             $("#checkModal").on("click", ".btnSubmit", function(e) {
                 e.preventDefault();
-                
+
                 let submitUrl;
                 let method;
 
@@ -360,7 +360,7 @@
                 let formData = new FormData(formElement);
 
                 let checkEncashmentId = $("#checkModal input[name='id']").val();
-                
+
                 if(checkEncashmentId){
                     method = "POST";
                     submitUrl = '{{ route('check-encashments.update') }}';
@@ -432,7 +432,7 @@
                                         $("#checkModal").modal("hide");
 
                                         resetForm();
-                                        
+
                                         if(!checkEncashmentId) {
                                             window.open(`/check-encashments/${response.data.id}/receipt`, '_blank');
                                         }
