@@ -26,7 +26,7 @@
                 <option value="">-- Branch --</option>
                 @if(isset($branchData) && $branchData)
                     @foreach($branchData as $key => $val)
-                        <option value="{{ $val->id }}">{{ $val->name }}</option>
+                        <option value="{{ $val->id }}">{{ Str::title($val->name) }}</option>
                     @endforeach
                 @endif
             </select>

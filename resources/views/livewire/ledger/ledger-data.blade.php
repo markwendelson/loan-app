@@ -20,6 +20,13 @@
                             <tr wire:key="{{$val->id}}">
                                 <td>{{$val->client_code}}</td>
                                 <td>{{Str::title($val->fullname)}}</td>
+                                <!-- mockup data -->
+                                @if(isset($loanProducts) && $loanProducts)
+                                    @foreach($loanProducts as $key => $val)
+                                        <td class="text-end">0.00</td>
+                                    @endforeach
+                                @endif
+                                <td class="text-end">0.00</td>
                             </tr>
                         @endforeach
                     @endif

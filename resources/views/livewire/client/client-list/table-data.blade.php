@@ -106,7 +106,7 @@
                 @if($clientData->hasPages())
                 <tfoot>
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="d-flex justify-content-end">
                                 {{ $clientData->links('partials.pagination.default-livewire') }}
                             </div>
