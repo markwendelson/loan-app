@@ -724,10 +724,15 @@
             );
 
             // comakers (array)
-            $('input[name="client_comaker[]"]').each(function () {
-                var rawId = $(this).val();
-                var coMakerId = String(rawId).replace('tmp_', '');
-                formData.append('client_comaker[]', coMakerId);
+            $('#client_comaker tbody tr').each(function () {
+                var rawId = $(this).data('id');
+                if (!rawId) {
+                    rawId = $(this).find('input[name="client_comaker[]"]').val();
+                }
+                if (rawId) {
+                    var coMakerId = String(rawId).replace('tmp_', '');
+                    formData.append('client_comaker[]', coMakerId);
+                }
             });
 
             // documents (files)
@@ -804,7 +809,10 @@
                             response.data.forEach(val=> {
                                 trData +=  `
                                     <tr data-id="${val.id}" data-client-id="${val.client_id}" data-loan-id="${val.loan_id}">
-                                        <td>${val.firstname ?? ''} ${val.middlename ?? ''} ${val.lastname ?? ''}</td>
+                                        <td>
+                                            <input type="hidden" name="client_comaker[]" value="${val.id}">
+                                            ${val.firstname ?? ''} ${val.middlename ?? ''} ${val.lastname ?? ''}
+                                        </td>
                                         <td>${val.present_address ?? ''}</td>
                                         <td class="text-center" width="10">
                                             <button type="button"
