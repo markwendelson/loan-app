@@ -322,19 +322,23 @@
             if(loan_type == 'loan-with-term') {
                 $(".special-description").hide().removeAttr("required");
                 $(".term").show().attr("required", true);
+                $("#membership").show();
             } else if(loan_type == 'special-loan') {
                 $(".term").show().attr("required", true);
                 $(".special-description").show().attr("required", true);
                 $("#term").val(12)
+                $("#membership").hide();
             } else if(loan_type == 'mortgage-loan') {
                 $(".term").show().attr("required", true);
                 $("#term").val(12)
                 $("#insurance").hide()
                 $("#notary").hide()
                 $(".special-description").show().attr("required", true);
+                $("#membership").show();
             } else {
                  $(".term").hide().removeAttr("required");
                  $(".special-description").hide().removeAttr("required");
+                 $("#membership").show();
             }
 
             calculateLoan();
@@ -575,10 +579,12 @@
             var redeem_charges = parseFloat($('#redeem_charges').val().replace(/,/g, '')) || 0;
             var interest_advance = parseFloat($('#interest_advance').val().replace(/,/g, '')) || 0;
             var paid_interest_advance = interest_advance * advance_interest;
-            if(override_membership_fee) {
-                membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0
+            if(loan_type == 'special-loan') {
+                membership_fee = 0;
+            } else if(override_membership_fee) {
+                membership_fee = parseFloat($('#membership_fee').val().replace(/,/g, '')) || 0;
             } else {
-                membership_fee = parseFloat($('#membership_fee').data("membership-fee").replace(/,/g, ''));
+                membership_fee = parseFloat(String($('#membership_fee').data("membership-fee")).replace(/,/g, '')) || 0;
             }
 
             var rawValue = $('#principal_advance').val();
@@ -791,7 +797,6 @@
 
         //handle borrower select change function
         $(document).on("change", "#borrower_id", function(e) {
-            e.preventDefault();
 
             let borrowerId = $(this).val();
 
@@ -799,37 +804,11 @@
 
             $.ajax({
                 type: "GET",
-                url: `{{ url('client/${borrowerId}/get-co-makers') }}`,
+                url: `{{ url('client') }}/${borrowerId}/get-co-makers`,
                 data: [],
-                dataType: "json",
+                dataType: "html",
                 success: function (response) {
-                    if(response !== 'undefined' && response.status == 'success') {
-                        if(response.data) {
-                            let trData = ``;
-                            response.data.forEach(val=> {
-                                trData +=  `
-                                    <tr data-id="${val.id}" data-client-id="${val.client_id}" data-loan-id="${val.loan_id}">
-                                        <td>
-                                            <input type="hidden" name="client_comaker[]" value="${val.id}">
-                                            ${val.firstname ?? ''} ${val.middlename ?? ''} ${val.lastname ?? ''}
-                                        </td>
-                                        <td>${val.present_address ?? ''}</td>
-                                        <td class="text-center" width="10">
-                                            <button type="button"
-                                                class="btn btn-sm btn-danger  btn-remove"
-                                                data-id="${val.id}"
-                                                data-client-id="${val.client_id}"
-                                                data-loan-id="${val.loan_id}"
-                                                style="width: 67.44px !important"
-                                            ><i class="fa fa-trash text-white"></i></button>
-                                        </td>
-                                    </tr>
-                                `;
-                            })
-
-                            $("#client_comaker tbody").append(trData);
-                        }
-                    }
+                    $("#client_comaker tbody").html(response);
                 }
             });
         })

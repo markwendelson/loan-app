@@ -80,8 +80,10 @@ class ClientController extends Controller
 
         if ($client['status'] == 'success') {
             return redirect()->route('client.index')->with('message', $client['message']);
+        } elseif ($client['status'] == 'exists') {
+            return redirect()->back()->withInput()->with('existing_client_id', $client['client_id'])->withErrors(['existing_client_id' => $client['message']]);
         } else {
-            return redirect()->back()->withInput()->with('message', $client['message']);
+            return redirect()->back()->withInput()->withErrors(['error' => $client['message']]);
         }
 
     }
@@ -126,7 +128,7 @@ class ClientController extends Controller
         $job_titles = $this->job_titles;
         $nationalities = $this->nationalities;
         $banks = $this->banks;
-        
+
         //edit mode
         $editMode=1;
 
@@ -696,39 +698,25 @@ class ClientController extends Controller
 
     public function getCoMaker($id)
     {
-        $response = [];
-
         try {
-            $coMakerData = DB::table("client_co_makers")
-                ->select(
-                    'client_co_makers.id',
-                    'client_co_makers.client_id',
-                    'client_co_makers.co_maker_id',
-                    'client_co_makers.loan_id',
-                    'client_details.firstname',
-                    'client_details.lastname',
-                    'client_details.middlename',
-                    'client_details.present_address'
-                )
-                ->leftJoin('client_details', 'client_details.client_id', '=', 'client_co_makers.co_maker_id')
-                ->where('client_co_makers.client_id', $id)
-                ->get();
-            if($coMakerData) {
-                $response = [
-                    'status' => 'success',
-                    'message' => 'Co-maker data retrieved successfully.',
-                    'data' => $coMakerData->toArray()
-                ];
-            }
-        } catch (\Exception $e) {
-            // handle exception here
-            $response = [
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ];
-        }
+            $previous_loan = \App\Models\Loan::with('borrower.coMakers.details')
+                ->where('borrower_id', $id)
+                ->orderByDesc('id')
+                ->first();
 
-        return response()->json($response);
+            $loanCoMakers = collect();
+
+            if ($previous_loan) {
+                $loanCoMakers = $previous_loan->borrower->coMakers->filter(function ($comaker) use ($previous_loan) {
+                    return $comaker->pivot->loan_id == $previous_loan->id;
+                });
+            }
+
+            return view('client.partials.co-maker-rows', compact('loanCoMakers'))->render();
+
+        } catch (\Exception $e) {
+            return '';
+        }
     }
 
     public function createColorCoding(Request $request)

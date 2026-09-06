@@ -26,6 +26,21 @@ class ClientRegistrationService
 
     protected function handleRegistration(array $data)
     {
+        $client_details = $data['client_details'];
+        $existingClient = ClientDetails::where('firstname', $client_details['firstname'])
+            ->where('middlename', $client_details['middlename'])
+            ->where('lastname', $client_details['lastname'])
+            ->where('suffix', $client_details['suffix'] ?? null)
+            ->first();
+
+        if ($existingClient) {
+            return [
+                'status' => 'exists',
+                'client_id' => $existingClient->client_id,
+                'message' => 'Do you want to load the information?',
+            ];
+        }
+
         try {
             return DB::transaction(function () use ($data) {
                 $client_details = $data['client_details'];

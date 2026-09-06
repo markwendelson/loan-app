@@ -94,10 +94,10 @@ $(function () {
     });
 
     table.on('click', '.register-comaker', function () {
-        if ($('#client_comaker tbody tr').length >= 1) {
-            showToast.error('Only 1 co-maker is allowed per client.');
-            return;
-        }
+        // if ($('#client_comaker tbody tr').length >= 1) {
+        //     showToast.error('Only 1 co-maker is allowed per client.');
+        //     return;
+        // }
 
         const id = 'tmp_' + $(this).data('id');
         const borrower_id = $("#client_id").val() || $('#borrower_id').val();

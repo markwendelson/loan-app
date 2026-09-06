@@ -14,10 +14,13 @@
 
 @section('content')
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
+    @php
+        $otherErrors = collect($errors->messages())->except('existing_client_id')->flatten();
+    @endphp
+    @if ($otherErrors->isNotEmpty())
+        <div class="alert alert-danger d-flex align-items-center">
+            <ul class="my-0 w-100">
+                @foreach ($otherErrors as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
@@ -139,10 +142,22 @@
         @include('client.modal.job_information_modal')
     </div>
 
+    <!-- existing client modal -->
+    <div class="existing-client-modal-container">
+        @include('client.modal.existing_client_modal')
+    </div>
+
 @endsection
 
 @push('js')
     <script>
+        @if(session('existing_client_id'))
+            $(document).ready(function() {
+                var myModal = new bootstrap.Modal(document.getElementById('existingClientModal'));
+                myModal.show();
+            });
+        @endif
+
         $('#btn_img_upload').click(function() {
             $("[name='client_details[photo]']").click();
         });
@@ -337,7 +352,7 @@
                                     day: 'numeric',
                                     year: 'numeric'
                                 }) +
-                            "</p>" + 
+                            "</p>" +
                             "<p class='mb-0'>Account: " + (params.isPrimary == 1 ? "Primary" : "Secondary") + "</p>" +
                         "</div>" +
                         "<div class= 'card-footer'>" +

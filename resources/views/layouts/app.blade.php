@@ -454,7 +454,7 @@
         // Global handler to prevent multiple form submissions
         $(document).on('submit', 'form', function(e) {
             let $form = $(this);
-            
+
             // Allow bypassing this check for specific forms if needed
             if ($form.hasClass('allow-multiple')) {
                 return;
@@ -464,9 +464,9 @@
                 e.preventDefault();
                 return false;
             }
-            
+
             $form.data('is-submitting', true);
-            
+
             let isGet = ($form.attr('method') || 'GET').toUpperCase() === 'GET';
 
             // Short timeout ensures the button value is still included in the form payload
