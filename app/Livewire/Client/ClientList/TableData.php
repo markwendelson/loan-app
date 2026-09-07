@@ -162,28 +162,26 @@ class TableData extends Component
         if($this->q) {
             $qVal = $this->q;
             $query->where(function($q) use ($qVal) {
-                $q->where('client_code', 'like', '%' . $qVal . '%')
+                $q->where('clients.client_code', 'like', '%' . $qVal . '%')
                     ->orWhereHas('details', function($q2) use ($qVal) {
-                        $q2->where('firstname', 'like', '%' . $qVal . '%');
-                        $q2->orWhere('middlename', 'like', '%' . $qVal . '%');
-                        $q2->orWhere('lastname', 'like', '%' . $qVal . '%');
-                        $q2->orWhere('email', 'like', '%' . $qVal . '%');
+                        $q2->where('client_details.firstname', 'like', '%' . $qVal . '%');
+                        $q2->orWhere('client_details.middlename', 'like', '%' . $qVal . '%');
+                        $q2->orWhere('client_details.lastname', 'like', '%' . $qVal . '%');
+                        $q2->orWhere('client_details.email', 'like', '%' . $qVal . '%');
                     });
             });
         }
 
         //branch
         if($this->branch_id) {
-            $query->where('branch_id', $this->branch_id);
-        }else{
-            $query->whereIn('branch_id', $this->allowedBranches);
+            $query->where('clients.branch_id', $this->branch_id);
         }
 
         //group_type
         if($this->group_type) {
             $groupType = $this->group_type;
             $query->whereHas('clientGroupTagging', function($q) use($groupType) {
-                $q->where('client_group_type_id', $groupType);
+                $q->where('client_group_tagging.client_group_type_id', $groupType);
             });
         }
 
