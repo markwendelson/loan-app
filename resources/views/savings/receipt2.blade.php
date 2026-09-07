@@ -78,7 +78,7 @@
             <!-- Branch -->
             <tr>
                 <td class="center title border-bottom" colspan="2">
-                    BORONGAN BRANCH
+                    {{$branchTitle}}
                 </td>
             </tr>
 
