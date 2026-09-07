@@ -8,10 +8,10 @@
                         <th>Account Name</th>
                         @if(isset($loanProducts) && $loanProducts)
                             @foreach($loanProducts as $key => $val)
-                                <th>{{$val->name}}</th>
+                                <th class="text-center">{{$val->name}}</th>
                             @endforeach
                         @endif
-                        <th>Total</th>
+                        <th class="text-center">Total</th>
                     </tr>
                 </thead>
                 <tbody>

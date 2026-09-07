@@ -33,6 +33,9 @@
     </div>
 
     <div class="card">
+        <div class="card-header">
+            <livewire:Database.DatabaseFilter />
+        </div>
         <div class="card-body p-0">
             <livewire:Database.DatabaseData defer />
         </div>

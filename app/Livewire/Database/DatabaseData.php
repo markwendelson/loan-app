@@ -79,7 +79,9 @@ class DatabaseData extends Component
     }
 
     #[On('refresh-database-data')]
-    public function refreshDatabase(){}
+    public function refreshDatabase($data){
+        $this->entries = $data['entries'];
+    }
 
     public function render()
     {
@@ -88,6 +90,7 @@ class DatabaseData extends Component
             'users.name as user_name'
         )
         ->leftJoin('users', 'users.id', '=', 'database_backup.created_by')
+        ->orderBy('database_backup.created_at', 'DESC')
         ->paginate($this->entries);
 
         return view('livewire.database.database-data', compact([
