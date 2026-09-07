@@ -354,7 +354,8 @@ class SavingsController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Transaction created successfully',
-                'balance' => number_format($remaining_balance,2)
+                'balance' => number_format($remaining_balance,2),
+                'id' => $savings->id
             ]);
         } catch (\Throwable $th) {
             Log::info($th->getMessage());
@@ -744,6 +745,21 @@ class SavingsController extends Controller
     public function printReceipt($id)
     {
         $savings = Savings::with('client.details','client.branch')->findOrFail($id);
+
+        if ($savings->transaction_code) {
+            $allSavings = Savings::where('transaction_code', $savings->transaction_code)->get();
+
+            // Sum all numerical fields across the grouped transactions
+            $savings->amount = $allSavings->sum('amount');
+            $savings->membership_fee = $allSavings->sum('membership_fee');
+            $savings->insurance = $allSavings->sum('insurance');
+            $savings->interest = $allSavings->sum('interest');
+            $savings->principal = $allSavings->sum('principal');
+            $savings->due_change = $allSavings->sum('due_change');
+
+            // Grab the lowest transaction_no if needed
+            $savings->transaction_no = $allSavings->min('transaction_no');
+        }
 
         // Get branch name from client's branch
         $branchName = $savings->client->branch ? $savings->client->branch->name : 'Unknown';

@@ -56,8 +56,8 @@ class AjaxController extends Controller
             ->whereNull('deleted_at')
             ->selectRaw('transaction_code, SUM(amount) as total_deposit')
             ->groupBy('transaction_code')
-            ->get()
-            ->keyBy('transaction_code');
+            ->pluck('total_deposit', 'transaction_code')
+            ->toArray();
 
         // Sum all withdrawn amounts per transaction_code
         // A withdraw row stores the codes it consumed as a comma-separated string
@@ -68,22 +68,27 @@ class AjaxController extends Controller
             ->whereNull('deleted_at')
             ->get(['transaction_code', 'amount']);
 
-        $withdrawn = [];
         foreach ($withdrawRows as $row) {
             $codes = array_filter(array_map('trim', explode(',', $row->transaction_code)));
-            // Distribute the withdrawn amount evenly across the codes on this row
-            $codeCount = count($codes);
-            if ($codeCount === 0) continue;
-            $perCode = (float) $row->amount / $codeCount;
+            $amountToDeduct = (float) $row->amount;
+            
             foreach ($codes as $code) {
-                $withdrawn[$code] = ($withdrawn[$code] ?? 0) + $perCode;
+                if (isset($deposits[$code]) && $deposits[$code] > 0) {
+                    if ($amountToDeduct >= $deposits[$code]) {
+                        $amountToDeduct -= $deposits[$code];
+                        $deposits[$code] = 0;
+                    } else {
+                        $deposits[$code] -= $amountToDeduct;
+                        $amountToDeduct = 0;
+                        break;
+                    }
+                }
             }
         }
 
         // Build result: only codes with remaining balance > 0
         $result = [];
-        foreach ($deposits as $code => $deposit) {
-            $remaining = (float) $deposit->total_deposit - ($withdrawn[$code] ?? 0);
+        foreach ($deposits as $code => $remaining) {
             if ($remaining > 0.01) {
                 $result[] = [
                     'transaction_code' => $code,

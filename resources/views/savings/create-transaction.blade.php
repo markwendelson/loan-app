@@ -826,6 +826,7 @@
                             setTimeout(function () {
                                 showToast.success(response.message);
                                 setTimeout(function () {
+                                    window.open('/savings/'+response.id+'/print', '_blank');
                                     window.location.href = '/savings/' + client_id + '/transactions';
                                 }, 1000);
                             }, 300);
